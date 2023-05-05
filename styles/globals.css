@@ -1,0 +1,13 @@
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+
+  margin: auto;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}

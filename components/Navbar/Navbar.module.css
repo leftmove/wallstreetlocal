@@ -1,0 +1,44 @@
+.nav {
+  width: 100%;
+  background-color: #1c1c1b;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  height: 100%;
+  top: 0;
+  margin: 0px;
+  padding: 10px;
+}
+
+.logo-text {
+  font-size: 3rem;
+}
+
+#whale {
+  color: white;
+}
+
+#market {
+  color: #04df16;
+}
+
+.about {
+  display: flex;
+  list-style-type: none;
+  margin-right: 20px;
+}
+
+.item {
+  color: white;
+  font-size: 1.5rem;
+  margin: 10px;
+
+  transition: color 0.3s ease, scale 0.2s ease;
+}
+
+.item:hover {
+  color: #04df16;
+  scale: 1.05;
+}

@@ -1,0 +1,19 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "../whale-server"
+    }
+  ],
+  "settings": {
+    "typescript.tsdk": "syukuga-next\\node_modules\\typescript\\lib",
+    "python.analysis.extraPaths": ["server\\routers\\utils"],
+    "python.autoComplete.extraPaths": ["server\\routers\\utils"],
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.autopep8"
+    },
+    "python.formatting.provider": "none"
+  }
+}

@@ -1,0 +1,51 @@
+.loading {
+  display: flex;
+  justify-content: center;
+
+  font-size: 3rem;
+  margin-top: 50px;
+}
+
+.header {
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-header {
+  font-size: 4rem;
+  color: #1c1c1b;
+}
+
+.sub-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  transition-duration: 0.3s;
+  max-height: 30px;
+  overflow-y: hidden;
+  margin-bottom: -10px;
+}
+
+.sub-header-expanded {
+  transition-property: max-height;
+  transition-duration: 0.5s;
+  transition-timing-function: cubic-bezier(1, 1, 1, 1);
+  max-height: 230px;
+  margin-bottom: 0px;
+}
+
+.secondary-header {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.secondary-header-desc {
+  color: #303030;
+  margin-right: 10px;
+}
+
+.header-desc {
+  margin-top: 10px;
+}

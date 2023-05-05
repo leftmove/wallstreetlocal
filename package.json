@@ -1,0 +1,32 @@
+{
+  "name": "whale-project",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@next/font": "13.1.6",
+    "@reduxjs/toolkit": "^1.9.3",
+    "axios": "^0.24.0",
+    "eslint": "8.34.0",
+    "eslint-config-next": "13.1.6",
+    "memory-cache": "^0.2.0",
+    "next": "13.1.6",
+    "next-redux-wrapper": "^8.1.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-redux": "^8.0.5",
+    "swr": "^2.1.1",
+    "typescript": "^5.0.4"
+  },
+  "devDependencies": {
+    "@svgr/webpack": "^7.0.0",
+    "@types/react": "18.0.28",
+    "css-loader": "^6.7.3",
+    "style-loader": "^3.3.1"
+  }
+}
