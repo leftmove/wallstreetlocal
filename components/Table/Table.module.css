@@ -1,78 +1,9 @@
-.filter-container {
-  display: flex;
-  flex-direction: column;
+.table {
+  background-color: #1c1c1b;
+  border-collapse: collapse;
 
-  margin: 20px;
-  margin-top: 0px;
-  margin-left: 0px;
-
-  max-height: 25px;
-  overflow-y: hidden;
-  transition-duration: 0.3s;
-}
-
-.filter-header {
-  display: flex;
-  align-items: center;
-}
-
-.filter-icon {
-  height: 20px;
-  cursor: pointer;
-}
-
-.filter-expanded {
-  max-height: 200px;
-  transition-property: max-height;
-  transition-duration: 0.5s;
-  transition-timing-function: cubic-bezier(1, 1, 1, 1);
-}
-
-.expand-button {
-  width: 20px;
-}
-
-.filter-text {
-  color: #303030;
-  margin-right: 10px;
-
-  transition: color 0.3s ease;
-}
-
-.filter-item {
-  all: unset;
-  padding: 5px;
-  cursor: pointer;
-
-  background-color: #d4d4d4;
-  border: solid #d4d4d4 2px;
-
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-.filter-item:nth-child(1) {
-  margin-left: 0px;
-  padding: 5px;
-}
-
-.filter-item:hover,
-.filter-clicked {
-  background-color: #04df16;
-  border-color: #04df16;
-}
-
-.filter-item:hover,
-.filter-clicked .filter-text {
-  color: black;
-}
-
-.filter-body {
-  display: flex;
-  margin-top: 10px;
-  width: fit-content;
-
-  border: solid #d4d4d4 2px;
-  border-radius: 5px;
+  width: 100%;
+  overflow: hidden;
 }
 
 .table-container {
@@ -80,14 +11,6 @@
 
   overflow-x: auto;
   white-space: nowrap;
-}
-
-.table {
-  background-color: #1c1c1b;
-  border-collapse: collapse;
-
-  width: 100%;
-  overflow: hidden;
 }
 
 .header-column {

@@ -3,9 +3,9 @@ import styles from "./Expand.module.css";
 
 import ExpandSVG from "@/public/static/expand.svg";
 
-const Expand = (props) => {
-  const { onClick } = props;
-  const [click, setClick] = useState(false);
+const Expand = ({ onClick, expandState }) => {
+  const [clickState, setClick] = useState(false);
+  const click = expandState ? expandState : clickState;
 
   return (
     <button

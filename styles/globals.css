@@ -11,3 +11,40 @@ a {
   text-decoration: none;
   cursor: pointer;
 }
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #04df16 #1c1c1b;
+}
+
+/* Chrome, Edge and Safari */
+*::-webkit-scrollbar {
+  width: 10px;
+  width: 10px;
+}
+*::-webkit-scrollbar-track {
+  border-radius: 5px;
+  background-color: #1c1c1b;
+}
+
+*::-webkit-scrollbar-track:hover {
+  background-color: #1c1c1b;
+}
+
+*::-webkit-scrollbar-track:active {
+  background-color: #1c1c1b;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 8px;
+  background-color: #04df16;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #04df16;
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background-color: #04df16;
+}

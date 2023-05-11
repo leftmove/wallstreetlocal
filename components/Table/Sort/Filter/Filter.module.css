@@ -1,0 +1,42 @@
+.filter-text {
+  color: #303030;
+  margin-right: 10px;
+
+  transition: color 0.3s ease;
+}
+
+.filter-item {
+  all: unset;
+  padding: 5px;
+  cursor: pointer;
+
+  background-color: #d4d4d4;
+  border: solid #d4d4d4 2px;
+
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.filter-item:nth-child(1) {
+  margin-left: 0px;
+  padding: 5px;
+}
+
+.filter-item:hover,
+.filter-clicked {
+  background-color: #04df16;
+  border-color: #04df16;
+}
+
+.filter-item:hover,
+.filter-clicked .filter-text {
+  color: black;
+}
+
+.filter-body {
+  display: flex;
+  margin-top: 10px;
+  width: fit-content;
+
+  border: solid #d4d4d4 2px;
+  border-radius: 5px;
+}

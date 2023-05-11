@@ -1,0 +1,36 @@
+.sort-header {
+  display: flex;
+  align-items: center;
+}
+
+.sort-icon {
+  height: 20px;
+  cursor: pointer;
+}
+
+.expand-button {
+  width: 20px;
+}
+
+.sort-container {
+  display: flex;
+  flex-direction: column;
+
+  padding: 10px;
+  margin: 20px;
+  margin-top: 0px;
+  margin-left: 0px;
+  border-radius: 5px;
+
+  max-height: 20px;
+  transition-duration: 0.3s;
+}
+
+.sort-expanded {
+  background-color: #e0e0e0;
+  max-height: 400px;
+
+  transition-property: max-height, background-color;
+  transition-duration: 0.3s;
+  transition-timing-function: cubic-bezier(1, 1, 1, 1);
+}

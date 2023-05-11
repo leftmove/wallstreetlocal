@@ -5,6 +5,7 @@ import axios from "axios";
 // import useSWR from "swr/immutable";
 
 import { useRouter } from "next/router";
+import Head from "next/head";
 import Error from "next/error";
 
 import Table from "@/components/Table/Table";
@@ -231,6 +232,13 @@ const Filer = () => {
 
   return (
     <>
+      <Head>
+        <title>{filer.name}</title>
+        {/* <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/react-datepicker/2.14.1/react-datepicker.min.css"
+        /> */}
+      </Head>
       <div className={styles["header"]}>
         <span className={[styles["main-header"], inter.className].join(" ")}>
           {filer.name}
@@ -251,7 +259,7 @@ const Filer = () => {
             >
               {filer.cik} ({filer.tickers.join(", ")})
             </span>
-            <Expand onClick={() => setExpand(!expand)} />
+            <Expand onClick={() => setExpand(!expand)} expandState={expand} />
           </div>
           <span className={[styles["header-desc"], inter.className].join(" ")}>
             {filer.data.description}

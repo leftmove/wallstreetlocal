@@ -9,7 +9,7 @@ import Error from "next/error";
 import Loading from "@/components/Loading/Loading";
 import Header from "./Header/Header";
 import Row from "./Row/Row";
-import Filter from "./Filter/Filter";
+import Sort from "./Sort/Sort";
 
 import { useDispatch, useSelector } from "react-redux";
 import { setStocks, selectStocks } from "@/redux/features/stockSlice";
@@ -350,7 +350,7 @@ const Table = (props) => {
 
   return (
     <div className={styles["table-container"]}>
-      <Filter />
+      <Sort />
       <table className={styles["table"]}>
         <thead>
           <Header />

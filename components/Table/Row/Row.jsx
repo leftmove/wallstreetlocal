@@ -1,4 +1,4 @@
-import styles from "../Table.module.css";
+import tableStyles from "../Table.module.css";
 
 import { useSelector } from "react-redux";
 import { selectHeaders, selectSort } from "@/redux/features/stockSlice";
@@ -161,27 +161,25 @@ const Row = (props) => {
   const stock = props.stock;
 
   const headers = useSelector(selectHeaders);
-  const sort = useSelector(selectSort).sort;
+  const sortHeader = useSelector(selectSort).sort;
 
   return (
     <tr>
       {headers
         .filter((h) => h.active)
         .map((h) => {
-          const accessor = h.accessor;
-          const column = stock[accessor];
-
+          const display = stock[h.accessor];
           return (
             <td
-              key={`${stock.cusip} (${column})`}
+              key={`${stock.cusip} (${h.display})`}
               className={[
-                styles["column"],
-                styles["body-column"],
-                h.sort == sort ? styles["column-highlighted"] : "",
+                tableStyles["column"],
+                tableStyles["body-column"],
+                sortHeader === h.sort ? tableStyles["column-highlighted"] : "",
                 inter.className,
               ].join(" ")}
             >
-              {column}
+              {display}
             </td>
           );
         })}

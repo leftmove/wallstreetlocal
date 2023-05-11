@@ -1,35 +1,65 @@
-import styles from "../Table.module.css";
+import styles from "./Header.module.css";
+import tableStyles from "../Table.module.css";
 
-import { useSelector } from "react-redux";
-import { selectHeaders, selectSort } from "@/redux/features/stockSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  selectHeaders,
+  selectSort,
+  sortHeader,
+} from "@/redux/features/stockSlice";
 
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "900" });
 
-import SortButton from "./Sort/SortButton";
+import Sort from "./sort.svg";
 
 const Header = () => {
+  const dispatch = useDispatch();
+
   const headers = useSelector(selectHeaders);
-  const sort = useSelector(selectSort).sort;
+  const select = useSelector(selectSort);
+  const sort = select.sort;
+  const reverse = select.reverse;
+
+  const activateHeader = (accessor) =>
+    dispatch(
+      sortHeader({
+        sort: accessor,
+        reverse: !reverse,
+      })
+    );
 
   return (
     <tr>
       {headers
         .filter((h) => h.active)
         .map((h) => {
-          const display = h.display;
           return (
             <th
-              key={display}
+              key={h.display}
               className={[
-                styles["column"],
-                styles["header-column"],
-                h.sort == sort ? styles["column-highlighted"] : "",
+                tableStyles["column"],
+                tableStyles["header-column"],
+                h.sort == sort ? tableStyles["column-highlighted"] : "",
                 inter.className,
               ].join(" ")}
             >
-              {display}
-              <SortButton accessor={h.sort} />
+              <button
+                onClick={() => activateHeader(h.sort)}
+                className={styles["column-button"]}
+              >
+                {h.display}
+              </button>
+              <button
+                onClick={() => activateHeader(h.sort)}
+                className={[
+                  styles["button"],
+                  sort === h.sort && reverse ? "" : styles["button-reverse"],
+                  sort === h.sort ? styles["button-click"] : "",
+                ].join(" ")}
+              >
+                <Sort className={[styles["button-image"]].join(" ")} />
+              </button>
             </th>
           );
         })}

@@ -33,7 +33,7 @@ const initialState = {
       display: "Shares Held (Or Principal Amount)",
       sort: "shares_held",
       accessor: "shares_held_str",
-      active: true,
+      active: false,
     },
     {
       display: "Market Value",
@@ -51,13 +51,13 @@ const initialState = {
       display: "% Ownership",
       sort: "ownership_percent",
       accessor: "ownership_str",
-      active: true,
+      active: false,
     },
     {
       display: "Buy Date",
       sort: "buy",
       accessor: "buy_str",
-      active: true,
+      active: false,
     },
     {
       display: "Price Paid",

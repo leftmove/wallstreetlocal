@@ -11,6 +11,7 @@
 # next.js
 /.next/
 /out/
+next.config.js
 
 # production
 /build
@@ -30,3 +31,10 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# dev dependencies
+.prettierrc
+debug.bat
+dev.bat
+whale-project.code-workspace
+

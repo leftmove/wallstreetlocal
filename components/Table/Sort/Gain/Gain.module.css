@@ -1,0 +1,39 @@
+.gains-container {
+  margin-top: 10px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+}
+
+.header-title {
+  font-size: 1.5rem;
+  margin-bottom: 5px;
+}
+
+.header-description {
+  font-size: 1rem;
+}
+
+.dates {
+  display: flex;
+  align-items: center;
+  margin: 10px;
+  height: 300px;
+}
+
+.add-date {
+  all: unset;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  width: 25px;
+  height: 25px;
+  padding: 5px;
+
+  background-color: #04df16;
+  border: black solid 3px;
+  border-radius: 5px;
+}
