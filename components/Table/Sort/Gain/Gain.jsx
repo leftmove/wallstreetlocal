@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "900" });
 
-import Date from "./Date/Date";
+import Select from "./Date/Date";
 import PlusSVG from "./plus.svg";
 
 const Gain = () => {
@@ -27,7 +27,7 @@ const Gain = () => {
       </div>
       <div className={styles["dates"]}>
         {dates.map((date, index) => (
-          <Date key={index} date={date} />
+          <Select key={index} date={date} />
         ))}
         <button className={styles["add-date"]}>
           <PlusSVG className={styles["plus-svg"]} />

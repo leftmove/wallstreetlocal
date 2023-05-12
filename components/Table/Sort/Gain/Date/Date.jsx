@@ -3,9 +3,9 @@ import { useState } from "react";
 
 import Picker from "./Picker/Picker";
 
-const Date = (props) => {
+const Select = (props) => {
   const dateProperties = props.date;
-  const [date, setDate] = useState(new Date());
+  const [dateSelected, setDate] = useState(new Date());
 
   return (
     <div className={styles["date"]}>
@@ -21,4 +21,4 @@ const Date = (props) => {
   );
 };
 
-export default Date;
+export default Select;

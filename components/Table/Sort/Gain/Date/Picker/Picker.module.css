@@ -39,9 +39,24 @@
   border: solid white 1px;
   border-radius: 5px;
 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+
   transition: all 0.3s ease;
 }
 
 .calendar-svg {
   width: 15px;
+}
+
+.month {
+  font-size: 0.7rem;
+  margin: 1px;
+  padding: 2px;
+
+  color: black;
+  background-color: white;
+  border-radius: 2px;
 }

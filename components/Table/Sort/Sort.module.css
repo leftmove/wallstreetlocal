@@ -15,6 +15,7 @@
 .sort-container {
   display: flex;
   flex-direction: column;
+  overflow-y: hidden;
 
   padding: 10px;
   margin: 20px;
@@ -23,12 +24,13 @@
   border-radius: 5px;
 
   max-height: 20px;
-  transition-duration: 0.3s;
+  transition-duration: 0.5s;
 }
 
 .sort-expanded {
   background-color: #e0e0e0;
   max-height: 400px;
+  overflow-y: auto;
 
   transition-property: max-height, background-color;
   transition-duration: 0.3s;
