@@ -12,6 +12,11 @@ a {
   cursor: pointer;
 }
 
+button,
+input {
+  font-family: inherit;
+}
+
 /* Firefox */
 * {
   scrollbar-width: thin;

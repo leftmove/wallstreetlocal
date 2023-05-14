@@ -1,21 +1,18 @@
 import styles from "./Gain.module.css";
-import { useState } from "react";
 
-import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "900" });
+import { selectDates } from "@/redux/features/date/dateSlice";
+import { useSelector } from "react-redux";
 
-import Select from "./Date/Date";
+import Select from "./Select/Select";
 import PlusSVG from "./plus.svg";
 
 const Gain = () => {
-  const [dates, setDates] = useState([{}]);
-  const addDate = (date) => setDates([...dates, date]);
-  const removeDate = (index) => setDates(dates.splice(index, 1));
+  const dates = useSelector(selectDates);
 
   return (
     <div className={styles["gains-container"]}>
       <div className={styles["header"]}>
-        <span className={[styles["header-title"], inter.className].join(" ")}>
+        {/* <span className={[styles["header-title"], inter.className].join(" ")}>
           Gains
         </span>
         <span
@@ -23,14 +20,14 @@ const Gain = () => {
         >
           Compare gains from different time periods. Select a time period below
           to view the buy price, recent price, and percent gain.
-        </span>
+        </span> */}
       </div>
       <div className={styles["dates"]}>
         {dates.map((date, index) => (
           <Select key={index} date={date} />
         ))}
         <button className={styles["add-date"]}>
-          <PlusSVG className={styles["plus-svg"]} />
+          <PlusSVG />
         </button>
       </div>
     </div>

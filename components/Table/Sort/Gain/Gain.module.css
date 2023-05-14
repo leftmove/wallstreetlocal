@@ -20,7 +20,6 @@
   display: flex;
   align-items: center;
   margin: 10px;
-  height: 300px;
 }
 
 .add-date {
@@ -28,12 +27,19 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  cursor: pointer;
 
   width: 25px;
   height: 25px;
-  padding: 5px;
+  padding: 8px;
 
-  background-color: #04df16;
-  border: black solid 3px;
-  border-radius: 5px;
+  color: white;
+  background-color: #1c1c1b;
+  border-radius: 8px;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.add-date:hover {
+  background-color: white;
+  color: #1c1c1b;
 }

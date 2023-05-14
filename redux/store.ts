@@ -2,13 +2,13 @@ import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 import { createWrapper } from "next-redux-wrapper";
 
 import { stockSlice } from "./features/stockSlice";
-import { headerSlice } from "./features/header/headerSlice";
+import { dateSlice } from "./features/date/dateSlice";
 
 const makeStore = () =>
   configureStore({
     reducer: {
       [stockSlice.name]: stockSlice.reducer,
-      [headerSlice.name]: headerSlice.reducer,
+      [dateSlice.name]: dateSlice.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
