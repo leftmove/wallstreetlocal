@@ -1,8 +1,8 @@
 import { configureStore, ThunkAction, Action } from "@reduxjs/toolkit";
 import { createWrapper } from "next-redux-wrapper";
 
-import { stockSlice } from "./features/stockSlice";
-import { dateSlice } from "./features/date/dateSlice";
+import { stockSlice } from "./stockSlice";
+import { dateSlice } from "./dateSlice";
 
 const makeStore = () =>
   configureStore({

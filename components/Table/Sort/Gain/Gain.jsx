@@ -1,6 +1,6 @@
 import styles from "./Gain.module.css";
 
-import { selectDates } from "@/redux/features/date/dateSlice";
+import { selectDates } from "@/redux/dateSlice";
 import { useSelector } from "react-redux";
 
 import Select from "./Select/Select";

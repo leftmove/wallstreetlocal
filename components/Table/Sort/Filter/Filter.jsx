@@ -4,10 +4,19 @@ import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "900" });
 
 import { useDispatch, useSelector } from "react-redux";
-import { selectHeaders, activateHeader } from "@/redux/features/stockSlice";
+import {
+  selectHeaders,
+  selectActive,
+  selectSold,
+  sortActive,
+  sortSold,
+  activateHeader,
+} from "@/redux/stockSlice";
 
 const Filter = () => {
   const headers = useSelector(selectHeaders);
+  const active = useSelector(selectActive);
+  const sold = useSelector(selectSold);
   const dispatch = useDispatch();
 
   return (
@@ -26,6 +35,28 @@ const Filter = () => {
           </span>
         </button>
       ))}
+      <button
+        className={[
+          styles["filter-item"],
+          active ? styles["filter-clicked"] : "",
+        ].join(" ")}
+        onClick={() => dispatch(sortActive())}
+      >
+        <span className={[inter.className, styles["filter-text"]].join(" ")}>
+          Active
+        </span>
+      </button>
+      <button
+        className={[
+          styles["filter-item"],
+          sold ? styles["filter-clicked"] : "",
+        ].join(" ")}
+        onClick={() => dispatch(sortSold())}
+      >
+        <span className={[inter.className, styles["filter-text"]].join(" ")}>
+          Sold
+        </span>
+      </button>
     </div>
   );
 };

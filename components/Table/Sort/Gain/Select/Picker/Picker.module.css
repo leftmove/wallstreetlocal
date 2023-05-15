@@ -10,12 +10,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  cursor: pointer;
   z-index: 10;
 
   padding: 10px;
   height: 20px;
   width: 100px;
-  margin-top: 15px;
+  margin-top: 24px;
 
   color: white;
   background-color: #1c1c1b;
@@ -47,17 +48,16 @@
 }
 
 .date-display {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
   position: absolute;
   z-index: 5;
 
   width: 200px;
   height: 200px;
-  background-color: white;
   border-radius: 5px;
-
-  display: flex;
-  align-items: center;
-  flex-direction: column;
+  background-color: white;
 
   transition: all 0.3s ease;
 }

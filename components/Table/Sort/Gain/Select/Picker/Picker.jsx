@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "900" });
 
-import { editDate } from "@/redux/features/date/dateSlice";
-import { useDispatch, useSelector } from "react-redux";
+import { editDate } from "@/redux/dateSlice";
+import { useSelector, useDispatch } from "react-redux";
 
 import CalendarSVG from "./calendar.svg";
 import RightSVG from "./right.svg";
@@ -27,9 +27,8 @@ const months = [
 ];
 
 const Picker = (props) => {
-  const date = useSelector((state) =>
-    state.date.value.find((date) => date.type === props.display)
-  );
+  const date = props.date;
+  const year = date.year;
   const dispatch = useDispatch();
 
   const handleDateChange = (e) => {
@@ -58,25 +57,28 @@ const Picker = (props) => {
       dispatch(
         editDate({
           type: "year",
-          display: date.display,
+          accessor: date.accessor,
           value: dateDisplay,
         })
       );
     }
   };
 
-  const [dateDisplay, setDateDisplay] = useState(date.year);
+  const [dateDisplay, setDateDisplay] = useState(year);
   const [open, setOpen] = useState(false);
   const [focus, setFocus] = useState(false);
   useEffect(() => {
-    setDateDisplay(date.year);
-  }, [date]);
+    setDateDisplay(year);
+  }, [year]);
+
+  const month = months[date.month];
+  const display = `${month.name} ${year}`;
 
   return (
     <div className={styles["picker"]}>
       <button onClick={() => setOpen(!open)} className={styles["date"]}>
         <span className={[styles["date-text"], inter.className].join(" ")}>
-          {date.display}
+          {display}
         </span>
         <CalendarSVG className={styles["calendar-svg"]} />
       </button>
@@ -86,7 +88,7 @@ const Picker = (props) => {
           open
             ? {
                 opacity: "1",
-                marginRight: "-390px",
+                marginRight: "-400px",
               }
             : {
                 opacity: "0",
@@ -101,8 +103,8 @@ const Picker = (props) => {
               dispatch(
                 editDate({
                   type: "year",
-                  display: date.display,
-                  value: date.year - 1,
+                  accessor: date.accessor,
+                  value: year - 1,
                 })
               )
             }
@@ -112,7 +114,7 @@ const Picker = (props) => {
           <input
             type="text"
             className={styles["year-input"] + " " + inter.className}
-            value={focus ? dateDisplay : date.year}
+            value={focus ? dateDisplay : year}
             onChange={(e) => handleDateChange(e.target.value)}
             onFocus={() => setFocus(true)}
             onBlur={() => handleBlur()}
@@ -124,8 +126,8 @@ const Picker = (props) => {
               dispatch(
                 editDate({
                   type: "year",
-                  display: date.display,
-                  value: date.year + 1,
+                  accessor: date.accessor,
+                  value: year + 1,
                 })
               )
             }
@@ -142,7 +144,7 @@ const Picker = (props) => {
                   editDate({
                     type: "month",
                     value: month.value,
-                    display: date.display,
+                    accessor: date.accessor,
                   })
                 )
               }

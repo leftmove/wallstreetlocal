@@ -33,38 +33,34 @@ export const dateSlice = createSlice({
     },
     editDate(state, action) {
       const payload = action.payload;
-      console.log({ payload, state: current(state.value) });
-      const dates = state.value.map((date) =>
-        payload.accessor === date.accessor
-          ? () => {
-              let newDate = new Date(date.year, date.month, date.day);
-              switch (payload.type) {
-                case "year":
-                  newDate.setFullYear(payload.value);
-                  break;
-                case "month":
-                  newDate.setMonth(payload.value);
-                  break;
-                case "day":
-                  newDate.setDate(payload.value);
-                  break;
-                case "date":
-                  newDate = new Date(payload.value);
-                  break;
-                default:
-                  break;
-              }
-              return {
-                year: newDate.getFullYear(),
-                month: newDate.getMonth(),
-                day: newDate.getDate(),
-                accessor: newDate.toLocaleDateString(),
-              };
-            }
-          : date
-      );
+      const dates = state.value.map((date) => {
+        if (payload.accessor === date.accessor) {
+          let newDate = new Date(date.year, date.month, date.day);
+          switch (payload.type) {
+            case "year":
+              newDate.setFullYear(payload.value);
+              break;
+            case "month":
+              newDate.setMonth(payload.value);
+              break;
+            case "day":
+              newDate.setDate(payload.value);
+              break;
+            case "date":
+              newDate = new Date(payload.value);
+              break;
+            default:
+              break;
+          }
+          return {
+            year: newDate.getFullYear(),
+            month: newDate.getMonth(),
+            day: newDate.getDate(),
+            accessor: newDate.toLocaleDateString(),
+          };
+        } else return date;
+      });
       state.value = dates;
-
       return state;
     },
     [HYDRATE]: (state, action) => {
@@ -77,7 +73,6 @@ export const dateSlice = createSlice({
 });
 
 export const selectDates = (state) => state.date.value;
-
 export const { addDate, removeDate, editDate } = dateSlice.actions;
 
 export default dateSlice.reducer;

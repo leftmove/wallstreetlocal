@@ -12,7 +12,7 @@ import Row from "./Row/Row";
 import Sort from "./Sort/Sort";
 
 import { useDispatch, useSelector } from "react-redux";
-import { setStocks, selectStocks } from "@/redux/features/stockSlice";
+import { setStocks, selectStocks } from "@/redux/stockSlice";
 
 // const fetcher = (url, stocks, dispatch) => {
 //   console.log("here:", stocks);

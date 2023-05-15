@@ -94,7 +94,7 @@ const initialState = {
     sort: "ticker",
     type: "string",
     set: true,
-    updated: false,
+    sold: false,
     reverse: false,
   },
 };
@@ -109,7 +109,6 @@ export const stockSlice = createSlice({
       state.headers = headers.map((h) =>
         h.accessor === payload ? { ...h, active: !h.active } : h
       );
-      console.log(state.headers);
 
       return state;
     },
@@ -138,6 +137,20 @@ export const stockSlice = createSlice({
       state.sort = { ...state.sort, ...payload, type: type };
       return state;
     },
+    sortActive(state) {
+      const sort = state.sort;
+      const set = sort.set;
+      state.sort = { ...sort, set: !set };
+
+      return state;
+    },
+    sortSold(state) {
+      const sort = state.sort;
+      const sold = sort.sold;
+      state.sort = { ...sort, sold: !sold };
+
+      return state;
+    },
     setStocks(state, action) {
       const stocks = action.payload.map((prev) => {
         const properties = Object.keys(prev);
@@ -159,10 +172,18 @@ export const stockSlice = createSlice({
   },
 });
 
-export const { activateHeader, sortHeader, setStocks, sortStocks } =
-  stockSlice.actions;
+export const {
+  activateHeader,
+  sortHeader,
+  sortActive,
+  sortSold,
+  setStocks,
+  sortStocks,
+} = stockSlice.actions;
 
 export const selectSort = (state) => state.stocks.sort;
+export const selectActive = (state) => state.stocks.sort.set;
+export const selectSold = (state) => state.stocks.sort.sold;
 export const selectHeaders = (state) => state.stocks.headers;
 export const selectStocks = (state) => {
   const stocks = state.stocks;
@@ -170,15 +191,17 @@ export const selectStocks = (state) => {
   const accessor = sort.sort;
   let next = stocks.value.slice();
 
+  console.log(sort, next);
+
   if (sort.set) {
     next = next.filter((obj, pos, arr) => {
       return arr.map((mapObj) => mapObj.ticker).indexOf(obj.ticker) === pos;
     });
   }
 
-  // if (sort.updated) {
-  //   next = next.filter((s) => s.update);
-  // }
+  if (sort.sold == false) {
+    next = next.filter((s) => s.sold == false);
+  }
 
   if (sort.type == "string") {
     next = next.sort((a, b) => {
