@@ -1,1 +1,0 @@
-cmder /x "/cmd dev.bat"
