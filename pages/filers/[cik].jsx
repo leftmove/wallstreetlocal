@@ -201,7 +201,7 @@ const Filer = () => {
       })
       .catch((e) => {
         console.error(e);
-        if (e.response.status != 429) setStatus({ error: true });
+        if (e.response && e.response.status != 429) setStatus({ error: true });
       });
 
     axios
