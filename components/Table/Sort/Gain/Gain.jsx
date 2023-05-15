@@ -1,13 +1,28 @@
 import styles from "./Gain.module.css";
 
-import { selectDates } from "@/redux/dateSlice";
-import { useSelector } from "react-redux";
+import { selectDates, addDate } from "@/redux/dateSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 import Select from "./Select/Select";
 import PlusSVG from "./plus.svg";
 
 const Gain = () => {
   const dates = useSelector(selectDates);
+  const dispatch = useDispatch()
+
+  const newDate = () => {
+    const date = new Date()
+    dispatch(
+      addDate(
+        {
+          year: date.getFullYear(),
+          month: date.getMonth(),
+          day: date.getDate(),
+          accessor: date.toLocaleDateString(),
+        }
+      )
+    )
+  }
 
   return (
     <div className={styles["gains-container"]}>
@@ -26,7 +41,7 @@ const Gain = () => {
         {dates.map((date, index) => (
           <Select key={index} date={date} />
         ))}
-        <button className={styles["add-date"]}>
+        <button className={styles["add-date"]} onClick={() => newDate()}>
           <PlusSVG />
         </button>
       </div>

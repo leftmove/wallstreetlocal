@@ -28,6 +28,7 @@ const months = [
 
 const Picker = (props) => {
   const date = props.date;
+  const index = props.index
   const year = date.year;
   const dispatch = useDispatch();
 
@@ -76,7 +77,7 @@ const Picker = (props) => {
 
   return (
     <div className={styles["picker"]}>
-      <button onClick={() => setOpen(!open)} className={styles["date"]}>
+      <button onClick={() => setOpen(!open)} className={styles["date"]} style={{zIndex: 100 - index}}>
         <span className={[styles["date-text"], inter.className].join(" ")}>
           {display}
         </span>
@@ -85,7 +86,9 @@ const Picker = (props) => {
       <div
         className={[styles["date-display"]].join(" ")}
         style={
-          open
+          {
+            zIndex: 99 - index,
+            ...open
             ? {
                 opacity: "1",
                 marginRight: "-400px",
@@ -93,7 +96,7 @@ const Picker = (props) => {
             : {
                 opacity: "0",
                 marginRight: "0px",
-              }
+              }}
         }
       >
         <div className={[styles["years"], inter.className].join(" ")}>

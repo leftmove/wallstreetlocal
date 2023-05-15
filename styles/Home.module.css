@@ -1,7 +1,9 @@
 .search {
-  padding: 50px 500px;
-
   position: relative;
+  display: flex;
+  justify-content: center;
+
+  padding: 50px 500px;
   height: 800px;
 }
 
@@ -11,6 +13,7 @@
 
 .search-header {
   padding: 50px;
+  height: fit-content;
   width: 800px;
   border-radius: 10px;
   background-color: #1c1c1b;

@@ -8,10 +8,11 @@ import Picker from "./Picker/Picker";
 
 const Select = (props) => {
   const date = props.date;
+  const index= props.key
 
   return (
     <div className={styles["date"]}>
-      <Picker date={date} />
+      <Picker date={date} index={index} />
       <button className={[styles["button"], inter.className].join(" ")}>
         Add to Table
       </button>
