@@ -65,11 +65,20 @@ export const dateSlice = createSlice({
     },
     newDate(state) {
       const dates = state.value;
-      const date = dates.slice(-1);
-      date.day = date.day + 1;
-      console.log(date)
-      dates.push(date);
-      console.log(dates);
+      const latestDate = dates.at(-1);
+      const newDate = new Date(
+        latestDate.accessor
+      );
+      console.log(newDate)
+      newDate.setDate(newDate.getDate() + 1);
+
+      dates.push({
+        year: newDate.getFullYear(),
+        month: newDate.getMonth(),
+        day: newDate.getDate(),
+        accessor: newDate.toLocaleDateString(),
+      });
+      console.log(newDate)
 
       state.value = dates;
       return state;
