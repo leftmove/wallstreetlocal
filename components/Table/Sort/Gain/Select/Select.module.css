@@ -6,10 +6,14 @@
 
   width: 200px;
   height: 200px;
-  margin: 20px;
+  margin-right: 10px;
 
   background-color: #1c1c1b;
   border-radius: 5px;
+}
+
+.date:nth-child(0) {
+  margin-left: 20px;
 }
 
 .button {

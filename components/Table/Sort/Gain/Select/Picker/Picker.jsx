@@ -5,7 +5,7 @@ import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "900" });
 
 import { editDate } from "@/redux/dateSlice";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import CalendarSVG from "./calendar.svg";
 import RightSVG from "./right.svg";
@@ -28,7 +28,6 @@ const months = [
 
 const Picker = (props) => {
   const date = props.date;
-  const index = props.index
   const year = date.year;
   const dispatch = useDispatch();
 
@@ -77,26 +76,28 @@ const Picker = (props) => {
 
   return (
     <div className={styles["picker"]}>
-      <button onClick={() => setOpen(!open)} className={styles["date"]} style={{zIndex: 100 - index}}>
+      <button onClick={() => setOpen(!open)} className={styles["date"]}>
         <span className={[styles["date-text"], inter.className].join(" ")}>
           {display}
         </span>
         <CalendarSVG className={styles["calendar-svg"]} />
       </button>
       <div
-        className={[styles["date-display"]].join(" ")}
+        className={
+          [
+            styles["date-display"],
+            open ? styles["display-expanded"] : "",
+          ].join(" ")
+        }
         style={
-          {
-            zIndex: 99 - index,
-            ...open
-            ? {
+            open ? {
                 opacity: "1",
-                marginRight: "-400px",
+                marginRight: "-420px",
               }
             : {
                 opacity: "0",
                 marginRight: "0px",
-              }}
+              }
         }
       >
         <div className={[styles["years"], inter.className].join(" ")}>

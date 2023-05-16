@@ -191,8 +191,6 @@ export const selectStocks = (state) => {
   const accessor = sort.sort;
   let next = stocks.value.slice();
 
-  console.log(sort, next);
-
   if (sort.set) {
     next = next.filter((obj, pos, arr) => {
       return arr.map((mapObj) => mapObj.ticker).indexOf(obj.ticker) === pos;

@@ -63,6 +63,17 @@ export const dateSlice = createSlice({
       state.value = dates;
       return state;
     },
+    newDate(state) {
+      const dates = state.value;
+      const date = dates.slice(-1);
+      date.day = date.day + 1;
+      console.log(date)
+      dates.push(date);
+      console.log(dates);
+
+      state.value = dates;
+      return state;
+    },
     [HYDRATE]: (state, action) => {
       return {
         ...state,
@@ -73,6 +84,6 @@ export const dateSlice = createSlice({
 });
 
 export const selectDates = (state) => state.date.value;
-export const { addDate, removeDate, editDate } = dateSlice.actions;
+export const { addDate, removeDate, editDate, newDate } = dateSlice.actions;
 
 export default dateSlice.reducer;
