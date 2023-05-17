@@ -1,11 +1,12 @@
 import styles from "./Select.module.css";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 import { useDispatch } from "react-redux";
 import { newDate, removeDate } from "@/redux/dateSlice";
 
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "900" });
+import { CSSTransition } from "react-transition-group";
 
 import Picker from "./Picker/Picker";
 import Plus from "./plus.svg";
@@ -18,46 +19,63 @@ const Select = (props) => {
   const dispatch = useDispatch();
 
   const [show, setShow] = useState(true);
+  const nodeRef = useRef(null);
+  const handleAdd = () => {
+    setShow(true);
+    dispatch(newDate());
+  };
   const handleRemove = () => {
     setShow(false);
-    setTimeout(() => {
-      dispatch(removeDate(date.accessor));
-    }, 333);
+    dispatch(removeDate(date.accessor));
   };
 
   return (
-    <div
-      className={styles["date"]}
-      style={show ? {} : { transform: "translateX(-210px)", opacity: 0 }}
+    <CSSTransition
+      in={show}
+      nodeRef={nodeRef}
+      timeout={333}
+      classNames={{
+        enterActive: styles["date-transition-enter-active"],
+        enterDone: styles["date-transition-enter-done"],
+        exitActive: styles["date-transition-exit-active"],
+        exitDone: styles["date-transition-exist-done"],
+      }}
+      unmountOnExit
+      onEnter={() => setShow(false)}
+      onExited={() => setShow(true)}
     >
-      {/* style={show ? {} : { transform: "translateX(-210px)" }} */}
-      <div className={styles["plus-minus"]}>
-        <button
-          className={styles["date-button"]}
-          onClick={() => handleRemove()}
-        >
-          <Minus />
-        </button>
-        <button
-          className={styles["date-button"]}
-          onClick={() => dispatch(newDate())}
-        >
-          <Plus />
-        </button>
-      </div>
-      <Picker date={date} index={index} />
-      <button className={[styles["button"], inter.className].join(" ")}>
-        Add to Table
-      </button>
-      <button
-        className={[styles["button"], styles["download"], inter.className].join(
-          " "
-        )}
+      <div
+        className={styles["date"]}
+        ref={nodeRef}
+        //        style={show ? {} : { transform: "translateX(-210px)", opacity: 0 }}
       >
-        Download Data
-      </button>
-      {/* Make Green? */}
-    </div>
+        <div className={styles["plus-minus"]}>
+          <button
+            className={styles["date-button"]}
+            onClick={() => handleRemove()}
+          >
+            <Minus />
+          </button>
+          <button className={styles["date-button"]} onClick={() => handleAdd()}>
+            <Plus />
+          </button>
+        </div>
+        <Picker date={date} index={index} />
+        <button className={[styles["button"], inter.className].join(" ")}>
+          Add to Table
+        </button>
+        <button
+          className={[
+            styles["button"],
+            styles["download"],
+            inter.className,
+          ].join(" ")}
+        >
+          Download Data
+        </button>
+        {/* Make Green? */}
+      </div>
+    </CSSTransition>
   );
 };
 

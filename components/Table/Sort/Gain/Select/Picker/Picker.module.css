@@ -84,7 +84,7 @@
 }
 
 .display-expanded .chevron-button {
-  z-index: inherit;
+  z-index: 20;
 }
 
 .chevron {
