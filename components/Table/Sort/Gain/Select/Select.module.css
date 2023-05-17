@@ -3,18 +3,68 @@
   flex-direction: column;
   align-items: center;
   user-select: none;
+  position: relative;
 
   width: 200px;
   height: 200px;
   margin-top: 10px;
   margin-right: 10px;
 
+  animation: slide-in-right 0.3s;
+  transition: translateX 0.3s ease, opacity 0.3s ease;
   background-color: #1c1c1b;
   border-radius: 5px;
 }
 
-.date:nth-child(0) {
-  margin-left: 20px;
+.remove {
+  animation: slide-out-right 0.3s;
+  animation-fill-mode: forwards;
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(-210px);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-out-right {
+  to {
+    transform: translateX(-210px);
+    opacity: 0;
+  }
+}
+
+.plus-minus {
+  display: flex;
+  justify-content: space-between;
+  position: absolute;
+
+  width: 90%;
+  margin: 5px;
+  margin-top: 10px;
+}
+
+.date-button {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 15;
+
+  padding: 2px;
+  width: 15px;
+  height: 15px;
+  border-radius: 3px;
+
+  color: white;
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.date-button:hover {
+  background-color: white;
+  color: black;
 }
 
 .button {

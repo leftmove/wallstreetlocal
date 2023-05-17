@@ -26,6 +26,8 @@ const months = [
   { name: "Dec", value: 11 },
 ];
 
+const yearRegex = /^-?\d+$/;
+
 const Picker = (props) => {
   const date = props.date;
   const year = date.year;
@@ -40,7 +42,7 @@ const Picker = (props) => {
       newValue = value.slice(1);
     }
 
-    if (/^-?\d+$/.test(character)) {
+    if (yearRegex.test(character)) {
       newValue = newValue + character;
     }
 
@@ -50,7 +52,7 @@ const Picker = (props) => {
     setFocus(false);
     if (
       dateDisplay.length === 4 &&
-      /^-?\d+$/.test(dateDisplay) &&
+      yearRegex.test(dateDisplay) &&
       dateDisplay > 1899 &&
       dateDisplay < 2100
     ) {
@@ -83,14 +85,13 @@ const Picker = (props) => {
         <CalendarSVG className={styles["calendar-svg"]} />
       </button>
       <div
-        className={
-          [
-            styles["date-display"],
-            open ? styles["display-expanded"] : "",
-          ].join(" ")
-        }
+        className={[
+          styles["date-display"],
+          open ? styles["display-expanded"] : "",
+        ].join(" ")}
         style={
-            open ? {
+          open
+            ? {
                 opacity: "1",
                 marginRight: "-420px",
               }

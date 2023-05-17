@@ -4,7 +4,6 @@ import { selectDates, newDate } from "@/redux/dateSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 import Select from "./Select/Select";
-import PlusSVG from "./plus.svg";
 
 const Gain = () => {
   const dates = useSelector(selectDates);
@@ -27,12 +26,6 @@ const Gain = () => {
         {dates.map((date, index) => (
           <Select key={index} date={date} />
         ))}
-        <button
-          className={styles["add-date"]}
-          onClick={() => dispatch(newDate())}
-        >
-          <PlusSVG />
-        </button>
       </div>
     </div>
   );
