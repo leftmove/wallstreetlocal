@@ -21,6 +21,10 @@
   font-size: 1rem;
 }
 
+.select-item {
+  all: unset;
+}
+
 .drop-buttons {
   display: flex;
   justify-content: center;

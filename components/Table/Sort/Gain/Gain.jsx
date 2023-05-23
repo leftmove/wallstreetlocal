@@ -1,11 +1,12 @@
 import styles from "./Gain.module.css";
-import { useState } from 'react';
+import { useState } from "react";
 
 import { selectDates, newDate } from "@/redux/dateSlice";
 import { useDispatch, useSelector } from "react-redux";
 
-import { DndContext } from "@dnd-kit/core";
-import { useDroppable } from "@dnd-kit/core";
+// import { DndContext } from "@dnd-kit/core";
+// import { useDroppable } from "@dnd-kit/core";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 import Select from "./Select/Select";
 import Trash from "./trash.svg";
@@ -15,19 +16,18 @@ const Gain = () => {
   const dates = useSelector(selectDates);
   const dispatch = useDispatch();
 
-  const { isOver, setTrashRef } = useDroppable({
-    id: "trash",
-  });
-  const [drag, setDrag] = useState(false);
-  
+  // const { isOver, setTrashRef } = useDroppable({
+  //   id: "trash",
+  // });
+  // const [drag, setDrag] = useState(false);
 
-  const handleDragStart = () => {
-    setDrag(true)
-  }
-  const handleDragMove = (event) => {}
-  const handleDragOver = (event) => {
-    setDrag(false)
-  }
+  // const handleDragStart = () => {
+  //   setDrag(true)
+  // }
+  // const handleDragMove = (event) => {}
+  // const handleDragOver = (event) => {
+  //   setDrag(false)
+  // }
 
   return (
     <div className={styles["gains-container"]}>
@@ -42,28 +42,64 @@ const Gain = () => {
           to view the buy price, recent price, and percent gain.
         </span> */}
       </div>
-      <DndContext onDragOver={handleDragOver}>
-        <div className={styles["dates"]}>
-          {dates.map((date, index) => (
-            <Select key={index} date={date} />
-          ))}
-        </div>
-        <div className={styles["drop-buttons"]}>
-          <button
-            className={[styles["drop-button"], drag ? styles["drop-button-drag"] : ""].join(" ")}
-            onClick={() => dispatch(newDate())}
-          >
-            <Plus />
-          </button>
-          <div
-            className={[styles["drop-button"], drag ? styles["drop-button-drag"] : ""].join(" ")}
-            ref={setTrashRef}
-            onClick={() => dispatch(removeDate())}
-          >
-            <Trash />
+      <DragDropContext>
+        <Droppable dropppableId="dates">
+          {(provided) => (
+            <ul
+              className={styles["dates"]}
+              {...provided.droppableProps}
+              ref={provided.innerRef}
+            >
+              {dates.map((date, index) => (
+                <Draggable
+                  key={date.accessor}
+                  draggableId={date.accessor}
+                  index={index}
+                >
+                  {(provided) => (
+                    <li
+                      className={styles["select-item"]}
+                      ref={provided.innerRef}
+                      {...provided.draggbleProps}
+                      {...provided.dragHandleProps}
+                    >
+                      <Select key={index} date={date} />
+                    </li>
+                  )}
+                </Draggable>
+              ))}
+            </ul>
+          )}
+        </Droppable>
+        {(provided) => (
+          <div className={styles["drop-buttons"]}>
+            <button
+              className={[
+                styles["drop-button"],
+                drag ? styles["drop-button-drag"] : "",
+              ].join(" ")}
+              onClick={() => dispatch(newDate())}
+            >
+              <Plus />
+            </button>
+            <Droppable dropppableId="trash">
+              {(provided) => (
+                <div
+                  className={[
+                    styles["drop-button"],
+                    drag ? styles["drop-button-drag"] : "",
+                  ].join(" ")}
+                  onClick={() => dispatch(removeDate())}
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                >
+                  <Trash />
+                </div>
+              )}
+            </Droppable>
           </div>
-        </div>
-      </DndContext>
+        )}
+      </DragDropContext>
     </div>
   );
 };
