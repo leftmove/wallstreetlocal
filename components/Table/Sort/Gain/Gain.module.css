@@ -1,6 +1,10 @@
 .gains-container {
-  margin-top: 10px;
-  margin-left: 20px;
+  display: flex;
+  justify-content: start;
+  align-items: start;
+  position: relative;
+
+  margin: 20px;
 }
 
 .header {
@@ -15,6 +19,41 @@
 
 .header-description {
   font-size: 1rem;
+}
+
+.drop-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+
+  width: 100px;
+  top: 5px;
+  right: 5px;
+}
+
+.drop-button {
+  all: unset;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  width: 15px;
+  padding: 7px;
+  margin:  3px;
+  border-radius: 5px;
+
+  color: white;
+  background-color: black;
+  transition: color 0.3s ease, background-color 0.3s ease, width 0.3s ease;
+}
+
+.drop-button-drag {
+  width: 30px;
+
+  color: black;
+  background-color: white;
 }
 
 .dates {

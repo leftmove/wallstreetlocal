@@ -1,21 +1,3 @@
-.date-transition-enter-active {
-  opacity: 0;
-  margin-left: -210px;
-  transition: opacity 333ms, margin-left 333ms;
-}
-.date-transition-enter-done {
-  opacity: 1;
-}
-.date-transition-exit-active {
-  opacity: 0;
-  margin-left: -210px;
-}
-.date-transition-exit-done {
-  opacity: 1;
-  transition: opacity 333ms, margin-left 333ms;
-
-}
-
 .date {
   display: flex;
   flex-direction: column;
@@ -29,15 +11,14 @@
   margin-right: 10px;
 
   animation: slide-in-right 0.3s;
-  transition: translateX 0.3s ease, opacity 0.3s ease;
   background-color: #1c1c1b;
   border-radius: 5px;
 }
 
-.remove {
+/* .remove {
   animation: slide-out-right 0.3s;
   animation-fill-mode: forwards;
-}
+} */
 
 @keyframes slide-in-right {
   from {

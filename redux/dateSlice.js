@@ -56,7 +56,7 @@ export const dateSlice = createSlice({
             year: newDate.getFullYear(),
             month: newDate.getMonth(),
             day: newDate.getDate(),
-            accessor: newDate.toLocaleDateString(),
+            accessor: newDate.getTime(),
           };
         } else return date;
       });
@@ -78,7 +78,6 @@ export const dateSlice = createSlice({
         day: newDate.getDate(),
         accessor: newDate.toLocaleDateString(),
       });
-      console.log(newDate)
 
       state.value = dates;
       return state;

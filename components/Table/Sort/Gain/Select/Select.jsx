@@ -4,12 +4,12 @@ import { useState, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { newDate, removeDate } from "@/redux/dateSlice";
 
+import { useDraggable } from "@dnd-kit/core";
+
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "900" });
-import { CSSTransition } from "react-transition-group";
 
 import Picker from "./Picker/Picker";
-import Plus from "./plus.svg";
 import Minus from "./minus.svg";
 
 const Select = (props) => {
@@ -17,39 +17,27 @@ const Select = (props) => {
   const index = props.key;
 
   const dispatch = useDispatch();
+  const getTimeseries = (accessor) => {
 
-  const [show, setShow] = useState(true);
-  const nodeRef = useRef(null);
-  const handleAdd = () => {
-    setShow(true);
-    dispatch(newDate());
-  };
-  const handleRemove = () => {
-    setShow(false);
-    dispatch(removeDate(date.accessor));
-  };
+  }
+
+  const { attributes, listeners, setSelectRef, transform } = useDraggable({
+    id: index
+  })
+  const style = transform ? {
+    translateX: transform.x,
+    translateY: transform.y,
+  } : {}
 
   return (
-    <CSSTransition
-      in={show}
-      nodeRef={nodeRef}
-      timeout={333}
-      classNames={{
-        enterActive: styles["date-transition-enter-active"],
-        enterDone: styles["date-transition-enter-done"],
-        exitActive: styles["date-transition-exit-active"],
-        exitDone: styles["date-transition-exist-done"],
-      }}
-      unmountOnExit
-      onEnter={() => setShow(false)}
-      onExited={() => setShow(true)}
+    <button
+      className={styles["date"]}
+      ref={setSelectRef}
+      style={style}
+      {...listeners}
+      {...attributes}
     >
-      <div
-        className={styles["date"]}
-        ref={nodeRef}
-        //        style={show ? {} : { transform: "translateX(-210px)", opacity: 0 }}
-      >
-        <div className={styles["plus-minus"]}>
+      {/* <div className={styles["plus-minus"]}>
           <button
             className={styles["date-button"]}
             onClick={() => handleRemove()}
@@ -59,23 +47,22 @@ const Select = (props) => {
           <button className={styles["date-button"]} onClick={() => handleAdd()}>
             <Plus />
           </button>
-        </div>
-        <Picker date={date} index={index} />
-        <button className={[styles["button"], inter.className].join(" ")}>
-          Add to Table
-        </button>
-        <button
-          className={[
-            styles["button"],
-            styles["download"],
-            inter.className,
-          ].join(" ")}
-        >
-          Download Data
-        </button>
-        {/* Make Green? */}
-      </div>
-    </CSSTransition>
+        </div> */}
+      <Picker date={date} index={index} />
+      <button className={[styles["button"], inter.className].join(" ")} onClick={() => { }}>
+        Add to Table
+      </button>
+      <button
+        className={[
+          styles["button"],
+          styles["download"],
+          inter.className,
+        ].join(" ")}
+      >
+        Download Data
+      </button>
+      {/* Make Green? */}
+    </button>
   );
 };
 

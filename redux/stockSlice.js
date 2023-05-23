@@ -133,6 +133,9 @@ export const stockSlice = createSlice({
         case "buy":
           type = "number";
           break;
+        case "date":
+          type = 'date'
+          break;
       }
       state.sort = { ...state.sort, ...payload, type: type };
       return state;
@@ -143,6 +146,19 @@ export const stockSlice = createSlice({
       state.sort = { ...sort, set: !set };
 
       return state;
+    },
+    addHeader(state, action) {
+      const payload = action.payload;
+      const headers = state.headers;
+
+      headers.push({
+        display: payload.display,
+        sort: payload.sort,
+        accessor: payload.accessor,
+        active: true,
+      });
+
+      state.value = headers;
     },
     sortSold(state) {
       const sort = state.sort;

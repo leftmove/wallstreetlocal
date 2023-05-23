@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.0.8",
     "@next/font": "13.1.6",
     "@reduxjs/toolkit": "^1.9.3",
     "axios": "^0.24.0",
