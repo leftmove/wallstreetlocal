@@ -71,34 +71,32 @@ const Gain = () => {
             </ul>
           )}
         </Droppable>
-        {(provided) => (
-          <div className={styles["drop-buttons"]}>
-            <button
-              className={[
-                styles["drop-button"],
-                drag ? styles["drop-button-drag"] : "",
-              ].join(" ")}
-              onClick={() => dispatch(newDate())}
-            >
-              <Plus />
-            </button>
-            <Droppable dropppableId="trash">
-              {(provided) => (
-                <div
-                  className={[
-                    styles["drop-button"],
-                    drag ? styles["drop-button-drag"] : "",
-                  ].join(" ")}
-                  onClick={() => dispatch(removeDate())}
-                  {...provided.droppableProps}
-                  ref={provided.innerRef}
-                >
-                  <Trash />
-                </div>
-              )}
-            </Droppable>
-          </div>
-        )}
+        <div className={styles["drop-buttons"]}>
+          <button
+            className={[
+              styles["drop-button"],
+              // drag ? styles["drop-button-drag"] : "",
+            ].join(" ")}
+            onClick={() => dispatch(newDate())}
+          >
+            <Plus />
+          </button>
+          <Droppable dropppableId="trash">
+            {(provided) => (
+              <div
+                className={[
+                  styles["drop-button"],
+                  // drag ? styles["drop-button-drag"] : "",
+                ].join(" ")}
+                onClick={() => dispatch(removeDate())}
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+              >
+                <Trash />
+              </div>
+            )}
+          </Droppable>
+        </div>
       </DragDropContext>
     </div>
   );
