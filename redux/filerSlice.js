@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { HYDRATE } from "next-redux-wrapper";
 
+const initialDate = new Date();
 const initialState = {
   value: [],
   headers: [
@@ -97,10 +98,18 @@ const initialState = {
     sold: false,
     reverse: false,
   },
+  dates: [
+    {
+      year: initialDate.getFullYear(),
+      month: initialDate.getMonth(),
+      day: initialDate.getDate(),
+      accessor: initialDate.toLocaleDateString(),
+    },
+  ],
 };
 
-export const stockSlice = createSlice({
-  name: "stocks",
+export const filerSlice = createSlice({
+  name: "filer",
   initialState,
   reducers: {
     activateHeader(state, action) {
@@ -134,7 +143,7 @@ export const stockSlice = createSlice({
           type = "number";
           break;
         case "date":
-          type = 'date'
+          type = "date";
           break;
       }
       state.sort = { ...state.sort, ...payload, type: type };
@@ -179,12 +188,75 @@ export const stockSlice = createSlice({
       state.value = stocks;
       return state;
     },
-  },
-  [HYDRATE]: (state, action) => {
-    return {
-      ...state,
-      ...action.payload,
-    };
+    addDate(state, action) {
+      const dates = state.dates;
+      dates.push(action.payload);
+      state.dates = dates;
+
+      return state;
+    },
+    removeDate(state, action) {
+      const accessor = action.payload;
+      const dates = state.dates.filter((date) => date.accessor !== accessor);
+      state.dates = dates;
+
+      return state;
+    },
+    editDate(state, action) {
+      const payload = action.payload;
+      const dates = state.dates.map((date) => {
+        if (payload.accessor === date.accessor) {
+          let newDate = new Date(date.year, date.month, date.day);
+          switch (payload.type) {
+            case "year":
+              newDate.setFullYear(payload.value);
+              break;
+            case "month":
+              newDate.setMonth(payload.value);
+              break;
+            case "day":
+              newDate.setDate(payload.value);
+              break;
+            case "date":
+              newDate = new Date(payload.value);
+              break;
+            default:
+              break;
+          }
+          return {
+            year: newDate.getFullYear(),
+            month: newDate.getMonth(),
+            day: newDate.getDate(),
+            accessor: newDate.getTime(),
+          };
+        } else return date;
+      });
+      state.dates = dates;
+      return state;
+    },
+    newDate(state) {
+      const dates = state.dates;
+      const latestDate = dates.at(-1);
+      const newDate = new Date(latestDate.accessor);
+      console.log(newDate);
+      newDate.setDate(newDate.getDate() + 1);
+
+      dates.push({
+        year: newDate.getFullYear(),
+        month: newDate.getMonth(),
+        day: newDate.getDate(),
+        accessor: newDate.toLocaleDateString(),
+      });
+
+      state.dates = dates;
+      return state;
+    },
+    [HYDRATE]: (state, action) => {
+      return {
+        ...state,
+        ...action.payload,
+      };
+    },
   },
 });
 
@@ -195,14 +267,14 @@ export const {
   sortSold,
   setStocks,
   sortStocks,
-} = stockSlice.actions;
+} = filerSlice.actions;
 
-export const selectSort = (state) => state.stocks.sort;
-export const selectActive = (state) => state.stocks.sort.set;
-export const selectSold = (state) => state.stocks.sort.sold;
-export const selectHeaders = (state) => state.stocks.headers;
+export const selectSort = (state) => state.filer.sort;
+export const selectActive = (state) => state.filer.sort.set;
+export const selectSold = (state) => state.filer.sort.sold;
+export const selectHeaders = (state) => state.filer.headers;
 export const selectStocks = (state) => {
-  const stocks = state.stocks;
+  const stocks = state.filer;
   const sort = stocks.sort;
   const accessor = sort.sort;
   let next = stocks.value.slice();
@@ -239,5 +311,7 @@ export const selectStocks = (state) => {
 
   return next;
 };
+export const selectDates = (state) => state.filer.dates;
+export const { addDate, removeDate, editDate, newDate } = filerSlice.actions;
 
-export default stockSlice.reducer;
+export default filerSlice.reducer;

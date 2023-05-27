@@ -1,7 +1,7 @@
 import styles from "./Gain.module.css";
 import { useState } from "react";
 
-import { selectDates, newDate } from "@/redux/dateSlice";
+import { selectDates, newDate } from "@/redux/filerSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 // import { DndContext } from "@dnd-kit/core";
@@ -59,11 +59,11 @@ const Gain = () => {
                   {(provided) => (
                     <li
                       className={styles["select-item"]}
-                      ref={provided.innerRef}
-                      {...provided.draggbleProps}
+                      {...provided.draggableProps}
                       {...provided.dragHandleProps}
+                      ref={provided.innerRef}
                     >
-                      <Select key={index} date={date} />
+                      <Select date={date} />
                     </li>
                   )}
                 </Draggable>

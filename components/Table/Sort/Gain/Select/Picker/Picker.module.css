@@ -19,14 +19,14 @@
   margin-top: 25px;
 
   color: white;
-  background-color: #1c1c1b;
+  background-color: var(--secondary);
   border: solid white 1px;
   border-radius: 5px;
   transition: color 0.3s ease, background-color 0.3s ease;
 }
 
 .date:hover {
-  color: #1c1c1b;
+  color: var(--secondary);
   background-color: white;
 }
 
@@ -40,7 +40,7 @@
 }
 
 .date:hover .date-text {
-  color: #1c1c1b;
+  color: var(--secondary);
 }
 
 .calendar-svg {

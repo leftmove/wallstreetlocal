@@ -1,7 +1,7 @@
 import tableStyles from "../Table.module.css";
 
 import { useSelector } from "react-redux";
-import { selectHeaders, selectSort } from "@/redux/stockSlice";
+import { selectHeaders, selectSort } from "@/redux/filerSlice";
 
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "900" });

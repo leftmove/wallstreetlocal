@@ -11,7 +11,7 @@ import {
   sortActive,
   sortSold,
   activateHeader,
-} from "@/redux/stockSlice";
+} from "@/redux/filerSlice";
 
 const Filter = () => {
   const headers = useSelector(selectHeaders);

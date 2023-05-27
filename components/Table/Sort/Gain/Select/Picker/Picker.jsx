@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "900" });
 
-import { editDate } from "@/redux/dateSlice";
+import { editDate } from "@/redux/filerSlice";
 import { useDispatch } from "react-redux";
 
 import CalendarSVG from "./calendar.svg";

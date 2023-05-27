@@ -79,12 +79,12 @@
   padding: 8px;
 
   color: white;
-  background-color: #1c1c1b;
+  background-color: var(--secondary);
   border-radius: 8px;
   transition: color 0.3s ease, background-color 0.3s ease;
 }
 
 .add-date:hover {
   background-color: white;
-  color: #1c1c1b;
+  color: var(--secondary);
 }

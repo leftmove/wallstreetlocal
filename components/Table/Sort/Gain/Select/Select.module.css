@@ -1,4 +1,5 @@
 .date {
+  all: unset;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -10,8 +11,7 @@
   margin-top: 10px;
   margin-right: 10px;
 
-  animation: slide-in-right 0.3s;
-  background-color: #1c1c1b;
+  background-color: var(--secondary);
   border-radius: 5px;
 }
 
@@ -79,14 +79,14 @@
   margin-top: 15px;
 
   color: white;
-  background-color: #1c1c1b;
+  background-color: var(--secondary);
   border: solid white 1px;
   border-radius: 5px;
   transition: color 0.3s ease, background-color 0.3s ease;
 }
 
 .button:hover {
-  color: #1c1c1b;
+  color: var(--secondary);
   background-color: white;
 }
 
