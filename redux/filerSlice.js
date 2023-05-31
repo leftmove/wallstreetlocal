@@ -238,7 +238,6 @@ export const filerSlice = createSlice({
       const dates = state.dates;
       const latestDate = dates.at(-1);
       const newDate = new Date(latestDate.accessor);
-      console.log(newDate);
       newDate.setDate(newDate.getDate() + 1);
 
       dates.push({
@@ -259,15 +258,6 @@ export const filerSlice = createSlice({
     },
   },
 });
-
-export const {
-  activateHeader,
-  sortHeader,
-  sortActive,
-  sortSold,
-  setStocks,
-  sortStocks,
-} = filerSlice.actions;
 
 export const selectSort = (state) => state.filer.sort;
 export const selectActive = (state) => state.filer.sort.set;
@@ -311,7 +301,21 @@ export const selectStocks = (state) => {
 
   return next;
 };
-export const selectDates = (state) => state.filer.dates;
-export const { addDate, removeDate, editDate, newDate } = filerSlice.actions;
+export const selectDates = (state) =>
+  state.filer.dates.map((d) => {
+    return { ...d, id: d.accessor };
+  });
+export const {
+  activateHeader,
+  sortHeader,
+  sortActive,
+  sortSold,
+  setStocks,
+  sortStocks,
+  addDate,
+  removeDate,
+  editDate,
+  newDate,
+} = filerSlice.actions;
 
 export default filerSlice.reducer;

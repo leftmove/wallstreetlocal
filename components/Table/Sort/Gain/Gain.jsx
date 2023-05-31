@@ -4,9 +4,23 @@ import { useState } from "react";
 import { selectDates, newDate } from "@/redux/filerSlice";
 import { useDispatch, useSelector } from "react-redux";
 
-// import { DndContext } from "@dnd-kit/core";
-// import { useDroppable } from "@dnd-kit/core";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+  verticalListSortingStrategy,
+  sortableKeyboardCoordinates,
+} from "@dnd-kit/sortable";
+
+import { SortableList } from "./SortableList/SortableList";
 
 import Select from "./Select/Select";
 import Trash from "./trash.svg";
@@ -29,10 +43,39 @@ const Gain = () => {
   //   setDrag(false)
   // }
 
+  const [items, setItems] = useState([
+    { id: 1 },
+    { id: 2 },
+    { id: 3 },
+    { id: 4 },
+    { id: 5 },
+    { id: 6 },
+    { id: 7 },
+    { id: 8 },
+    { id: 9 },
+  ]);
+
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 6,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   return (
     <div className={styles["gains-container"]}>
-      <div className={styles["header"]}>
-        {/* <span className={[styles["header-title"], inter.className].join(" ")}>
+      {/* <div className={styles["header"]}>
+        <span className={[styles["header-title"], inter.className].join(" ")}>
           Gains
         </span>
         <span
@@ -40,37 +83,36 @@ const Gain = () => {
         >
           Compare gains from different time periods. Select a time period below
           to view the buy price, recent price, and percent gain.
-        </span> */}
-      </div>
-      <DragDropContext>
-        <Droppable dropppableId="dates">
-          {(provided) => (
-            <ul
-              className={styles["dates"]}
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-            >
-              {dates.map((date, index) => (
-                <Draggable
-                  key={date.accessor}
-                  draggableId={date.accessor}
-                  index={index}
-                >
-                  {(provided) => (
-                    <li
-                      className={styles["select-item"]}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      ref={provided.innerRef}
-                    >
-                      <Select date={date} />
-                    </li>
-                  )}
-                </Draggable>
-              ))}
-            </ul>
-          )}
-        </Droppable>
+        </span>
+      </div> */}
+      {/* <SortableList
+        items={items}
+        onChange={setItems}
+        renderItem={(item) => (
+          <SortableList.Item id={item}>
+            {item}
+            <SortableList.DragHandle />
+          </SortableList.Item>
+        )}
+      /> */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        autoScroll={false}
+      >
+        <SortableContext
+          items={dates.map((date) => date.accessor)}
+          strategy={horizontalListSortingStrategy}
+        >
+          {dates.map((date, index) => (
+            <Select
+              key={date.accessor}
+              id={date.accessor}
+              index={index}
+              date={date}
+            />
+          ))}
+        </SortableContext>
         <div className={styles["drop-buttons"]}>
           <button
             className={[
@@ -81,23 +123,17 @@ const Gain = () => {
           >
             <Plus />
           </button>
-          <Droppable dropppableId="trash">
-            {(provided) => (
-              <div
-                className={[
-                  styles["drop-button"],
-                  // drag ? styles["drop-button-drag"] : "",
-                ].join(" ")}
-                onClick={() => dispatch(removeDate())}
-                {...provided.droppableProps}
-                ref={provided.innerRef}
-              >
-                <Trash />
-              </div>
-            )}
-          </Droppable>
+          <div
+            className={[
+              styles["drop-button"],
+              // drag ? styles["drop-button-drag"] : "",
+            ].join(" ")}
+            onClick={() => dispatch(removeDate())}
+          >
+            <Trash />
+          </div>
         </div>
-      </DragDropContext>
+      </DndContext>
     </div>
   );
 };

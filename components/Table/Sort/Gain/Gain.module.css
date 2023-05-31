@@ -2,9 +2,10 @@
   display: flex;
   justify-content: flex-start;
   align-items: flex-start;
+  flex-wrap: wrap;
   position: relative;
 
-  margin: 20px;
+  margin-top: 20px;
 }
 
 .header {

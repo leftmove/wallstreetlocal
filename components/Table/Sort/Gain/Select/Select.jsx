@@ -4,6 +4,9 @@ import { useState, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { newDate, removeDate } from "@/redux/filerSlice";
 
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "900" });
 
@@ -12,28 +15,33 @@ import Minus from "./minus.svg";
 
 const Select = (props) => {
   const date = props.date;
-  const index = props.key;
+  const accessor = date.accessor;
+  const index = props.index;
 
   const dispatch = useDispatch();
   const getTimeseries = (accessor) => {};
 
-  // const { attributes, listeners, setSelectRef, transform } = useDraggable({
-  //   id: index,
-  // });
-  // const style = transform
-  //   ? {
-  //       translateX: transform.x,
-  //       translateY: transform.y,
-  //     }
-  //   : {};
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: accessor });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    cursor: isDragging ? "grab" : "auto",
+  };
 
   return (
-    <button
+    <div
       className={styles["date"]}
-      // ref={setSelectRef}
-      // style={style}
-      // {...listeners}
-      // {...attributes}
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
     >
       {/* <div className={styles["plus-minus"]}>
           <button
@@ -61,7 +69,7 @@ const Select = (props) => {
         Download Data
       </button>
       {/* Make Green? */}
-    </button>
+    </div>
   );
 };
 

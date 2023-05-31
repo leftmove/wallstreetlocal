@@ -37,7 +37,6 @@
 .filter-body {
   display: flex;
   flex-wrap: wrap;
-  margin: 30px;
   margin-bottom: 0px;
   width: fit-content;
 

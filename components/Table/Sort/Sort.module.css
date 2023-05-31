@@ -18,7 +18,7 @@
   overflow: hidden;
 
   padding: 10px;
-  margin: 20px;
+  margin: 30px;
   margin-top: 0px;
   margin-left: 0px;
   border-radius: 5px;
@@ -27,10 +27,13 @@
   transition-duration: 0.5s;
 }
 
+.sort-body {
+  margin: 30px;
+}
+
 .sort-expanded {
   background-color: #e0e0e0;
-  max-height: 400px;
-  overflow: auto;
+  max-height: 800px;
 
   transition-property: max-height, background-color;
   transition-duration: 0.3s;

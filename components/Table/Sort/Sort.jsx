@@ -24,8 +24,10 @@ const Sort = () => {
           onClick={() => setExpand(!expand)}
         />
       </div>
-      <Filter />
-      <Gain />
+      <div className={styles["sort-body"]}>
+        <Filter />
+        <Gain />
+      </div>
     </div>
   );
 };
