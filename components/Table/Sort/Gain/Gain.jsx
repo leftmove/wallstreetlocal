@@ -1,11 +1,12 @@
 import styles from "./Gain.module.css";
 import { useState } from "react";
 
-import { selectDates, newDate } from "@/redux/filerSlice";
+import { selectDates } from "@/redux/filerSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
   DndContext,
+  DragOverlay,
   closestCenter,
   KeyboardSensor,
   MouseSensor,
@@ -16,19 +17,15 @@ import {
 import {
   SortableContext,
   horizontalListSortingStrategy,
-  verticalListSortingStrategy,
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 
-import { SortableList } from "./SortableList/SortableList";
-
 import Select from "./Select/Select";
-import Trash from "./trash.svg";
-import Plus from "./plus.svg";
+import Plus from "./Droppable/Plus";
+import Trash from "./Droppable/Trash";
 
 const Gain = () => {
   const dates = useSelector(selectDates);
-  const dispatch = useDispatch();
 
   // const { isOver, setTrashRef } = useDroppable({
   //   id: "trash",
@@ -43,18 +40,7 @@ const Gain = () => {
   //   setDrag(false)
   // }
 
-  const [items, setItems] = useState([
-    { id: 1 },
-    { id: 2 },
-    { id: 3 },
-    { id: 4 },
-    { id: 5 },
-    { id: 6 },
-    { id: 7 },
-    { id: 8 },
-    { id: 9 },
-  ]);
-
+  const [event, setEvent] = useState(null);
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: {
@@ -71,6 +57,13 @@ const Gain = () => {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  const handleDragStart = (e) => {
+    setEvent(e);
+  };
+  const handleDragEnd = (e) => {
+    setEvent(e);
+  };
 
   return (
     <div className={styles["gains-container"]}>
@@ -99,6 +92,8 @@ const Gain = () => {
         sensors={sensors}
         collisionDetection={closestCenter}
         autoScroll={false}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
       >
         <SortableContext
           items={dates.map((date) => date.accessor)}
@@ -113,25 +108,10 @@ const Gain = () => {
             />
           ))}
         </SortableContext>
+
         <div className={styles["drop-buttons"]}>
-          <button
-            className={[
-              styles["drop-button"],
-              // drag ? styles["drop-button-drag"] : "",
-            ].join(" ")}
-            onClick={() => dispatch(newDate())}
-          >
-            <Plus />
-          </button>
-          <div
-            className={[
-              styles["drop-button"],
-              // drag ? styles["drop-button-drag"] : "",
-            ].join(" ")}
-            onClick={() => dispatch(removeDate())}
-          >
-            <Trash />
-          </div>
+          <Plus event={event} />
+          <Trash event={event} />
         </div>
       </DndContext>
     </div>

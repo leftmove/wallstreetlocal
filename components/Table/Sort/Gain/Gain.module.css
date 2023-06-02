@@ -33,6 +33,7 @@
   position: absolute;
 
   width: 100px;
+  height: 30px;
   top: 5px;
   right: 5px;
 }
@@ -54,12 +55,17 @@
   transition: color 0.3s ease, background-color 0.3s ease, width 0.3s ease;
 }
 
-.drop-button-drag {
+.drop-button:hover {
   width: 30px;
 
   color: black;
   background-color: white;
 }
+
+.drop-button-drag {
+  width: 20px;
+}
+
 
 .dates {
   display: flex;

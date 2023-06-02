@@ -32,7 +32,8 @@ const Select = (props) => {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    cursor: isDragging ? "grab" : "auto",
+    cursor: isDragging ? "grabbing" : "grab",
+    opacity: isDragging ? 0.8 : 1,
   };
 
   return (
