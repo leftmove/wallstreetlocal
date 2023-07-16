@@ -1,0 +1,1 @@
+export { setCik } from "./stocks";

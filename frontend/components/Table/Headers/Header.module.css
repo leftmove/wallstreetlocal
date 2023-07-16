@@ -1,0 +1,53 @@
+.column {
+  color: #c8c4c3;
+  text-align: left;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  letter-spacing: 0.01071em;
+  display: table-cell;
+  vertical-align: inherit;
+  border: 2px solid gray;
+  text-align: left;
+  padding: 16px;
+}
+
+.header-column {
+  text-align: left;
+  vertical-align: middle;
+}
+
+.column-highlighted {
+  color: white;
+}
+
+.column-button {
+  all: unset;
+  cursor: pointer;
+}
+
+.button {
+  all: unset;
+  vertical-align: middle;
+
+  cursor: pointer;
+  width: 17px;
+  opacity: 0.5;
+
+  transition-duration: 0.3s;
+  transition-property: transform;
+}
+
+.button-click {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.button-reverse {
+  vertical-align: middle;
+  transform: rotate(180deg);
+}
+
+.button-image {
+  margin-right: 4px;
+  margin-left: 4px;
+}

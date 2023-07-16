@@ -1,0 +1,29 @@
+
+
+.filter-body {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+
+  margin-bottom: 0px;
+  width: 100%;
+
+  border-radius: 5px;
+}
+
+.filter-headers {
+  display: flex;
+  flex-wrap: wrap;
+
+  width: 100%;
+}
+
+.filter-buttons {
+  display: flex;
+}
+
+.filter-hint {
+  font-size: 0.8rem;
+  margin-top: 10px;
+  opacity: 0.5;
+}

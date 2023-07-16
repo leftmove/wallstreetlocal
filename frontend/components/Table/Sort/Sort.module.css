@@ -1,0 +1,50 @@
+.sort-header {
+  display: flex;
+  align-items: center;
+}
+
+.sort-icon {
+  height: 20px;
+  cursor: pointer;
+
+  color: white;
+  transition: color 0.3s ease;
+}
+
+.expand-button {
+  width: 20px;
+}
+
+.sort-container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  padding: 10px;
+  margin: 30px;
+  margin-top: 0px;
+  margin-left: 0px;
+  border-radius: 5px;
+
+  max-height: 20px;
+  transition-property: max-height, background-color;
+  transition-duration: 0.3s;
+  transition-timing-function: cubic-bezier(1, 1, 1, 1);
+}
+
+.sort-body {
+  margin: 30px;
+}
+
+.sort-expanded {
+  background-color: #e0e0e0;
+  max-height: 800px;
+
+  transition-property: max-height, background-color;
+  transition-duration: 0.3s;
+  transition-timing-function: cubic-bezier(1, 1, 1, 1);
+}
+
+.sort-expanded .sort-icon {
+  color: black;
+}

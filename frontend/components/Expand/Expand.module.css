@@ -1,0 +1,13 @@
+.expand {
+  all: unset;
+  cursor: pointer;
+
+  width: 20px;
+  transition: rotate 0.3s ease;
+
+  color: white;
+}
+
+.clicked {
+  rotate: 180deg;
+}

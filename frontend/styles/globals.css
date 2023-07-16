@@ -1,0 +1,36 @@
+html,
+body {
+  overflow-x: hidden;
+  margin: auto;
+
+  width: 100%;
+  height: 100%;
+
+  background-color: rgb(22, 22, 22);
+}
+
+:root {
+  --primary: #04df16;
+  --primary-dark: #02c002;
+  --secondary: #1c1c1b;
+  --secondary-dark: #0c0c0c;
+  --offwhite: #e2e1e1;
+  --offwhite-dark: #b8b8b8;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--secondary-green) var(--secondary);
+}

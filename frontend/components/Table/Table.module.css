@@ -1,0 +1,51 @@
+.table {
+  background-color: var(--secondary);
+  border-collapse: collapse;
+
+  width: 100%;
+  overflow: hidden;
+}
+
+.table-container {
+  margin: 20px;
+
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.header-column {
+  text-align: left;
+  vertical-align: middle;
+}
+
+.body-column {
+  text-align: left;
+}
+
+.column {
+  color: white;
+  text-align: left;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  letter-spacing: 0.01071em;
+  display: table-cell;
+  vertical-align: inherit;
+  border: 2px solid var(--offwhite-dark);
+  text-align: left;
+  padding: 16px;
+}
+
+.column-highlighted {
+  color: white;
+}
+
+.column-dehighlighted {
+  color: var(--offwhite-dark);
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+
+  font-size: 1rem;
+}

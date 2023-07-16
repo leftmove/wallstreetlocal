@@ -1,0 +1,46 @@
+.progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  margin: auto;
+  margin-top: 20px;
+  width: 80%;
+  height: 60vh;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+.header {
+  text-align: center;
+
+  width: 20%;
+  font-size: 2rem;
+  padding: 10px;
+  border-radius: 5px;
+
+  color: black;
+  background-color: var(--offwhite);
+}
+
+.logs {
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+
+  width: 90%;
+  height: 90%;
+  margin: 20px;
+  padding: 20px;
+  padding-bottom: 10px;
+  border-radius: 5px;
+
+  background-color: rgb(41, 41, 41);
+}
+
+.log {
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+
+  color: white;
+}

@@ -1,0 +1,22 @@
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  height: 75px;
+  width: 100vw;
+
+  background-color: var(--secondary);
+}
+
+.logo-text {
+  font-size: 1.3rem;
+}
+
+#whale {
+  color: var(--primary);
+}
+
+#market {
+  color: white;
+}
