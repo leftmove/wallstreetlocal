@@ -1,0 +1,37 @@
+version: '4'
+
+services:
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    restart: always
+    ports:
+      - 3000:3000
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    restart: always
+    environment:
+      - FINN_HUB_API_KEY=***REMOVED***
+      - ALPHA_VANTAGE_API_KEY=***REMOVED***
+
+      - MONGO_SERVER_URL=db
+      - REDIS_SERVER_URL=redis
+    ports:
+      - 8000:8000
+  redis:
+    container_name: kv
+    image: redis
+  db:
+    container_name: database
+    build: 
+      context: ./db
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./db:/data/db
+    

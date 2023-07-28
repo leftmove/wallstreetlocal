@@ -1,0 +1,12 @@
+FROM python:3.9-alpine
+
+WORKDIR /code
+
+COPY requirements.txt ./requirements.txt
+COPY main.py ./main.py
+
+COPY routers ./routers
+
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+
+CMD ["uvicorn", "main:app", "--reload"]

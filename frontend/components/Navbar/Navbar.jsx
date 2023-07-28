@@ -35,13 +35,13 @@ const Navbar = (props) => {
           <Link href="/">about</Link>
         </li> */}
         <li className={styles["item"] + " " + inter.className}>
-          <Link href="/resources">Resources</Link>
+          <Link href="/about/resources">Resources</Link>
         </li>
         {/* <li className={styles["item"] + " " + inter.className}>
           <Link href="/">pricing</Link>
         </li> */}
         <li className={styles["item"] + " " + inter.className}>
-          <Link href="/contact">Contact</Link>
+          <Link href="/about/contact">Contact</Link>
         </li>
       </ul>
     </nav>

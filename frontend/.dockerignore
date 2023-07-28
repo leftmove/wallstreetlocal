@@ -1,0 +1,6 @@
+node_modules
+.eslintrc.json
+.gitignore
+.prettierrc
+next-env.d.ts
+README.md

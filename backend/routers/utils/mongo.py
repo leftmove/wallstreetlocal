@@ -7,7 +7,7 @@ load_dotenv()
 
 MONGO_SERVER_URL = getenv("MONGO_SERVER_URL")
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_SERVER_URL)
-db = client["Whale-Stocks"]
+db = client["wallstreetlocal"]
 main = db["filers"]
 stocks = db["stocks"]
 companies = db["companies"]

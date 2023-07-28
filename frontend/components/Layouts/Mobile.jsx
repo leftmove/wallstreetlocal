@@ -5,7 +5,7 @@ const inter = Inter({ subsets: ["latin"], weight: "900" });
 
 export default function MobileLayout() {
   return (
-    <div className={styles.mobile}>
+    <div className={styles.fill}>
       <span className={inter.className}>
         wallstreetlocal is not available on mobile just yet.
       </span>

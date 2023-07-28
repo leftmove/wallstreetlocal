@@ -1,5 +1,6 @@
 from fastapi import BackgroundTasks, APIRouter, HTTPException, WebSocket
 from fastapi.concurrency import run_in_threadpool
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from .utils.scrape import *
@@ -10,6 +11,7 @@ from .utils.cache import *
 
 from datetime import datetime
 import asyncio
+import json
 
 
 from dotenv import load_dotenv
@@ -134,6 +136,13 @@ async def query_filer(cik: str, background_tasks: BackgroundTasks):
 
 #     return res
 
+indexes = ["name", "tickers", "cik"]
+for index in indexes:
+    try:
+        companies.create_index([(index, "text")], name=f"{index}-index")
+    except:
+        pass
+
 
 @cache(24)
 @router.get("/search/", tags=["filers"], status_code=200)
@@ -141,10 +150,11 @@ async def search_filers(q: str):
     pipeline = [
         {
             "$search": {
-                "index": "search-companies",
-                "compound": {
-                    "should": [{"autocomplete": {"query": q, "path": "name"}}]
-                },
+                "autocomplete": {
+                    "query": q,
+                    "path": "name",
+                    "fuzzy": {"maxEdits": 2, "prefixLength": len(q)},
+                }
             }
         },
         {"$match": {"13f": True}},
@@ -312,3 +322,21 @@ async def filer_info(cik: str):
         raise HTTPException(404, detail="Filer not found.")
 
     return {"description": "Found filer.", "filer": filer}
+
+
+@cache
+@router.get("/record/", tags=["filers", "records"], status_code=200)
+async def record(cik: str):
+    filer = await find_filer(cik, {"_id": 0})
+    if filer == None:
+        raise HTTPException(404, detail="Filer not found.")
+
+    filename = f"wallstreetlocal-{cik}.json"
+    file_path = f"../static/{filename}"
+    with open(file_path, "w") as r:
+        filer_record = json.load(filer)
+        json.dump(r, filer_record)
+
+    return FileResponse(
+        file_path, media_type="application/octet-stream", filename=filename
+    )

@@ -1,0 +1,19 @@
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm install
+
+COPY jsconfig.json ./jsconfig.json
+COPY next.config.js ./next.config.js
+
+COPY pages ./pages
+COPY public ./public
+COPY components ./components
+COPY styles ./styles
+COPY redux ./redux
+
+ENV NEXT_TELEMETRY_DISABLED 1
+
+CMD [ "npm", "run", "dev" ]
