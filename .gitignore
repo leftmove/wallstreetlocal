@@ -26,7 +26,12 @@ whale-project.code-workspace
 /frontend/.prettierrc
 
 /backend/development.test.py
+/backend/routers/__pycache__
+/backend/routers/utils/__pycache__
 
-/db/*
+/database/data.mongo
+
+/search/data.ms
+/search/companies.json
 
 docker-proj.zip

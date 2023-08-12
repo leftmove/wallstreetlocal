@@ -136,13 +136,6 @@ async def query_filer(cik: str, background_tasks: BackgroundTasks):
 
 #     return res
 
-indexes = ["name", "tickers", "cik"]
-for index in indexes:
-    try:
-        companies.create_index([(index, "text")], name=f"{index}-index")
-    except:
-        pass
-
 
 @cache(24)
 @router.get("/search/", tags=["filers"], status_code=200)

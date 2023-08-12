@@ -1,9 +1,11 @@
 from fastapi import APIRouter
 
+from .utils import start
+
+start.initialize()
 router = APIRouter(
     tags=["general"],
-    responses={
-    },
+    responses={},
 )
 
 

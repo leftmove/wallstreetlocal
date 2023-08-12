@@ -18,7 +18,7 @@
       "request": "launch",
       "module": "uvicorn",
       "cwd": "${workspaceFolder}/backend/",
-      "args": ["main:app", "--reload", "--port", "8000"]
+      "args": ["main:app", "--reload", "--host", "127.0.0.1", "--port", "8000"]
     },
     {
       "name": "Javascript: Next.js",

@@ -6,6 +6,8 @@ load_dotenv()
 
 
 MONGO_SERVER_URL = getenv("MONGO_SERVER_URL")
+print("[ Database (MongoDB) Initializing ] ...")
+
 client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_SERVER_URL)
 db = client["wallstreetlocal"]
 main = db["filers"]
@@ -76,3 +78,6 @@ async def watch_logs(pipeline):
 async def search_sec(pipeline):
     cursor = companies.aggregate(pipeline)
     return cursor
+
+
+print("[ Database (MongoDB) Initialized ]")

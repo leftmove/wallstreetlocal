@@ -5,6 +5,8 @@ from datetime import datetime
 
 # pyright: reportGeneralTypeIssues=false
 
+print("[ Analysis Initializing ] ...")
+
 
 async def convert_date(date_str):
     date = (datetime.strptime(date_str, "%Y-%m-%d")).timestamp()
@@ -278,3 +280,6 @@ async def stock_filter(stocks):
     stock_list = []
     for stock in stocks:
         stock_list.append(stock)
+
+
+print("[ Analysis Initialized ]")

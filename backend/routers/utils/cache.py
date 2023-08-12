@@ -4,6 +4,8 @@ import json
 from time import time
 from inspect import iscoroutinefunction
 
+print("[ Cache (Redis) Initializing ] ...")
+
 r = redis.Redis(host="localhost", port=6379)
 
 
@@ -43,3 +45,6 @@ def cache(func, hours=2):
         return value
 
     return wrapper
+
+
+print("[ Cache (Redis) Initialized ]")

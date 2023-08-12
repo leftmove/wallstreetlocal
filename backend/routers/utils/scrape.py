@@ -12,6 +12,8 @@ import re
 load_dotenv()
 
 
+print("[ Data Initializing ] ...")
+
 capital_pattern = re.compile(r"(.)([A-Z][a-z]+)")
 underscore_pattern = re.compile(r"([a-z0-9])([A-Z])")
 
@@ -504,3 +506,6 @@ async def scrape_latest_stocks(company):
     scraped_stocks.update(new_stocks)
 
     return scraped_stocks
+
+
+print("[ Data Initialized ]")

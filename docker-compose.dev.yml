@@ -1,47 +1,65 @@
 version: '4'
 
 services:
-  frontend:
-    container_name: frontend
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
-    restart: always
-    volumes:
-      - ./frontend/pages:/app/pages
-      - ./frontend/public:/app/public
-      - ./frontend/components:/app/components
-      - ./frontend/styles:/app/styles
-      - ./frontend/redux:/app/redux
-    ports:
-      - 3000:3000
-  backend:
-    container_name: backend
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.dev
-    restart: always
-    environment:
-      - FINN_HUB_API_KEY=***REMOVED***
-      - ALPHA_VANTAGE_API_KEY=***REMOVED***
+  # frontend:
+  #   container_name: frontend
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile.dev
+  #   restart: always
+  #   volumes:
+  #     - ./frontend/pages:/app/pages
+  #     - ./frontend/public:/app/public
+  #     - ./frontend/components:/app/components
+  #     - ./frontend/styles:/app/styles
+  #     - ./frontend/redux:/app/redux
+  #   ports:
+  #     - 3000:3000
+  # backend:
+  #   container_name: backend
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile.dev
+  #   restart: always
+  #   environment:
+  #     - FINN_HUB_API_KEY=***REMOVED***
+  #     - ALPHA_VANTAGE_API_KEY=***REMOVED***
 
-      - MONGO_SERVER_URL=database
-      - REDIS_SERVER_URL=redis
-    volumes:
-      - ./backend/routers:/code/routers
-    ports:
-      - 8000:8000
-  redis:
-    container_name: kv
-    image: redis
+  #     - MONGO_SERVER_URL=database
+  #     - MONGO_BACKUP_URL=***REMOVED***
+
+  #     - REDIS_SERVER_URL=cache
+  #   volumes:
+  #     - ./backend/routers:/code/routers
+  #   ports:
+  #     - 8000:8000
+  #   depends_on:
+  #     - database
+  #     - cache
+  cache:
+    container_name: cache
+    image: redis:alpine
     restart: always
+    ports:
+      - 6379:6379
   database:
     container_name: database
     build:
-      context: ./db
+      context: ./database
       dockerfile: Dockerfile
     restart: always
     volumes:
-      - ./db:/data/db
+      - ./database/data.mongo:/data/db
+    logging:
+      driver: "none"
     ports:
       - 27017:27017
+  search:
+    container_name: search
+    build:
+      context: ./search
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 7700:7700
+    
