@@ -2,8 +2,8 @@ import motor.motor_asyncio
 from dotenv import load_dotenv
 from os import getenv
 
-load_dotenv()
 
+load_dotenv()
 
 MONGO_SERVER_URL = getenv("MONGO_SERVER_URL")
 print("[ Database (MongoDB) Initializing ] ...")

@@ -9,9 +9,8 @@ import bson
 from tqdm import tqdm
 import json
 
-from .mongo import *
-from .search import *
-
+from .utils.mongo import *
+from .utils.search import *
 
 # pyright: reportGeneralTypeIssues=false
 # pyright: reportUnboundVariable=false
@@ -59,7 +58,7 @@ async def main():
         companies_path = "./static"
 
         if search_empty:
-            with open(f"{companies_path}/companies.json", "w") as f:
+            with open(f"{companies_path}/companies.json", "w+") as f:
                 progress = tqdm(
                     total=companies_count, desc="Pulling Index", unit="document"
                 )
