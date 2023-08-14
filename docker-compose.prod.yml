@@ -1,4 +1,4 @@
-version: '4'
+version: '5'
 
 services:
   frontend:
@@ -19,19 +19,32 @@ services:
       - FINN_HUB_API_KEY=***REMOVED***
       - ALPHA_VANTAGE_API_KEY=***REMOVED***
 
-      - MONGO_SERVER_URL=db
-      - REDIS_SERVER_URL=redis
+      - MONGO_SERVER_URL=database
+      - MONGO_BACKUP_URL=***REMOVED***
+
+      - REDIS_SERVER_URL=cache
     ports:
       - 8000:8000
-  redis:
-    container_name: kv
-    image: redis
-  db:
+    depends_on:
+      - database
+      - cache
+      - search
+  cache:
+    container_name: cache
+    image: redis:alpine
+    restart: always
+  database:
     container_name: database
-    build: 
-      context: ./db
+    build:
+      context: ./database
       dockerfile: Dockerfile
     restart: always
-    volumes:
-      - ./db:/data/db
+    logging:
+      driver: "none"
+  search:
+    container_name: search
+    build:
+      context: ./search
+      dockerfile: Dockerfile
+    restart: always
     
