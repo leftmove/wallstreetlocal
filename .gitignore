@@ -26,6 +26,7 @@ whale-project.code-workspace
 /frontend/.prettierrc
 
 /backend/development.test.py
+/backend/__pycache__
 /backend/routers/__pycache__
 /backend/routers/utils/__pycache__
 /backend/static/companies.bson
