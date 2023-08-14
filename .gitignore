@@ -1,5 +1,7 @@
 whale-project.code-workspace
 
+/.vscode
+
 /frontend/node_modules
 /frontend/.pnp
 /frontend/.pnp.js
