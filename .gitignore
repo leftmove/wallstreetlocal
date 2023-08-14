@@ -32,9 +32,6 @@ whale-project.code-workspace
 /backend/static/companies.bson
 /backend/static/companies.json
 
-/database/data.mongo/*
-
-/search/data.ms/*
 /search/companies.json
 
 docker-proj.zip
