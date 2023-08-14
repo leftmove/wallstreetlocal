@@ -1,1 +1,0 @@
-meilisearch-import --dataset companies --file companies.json --filter filter.json --pk cik

@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from asyncio import run
 
 from .utils import start
 
