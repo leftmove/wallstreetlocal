@@ -16,13 +16,16 @@ services:
       dockerfile: Dockerfile.prod
     restart: always
     environment:
-      - FINN_HUB_API_KEY=***REMOVED***
-      - ALPHA_VANTAGE_API_KEY=***REMOVED***
+      - FINN_HUB_API_KEY = "***REMOVED***"
+      - ALPHA_VANTAGE_API_KEY = "***REMOVED***"
 
-      - MONGO_SERVER_URL=database
-      - MONGO_BACKUP_URL=***REMOVED***
+      - MONGO_SERVER_URL = "mongodb://mongo:27017"
+      - MONGO_BACKUP_URL = "***REMOVED***"
 
-      - REDIS_SERVER_URL=cache
+      - REDIS_SERVER_URL = "http://redis:6379"
+
+      - MEILISEARCH_SERVER_URL = "http://search:7700"
+      - MEILISEARCH_MASTER_KEY = "***REMOVED***"
     ports:
       - 8000:8000
     depends_on:
