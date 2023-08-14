@@ -1,4 +1,4 @@
-import styles from "@/styles/Mobile.module.css";
+import styles from "@/styles/Fill.module.css";
 
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "900" });
