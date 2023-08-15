@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 from .utils.scrape import *
 from .utils.mongo import *
+from .utils.search import *
 from .utils.api import *
 from .utils.analysis import *
 from .utils.cache import *
@@ -140,33 +141,16 @@ async def query_filer(cik: str, background_tasks: BackgroundTasks):
 @cache(24)
 @router.get("/search/", tags=["filers"], status_code=200)
 async def search_filers(q: str):
-    pipeline = [
-        {
-            "$search": {
-                "autocomplete": {
-                    "query": q,
-                    "path": "name",
-                    "fuzzy": {"maxEdits": 2, "prefixLength": len(q)},
-                }
-            }
-        },
-        {"$match": {"13f": True}},
-        {"$sort": {"popular": -1}},
-        {"$limit": 4},
-        {"$project": {"_id": 0}},
-    ]
-    raw_results = []
-    cursor = await search_sec(pipeline)
-    async for document in cursor:
-        raw_results.append(document)
+    options = {"limit": 4, "filter": ["13f = true"]}
+    hits = await search_companies(q, options)
 
     results = []
-    for result in raw_results:
+    for result in hits:
         result_names = list(map(lambda n: n["name"], results))
         if result["name"] not in result_names:
             results.append(result)
 
-    return {"description": "Successfully queried 13F filers.", "results": results}
+    return {"description": "Successfully queried 13F filers.", "results": hits}
 
 
 @router.websocket("/logs")

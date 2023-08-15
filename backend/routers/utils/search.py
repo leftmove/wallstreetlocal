@@ -17,5 +17,15 @@ MONGO_BACKUP_URL = getenv("MONGO_BACKUP_URL")
 print("[ Search (Meilisearch) Initializing ] ...")
 
 search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
+companies_index = search.index("companies")
+companies_index.update_filterable_attributes(["13f"])
+
+
+async def search_companies(query, options={}):
+    result = companies_index.search(query, options)
+    hits = result["hits"]
+
+    return hits
+
 
 print("[ Search (Meilisearch) Initialized ]")

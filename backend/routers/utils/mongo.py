@@ -75,9 +75,9 @@ async def watch_logs(pipeline):
     return cursor
 
 
-async def search_sec(pipeline):
-    cursor = companies.aggregate(pipeline)
-    return cursor
+# async def search_sec(pipeline):
+#     cursor = companies.aggregate(pipeline)
+#     return cursor
 
 
 print("[ Database (MongoDB) Initialized ]")

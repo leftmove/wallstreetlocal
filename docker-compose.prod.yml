@@ -1,4 +1,4 @@
-version: '5'
+version: '5.6'
 
 services:
   frontend:
@@ -8,6 +8,8 @@ services:
       dockerfile: Dockerfile.prod
     ports:
       - 3000:3000
+    depends_on:
+      - backend
     restart: always
   backend:
     container_name: backend
@@ -49,7 +51,5 @@ services:
     build:
       context: ./search
       dockerfile: Dockerfile
-    volumes:
-      - ./search/data.ms:/data/data.ms
     restart: always
     
