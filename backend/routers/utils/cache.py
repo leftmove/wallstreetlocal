@@ -3,10 +3,16 @@ from functools import wraps
 import json
 from time import time
 from inspect import iscoroutinefunction
+from dotenv import load_dotenv
+from os import getenv
 
+REDIS_SERVER_URL = getenv("REDIS_SERVER_URL")
+load_dotenv()
 print("[ Cache (Redis) Initializing ] ...")
 
-r = redis.Redis(host="localhost", port=6379)
+# pyright: reportGeneralTypeIssues=false
+
+r = redis.Redis(host=REDIS_SERVER_URL, port=6379)
 
 
 def timing(f):

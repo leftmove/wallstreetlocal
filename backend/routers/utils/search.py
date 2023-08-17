@@ -18,7 +18,6 @@ print("[ Search (Meilisearch) Initializing ] ...")
 
 search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
 companies_index = search.index("companies")
-companies_index.update_filterable_attributes(["13f"])
 
 
 async def search_companies(query, options={}):

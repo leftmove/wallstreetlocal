@@ -161,6 +161,7 @@ async def logs(websocket: WebSocket, cik: str):
     pipeline = [{"$match": {"cik": cik}}, {"$project": {"log": 1}}]
     try:
         cursor = await find_logs(pipeline)
+
         document = [document async for document in cursor][0]
         log = document["log"]
         logs = []

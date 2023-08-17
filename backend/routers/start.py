@@ -1,16 +1,12 @@
 import asyncio
-import threading
-import warnings
 
 
 import motor.motor_asyncio
-from bson.json_util import dumps
 from tqdm import tqdm
 
 from .utils.mongo import *
 from .utils.search import *
 
-import json
 
 # pyright: reportGeneralTypeIssues=false
 # pyright: reportUnboundVariable=false
@@ -69,9 +65,15 @@ async def main():
                 documents.append(document)
             else:
                 if db_empty:
-                    companies.insert_many(documents)
+                    try:
+                        companies.insert_many(documents)
+                    except:
+                        pass
                 if search_empty:
-                    companies_index.add_documents(documents)
+                    try:
+                        companies_index.add_documents(documents)
+                    except:
+                        pass
                 progress.update(batch)
                 documents = []
                 i = 0

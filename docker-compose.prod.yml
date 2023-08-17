@@ -51,5 +51,7 @@ services:
     build:
       context: ./search
       dockerfile: Dockerfile
+    volumes:
+      - ./search/data.ms:/data/data.ms
     restart: always
     
