@@ -1,13 +1,20 @@
 /** @type {import('next').NextConfig} */
+
+
+const server = process.env.BACKEND_SERVER_URL
 const nextConfig = {
   reactStrictMode: true,
   async rewrites() {
     return [
       {
-        source: "/api/:path*",
-        destination: "http://127.0.0.1:8000/:path*", // Proxy to Backend
+        source: '/api/',
+        destination: `${server}/`,
       },
-    ];
+      {
+        source: '/api/:slug',
+        destination: `${server}/:slug/`, // Matched parameters can be used in the destination
+      },
+    ]
   },
   webpack(config) {
     const fileLoaderRule = config.module.rules.find((rule) =>

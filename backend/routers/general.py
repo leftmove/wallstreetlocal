@@ -12,3 +12,7 @@ router = APIRouter(
 @router.get("/", status_code=200)
 async def info():
     return {"message": "Hello World!"}
+
+@router.get("/undefined", status_code=200)
+async def info():
+    return {"message": "Hello World!"}

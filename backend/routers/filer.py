@@ -153,20 +153,69 @@ async def search_filers(q: str):
     return {"description": "Successfully queried 13F filers.", "results": hits}
 
 
-@router.websocket("/logs")
-async def logs(websocket: WebSocket, cik: str):
-    await websocket.accept()
-    await asyncio.sleep(3)
+# @router.websocket("/logs")
+# async def logs(websocket: WebSocket, cik: str):
+#     await websocket.accept()
+#     await asyncio.sleep(3)
+
+#     pipeline = [{"$match": {"cik": cik}}, {"$project": {"log": 1}}]
+#     try:
+#         cursor = await find_logs(pipeline)
+
+#         document = [document async for document in cursor][0]
+#         log = document["log"]
+#         logs = []
+#         for raw_log in log["logs"]:
+#             logs.extend(raw_log.split("\n"))
+#         log["logs"] = logs
+#     except IndexError:
+#         raise HTTPException(404, detail="CIK not found.")
+#     except Exception as e:
+#         print(e)
+#         raise HTTPException(404, detail="Error fetching logs.")
+
+#     await websocket.send_text("\n".join(logs))
+#     skip = len(logs)
+
+#     run = True
+#     while run:
+#         cursor = await find_logs(pipeline)
+#         document = [document async for document in cursor][0]
+#         log = document["log"]
+#         results = log["logs"][skip:]
+#         stop = log["stop"]
+
+#         for log in results:
+#             await websocket.send_text(log)
+#         logs.extend(results)
+
+#         if stop:
+#             run = False
+#             time_taken = await time_format(log["end"] - log["start"])
+
+#             await websocket.send_text(f"\n\nCreated Filer in {time_taken}!")
+#             await websocket.send_text(f"Reloading the page in 10 seconds...")
+#             await asyncio.sleep(3)
+#             break
+
+#         skip = len(logs)
+#         await asyncio.sleep(3)
+
+@router.get("/logs")
+async def logs(cik: str, start: int = 0):
 
     pipeline = [{"$match": {"cik": cik}}, {"$project": {"log": 1}}]
     try:
         cursor = await find_logs(pipeline)
-
         document = [document async for document in cursor][0]
+        
         log = document["log"]
         logs = []
         for raw_log in log["logs"]:
             logs.extend(raw_log.split("\n"))
+        logs = logs[start:]
+        
+        log["count"] = len(logs)
         log["logs"] = logs
     except IndexError:
         raise HTTPException(404, detail="CIK not found.")
@@ -174,90 +223,64 @@ async def logs(websocket: WebSocket, cik: str):
         print(e)
         raise HTTPException(404, detail="Error fetching logs.")
 
-    await websocket.send_text("\n".join(logs))
-    skip = len(logs)
+    return log
 
-    run = True
-    while run:
-        cursor = await find_logs(pipeline)
-        document = [document async for document in cursor][0]
-        log = document["log"]
-        results = log["logs"][skip:]
-        stop = log["stop"]
+# @router.get("/aggregate/", tags=["filers"], status_code=201)
+# async def migrate_filers(password: str):
+#     if password != getenv("ADMIN_PASSWORD"):
+#         raise HTTPException(
+#             403,
+#             detail="Incorrect password, access is forbidden. This route is meant for admins.",
+#         )
 
-        for log in results:
-            await websocket.send_text(log)
-        logs.extend(results)
+#     directory = "../submissions"
+#     count = 0
+#     for filename in scandir(directory):
+#         try:
+#             with open(filename, "r") as submission:
+#                 filer = json.load(submission)
 
-        if stop:
-            run = False
-            time_taken = await time_format(log["end"] - log["start"])
+#             if "submissions" in filename.name:
+#                 filings = filer
+#                 filer_dir = f"{directory}/{filename.name[:13]}.json"
+#                 with open(filer_dir, "r") as submission:
+#                     filer = json.load(submission)
+#             else:
+#                 filings = filer["filings"]["recent"]
 
-            await websocket.send_text(f"\n\nCreated Filer in {time_taken}!")
-            await websocket.send_text(f"Reloading the page in 10 seconds...")
-            await asyncio.sleep(3)
-            break
+#             cik = filer["cik"]
+#             found_filer = await companies.find_one({"cik": filer["cik"]})
 
-        skip = len(logs)
-        await asyncio.sleep(3)
+#             if found_filer == None:
+#                 name = filer["name"]
+#                 form_types = filings["form"]
+#                 if "13F-HR" in form_types:
+#                     thirteen_f = True
+#                     print(f"Found 13F-HR filing for {name} ({count})")
+#                 else:
+#                     thirteen_f = False
 
+#                 new_filer = {
+#                     "name": name,
+#                     "cik": cik,
+#                     "tickers": filer["tickers"],
+#                     "exchanges": filer["exchanges"],
+#                     "sic": filer["sic"],
+#                     "ein": filer["ein"],
+#                     "13f": thirteen_f,
+#                     "description": filer["description"],
+#                     "sic_description": filer["sicDescription"],
+#                     "website": filer["website"],
+#                     "category": filer["category"],
+#                     "phone": filer["phone"],
+#                     "addresses": filer["addresses"],
+#                     "former_names": filer["formerNames"],
+#                 }
+#                 await companies.insert_one(new_filer)
 
-@router.get("/aggregate/", tags=["filers"], status_code=201)
-async def migrate_filers(password: str):
-    if password != getenv("ADMIN_PASSWORD"):
-        raise HTTPException(
-            403,
-            detail="Incorrect password, access is forbidden. This route is meant for admins.",
-        )
-
-    directory = "../submissions"
-    count = 0
-    for filename in scandir(directory):
-        try:
-            with open(filename, "r") as submission:
-                filer = json.load(submission)
-
-            if "submissions" in filename.name:
-                filings = filer
-                filer_dir = f"{directory}/{filename.name[:13]}.json"
-                with open(filer_dir, "r") as submission:
-                    filer = json.load(submission)
-            else:
-                filings = filer["filings"]["recent"]
-
-            cik = filer["cik"]
-            found_filer = await companies.find_one({"cik": filer["cik"]})
-
-            if found_filer == None:
-                name = filer["name"]
-                form_types = filings["form"]
-                if "13F-HR" in form_types:
-                    thirteen_f = True
-                    print(f"Found 13F-HR filing for {name} ({count})")
-                else:
-                    thirteen_f = False
-
-                new_filer = {
-                    "name": name,
-                    "cik": cik,
-                    "tickers": filer["tickers"],
-                    "exchanges": filer["exchanges"],
-                    "sic": filer["sic"],
-                    "ein": filer["ein"],
-                    "13f": thirteen_f,
-                    "description": filer["description"],
-                    "sic_description": filer["sicDescription"],
-                    "website": filer["website"],
-                    "category": filer["category"],
-                    "phone": filer["phone"],
-                    "addresses": filer["addresses"],
-                    "former_names": filer["formerNames"],
-                }
-                await companies.insert_one(new_filer)
-
-        except Exception as e:
-            print("Failed...", e)
-        count += 1
+#         except Exception as e:
+#             print("Failed...", e)
+#         count += 1
 
 
 @router.websocket("/raw")

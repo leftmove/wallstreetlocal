@@ -1,6 +1,7 @@
 whale-project.code-workspace
 
 start.sh
+.env
 
 /.vscode
 
@@ -36,6 +37,9 @@ start.sh
 /backend/static/companies.bson
 /backend/static/companies.json
 
+/database/data.mongo/*
+
 /search/companies.json
+/search/data.ms/*
 
 docker-proj.zip

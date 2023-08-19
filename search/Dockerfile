@@ -1,4 +1,4 @@
-FROM getmeili/meilisearch:v.1.3
+FROM getmeili/meilisearch:v1.3
 
 WORKDIR /data
 
