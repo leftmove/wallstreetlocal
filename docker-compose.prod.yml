@@ -8,6 +8,8 @@ services:
       dockerfile: Dockerfile.prod
     environment:
       - BACKEND_SERVER_URL=${BACKEND_SERVER_URL}
+    networks:
+      - staging
     ports:
       - 3000:3000
     depends_on:
@@ -33,6 +35,8 @@ services:
       - cache
       - database
       - search
+    networks:
+      - staging
     ports:
       - 8000:8000
     restart: always
@@ -58,3 +62,11 @@ services:
     volumes:
       - ./search/data.ms:/data/data.ms
     restart: always
+
+networks:
+  staging:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+          gateway: 172.28.0.1
