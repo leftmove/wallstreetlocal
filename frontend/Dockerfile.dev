@@ -7,6 +7,7 @@ RUN npm install
 
 COPY jsconfig.json ./jsconfig.json
 COPY next.config.js ./next.config.js
+COPY middleware.js ./middleware.js
 
 COPY pages ./pages
 COPY public ./public
