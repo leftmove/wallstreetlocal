@@ -4,10 +4,11 @@
 }
 
 .sort-icon {
-  height: 20px;
   cursor: pointer;
 
-  color: white;
+  height: 20px;
+
+  color: var(--secondary);
   transition: color 0.3s ease;
 }
 

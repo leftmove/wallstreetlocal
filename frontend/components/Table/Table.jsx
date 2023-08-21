@@ -336,7 +336,10 @@ const Table = () => {
     data,
     error,
     isLoading: loading,
-  } = useSWR(["/api/stocks/info", cik], ([url, cik]) => getFetcher(url, cik));
+  } = useSWR(["/api/stocks/info", cik], ([url, cik]) => getFetcher(url, cik), {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
   useEffect(() => {
     if (data) {
       dispatch(setStocks(data.stocks));

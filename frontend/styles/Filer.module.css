@@ -15,11 +15,11 @@
 
 .main-header {
   font-size: 4rem;
-  color: white;
+  color: var(--secondary);
 }
 
 .header-desc {
-  color: white;
+  color: var(--secondary);
 }
 
 .sub-header {
@@ -47,7 +47,7 @@
 }
 
 .secondary-header-desc {
-  color: white;
+  color: var(--secondary);
   margin-right: 10px;
 }
 

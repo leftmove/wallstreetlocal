@@ -10,13 +10,13 @@
 .resources-header {
   font-size: 2rem;
 
-  color: white;
+  color: var(--secondary);
 }
 
 .resources-description {
   font-size: 0.9rem;
 
-  color: var(--offwhite);
+  color: var(--secondary);
 }
 
 .resources-body {
@@ -41,17 +41,18 @@
   border-radius: 5px;
   margin-right: 10px;
 
-  color: var(--secondary);
-  background-color: var(--primary-dark);
+  color: var(--primary);
+  background-color: var(--secondary-dark);
   transition: background-color 0.3s ease;
 }
 
 .resources-button:hover {
-  background-color: var(--offwhite);
+  color: var(--white);
+  background-color: var(--primary-dark);
 }
 
 .button-tooltip {
   font-size: 0.8rem;
 
-  color: var(--offwhite-dark);
+  color: var(--secondary);
 }

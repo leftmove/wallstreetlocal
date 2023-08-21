@@ -36,10 +36,13 @@ start.sh
 /backend/routers/utils/__pycache__
 /backend/static/companies.bson
 /backend/static/companies.json
+/backend/static/filers/*
+/backend/static/stocks/*
 
 /database/data.mongo/*
 
 /search/companies.json
 /search/data.ms/*
 
+docker-compose.dev.yml
 docker-proj.zip

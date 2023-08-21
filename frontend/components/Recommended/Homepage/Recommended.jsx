@@ -45,7 +45,7 @@ const Recommended = () => {
               ? filer.description.slice(0, maxLength) + "..."
               : filer.description;
           return (
-            <Link key={filer.cik} href={`/filer/${filer.cik}`}>
+            <Link key={filer.cik} href={`/filers/${filer.cik}`}>
               <div className={styles["suggestion"]}>
                 <span
                   className={[styles["suggestion-title"], inter.className].join(

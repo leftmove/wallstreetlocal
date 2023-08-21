@@ -6,7 +6,7 @@
 .contact-header {
   font-size: 2rem;
 
-  color: white;
+  color: var(--secondary);
 }
 
 .contact-info {
@@ -26,7 +26,7 @@
   margin-right: 20px;
   height: fit-content;
 
-  background-color: white;
+  background-color: var(--secondary);
 }
 
 .contact-item {
@@ -39,11 +39,11 @@
 
 .contact-icon {
   width: 35px;
-  color: var(--secondary);
+  color: var(--white);
 }
 
 .contact-text {
-  color: var(--secondary);
+  color: var(--white);
 }
 
 .info-header {
@@ -52,7 +52,7 @@
   font-size: 1.5rem;
   margin-bottom: 20px;
 
-  color: var(--secondary);
+  color: var(--white);
 }
 
 .contact-kofi {

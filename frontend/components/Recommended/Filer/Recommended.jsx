@@ -2,6 +2,7 @@ import styles from "./Recommended.module.css";
 
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "700" });
+const interBold = Inter({ subsets: ["latin"], weight: "900" });
 const interLight = Inter({ subsets: ["latin"], weight: "500" });
 
 import Link from "next/link";
@@ -14,7 +15,7 @@ const Recommended = () => {
   return (
     <div className={styles["recommended"]}>
       <span
-        className={[styles["recommended-title"], inter.className].join(" ")}
+        className={[styles["recommended-title"], interBold.className].join(" ")}
       >
         Recommended Filers
       </span>
@@ -26,7 +27,7 @@ const Recommended = () => {
               ? filer.description.slice(0, maxLength) + "..."
               : filer.description;
           return (
-            <Link key={filer.cik} href={`/filer/${filer.cik}`}>
+            <Link key={filer.cik} href={`/filers/${filer.cik}`}>
               <div className={styles["suggestion"]}>
                 <span
                   className={[styles["suggestion-title"], inter.className].join(

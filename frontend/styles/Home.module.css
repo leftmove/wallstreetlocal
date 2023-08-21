@@ -70,7 +70,7 @@
 }
 
 .explore-header {
-  color: #04df16;
+  color: var(--secondary);
   font-size: 2rem;
   margin-top: 30px;
 }

@@ -17,7 +17,6 @@
   background-color: var(--secondary);
 }
 
-
 /* .remove {
   animation: slide-out-right 0.3s;
   animation-fill-mode: forwards;
@@ -91,11 +90,11 @@
   transition: color 0.3s ease, background-color 0.3s ease;
 }
 
-.button:hover, .remove-table {
+.button:hover,
+.remove-table {
   color: var(--secondary);
   background-color: white;
 }
-
 
 /* .download,
 .download:hover {

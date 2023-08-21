@@ -6,7 +6,7 @@
   margin: auto;
   margin-top: 20px;
   width: 80%;
-  height: 60vh;
+  height: 40vh;
   padding: 20px;
   border-radius: 5px;
 }
@@ -32,7 +32,6 @@
   height: 90%;
   margin: 20px;
   padding: 20px;
-  padding-bottom: 10px;
   border-radius: 5px;
 
   background-color: var(--secondary-dark);

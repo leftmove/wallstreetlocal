@@ -42,7 +42,7 @@ async def query_stocks(stock: Tickers):
                 continue
 
         try:
-            price_info = await ticker_request("GLOBAL_QUOTE", ticker)
+            price_info = await ticker_request("GLOBAL_QUOTE", ticker, "")
             global_quote = price_info["Global Quote"]
             price = global_quote["05. price"]
         except Exception as e:
@@ -85,7 +85,7 @@ async def stock_info(cik: str):
     return {"stocks": stock_list}
 
 
-@cache
+@cache(4)
 @router.get("/timeseries/", tags=["stocks", "filers"], status_code=200)
 async def stock_timeseries(cik: str, time: float):
     filer = await find_filer(cik, {"stocks.local": 1})

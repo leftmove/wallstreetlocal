@@ -1,4 +1,4 @@
-version: '5.6'
+version: "5.6"
 
 services:
   frontend:
@@ -7,7 +7,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.prod
     environment:
-      - BACKEND_SERVER_URL=http://***REMOVED***:8000
+      - BACKEND_SERVER_URL=${BACKEND_SERVER_URL}
     ports:
       - 3000:3000
     depends_on:
@@ -19,16 +19,16 @@ services:
       context: ./backend
       dockerfile: Dockerfile.prod
     environment:
-      - FINN_HUB_API_KEY=***REMOVED***
-      - ALPHA_VANTAGE_API_KEY=***REMOVED***
+      - FINN_HUB_API_KEY=${FINN_HUB_API_KEY}
+      - ALPHA_VANTAGE_API_KEY=${ALPHA_VANTAGE_API_KEY}
 
-      - MONGO_SERVER_URL=mongodb://database
-      - MONGO_BACKUP_URL=***REMOVED***
+      - MONGO_SERVER_URL=${MONGO_SERVER_URL}
+      - MONGO_BACKUP_URL=${MONGO_BACKUP_URL}
 
-      - REDIS_SERVER_URL=http://cache
+      - REDIS_SERVER_URL=${REDIS_SERVER_URL}
 
-      - MEILISEARCH_SERVER_URL=http://search:7700
-      - MEILISEARCH_MASTER_KEY=***REMOVED***
+      - MEILISEARCH_SERVER_URL=${MEILISEARCH_SERVER_URL}
+      - MEILISEARCH_MASTER_KEY=${MEILISEARCH_MASTER_KEY}
     depends_on:
       - cache
       - database
@@ -56,4 +56,3 @@ services:
     volumes:
       - ./search/data.ms:/data/data.ms
     restart: always
-    

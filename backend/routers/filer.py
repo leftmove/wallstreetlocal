@@ -20,6 +20,7 @@ from os import getenv, scandir
 
 load_dotenv()
 
+# pyright: reportGeneralTypeIssues=false
 
 class Filer(BaseModel):
     cik: str
@@ -56,11 +57,11 @@ async def create_filer(cik):
         "name": sec_data["name"],
         "cik": cik,
         "status": "Building",
-        "log": {"logs": [], "start": datetime.now().timestamp(), "stop": False},
+        "log": {"logs": [], "start": datetime.now().timestamp(), "stop": False, "time": {"required": 0, "remaining": 0, "elapsed": 0}},
     }
     await add_filer(company)
     company = await (
-        await run_in_threadpool(lambda: scrape_filer(sec_data))
+        await run_in_threadpool(lambda: scrape_filer(sec_data, cik))
     )  # type: ignore
     company["cik"] = cik
     company["stocks"] = {
@@ -201,20 +202,20 @@ async def search_filers(q: str):
 #         skip = len(logs)
 #         await asyncio.sleep(3)
 
+
 @router.get("/logs")
 async def logs(cik: str, start: int = 0):
-
     pipeline = [{"$match": {"cik": cik}}, {"$project": {"log": 1}}]
     try:
         cursor = await find_logs(pipeline)
         document = [document async for document in cursor][0]
-        
+
         log = document["log"]
         logs = []
         for raw_log in log["logs"]:
             logs.extend(raw_log.split("\n"))
         logs = logs[start:]
-        
+
         log["count"] = len(logs)
         log["logs"] = logs
     except IndexError:
@@ -224,6 +225,7 @@ async def logs(cik: str, start: int = 0):
         raise HTTPException(404, detail="Error fetching logs.")
 
     return log
+
 
 # @router.get("/aggregate/", tags=["filers"], status_code=201)
 # async def migrate_filers(password: str):
@@ -283,36 +285,36 @@ async def logs(cik: str, start: int = 0):
 #         count += 1
 
 
-@router.websocket("/raw")
-async def raw(websocket: WebSocket, cik: str):
-    await websocket.accept()
+# @router.websocket("/raw")
+# async def raw(websocket: WebSocket, cik: str):
+#     await websocket.accept()
 
-    try:
-        pipeline = [
-            {"$match": {"cik": cik}},
-            {"$project": {"log.logs": 1}},
-        ]
-        cursor = main.watch(pipeline)
-        # stream = cursor.collect()
-        # async with cursor as stream:
-        #     while stream.alive:
-        #         change = await stream.try_next()
-        #         print(change)
+#     try:
+#         pipeline = [
+#             {"$match": {"cik": cik}},
+#             {"$project": {"log.logs": 1}},
+#         ]
+#         cursor = main.watch(pipeline)
+#         # stream = cursor.collect()
+#         # async with cursor as stream:
+#         #     while stream.alive:
+#         #         change = await stream.try_next()
+#         #         print(change)
 
-        #         await asyncio.sleep(3)
-        # cursor = await watch_logs(pipeline)
+#         #         await asyncio.sleep(3)
+#         # cursor = await watch_logs(pipeline)
 
-        async with cursor as stream:
-            async for change in stream:
-                print(change)
+#         async with cursor as stream:
+#             async for change in stream:
+#                 print(change)
 
-                await asyncio.sleep(3)
-    except Exception as e:
-        print(e)
-        await websocket.send_text("Error.")
-        raise HTTPException(404, detail="Error fetching logs.")
+#                 await asyncio.sleep(3)
+#     except Exception as e:
+#         print(e)
+#         await websocket.send_text("Error.")
+#         raise HTTPException(404, detail="Error fetching logs.")
 
-    await websocket.send_text("Connected.")
+#     await websocket.send_text("Connected.")
 
 
 @cache
@@ -325,7 +327,7 @@ async def filer_info(cik: str):
     return {"description": "Found filer.", "filer": filer}
 
 
-@cache
+@cache(24)
 @router.get("/record/", tags=["filers", "records"], status_code=200)
 async def record(cik: str):
     filer = await find_filer(cik, {"_id": 0})
@@ -333,10 +335,89 @@ async def record(cik: str):
         raise HTTPException(404, detail="Filer not found.")
 
     filename = f"wallstreetlocal-{cik}.json"
-    file_path = f"../static/{filename}"
-    with open(file_path, "w") as r:
-        filer_record = json.load(filer)
-        json.dump(r, filer_record)
+    file_path = f"./static/filers/{filename}"
+    try:
+        with open(file_path, "w") as r:
+            pass
+    except:
+        with open(file_path, "w+") as r:
+            json.dump(filer, r, indent=6)
+
+    return FileResponse(
+        file_path, media_type="application/octet-stream", filename=filename
+    )
+
+
+@cache(24)
+@router.get("/record/timeseries/", tags=["filers", "records"], status_code=200)
+async def partial_record(cik: str, time: float):
+    filer = await find_filer(cik, {"stocks.local": 1, "tickers": 1, "name": 1})
+    if filer == None:
+        raise HTTPException(detail="Filer not found.", status_code=404)
+    filer_stocks = filer["stocks"]["local"]
+
+    stock_list = []
+    cusip_list = list(map(lambda x: x, filer_stocks))
+    cursor = await search_stocks(
+        [
+            {"$match": {"cusip": {"$in": cusip_list}}},
+            {
+                "$project": {
+                    "_id": 0,
+                    "cusip": 1,
+                    "ticker": 1,
+                    "timeseries": {
+                        "$map": {
+                            "input": "$timeseries",
+                            "as": "time",
+                            "in": {
+                                "close": "$$time.close",
+                                "time": "$$time.time",
+                                "diff": {"$abs": {"$subtract": [time, "$$time.time"]}},
+                            },
+                        }
+                    },
+                }
+            },
+            {"$unwind": "$timeseries"},
+            {"$sort": {"timeseries.diff": 1}},
+            {"$group": {"_id": "$cusip", "timeseries": {"$first": "$timeseries"}}},
+            {
+                "$project": {
+                    "cusip": "$_id",
+                    "_id": 0,
+                    "timeseries.close": 1,
+                    "timeseries.time": 1,
+                }
+            },
+        ]
+    )
+    async for document in cursor:
+        cusip = document["cusip"]
+        close = document["timeseries"]["close"]
+        close_str = f"${close}"
+        close_time = document["timeseries"]["time"]
+        stock_list.append(
+            {
+                "cusip": cusip,
+                "close": close,
+                "close_str": close_str,
+                "time": close_time,
+            }
+        )
+
+    filer = {
+        "name": filer["name"],
+        "tickers": filer["tickers"],
+        "cik": cik,
+        "time": time,
+        "stocks": stock_list,
+    }
+
+    filename = f"wallstreetlocal-{cik}-{int(time)}.json"
+    file_path = f"./static/filers/{filename}"
+    with open(file_path, "w+") as r:
+        json.dump(filer, r, indent=6)
 
     return FileResponse(
         file_path, media_type="application/octet-stream", filename=filename

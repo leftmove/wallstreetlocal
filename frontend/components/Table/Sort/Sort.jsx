@@ -3,6 +3,7 @@ import styles from "./Sort.module.css";
 
 import Filter from "./Filter/Filter";
 import Gain from "./Gain/Gain";
+import Record from "./Record/Record";
 import SortIcon from "@/public/static/filter.svg";
 
 const Sort = () => {
@@ -27,6 +28,7 @@ const Sort = () => {
       <div className={styles["sort-body"]}>
         <Filter />
         <Gain />
+        <Record />
       </div>
     </div>
   );

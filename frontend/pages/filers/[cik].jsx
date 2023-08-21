@@ -18,6 +18,7 @@ import Table from "@/components/Table/Table";
 import Loading from "@/components/Loading/Loading";
 import Expand from "@/components/Expand/Expand";
 import Progress from "@/components/Progress/Progress";
+import Recommended from "@/components/Recommended/Filer/Recommended";
 
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "900" });
@@ -205,7 +206,7 @@ const Filer = () => {
       .then((res) => {
         if (res.status == 201) {
           setStatus({ building: true });
-          return;
+          throw Error("Building...");
         }
       })
       .then(() =>
@@ -234,21 +235,41 @@ const Filer = () => {
       });
   }, [router.isReady, cik, dispatch]);
 
-  if (status.building)
+  if (status.building) {
     return (
-      <div className={styles["loading"]}>
+      <>
+        <Head>
+          <title>Building</title>
+        </Head>
         <Progress cik={cik} />
-      </div>
+        <Recommended />
+      </>
     );
-  if (status.error) return <Error statusCode={404} />;
-  if (status.loading) return <Loading />;
+  } else if (status.loading) {
+    return (
+      <>
+        <Head>
+          <title>Loading</title>
+        </Head>
+        <Loading />
+      </>
+    );
+  } else if (status.error || filer === {}) {
+    return (
+      <>
+        <Head>
+          <title>Error 404 - Filer not found</title>
+        </Head>
+        <Error statusCode={404} />
+      </>
+    );
+  }
 
   return (
     <>
       <Head>
-        <title>{filer.name}</title>
+        <title>Filers - {filer.name}</title>
       </Head>
-
       <SWRConfig value={{ provider: () => new Map() }}>
         <div className={styles["header"]}>
           <span className={[styles["main-header"], inter.className].join(" ")}>
@@ -268,7 +289,7 @@ const Filer = () => {
                 ].join(" ")}
               >
                 {filer.cik}{" "}
-                {filer.tickers ? "NA" : `(${filer.tickers.join(", ")})`}
+                {filer.tickers || [] ? `(${filer.tickers.join(", ")})` : ""}
               </span>
               <Expand onClick={() => setExpand(!expand)} expandState={expand} />
             </div>

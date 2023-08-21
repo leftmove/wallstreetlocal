@@ -14,7 +14,6 @@ import {
   SortableContext,
   arrayMove,
   horizontalListSortingStrategy,
-  verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -123,7 +122,7 @@ const Filter = () => {
         />
       </div>
       <span className={[styles["filter-hint"], interLight.className].join(" ")}>
-        (You can drag the headers on the top to rearrange the columns.)
+        (You can drag the top headers to rearrange the columns.)
       </span>
     </div>
   );

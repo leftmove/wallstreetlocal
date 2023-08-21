@@ -6,7 +6,7 @@
   height: 75px;
   width: 100vw;
 
-  background-color: var(--secondary);
+  background-color: var(--white);
 }
 
 .logo-text {
@@ -18,5 +18,5 @@
 }
 
 #market {
-  color: white;
+  color: var(--secondary);
 }

@@ -4,6 +4,8 @@ import asyncio
 
 import requests
 
+from .mongo import *
+
 # from requests_ratelimiter import LimiterMixin, MemoryQueueBucket
 # from requests_cache import CacheMixin, SQLiteCache
 # from requests import Session
@@ -69,7 +71,7 @@ async def sec_directory_search(directory):
     return data
 
 
-async def ticker_request(function, symbol):
+async def ticker_request(function, symbol, cik):
     while True:
         params = {
             "function": function,
@@ -78,8 +80,11 @@ async def ticker_request(function, symbol):
         }
         res = requests.get("https://www.alphavantage.co/query", params=params)
         if res.status_code == 429:
-            print("Rate Limited, Waiting 60 Seconds...")
+            await add_log(cik, "Waiting 60 Seconds...")
+            await edit_filer({"cik": cik}, {"$set": {"log.wait": True}})
+
             await asyncio.sleep(60)
+            await edit_filer({"cik": cik}, {"$set": {"log.wait": False}})
         else:
             data = res.json()
             break
@@ -87,13 +92,21 @@ async def ticker_request(function, symbol):
     return data
 
 
-async def cusip_request(value):
+async def cusip_request(value, cik):
     while True:
         params = {"q": value, "token": FINN_HUB_API_KEY}
         res = requests.get(f"https://finnhub.io/api/v1/search", params=params)
         if res.status_code == 429:
-            print("Rate Limited, Waiting 60 Seconds...")
+            if cik == "":
+                await asyncio.sleep(60)
+                continue
+
+            await add_log(cik, "Waiting 60 Seconds...")
+            await edit_filer({"cik": cik}, {"$set": {"log.wait": True}})
+
             await asyncio.sleep(60)
+
+            await edit_filer({"cik": cik}, {"$set": {"log.wait": False}})
         else:
             data = res.json()
             break

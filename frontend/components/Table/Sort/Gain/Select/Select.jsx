@@ -59,7 +59,11 @@ const Select = (props) => {
     isLoading: loading,
   } = useSWR(
     open ? null : ["/api/stocks/timeseries", cik, time],
-    ([url, cik, time]) => getFetcher(url, cik, time)
+    ([url, cik, time]) => getFetcher(url, cik, time),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
   );
   useEffect(() => {
     if (open) return;
@@ -129,7 +133,7 @@ const Select = (props) => {
   };
 
   const [active, setActive] = useState(true);
-  const addToTable = () => {
+  const handleTable = () => {
     const header = headers.find((h) => h.accessor == accessor);
     if (header) {
       setActive(header.active);
@@ -150,6 +154,19 @@ const Select = (props) => {
         })
       );
     }
+  };
+
+  // const [download, setDownload] = useState("");
+  const handleDownload = () => {
+    window.open(
+      `/api/filers/record/timeseries?cik=${cik}&time=${time}`,
+      "_blank"
+    );
+    // setDownload("loading");
+    // axios
+    //   .get("/api/filer/record", { params: { cik: cik } })
+    //   .then(() => setDownload(""))
+    //   .catch((e) => console.error(e));
   };
 
   if (error) {
@@ -183,7 +200,7 @@ const Select = (props) => {
           inter.className,
           active ? "" : styles["remove-table"],
         ].join(" ")}
-        onClick={() => addToTable()}
+        onClick={() => handleTable()}
       >
         Table
       </button>
@@ -191,6 +208,7 @@ const Select = (props) => {
         className={[styles["button"], styles["download"], inter.className].join(
           " "
         )}
+        onClick={() => handleDownload()}
       >
         Download
       </button>

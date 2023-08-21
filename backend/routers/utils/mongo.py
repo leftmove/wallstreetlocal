@@ -75,6 +75,11 @@ async def watch_logs(pipeline):
     return cursor
 
 
+async def aggregate_filers(pipeline):
+    cursor = main.aggregate(pipeline)
+    return cursor
+
+
 # async def search_sec(pipeline):
 #     cursor = companies.aggregate(pipeline)
 #     return cursor

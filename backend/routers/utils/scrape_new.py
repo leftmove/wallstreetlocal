@@ -11,6 +11,7 @@ import re
 
 load_dotenv()
 
+# pyright: reportGeneralTypeIssues=false
 
 print("[ Data Initializing ] ...")
 
@@ -310,9 +311,7 @@ async def scrape_stock(ticker, cusip, cik):
     return info
 
 
-async def scrape_stocks(
-    data, last_report, access_number, report_date, global_stocks, cik
-):
+async def scrape_stocks(data, access_number, report_date, stock_count, cik):
     index_soup = BeautifulSoup(data, "html.parser")
     rows = index_soup.find_all("tr")
     directory = None
@@ -342,7 +341,6 @@ async def scrape_stocks(
     ) = await sort_rows(stock_fields[0], stock_fields[1])
 
     local_stocks = {}
-    stock_count = 0
     for row in stock_rows:
         Columnumns = row.find_all("td")
 
@@ -372,101 +370,7 @@ async def scrape_stocks(
         local_stocks[stock_cusip] = new_stock
         stock_count += 1
 
-    await aggregate_filers([
-        {"$match": {"cik": cik}},
-        {
-            "$set": {
-                "log.time.required": {"$add": ["$log.time.required", stock_count]},
-                "log.time.elapsed": {
-                    "$add": [datetime.now().timestamp(), "$log.start"]
-                },
-                "log.time.remaining": {
-                    "$subtract": ["$log.time.required", "$log.time.elapsed"]
-                },
-            }
-        },]
-    )
-
-    update_list = []
-    for key in local_stocks:
-        local_stock = local_stocks[key]
-        global_stock = global_stocks.get(key)
-        stock_cusip = local_stock["cusip"]
-        stock_name = local_stock["name"]
-
-        if global_stock == None and global_stock not in update_list:
-            new_stock = local_stock
-            update_list.append(new_stock)
-            continue
-
-        else:
-            local_date = local_stock["date"]
-            local_access_number = local_stock["access_number"]
-            global_date = global_stock["date"]
-
-            if local_date >= global_date:
-                new_stock = global_stock
-                new_stock["date"] = local_date
-                new_stock["last_report"] = local_access_number
-
-            else:
-                new_stock = global_stock
-                new_stock["first_report"] = local_access_number
-
-            global_stocks[stock_cusip] = new_stock
-
-    updated_stocks = await scrape_names(update_list, cik)
-    for new_stock in update_list:
-        stock_cusip = new_stock["cusip"]
-        new_stock.update(updated_stocks[stock_cusip])
-        access_number = new_stock["access_number"]
-        sold = False if access_number == last_report else True
-
-        new_stock["sold"] = sold
-        new_stock["first_report"] = access_number
-        new_stock["last_report"] = access_number
-        del new_stock["access_number"]
-
-        global_stocks[stock_cusip] = new_stock
-
-    # Legacy Implementation
-    # for key in local_stocks:
-    #     local_stock = local_stocks[key]
-    #     global_stock = global_stocks.get(key)
-    #     stock_cusip = local_stock['cusip']
-    #     stock_name = local_stock['name']
-
-    #     if global_stock == None:
-    #         new_stock = local_stock
-    #         access_number = local_stock['access_number']
-    #         ticker, name = await scrape_name(stock_cusip, stock_name)
-    #         sold = False if access_number == last_report else True
-
-    #         del new_stock['access_number']
-    #         new_stock["name"] = name
-    #         new_stock["ticker"] = ticker
-    #         new_stock['sold'] = sold
-    #         new_stock['first_report'] = access_number
-    #         new_stock['last_report'] = access_number
-    #     else:
-    #         local_date = local_stock['date']
-    #         local_access_number = local_stock['access_number']
-    #         global_date = global_stock['date']
-
-    #         if local_date > global_date:
-
-    #             new_stock = global_stock
-    #             new_stock['date'] = local_date
-    #             new_stock['sold'] = sold
-    #             new_stock['last_report'] = local_access_number
-
-    #         elif local_date < global_date:
-    #             new_stock = global_stock
-    #             new_stock['first_report'] = local_access_number
-
-    #     global_stocks[stock_cusip] = new_stock
-
-    return global_stocks
+    return local_stocks, stock_count
 
 
 async def scrape_new_stocks(company):
@@ -474,25 +378,38 @@ async def scrape_new_stocks(company):
     filings = company["filings"]
     last_report = company["last_report"]
 
-    global_stocks = {}
+    local_stocks = {}
+    stock_count = 0
     for access_number in filings:
         document = filings[access_number]
         document_report_date = document["report_date"]
 
         data = await sec_stock_search(cik=cik, access_number=access_number)
         try:
-            new_stocks = await scrape_stocks(
+            new_stocks, stock_count = await scrape_stocks(
                 data=data,
-                last_report=last_report,
                 access_number=access_number,
                 report_date=document_report_date,
-                global_stocks=global_stocks,
+                stock_count=stock_count,
                 cik=cik,
             )
-            global_stocks.update(new_stocks)
+            local_stocks.update(new_stocks)
         except Exception as e:
             print(f"\nError Updating Stocks\n{e}\n--------------------------\n")
             continue
+
+    await edit_filer(
+        {"cik": cik},
+        {
+            "$set": {
+                "stocks.local": local_stocks,
+                "last_report": last_report,
+            }
+        },
+    )
+    global_stocks = await update_stocks(
+        local_stocks=local_stocks, last_report=last_report, cik=cik
+    )
 
     return global_stocks
 
