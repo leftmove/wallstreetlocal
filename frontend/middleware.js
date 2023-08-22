@@ -5,7 +5,7 @@ export const config = {
 };
 
 export function middleware(request) {
-  const server = process.env.BACKEND_SERVER_URL;
+  const server = process.env.SERVER_HOST;
   const url = `${server}${request.nextUrl.pathname.replace("/api", "")}${request.nextUrl.search}`
   return NextResponse.rewrite(
     url,
