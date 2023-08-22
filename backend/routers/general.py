@@ -1,8 +1,5 @@
 from fastapi import APIRouter
 
-from . import start
-
-start.initialize()
 router = APIRouter(
     tags=["general"],
     responses={},
@@ -13,6 +10,7 @@ router = APIRouter(
 async def info():
     return {"message": "Hello World!"}
 
+
 @router.get("/undefined", status_code=200)
-async def info():
+async def info_undefined():
     return {"message": "Hello World!"}

@@ -4,9 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from routers import general
 from routers import filer
 from routers import stocks
+from routers import start
 
-from routers.utils.log import *
-
+start.initialize()
 app = FastAPI()
 app.include_router(general.router)
 app.include_router(filer.router)
