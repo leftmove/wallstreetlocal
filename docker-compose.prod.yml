@@ -12,6 +12,8 @@ services:
       - 3000:3000
     depends_on:
       - backend
+    networks:
+      - staging
     restart: always
   backend:
     container_name: backend
@@ -35,10 +37,14 @@ services:
       - search
     ports:
       - 8000:8000
+    networks:
+      - staging
     restart: always
   cache:
     container_name: cache
     image: redis:alpine
+    networks:
+      - staging
     restart: always
   database:
     container_name: database
@@ -49,6 +55,8 @@ services:
       driver: "none"
     volumes:
       - ./database/data.mongo:/data/db
+    networks:
+      - staging
     restart: always
   search:
     container_name: search
@@ -57,4 +65,10 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./search/data.ms:/data/data.ms
+    networks:
+      - staging
     restart: always
+
+networks:
+  staging:
+    driver: bridge
