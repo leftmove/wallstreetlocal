@@ -1,5 +1,4 @@
 import meilisearch
-import motor.motor_asyncio
 
 from dotenv import load_dotenv
 from os import getenv
@@ -17,7 +16,7 @@ MONGO_BACKUP_URL = getenv("MONGO_BACKUP_URL")
 print("[ Search (Meilisearch) Initializing ] ...")
 
 search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
-companies_index = search.index("companies")
+companies_index = search.create_index("companies")
 
 
 async def search_companies(query, options={}):
