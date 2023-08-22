@@ -7,7 +7,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile.prod
     environment:
-      - BACKEND_SERVER_URL=${BACKEND_SERVER_URL}
+      - SERVER_HOST=${SERVER_HOST}
     ports:
       - 3000:3000
     depends_on:
