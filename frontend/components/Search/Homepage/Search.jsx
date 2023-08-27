@@ -21,7 +21,10 @@ const Search = () => {
 
   const { data } = useSWR(
     searchInput ? ["/api/filers/search/", searchInput] : null,
-    ([url, input]) => fetcher(url, input)
+    ([url, input]) => fetcher(url, input), {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
   );
   useEffect(() => {
     if (data) {

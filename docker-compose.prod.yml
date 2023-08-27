@@ -1,18 +1,18 @@
 services:
-  frontend:
-    container_name: frontend
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.prod
-    environment:
-      - SERVER_URL=${SERVER_URL}
-    ports:
-      - 3000:3000
-    depends_on:
-      - backend
-    networks:
-      - staging
-    restart: always
+  # frontend:
+  #   container_name: frontend
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile.prod
+  #   environment:
+  #     - SERVER_URL=${SERVER_URL}
+  #   ports:
+  #     - 3000:3000
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - staging
+  #   restart: always
   backend:
     container_name: backend
     build:
@@ -34,7 +34,7 @@ services:
       - database
       - search
     ports:
-      - 8000:8000
+      - 8000:443
     networks:
       - staging
     restart: always
