@@ -1,20 +1,20 @@
 services:
-  frontend:
-    container_name: frontend
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.dev
-    environment:
-      - BACKEND_SERVER_URL=http://***REMOVED***:8000
-    volumes:
-      - ./frontend/pages:/app/pages
-      - ./frontend/public:/app/public
-      - ./frontend/components:/app/components
-      - ./frontend/styles:/app/styles
-      - ./frontend/redux:/app/redux
-    ports:
-      - 3000:3000
-    restart: always
+  # frontend:
+  #   container_name: frontend
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile.dev
+  #   environment:
+  #     - BACKEND_SERVER_URL=http://***REMOVED***:8000
+  #   volumes:
+  #     - ./frontend/pages:/app/pages
+  #     - ./frontend/public:/app/public
+  #     - ./frontend/components:/app/components
+  #     - ./frontend/styles:/app/styles
+  #     - ./frontend/redux:/app/redux
+  #   ports:
+  #     - 3000:3000
+  #   restart: always
   backend:
     container_name: backend
     build:
@@ -34,6 +34,8 @@ services:
       - MEILISEARCH_MASTER_KEY=***REMOVED***
     volumes:
       - ./backend/routers:/code/routers
+    networks:
+      - staging
     ports:
       - 8000:8000
     depends_on:
@@ -44,6 +46,8 @@ services:
     container_name: cache
     image: redis:alpine
     restart: always
+    networks:
+      - staging
     ports:
       - 6379:6379
   database:
@@ -54,6 +58,8 @@ services:
     restart: always
     logging:
       driver: "none"
+    networks:
+      - staging
     ports:
       - 27017:27017
   search:
@@ -64,5 +70,20 @@ services:
     volumes:
       - ./search/data.ms:/data/data.ms
     restart: always
+    networks:
+      - staging
     ports:
       - 7700:7700
+
+  proxy:
+    container_name: proxy
+    build:
+      context: ./proxy
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+
+networks:
+  staging:
+    driver: bridge

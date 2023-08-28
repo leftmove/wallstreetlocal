@@ -34,7 +34,7 @@ services:
       - database
       - search
     ports:
-      - 8000:443
+      - 8000:8000
     networks:
       - staging
     restart: always
