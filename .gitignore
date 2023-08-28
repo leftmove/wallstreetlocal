@@ -44,5 +44,6 @@ start.sh
 /search/companies.json
 /search/data.ms/*
 
-docker-compose.dev.yml
 docker-proj.zip
+commit.sh
+commitmain.sh
