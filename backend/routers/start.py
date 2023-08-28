@@ -31,8 +31,6 @@ async def main():
     """
     )
 
-    db_count = await companies.count_documents({})
-    search_count = companies_index.get_stats().number_of_documents
     db_empty = True if await companies.count_documents({}) == 0 else False
     search_empty = (
         True if companies_index.get_stats().number_of_documents == 0 else False
