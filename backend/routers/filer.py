@@ -22,6 +22,7 @@ load_dotenv()
 
 # pyright: reportGeneralTypeIssues=false
 
+
 class Filer(BaseModel):
     cik: str
 
@@ -57,7 +58,12 @@ async def create_filer(cik):
         "name": sec_data["name"],
         "cik": cik,
         "status": "Building",
-        "log": {"logs": [], "start": datetime.now().timestamp(), "stop": False, "time": {"required": 0, "remaining": 0, "elapsed": 0}},
+        "log": {
+            "logs": [],
+            "start": datetime.now().timestamp(),
+            "stop": False,
+            "time": {"required": 0, "remaining": 0, "elapsed": 0},
+        },
     }
     await add_filer(company)
     company = await (

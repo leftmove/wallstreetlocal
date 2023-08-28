@@ -2,7 +2,6 @@ import meilisearch
 
 from dotenv import load_dotenv
 from os import getenv
-from tqdm import tqdm
 
 from .mongo import *
 
@@ -16,7 +15,9 @@ MONGO_BACKUP_URL = getenv("MONGO_BACKUP_URL")
 print("[ Search (Meilisearch) Initializing ] ...")
 
 search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
-companies_index = search.index("companies")
+if "companies" not in [index.uid for index in search.get_indexes()["results"]]:
+    search.create_index("companies")
+companies_index = search.get_index("companies")
 
 
 async def search_companies(query, options={}):

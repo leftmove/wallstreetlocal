@@ -31,17 +31,15 @@ async def main():
     """
     )
 
+    db_count = await companies.count_documents({})
+    search_count = companies_index.get_stats().number_of_documents
     db_empty = True if await companies.count_documents({}) == 0 else False
     search_empty = (
-        True
-        if "companies" not in [index.uid for index in search.get_indexes()["results"]]
-        else False
+        True if companies_index.get_stats().number_of_documents == 0 else False
     )
 
     if search_empty:
         print("[ Search (Meilisearch) Loading ] ...")
-        search.create_index("companies", {"primaryKey": "cik"})
-        companies_index = search.get_index("companies")
 
     if db_empty:
         print("[ Database (MongoDB) Loading ] ...")

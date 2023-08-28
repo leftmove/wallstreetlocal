@@ -26,8 +26,7 @@
     "react-transition-group": "^4.4.5",
     "sass": "^1.62.1",
     "sharp": "^0.32.2",
-    "swr": "^2.1.1",
-    "typescript": "^5.0.4"
+    "swr": "^2.1.1"
   },
   "devDependencies": {
     "@svgr/webpack": "^7.0.0",
