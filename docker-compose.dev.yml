@@ -82,6 +82,9 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./proxy/nginx.conf:/etc/nginx/nginx.conf
+    restart: always
+    networks:
+      - staging
     ports:
       - 80:80
       - 443:443
