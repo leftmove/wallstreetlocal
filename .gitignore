@@ -45,5 +45,3 @@ start.sh
 /search/data.ms/*
 
 docker-proj.zip
-commit.sh
-commitmain.sh
