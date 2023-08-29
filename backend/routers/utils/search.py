@@ -2,6 +2,7 @@ import meilisearch
 
 from dotenv import load_dotenv
 from os import getenv
+from asyncio import sleep
 
 from .mongo import *
 
@@ -17,6 +18,8 @@ print("[ Search (Meilisearch) Initializing ] ...")
 search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
 if "companies" not in [index.uid for index in search.get_indexes()["results"]]:
     search.create_index("companies", {"primaryKey": "cik"})
+    for _ in range(5 * 10**9):
+        pass
     companies_index = search.get_index("companies")
 else:
     companies_index = search.get_index("companies")
