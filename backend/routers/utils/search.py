@@ -18,9 +18,7 @@ print("[ Search (Meilisearch) Initializing ] ...")
 search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
 if "companies" not in [index.uid for index in search.get_indexes()["results"]]:
     search.create_index("companies", {"primaryKey": "cik"})
-    companies_index = search.get_index("companies")
-else:
-    companies_index = search.get_index("companies")
+companies_index = search.index("companies")
 
 
 async def search_companies(query, options={}):
