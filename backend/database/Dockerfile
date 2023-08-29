@@ -1,0 +1,8 @@
+FROM mongo:4.4.6
+
+WORKDIR /data
+
+EXPOSE 27017
+EXPOSE 28017
+
+CMD ["mongod", "--quiet", "--logpath",  "/dev/null"]
