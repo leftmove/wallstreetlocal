@@ -84,7 +84,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./proxy/nginx.conf:/etc/nginx/nginx.conf
-      - ./proxy/certbot/conf:/etc/letsencrypt
+      - ./proxy/certbot/letsencrypt:/etc/letsencrypt
       - ./proxy/certbot/www:/var/www/certbot
     restart: always
     networks:
