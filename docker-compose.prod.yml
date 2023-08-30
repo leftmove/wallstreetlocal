@@ -17,7 +17,8 @@ services:
     container_name: backend
     build:
       context: ./backend
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.dev
+    restart: always
     environment:
       - FINN_HUB_API_KEY=${FINN_HUB_API_KEY}
       - ALPHA_VANTAGE_API_KEY=${ALPHA_VANTAGE_API_KEY}
@@ -29,43 +30,55 @@ services:
 
       - MEILISEARCH_SERVER_URL=${MEILISEARCH_SERVER_URL}
       - MEILISEARCH_MASTER_KEY=${MEILISEARCH_MASTER_KEY}
-    depends_on:
-      - cache
-      - database
-      - search
-    ports:
-      - 8000:8000
+    volumes:
+      - ./backend/routers:/code/routers
     networks:
       - staging
-    restart: always
+    ports:
+      - 8000:8000
+    depends_on:
+      - database
+      - cache
+      - search
   cache:
     container_name: cache
     image: redis:alpine
+    restart: always
     networks:
       - staging
-    restart: always
   database:
     container_name: database
     build:
-      context: ./database
+      context: ./backend/database
       dockerfile: Dockerfile
+    volumes:
+      - ./backend/database/data.mongo:/data/db
+    restart: always
     logging:
       driver: "none"
-    volumes:
-      - ./database/data.mongo:/data/db
     networks:
       - staging
-    restart: always
   search:
     container_name: search
     build:
-      context: ./search
+      context: ./backend/search
       dockerfile: Dockerfile
     volumes:
-      - ./search/data.ms:/data/data.ms
+      - ./backend/search/data.ms:/data/data.ms
+    restart: always
     networks:
       - staging
-    restart: always
+
+  proxy:
+    image: "jc21/nginx-proxy-manager:latest"
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "81:81"
+      - "443:443"
+    volumes:
+      - ./proxy/data:/data
+      - ./proxy/letsencrypt:/etc/letsencrypt
 
 networks:
   staging:
