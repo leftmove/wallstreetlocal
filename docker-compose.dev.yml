@@ -85,6 +85,7 @@ services:
     volumes:
       - ./proxy/conf/:/etc/nginx/conf.d/
       - ./proxy/certbot/www:/var/www/certbot/
+      - ./proxy/certbot/conf/:/etc/nginx/ssl/
     restart: always
     networks:
       - staging
@@ -98,6 +99,7 @@ services:
     image: certbot/certbot:latest
     volumes:
       - ./proxy/certbot/www/:/var/www/certbot/
+      - ./proxy/certbot/conf/:/etc/letsencrypt/:rw
     networks:
       - staging
     depends_on:
