@@ -46,4 +46,6 @@ start.sh
 
 /proxy/certbot/conf
 
+**/__pycache__/
+
 docker-proj.zip
