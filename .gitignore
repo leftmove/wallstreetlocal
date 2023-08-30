@@ -44,4 +44,6 @@ start.sh
 /backend/search/companies.json
 /backend/search/data.ms/*
 
+/proxy/certbot/*
+
 docker-proj.zip
