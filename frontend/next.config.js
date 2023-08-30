@@ -7,11 +7,11 @@ const nextConfig = {
     return [
       {
         source: '/api/',
-        destination: `${process.env.SERVER_URL}/`,
+        destination: `https://content.wallstreetlocal.com/`,
       },
       {
         source: '/api/:slug',
-        destination: `${process.env.SERVER_URL}/:slug/`, // Matched parameters can be used in the destination
+        destination: `https://content.wallstreetlocal.com/:slug/`,
       },
     ]
   },
