@@ -94,16 +94,16 @@ services:
       - 443:443
     depends_on:
       - backend
-  # https:
-  #   container_name: https
-  #   image: certbot/certbot:latest
-  #   volumes:
-  #     - ./proxy/certbot/www/:/var/www/certbot/
-  #     - ./proxy/certbot/conf/:/etc/letsencrypt/
-  #   networks:
-  #     - staging
-  #   depends_on:
-  #     - proxy
+  https:
+    container_name: https
+    image: certbot/certbot:latest
+    volumes:
+      - ./proxy/certbot/www/:/var/www/certbot/
+      - ./proxy/certbot/conf/:/etc/letsencrypt/
+    networks:
+      - staging
+    depends_on:
+      - proxy
 
 networks:
   staging:
