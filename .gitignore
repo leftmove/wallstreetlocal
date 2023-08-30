@@ -39,9 +39,9 @@ start.sh
 /backend/static/filers/*
 /backend/static/stocks/*
 
-/database/data.mongo/*
+/backend/database/data.mongo/*
 
-/search/companies.json
-/search/data.ms/*
+/backend/search/companies.json
+/backend/search/data.ms/*
 
 docker-proj.zip
