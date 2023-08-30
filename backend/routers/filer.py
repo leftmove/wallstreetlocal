@@ -341,7 +341,7 @@ async def record(cik: str):
         raise HTTPException(404, detail="Filer not found.")
 
     filename = f"wallstreetlocal-{cik}.json"
-    file_path = f"./static/filers/{filename}"
+    file_path = f"./public/filers/{filename}"
     try:
         with open(file_path, "w") as r:
             pass
@@ -421,7 +421,7 @@ async def partial_record(cik: str, time: float):
     }
 
     filename = f"wallstreetlocal-{cik}-{int(time)}.json"
-    file_path = f"./static/filers/{filename}"
+    file_path = f"./public/filers/{filename}"
     with open(file_path, "w+") as r:
         json.dump(filer, r, indent=6)
 

@@ -32,10 +32,10 @@ start.sh
 
 /backend/development.test.py
 **/__pycache__/
-/backend/static/companies.bson
-/backend/static/companies.json
-/backend/static/filers/*
-/backend/static/stocks/*
+/backend/public/companies.bson
+/backend/public/companies.json
+/backend/public/filers/*
+/backend/public/stocks/*
 
 /backend/database/data.mongo/*
 
