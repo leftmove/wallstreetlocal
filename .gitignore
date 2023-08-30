@@ -31,9 +31,7 @@ start.sh
 /frontend/.prettierrc
 
 /backend/development.test.py
-/backend/__pycache__
-/backend/routers/__pycache__
-/backend/routers/utils/__pycache__
+**/__pycache__/
 /backend/static/companies.bson
 /backend/static/companies.json
 /backend/static/filers/*
@@ -44,8 +42,7 @@ start.sh
 /backend/search/companies.json
 /backend/search/data.ms/*
 
-/proxy/certbot/conf
-
-**/__pycache__/
+/proxy/letsencrypt
+/proxy/data
 
 docker-proj.zip
