@@ -97,8 +97,8 @@ services:
   https:
     container_name: https
     build:
-      context: ./proxy
-      dockerfile: Dockerfile.certbot
+      context: ./proxy/certbot
+      dockerfile: Dockerfile
     volumes:
       - ./proxy/certbot/www/:/var/www/certbot/
       - ./proxy/certbot/conf/:/etc/letsencrypt/
