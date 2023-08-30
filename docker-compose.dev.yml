@@ -99,7 +99,7 @@ services:
     image: certbot/certbot:latest
     volumes:
       - ./proxy/certbot/www/:/var/www/certbot/
-      - ./proxy/certbot/conf/:/etc/letsencrypt/:rw
+      - ./proxy/certbot/conf/:/etc/letsencrypt/
     networks:
       - staging
     depends_on:
