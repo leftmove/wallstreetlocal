@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Check if /etc/letsencrypt/live directory exists
 if [ -d "/etc/letsencrypt/live" ]; then
     echo "Certificates Found, Updating NGINX Configuration for Port 443..."
     cp nginx443.conf /proxyconf
