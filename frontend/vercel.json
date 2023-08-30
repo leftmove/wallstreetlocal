@@ -1,12 +1,12 @@
 {
   "rewrites": [
     {
-      "source": "/api/",
-      "destination": "https://content.wallstreetlocal.com/"
+      "source": "/api/:path*",
+      "destination": "https://content.wallstreetlocal.com/:path*"
     },
     {
-      "source": "/api/:slug",
-      "destination": "https://content.wallstreetlocal.com/:slug/"
+      "source": "/api/:path*/",
+      "destination": "https://content.wallstreetlocal.com/:path*/"
     }
   ]
 }
