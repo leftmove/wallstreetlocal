@@ -1,20 +1,4 @@
 services:
-  # frontend:
-  #   container_name: frontend
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile.dev
-  #   environment:
-  #     - BACKEND_SERVER_URL=http://***REMOVED***:8000
-  #   volumes:
-  #     - ./frontend/pages:/app/pages
-  #     - ./frontend/public:/app/public
-  #     - ./frontend/components:/app/components
-  #     - ./frontend/styles:/app/styles
-  #     - ./frontend/redux:/app/redux
-  #   ports:
-  #     - 3000:3000
-  #   restart: always
   backend:
     container_name: backend
     build:
@@ -77,36 +61,19 @@ services:
     ports:
       - 7700:7700
 
-  # proxy:
-  #   container_name: proxy
-  #   build:
-  #     context: ./proxy
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./proxy/conf/:/etc/nginx/conf.d/
-  #     - ./proxy/certbot/www:/var/www/certbot/
-  #     - ./proxy/certbot/conf/:/etc/nginx/ssl/
-  #   restart: always
-  #   networks:
-  #     - staging
-  #   ports:
-  #     - 80:80
-  #     - 443:443
-  #   depends_on:
-  #     - backend
-  # https:
-  #   container_name: https
-  #   build:
-  #     context: ./proxy/certbot
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./proxy/certbot/www/:/var/www/certbot/
-  #     - ./proxy/certbot/conf/:/etc/letsencrypt/
-  #     - ./proxy/conf/:/proxyconf
-  #   networks:
-  #     - staging
-  #   depends_on:
-  #     - proxy
+  proxy:
+    container_name: proxy
+    image: jc21/nginx-proxy-manager:latest
+    restart: unless-stopped
+    ports:
+      - 81:81
+      - 80:80
+      - 443:443
+    volumes:
+      - ./proxy/data:/data
+      - ./proxy/letsencrypt:/etc/letsencrypt
+    networks:
+      - staging
 
 networks:
   staging:

@@ -1,18 +1,4 @@
 services:
-  # frontend:
-  #   container_name: frontend
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile.prod
-  #   environment:
-  #     - SERVER_URL=${SERVER_URL}
-  #   ports:
-  #     - 3000:3000
-  #   depends_on:
-  #     - backend
-  #   networks:
-  #     - staging
-  #   restart: always
   backend:
     container_name: backend
     build:
@@ -70,15 +56,18 @@ services:
       - staging
 
   proxy:
-    image: "jc21/nginx-proxy-manager:latest"
+    container_name: proxy
+    image: jc21/nginx-proxy-manager:latest
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "81:81"
-      - "443:443"
+      - 81:81
+      - 80:80
+      - 443:443
     volumes:
       - ./proxy/data:/data
       - ./proxy/letsencrypt:/etc/letsencrypt
+    networks:
+      - staging
 
 networks:
   staging:
