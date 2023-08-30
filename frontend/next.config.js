@@ -3,18 +3,18 @@
 
 const nextConfig = {
   reactStrictMode: true,
-  // async rewrites() {
-  //   return [
-  //     {
-  //       source: '/api/',
-  //       destination: `http://127.0.0.1:8000/`,
-  //     },
-  //     {
-  //       source: '/api/:slug',
-  //       destination: `http://127.0.0.1:8000/:slug/`, // Matched parameters can be used in the destination
-  //     },
-  //   ]
-  // },
+  async rewrites() {
+    return [
+      {
+        source: '/api/',
+        destination: `${process.env.SERVER_URL}/`,
+      },
+      {
+        source: '/api/:slug',
+        destination: `${process.env.SERVER_URL}/:slug/`, // Matched parameters can be used in the destination
+      },
+    ]
+  },
   webpack(config) {
     const fileLoaderRule = config.module.rules.find((rule) =>
       rule.test?.test?.(".svg")
