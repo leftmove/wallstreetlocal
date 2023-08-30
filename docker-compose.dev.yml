@@ -83,9 +83,8 @@ services:
       context: ./proxy
       dockerfile: Dockerfile
     volumes:
-      - ./proxy/nginx.conf:/etc/nginx/nginx.conf
-      - ./proxy/certbot/letsencrypt:/etc/letsencrypt
-      - ./proxy/certbot/www:/var/www/certbot
+      - ./proxy/conf/:/etc/nginx/conf.d/
+      - ./proxy/certbot/www:/var/www/certbot/
     restart: always
     networks:
       - staging
