@@ -97,7 +97,7 @@ services:
     container_name: https
     image: certbot/certbot:latest
     volumes:
-      - ./certbot/www/:/var/www/certbot/
+      - ./proxy/certbot/www/:/var/www/certbot/
     networks:
       - staging
     depends_on:
