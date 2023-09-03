@@ -28,7 +28,9 @@ services:
       - search
   cache:
     container_name: cache
-    image: redis:alpine
+    build:
+      context: ./backend/cache
+      dockerfile: Dockerfile
     restart: always
     networks:
       - staging
