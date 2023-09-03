@@ -28,7 +28,9 @@ services:
       - search
   cache:
     container_name: cache
-    image: redis:alpine
+    build:
+      context: ./backend/cache
+      dockerfile: Dockerfile
     restart: always
     networks:
       - staging
@@ -49,9 +51,9 @@ services:
     build:
       context: ./backend/search
       dockerfile: Dockerfile
+    restart: always
     volumes:
       - ./backend/search/data.ms:/data/data.ms
-    restart: always
     networks:
       - staging
 
@@ -67,6 +69,8 @@ services:
       - ./proxy/letsencrypt:/etc/letsencrypt
     networks:
       - staging
+    depends_on:
+      - backend
 
 networks:
   staging:
