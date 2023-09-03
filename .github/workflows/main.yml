@@ -24,4 +24,4 @@ jobs:
           # Navigate to your repository directory on the server
           cd server
           # Execute the deployment script
-          bash deploy-script.sh
+          bash deploy.sh
