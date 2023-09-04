@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from .utils.api import *
-from .utils.mongo import *
+from .utils.database import *
 from .utils.scrape import *
 from .utils.cache import *
 

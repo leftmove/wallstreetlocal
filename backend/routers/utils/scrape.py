@@ -1,5 +1,5 @@
 from .analysis import *
-from .mongo import *
+from .database import *
 from .api import *
 
 

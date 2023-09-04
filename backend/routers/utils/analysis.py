@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from .mongo import *
+from .database import *
 from .api import *
 from .scrape import *
 
