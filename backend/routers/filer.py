@@ -4,7 +4,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from .utils.scrape import *
-from .utils.database import *
+from .utils.mongo import *
 from .utils.search import *
 from .utils.api import *
 from .utils.analysis import *

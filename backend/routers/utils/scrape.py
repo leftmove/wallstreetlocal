@@ -1,5 +1,5 @@
 from .analysis import *
-from .database import *
+from .mongo import *
 from .api import *
 
 
@@ -372,19 +372,21 @@ async def scrape_stocks(
         local_stocks[stock_cusip] = new_stock
         stock_count += 1
 
-    await aggregate_filers([
-        {"$match": {"cik": cik}},
-        {
-            "$set": {
-                "log.time.required": {"$add": ["$log.time.required", stock_count]},
-                "log.time.elapsed": {
-                    "$add": [datetime.now().timestamp(), "$log.start"]
-                },
-                "log.time.remaining": {
-                    "$subtract": ["$log.time.required", "$log.time.elapsed"]
-                },
-            }
-        },]
+    await aggregate_filers(
+        [
+            {"$match": {"cik": cik}},
+            {
+                "$set": {
+                    "log.time.required": {"$add": ["$log.time.required", stock_count]},
+                    "log.time.elapsed": {
+                        "$add": [datetime.now().timestamp(), "$log.start"]
+                    },
+                    "log.time.remaining": {
+                        "$subtract": ["$log.time.required", "$log.time.elapsed"]
+                    },
+                }
+            },
+        ]
     )
 
     update_list = []

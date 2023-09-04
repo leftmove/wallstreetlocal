@@ -4,7 +4,7 @@ import asyncio
 import motor.motor_asyncio
 from tqdm import tqdm
 
-from .utils.database import *
+from .utils.mongo import *
 from .utils.search import *
 
 

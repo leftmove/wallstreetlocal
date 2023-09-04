@@ -4,7 +4,7 @@ import asyncio
 
 import requests
 
-from .database import *
+from .mongo import *
 
 # from requests_ratelimiter import LimiterMixin, MemoryQueueBucket
 # from requests_cache import CacheMixin, SQLiteCache

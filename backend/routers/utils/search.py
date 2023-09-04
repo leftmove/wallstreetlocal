@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from os import getenv
 from time import sleep
 
-from .database import *
+from .mongo import *
 
 load_dotenv()
 
