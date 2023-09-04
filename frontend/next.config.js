@@ -6,12 +6,8 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        source: '/api/',
-        destination: `https://content.wallstreetlocal.com/`,
-      },
-      {
         source: '/api/:slug',
-        destination: `https://content.wallstreetlocal.com/:slug/`,
+        destination: `https://content.wallstreetlocal.com/:slug*`,
       },
     ]
   },

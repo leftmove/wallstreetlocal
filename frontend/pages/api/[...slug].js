@@ -1,9 +1,9 @@
 import { createProxyMiddleware } from "http-proxy-middleware";
 
 const proxy = createProxyMiddleware({
-    target: "content.wallstreetlocal.com",
+    target: "https://content.wallstreetlocal.com",
     secure: false,
-    pathRewrite: { "^/api/": "" },
+    pathRewrite: { "^/api/": "/" },
     changeOrigin: true,
 });
 
