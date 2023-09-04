@@ -3,18 +3,18 @@
 
 const nextConfig = {
   reactStrictMode: true,
-  async rewrites() {
-    return [
-      {
-        source: '/api/',
-        destination: `https://content.wallstreetlocal.com/`,
-      },
-      {
-        source: '/api/:slug',
-        destination: `https://content.wallstreetlocal.com/:slug/`,
-      },
-    ]
-  },
+  // async rewrites() {
+  //   return [
+  //     {
+  //       source: '/api/',
+  //       destination: `https://content.wallstreetlocal.com/`,
+  //     },
+  //     {
+  //       source: '/api/:slug',
+  //       destination: `https://content.wallstreetlocal.com/:slug/`,
+  //     },
+  //   ]
+  // },
   webpack(config) {
     const fileLoaderRule = config.module.rules.find((rule) =>
       rule.test?.test?.(".svg")
