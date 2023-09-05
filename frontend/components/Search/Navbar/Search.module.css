@@ -79,6 +79,10 @@
 }
 
 .result span {
+  text-align: left;
+
+  min-width: 140px;
+  font-size: 1rem;
+
   color: rgb(65, 65, 65);
-  font-size: 0.8rem;
 }
