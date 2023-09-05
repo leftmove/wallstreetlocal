@@ -12,6 +12,7 @@ RUN npm ci
 
 COPY jsconfig.json ./jsconfig.json
 COPY next.config.js ./next.config.js
+COPY .eslintrc.json ./.eslintrc.json
 COPY middleware.js ./middleware.js
 COPY vercel.json ./vercel.json
 
