@@ -25,7 +25,7 @@ const Progress = (props) => {
   // );
 
   // useSWRSubscription(
-  //   `ws://${host}/api/filers/logs?cik=${props.cik}`,
+  //   `ws://${host}https://content.wallstreetlocal.com/filers/logs?cik=${props.cik}`,
   //   (key, { next }) => {
   //     const socket = new WebSocket(key);
   //     socket.addEventListener("message", ({ data }) => {
@@ -79,7 +79,9 @@ const Progress = (props) => {
   }, [logs]);
   useInterval(() => {
     axios
-      .get("/api/filers/logs", { params: { cik: props.cik, start: log.count } })
+      .get("https://content.wallstreetlocal.com/filers/logs", {
+        params: { cik: props.cik, start: log.count },
+      })
       .then((res) => res.data)
       .then((data) => {
         if (data.wait) {

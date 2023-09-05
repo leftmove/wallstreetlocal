@@ -20,7 +20,9 @@ const Search = () => {
   const [isFocused, setIsFocused] = useState(false);
 
   const { data } = useSWR(
-    searchInput ? ["/api/filers/search/", searchInput] : null,
+    searchInput
+      ? ["https://content.wallstreetlocal.com/filers/search/", searchInput]
+      : null,
     ([url, input]) => fetcher(url, input),
     {
       revalidateOnFocus: false,

@@ -58,7 +58,9 @@ const Select = (props) => {
     error,
     isLoading: loading,
   } = useSWR(
-    open ? null : ["/api/stocks/timeseries", cik, time],
+    open
+      ? null
+      : ["https://content.wallstreetlocal.com/stocks/timeseries", cik, time],
     ([url, cik, time]) => getFetcher(url, cik, time),
     {
       revalidateOnFocus: false,
@@ -90,7 +92,7 @@ const Select = (props) => {
   //   if (open) return;
 
   //   axios
-  //     .get("/api/stocks/timeseries", { params: { cik: cik, time: time } })
+  //     .get("https://content.wallstreetlocal.com/stocks/timeseries", { params: { cik: cik, time: time } })
   //     // .then((r) => r.data)
   //     .then((r) => {
   //       const url = axios.getUri({
@@ -159,12 +161,12 @@ const Select = (props) => {
   // const [download, setDownload] = useState("");
   const handleDownload = () => {
     window.open(
-      `/api/filers/record/timeseries?cik=${cik}&time=${time}`,
+      `https://content.wallstreetlocal.com/filers/record/timeseries?cik=${cik}&time=${time}`,
       "_blank"
     );
     // setDownload("loading");
     // axios
-    //   .get("/api/filer/record", { params: { cik: cik } })
+    //   .get("https://content.wallstreetlocal.com/filer/record", { params: { cik: cik } })
     //   .then(() => setDownload(""))
     //   .catch((e) => console.error(e));
   };

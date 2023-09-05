@@ -54,11 +54,11 @@ const inter = Inter({ subsets: ["latin"], weight: "900" });
 //   //   data: queryData,
 //   //   error: queryError,
 //   //   loading: queryLoading,
-//   // } = useSWR("/api/filers/query", postFetcher({ cik: cik }));
+//   // } = useSWR("https://content.wallstreetlocal.com/filers/query", postFetcher({ cik: cik }));
 
 //   // const [infoData, setInfoData]: any = useState({});
 //   // const res = axios
-//   //   .get("/api/filers/info", { params: { cik: cik } })
+//   //   .get("https://content.wallstreetlocal.com/filers/info", { params: { cik: cik } })
 //   //   .then((res) => console.log(res))
 //   //   .then((data) => {
 //   //     setInfoData(data);
@@ -87,7 +87,7 @@ const inter = Inter({ subsets: ["latin"], weight: "900" });
 //   //   data: infoData,
 //   //   error: infoError,
 //   //   isLoading: infoLoading,
-//   // } = useSWR(["/api/filers/info", cik], ([url, cik]) => getFetcher(url, cik));
+//   // } = useSWR(["https://content.wallstreetlocal.com/filers/info", cik], ([url, cik]) => getFetcher(url, cik));
 
 //   // if (infoLoading || !infoData) {
 //   //   return <Loading />;
@@ -127,7 +127,7 @@ const inter = Inter({ subsets: ["latin"], weight: "900" });
 // export async function getStaticProps(context) {
 //   const props = {};
 //   axios
-//     .get("/api/filers/info", { params: { cik: context.params.cik } })
+//     .get("https://content.wallstreetlocal.com/filers/info", { params: { cik: context.params.cik } })
 //     .then((res) => {
 //       if (res.status == 201 || res.status == 409) {
 //         props.status = "building";
@@ -147,7 +147,7 @@ const inter = Inter({ subsets: ["latin"], weight: "900" });
 //     props: props,
 //   };
 // }
-// const url = "/api/filers/info";
+// const url = "https://content.wallstreetlocal.com/filers/info";
 // fetchWithCache(url, () => {
 //   setStatus({ loading: true });
 //   axios
@@ -198,7 +198,7 @@ const Filer = () => {
 
     dispatch(setCik(cik));
     axios
-      .get("/api/filers/query/", {
+      .get("https://content.wallstreetlocal.com/filers/query/", {
         params: {
           cik: cik,
         },
@@ -211,7 +211,7 @@ const Filer = () => {
       })
       .then(() =>
         axios
-          .get("/api/filers/info", {
+          .get("https://content.wallstreetlocal.com/filers/info", {
             params: {
               cik: cik,
             },

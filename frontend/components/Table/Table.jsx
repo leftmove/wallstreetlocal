@@ -191,7 +191,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 // });
 
 // useEffect(() => {
-//   const url = "/api/stocks/info";
+//   const url = "https://content.wallstreetlocal.com/stocks/info";
 //   const time = 24 * 1000 * 60 * 60;
 //   const cacheStocks = async (url) => {
 //     const value = cacheData.get(url);
@@ -296,7 +296,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 // );
 // useEffect(() => {
 //   axios
-//     .get("/api/stocks/info", {
+//     .get("https://content.wallstreetlocal.com/stocks/info", {
 //       params: { cik: filer.cik },
 //     })
 //     .then((res) => res.data)
@@ -336,10 +336,14 @@ const Table = () => {
     data,
     error,
     isLoading: loading,
-  } = useSWR(["/api/stocks/info", cik], ([url, cik]) => getFetcher(url, cik), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  });
+  } = useSWR(
+    ["https://content.wallstreetlocal.com/stocks/info", cik],
+    ([url, cik]) => getFetcher(url, cik),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
   useEffect(() => {
     if (data) {
       dispatch(setStocks(data.stocks));
