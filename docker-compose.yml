@@ -20,8 +20,6 @@ services:
       - ./backend/routers:/code/routers
     networks:
       - staging
-    ports:
-      - 8000:8000
     depends_on:
       - database
       - cache

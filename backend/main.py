@@ -13,7 +13,7 @@ app.include_router(filer.router)
 app.include_router(stocks.router)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["localhost:3000", "wallstreetlocal.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -22,4 +22,4 @@ app.add_middleware(
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=443)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
