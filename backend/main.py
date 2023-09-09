@@ -7,13 +7,22 @@ from routers import stocks
 from routers import start
 
 start.initialize()
+origins = [
+    "http://localhost:3000",
+    "https://localhost:3000",
+    "http://wallstreetlocal.com",
+    "http://wallstreetlocal.com:80"
+    "https://wallstreetlocal.com"
+    "https://wallstreetlocal.com:443",
+]
+
 app = FastAPI()
 app.include_router(general.router)
 app.include_router(filer.router)
 app.include_router(stocks.router)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["localhost:3000", "wallstreetlocal.com"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
