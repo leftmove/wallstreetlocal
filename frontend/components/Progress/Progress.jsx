@@ -69,7 +69,7 @@ const Progress = (props) => {
         count: logs.length,
       };
     },
-    { logs: [], count: 0 }
+    { logs: ["Initializing..."], count: 0 }
   );
   const logs = log.logs;
 

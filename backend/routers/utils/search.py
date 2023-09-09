@@ -10,14 +10,12 @@ load_dotenv()
 
 # pyright: reportGeneralTypeIssues=false
 
-MEILISEARCH_SERVER_URL = getenv("MEILISEARCH_SERVER_URL")
+MEILISEARCH_SERVER_URL = f'http://{getenv("MEILISEARCH_SERVER_URL")}:7700'
 MEILISEARCH_MASTER_KEY = getenv("MEILISEARCH_MASTER_KEY")
 MONGO_BACKUP_URL = getenv("MONGO_BACKUP_URL")
 print("[ Search (Meilisearch) Initializing ] ...")
 
-search = meilisearch.Client(
-    f"http://{MEILISEARCH_SERVER_URL}:7700", MEILISEARCH_MASTER_KEY
-)
+search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
 if "companies" not in [index.uid for index in search.get_indexes()["results"]]:
     search.create_index("companies", {"primaryKey": "cik"})
     sleep(3)
