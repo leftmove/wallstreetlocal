@@ -62,10 +62,11 @@ async def create_filer(cik):
             "logs": [],
             "start": datetime.now().timestamp(),
             "stop": False,
-            "time": {"required": 0, "remaining": 0, "elapsed": 0},
+            "time": {"required": "Calculating", "remaining": 0, "elapsed": 0},
         },
     }
     await add_filer(company)
+    await run_in_threadpool(lambda: estimate_time(sec_data, cik))
     company = await (
         await run_in_threadpool(lambda: scrape_filer(sec_data, cik))
     )  # type: ignore
@@ -211,19 +212,50 @@ async def search_filers(q: str):
 
 @router.get("/logs")
 async def logs(cik: str, start: int = 0):
-    pipeline = [{"$match": {"cik": cik}}, {"$project": {"log": 1}}]
+    project = {
+        "_id": 0,
+        "name": 0,
+        "filings": 0,
+        "stocks": 0,
+        "data": 0,
+        "cik": 0,
+        "status": 0,
+        "tickers": 0,
+        "exchanges": 0,
+        "first_report": 0,
+        "last_report": 0,
+        "updated": 0,
+        "log.logs": {"$slice": [start, 10**5]},
+    }
     try:
-        cursor = await find_logs(pipeline)
-        document = [document async for document in cursor][0]
-
-        log = document["log"]
+        filer = await find_filer(
+            cik,
+            project,
+        )
+        log = filer["log"]
         logs = []
         for raw_log in log["logs"]:
             logs.extend(raw_log.split("\n"))
-        logs = logs[start:]
+        count = len(logs)
 
-        log["count"] = len(logs)
+        log["count"] = count
         log["logs"] = logs
+
+        await aggregate_filers(
+            [
+                {"$match": {"cik": cik}},
+                {
+                    "$set": {
+                        "log.time.elapsed": {
+                            "$subtract": [datetime.now().timestamp(), "$log.start"]
+                        },
+                        "log.time.remaining": {
+                            "$subtract": ["$log.time.required", count]
+                        },
+                    }
+                },
+            ]
+        )
     except IndexError:
         raise HTTPException(404, detail="CIK not found.")
     except Exception as e:

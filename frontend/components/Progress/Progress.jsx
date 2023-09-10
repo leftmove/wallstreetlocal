@@ -6,8 +6,6 @@ const inter = Inter({ subsets: ["latin"], weight: "900" });
 const interLight = Inter({ subsets: ["latin"], weight: "700" });
 
 import { useSelector } from "react-redux";
-import { selectCik } from "@/redux/filerSlice";
-
 // import useSWRSubscription from "swr/subscription";
 import axios from "axios";
 

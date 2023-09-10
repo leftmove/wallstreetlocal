@@ -3,7 +3,7 @@ services:
     container_name: backend
     build:
       context: ./backend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile.prod
     restart: always
     environment:
       - FINN_HUB_API_KEY=${FINN_HUB_API_KEY}
@@ -16,8 +16,6 @@ services:
 
       - MEILISEARCH_SERVER_URL=${MEILISEARCH_SERVER_URL}
       - MEILISEARCH_MASTER_KEY=${MEILISEARCH_MASTER_KEY}
-    volumes:
-      - ./backend/routers:/code/routers
     networks:
       - staging
     depends_on:
@@ -37,8 +35,6 @@ services:
     build:
       context: ./backend/database
       dockerfile: Dockerfile
-    volumes:
-      - ./backend/database/data.mongo:/data/db
     restart: always
     logging:
       driver: "none"
@@ -50,8 +46,6 @@ services:
       context: ./backend/search
       dockerfile: Dockerfile
     restart: always
-    volumes:
-      - ./backend/search/data.ms:/data/data.ms
     networks:
       - staging
 

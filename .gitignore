@@ -37,7 +37,6 @@ start.sh
 /backend/public/filers/*
 /backend/public/stocks/*
 
-/backend/database/data.mongo/*
 
 /backend/search/companies.json
 /backend/search/data.ms/*

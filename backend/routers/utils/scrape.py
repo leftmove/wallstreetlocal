@@ -310,6 +310,49 @@ async def scrape_stock(ticker, cusip, cik):
     return info
 
 
+async def scrape_count_stocks(data):
+    index_soup = BeautifulSoup(data, "html.parser")
+    rows = index_soup.find_all("tr")
+    directory = None
+    for row in rows:
+        items = list(map(lambda b: b.text.strip(), row))
+        if any(item in items for item in info_table_key):
+            link = row.find("a")
+            directory = link["href"]
+            break
+    if directory == None:
+        return {}
+
+    data = await sec_directory_search(directory)
+    stock_soup = BeautifulSoup(data, "html.parser")
+    stock_table = stock_soup.find_all("table")[3]
+    stock_fields = stock_table.find_all("tr")[1:3]
+    stock_rows = stock_table.find_all("tr")[3:]
+
+    (
+        _,
+        _,
+        cusipColumn,
+        _,
+        _,
+        _,
+    ) = await sort_rows(stock_fields[0], stock_fields[1])
+
+    stock_count = 0
+    local_stocks = []
+    for row in stock_rows:
+        columns = row.find_all("td")
+        stock_cusip = columns[cusipColumn].text
+
+        if stock_cusip in local_stocks:
+            continue
+        else:
+            local_stocks.append(stock_cusip)
+            stock_count += 1
+
+    return stock_count
+
+
 async def scrape_stocks(
     data, last_report, access_number, report_date, global_stocks, cik
 ):
@@ -342,15 +385,15 @@ async def scrape_stocks(
     ) = await sort_rows(stock_fields[0], stock_fields[1])
 
     local_stocks = {}
-    stock_count = 0
+    # stock_count = 0
     for row in stock_rows:
-        Columnumns = row.find_all("td")
+        columns = row.find_all("td")
 
-        stock_name = Columnumns[nameColumn].text
-        stock_value = float(Columnumns[valueColumn].text.replace(",", "")) * multiplier
-        stock_shrs_amt = float(Columnumns[shrsColumn].text.replace(",", ""))
-        stock_class = Columnumns[classColumn].text
-        stock_cusip = Columnumns[cusipColumn].text
+        stock_name = columns[nameColumn].text
+        stock_value = float(columns[valueColumn].text.replace(",", "")) * multiplier
+        stock_shrs_amt = float(columns[shrsColumn].text.replace(",", ""))
+        stock_class = columns[classColumn].text
+        stock_cusip = columns[cusipColumn].text
 
         local_stock = local_stocks.get(stock_cusip)
 
@@ -370,24 +413,24 @@ async def scrape_stocks(
             new_stock["market_value"] = local_stock["market_value"] + stock_value
 
         local_stocks[stock_cusip] = new_stock
-        stock_count += 1
+        # stock_count += 1
 
-    await aggregate_filers(
-        [
-            {"$match": {"cik": cik}},
-            {
-                "$set": {
-                    "log.time.required": {"$add": ["$log.time.required", stock_count]},
-                    "log.time.elapsed": {
-                        "$add": [datetime.now().timestamp(), "$log.start"]
-                    },
-                    "log.time.remaining": {
-                        "$subtract": ["$log.time.required", "$log.time.elapsed"]
-                    },
-                }
-            },
-        ]
-    )
+    # await aggregate_filers(
+    #     [
+    #         {"$match": {"cik": cik}},
+    #         {
+    #             "$set": {
+    #                 "log.time.required": {"$add": ["$log.time.required", stock_count]},
+    #                 "log.time.elapsed": {
+    #                     "$add": [datetime.now().timestamp(), "$log.start"]
+    #                 },
+    #                 "log.time.remaining": {
+    #                     "$subtract": ["$log.time.required", "$log.time.elapsed"]
+    #                 },
+    #             }
+    #         },
+    #     ]
+    # )
 
     update_list = []
     for key in local_stocks:
@@ -527,6 +570,22 @@ async def scrape_latest_stocks(company):
     scraped_stocks.update(new_stocks)
 
     return scraped_stocks
+
+
+async def estimate_time(data, cik):
+    filings, _, _ = await scrape_filings(data)
+
+    stock_count = 0
+    for access_number in filings:
+        data = await sec_stock_search(cik=cik, access_number=access_number)
+        try:
+            new_count = await scrape_count_stocks(data)
+            stock_count += new_count  # type: ignore
+        except Exception as e:
+            print(f"\nError Counting Stocks\n{e}\n--------------------------\n")
+            continue
+
+    await edit_filer(cik, {"$set": {"log.time.required": stock_count}})
 
 
 print("[ Data Initialized ]")

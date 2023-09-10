@@ -1,31 +1,31 @@
 services:
-  backend:
-    container_name: backend
-    build:
-      context: ./backend
-      dockerfile: Dockerfile.dev
-    restart: always
-    environment:
-      - FINN_HUB_API_KEY=${FINN_HUB_API_KEY}
-      - ALPHA_VANTAGE_API_KEY=${ALPHA_VANTAGE_API_KEY}
+  # backend:
+  #   container_name: backend
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile.dev
+  #   restart: always
+  #   environment:
+  #     - FINN_HUB_API_KEY=${FINN_HUB_API_KEY}
+  #     - ALPHA_VANTAGE_API_KEY=${ALPHA_VANTAGE_API_KEY}
 
-      - MONGO_SERVER_URL=${MONGO_SERVER_URL}
-      - MONGO_BACKUP_URL=${MONGO_BACKUP_URL}
+  #     - MONGO_SERVER_URL=${MONGO_SERVER_URL}
+  #     - MONGO_BACKUP_URL=${MONGO_BACKUP_URL}
 
-      - REDIS_SERVER_URL=${REDIS_SERVER_URL}
+  #     - REDIS_SERVER_URL=${REDIS_SERVER_URL}
 
-      - MEILISEARCH_SERVER_URL=${MEILISEARCH_SERVER_URL}
-      - MEILISEARCH_MASTER_KEY=${MEILISEARCH_MASTER_KEY}
-    volumes:
-      - ./backend/routers:/code/routers
-    networks:
-      - staging
-    ports:
-      - 8000:8000
-    depends_on:
-      - database
-      - cache
-      - search
+  #     - MEILISEARCH_SERVER_URL=${MEILISEARCH_SERVER_URL}
+  #     - MEILISEARCH_MASTER_KEY=${MEILISEARCH_MASTER_KEY}
+  #   volumes:
+  #     - ./backend/routers:/code/routers
+  #   networks:
+  #     - staging
+  #   ports:
+  #     - 8000:8000
+  #   depends_on:
+  #     - database
+  #     - cache
+  #     - search
   cache:
     container_name: cache
     build:
