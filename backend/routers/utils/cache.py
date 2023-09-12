@@ -5,6 +5,7 @@ from time import time
 from inspect import iscoroutinefunction
 from dotenv import load_dotenv
 from os import getenv
+import asyncio
 
 REDIS_SERVER_URL = getenv("REDIS_SERVER_URL")
 load_dotenv()
@@ -13,6 +14,12 @@ print("[ Cache (Redis) Initializing ] ...")
 # pyright: reportGeneralTypeIssues=false
 
 r = redis.Redis(host=REDIS_SERVER_URL, port=6379)
+
+
+async def run_in_background(lambda_func):
+    loop = asyncio.get_running_loop()
+    result = await (await loop.run_in_executor(None, lambda_func))
+    return result
 
 
 def timing(f):

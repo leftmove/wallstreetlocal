@@ -1,7 +1,7 @@
 whale-project.code-workspace
 
 start.sh
-# .env
+.env
 
 /.vscode
 
@@ -36,7 +36,6 @@ start.sh
 /backend/public/companies.json
 /backend/public/filers/*
 /backend/public/stocks/*
-
 
 /backend/search/companies.json
 /backend/search/data.ms/*

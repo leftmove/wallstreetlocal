@@ -16,7 +16,7 @@ print("[ Data Initializing ] ...")
 
 capital_pattern = re.compile(r"(.)([A-Z][a-z]+)")
 underscore_pattern = re.compile(r"([a-z0-9])([A-Z])")
-
+# type
 
 async def scrape_name(cusip, name, cik):
     msg = f"Querying Stock [ {name} ({cusip}) ]\n"
@@ -240,6 +240,7 @@ async def scrape_filer(data, cik):
 
     company = {
         "name": name,
+        "cik": cik,
         "tickers": tickers,
         "updated": time,
         "exchanges": data["exchanges"],
@@ -321,7 +322,7 @@ async def scrape_count_stocks(data):
             directory = link["href"]
             break
     if directory == None:
-        return {}
+        return 0
 
     data = await sec_directory_search(directory)
     stock_soup = BeautifulSoup(data, "html.parser")
@@ -585,7 +586,7 @@ async def estimate_time(data, cik):
             print(f"\nError Counting Stocks\n{e}\n--------------------------\n")
             continue
 
-    await edit_filer(cik, {"$set": {"log.time.required": stock_count}})
+    return stock_count
 
 
 print("[ Data Initialized ]")

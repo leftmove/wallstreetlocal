@@ -11,12 +11,10 @@ from .utils.analysis import *
 from .utils.cache import *
 
 from datetime import datetime
-import asyncio
 import json
 
 
 from dotenv import load_dotenv
-from os import getenv, scandir
 
 load_dotenv()
 
@@ -60,23 +58,27 @@ async def create_filer(cik):
         "status": "Building",
         "log": {
             "logs": [],
-            "start": datetime.now().timestamp(),
             "stop": False,
-            "time": {"required": "Calculating", "remaining": 0, "elapsed": 0},
+            "time": {
+                "remaining": await run_in_background(
+                    lambda: estimate_time(sec_data, cik)
+                ),
+            },
+            "start": datetime.now().timestamp(),
         },
     }
     await add_filer(company)
-    await run_in_threadpool(lambda: estimate_time(sec_data, cik))
-    company = await (
-        await run_in_threadpool(lambda: scrape_filer(sec_data, cik))
-    )  # type: ignore
-    company["cik"] = cik
-    company["stocks"] = {
-        "local": await (
-            await run_in_threadpool(lambda: scrape_new_stocks(company))
-        ),  # nopep8 # type: ignore
-        "global": [],
-    }
+    company = await run_in_background(lambda: scrape_filer(sec_data, cik))
+
+    company.update(
+        {
+            "cik": cik,
+            "stocks": {
+                "local": await run_in_background(lambda: scrape_new_stocks(company)),
+                "global": [],
+            },
+        }
+    )
 
     name = company["name"]
     await add_log(cik, f"Filer Queried [ {name} ({cik}) ]")
@@ -241,22 +243,8 @@ async def logs(cik: str, start: int = 0):
         log["count"] = count
         log["logs"] = logs
 
-        await aggregate_filers(
-            [
-                {"$match": {"cik": cik}},
-                {
-                    "$set": {
-                        "log.time.elapsed": {
-                            "$subtract": [datetime.now().timestamp(), "$log.start"]
-                        },
-                        "log.time.remaining": {
-                            "$subtract": ["$log.time.required", count]
-                        },
-                    }
-                },
-            ]
-        )
-    except IndexError:
+        await edit_filer({"cik": cik}, {"$inc": {"log.time.remaining": 0 - count}})
+    except (IndexError, TypeError):
         raise HTTPException(404, detail="CIK not found.")
     except Exception as e:
         print(e)
