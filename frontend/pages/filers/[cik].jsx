@@ -174,7 +174,6 @@ const inter = Inter({ subsets: ["latin"], weight: "900" });
 //     return data;
 //   }
 // };
-const [expand, setExpand] = useState(false);
 
 const fetcher = (url, cik) =>
   axios
