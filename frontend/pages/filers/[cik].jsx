@@ -2,7 +2,7 @@ import styles from "@/styles/Filer.module.css";
 import { useEffect, useReducer, useState } from "react";
 
 import axios from "axios";
-import { SWRConfig } from "swr";
+import useSWR, { SWRConfig } from "swr";
 
 import { Provider } from "react-redux";
 import { wrapper } from "@/redux/store";
@@ -174,93 +174,88 @@ const inter = Inter({ subsets: ["latin"], weight: "900" });
 //     return data;
 //   }
 // };
+const [expand, setExpand] = useState(false);
+
+const fetcher = (url, cik) =>
+  axios
+    .get(url, { params: { cik: cik } })
+    .then((res) => res.data)
+    .catch((e) => {
+      const error = new Error("Error fetching data.");
+      const status = e.response.status;
+
+      switch (status) {
+        case 201:
+          error.building = true;
+          break;
+        case 409:
+          error.building = true;
+          break;
+        default:
+          error.error = true;
+          break;
+      }
+
+      throw error;
+    });
 
 const Filer = () => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const [filer, setFiler] = useState({});
-  const [status, setStatus] = useReducer(
-    (prev, next) => {
-      prev.building = prev.loading = prev.error = false;
-      return { ...prev, ...next };
-    },
-    {
-      loading: true,
-      building: false,
-      error: false,
-    }
-  );
   const { cik } = router.query;
 
-  const [expand, setExpand] = useState(false);
+  const { data: query, error } = useSWR(
+    cik ? ["https://content.wallstreetlocal.com/filers/query/", cik] : null,
+    ([url, cik]) => fetcher(url, cik),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
+  const { data: info, isLoading: loading } = useSWR(
+    query ? ["https://content.wallstreetlocal.com/filers/info/", cik] : null,
+    ([url, cik]) => fetcher(url, cik),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
+
   useEffect(() => {
     if (router.isReady === false) return;
-
     dispatch(setCik(cik));
-    axios
-      .get("https://content.wallstreetlocal.com/filers/query/", {
-        params: {
-          cik: cik,
-        },
-      })
-      .then((res) => {
-        if (res.status == 201) {
-          setStatus({ building: true });
-          throw Error("Building...");
-        }
-      })
-      .then(() =>
-        axios
-          .get("https://content.wallstreetlocal.com/filers/info", {
-            params: {
-              cik: cik,
-            },
-          })
-          .then((res) => res.data)
-          .then((data) => {
-            setFiler(data.filer);
-            setStatus({ loading: false });
-          })
-          .catch((e) => {
-            console.error(e);
-            setStatus({ error: true });
-          })
-      )
-      .catch((e) => {
-        console.error(e);
-        if (e.response && e.response.status != 429) setStatus({ error: true });
-        if (e.response && e.response.status == 409)
-          setStatus({ building: true });
-        return;
-      });
   }, [router.isReady, cik, dispatch]);
+  const [expand, setExpand] = useState(false);
 
-  if (status.building) {
-    return (
-      <>
-        <Head>
-          <title>Building</title>
-        </Head>
-        <Progress cik={cik} />
-        <Recommended />
-      </>
-    );
-  } else if (status.loading) {
+  if (error) {
+    if (error.building) {
+      return (
+        <>
+          <Head>
+            <title>Building</title>
+          </Head>
+          <Progress cik={cik} />
+          <Recommended />
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Head>
+            <title>Error 404 - Filer not found</title>
+          </Head>
+          <Error statusCode={404} />
+        </>
+      );
+    }
+  }
+  if (loading) {
     return (
       <>
         <Head>
           <title>Loading</title>
         </Head>
         <Loading />
-      </>
-    );
-  } else if (status.error || filer === {}) {
-    return (
-      <>
-        <Head>
-          <title>Error 404 - Filer not found</title>
-        </Head>
-        <Error statusCode={404} />
       </>
     );
   }
