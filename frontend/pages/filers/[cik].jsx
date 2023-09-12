@@ -263,12 +263,12 @@ const Filer = () => {
   return (
     <>
       <Head>
-        <title>Filers - {filer.name}</title>
+        <title>Filers - {info.name}</title>
       </Head>
       <SWRConfig value={{ provider: () => new Map() }}>
         <div className={styles["header"]}>
           <span className={[styles["main-header"], inter.className].join(" ")}>
-            {filer.name}
+            {info.name}
           </span>
           <div
             className={[
@@ -283,20 +283,20 @@ const Filer = () => {
                   inter.className,
                 ].join(" ")}
               >
-                {filer.cik}{" "}
-                {filer.tickers || [] ? `(${filer.tickers.join(", ")})` : ""}
+                {info.cik}{" "}
+                {info.tickers || [] ? `(${info.tickers.join(", ")})` : ""}
               </span>
               <Expand onClick={() => setExpand(!expand)} expandState={expand} />
             </div>
             <span
               className={[styles["header-desc"], inter.className].join(" ")}
             >
-              {filer.data.description}
+              {info.data.description}
             </span>
           </div>
 
           {/* <span className={[styles["sub-desc"], inter.className].join(" ")}>
-        {filer.data["Description"]}
+        {info.data["Description"]}
       </span> */}
         </div>
         <Table cik={cik} />
