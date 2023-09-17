@@ -203,7 +203,11 @@ const Filer = () => {
   const dispatch = useDispatch();
   const { cik } = router.query;
 
-  const { data: query, error } = useSWR(
+  const {
+    data: query,
+    loading: queryLoading,
+    error: queryError,
+  } = useSWR(
     cik ? ["https://content.wallstreetlocal.com/filers/query/", cik] : null,
     ([url, cik]) => fetcher(url, cik),
     {
@@ -211,7 +215,11 @@ const Filer = () => {
       revalidateOnReconnect: false,
     }
   );
-  const { data: info, isLoading: loading } = useSWR(
+  const {
+    data: info,
+    isLoading: infoLoading,
+    error: infoError,
+  } = useSWR(
     query ? ["https://content.wallstreetlocal.com/filers/info/", cik] : null,
     ([url, cik]) => fetcher(url, cik),
     {
@@ -226,8 +234,8 @@ const Filer = () => {
   }, [router.isReady, cik, dispatch]);
   const [expand, setExpand] = useState(false);
 
-  if (error) {
-    if (error.building) {
+  if (queryError || infoError) {
+    if (queryError.building) {
       return (
         <>
           <Head>
@@ -248,7 +256,7 @@ const Filer = () => {
       );
     }
   }
-  if (loading) {
+  if (queryLoading || infoLoading) {
     return (
       <>
         <Head>
