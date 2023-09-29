@@ -43,7 +43,7 @@ router = APIRouter(
     },
 )
 
-
+@queue.task
 async def create_filer(sec_data, cik):
     company = {
         "name": sec_data["name"],
@@ -53,7 +53,7 @@ async def create_filer(sec_data, cik):
             "logs": [],
             "stop": False,
             "time": {
-                "remaining": await estimate_time(sec_data, cik),
+                "remaining": 0,
             },
             "start": datetime.now().timestamp(),
         },
@@ -61,6 +61,7 @@ async def create_filer(sec_data, cik):
     await add_filer(company)
     company = await scrape_filer(sec_data, cik)
 
+    company["time"]["remaining"] = await estimate_time(sec_data, cik)
     company.update(
         {
             "cik": cik,
@@ -81,7 +82,6 @@ async def create_filer(sec_data, cik):
         print(e)
 
 
-@cache
 async def update_filer(company):
     cik = company["cik"]
     time = datetime.now().timestamp()
@@ -119,7 +119,7 @@ async def update_filer(company):
     tags=["filers"],
     status_code=201,
 )
-async def query_filer(cik: str, background_tasks: BackgroundTasks):
+async def query_filer(cik: str):
     cik = cik.lstrip("0") or "0"
     filer = await find_filer(cik)
     if filer == None:
@@ -127,7 +127,9 @@ async def query_filer(cik: str, background_tasks: BackgroundTasks):
             sec_data = await sec_filer_search(cik)
         except Exception as e:
             raise HTTPException(404, detail="CIK not found.")
-        background_tasks.add_task(create_filer, sec_data, cik)
+
+        create_filer.delay(sec_data, cik)
+
         res = {"description": "Filer creation started."}
     else:
         res = await update_filer(filer)

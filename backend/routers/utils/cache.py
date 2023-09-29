@@ -1,4 +1,6 @@
 import redis
+from celery import Celery
+
 from functools import wraps
 import json
 from time import time
@@ -8,18 +10,20 @@ from os import getenv
 import asyncio
 
 REDIS_SERVER_URL = getenv("REDIS_SERVER_URL")
+CELERY_SERVER_URL = f"redis://{REDIS_SERVER_URL}:6379/0"
 load_dotenv()
 print("[ Cache (Redis) Initializing ] ...")
 
 # pyright: reportGeneralTypeIssues=false
 
 r = redis.Redis(host=REDIS_SERVER_URL, port=6379)
+queue = Celery("queue", broker=CELERY_SERVER_URL)  # type: ignore
 
 
-async def run_in_background(lambda_func):
-    loop = asyncio.get_running_loop()
-    result = await (await loop.run_in_executor(None, lambda_func))
-    return result
+# async def run_in_background(lambda_func):
+#     loop = asyncio.get_running_loop()
+#     result = await (await loop.run_in_executor(None, lambda_func))
+#     return result
 
 
 def timing(f):

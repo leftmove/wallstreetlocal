@@ -278,7 +278,7 @@ async def analyze_filer(cik):
 
 async def time_remaining(stock_count):
     time_required = len(stock_count)
-    return time_required
+    return time_required / 2
 
     # async def update_stocks(local_stocks, last_report, cik):
     #     global_stocks = {}
@@ -361,7 +361,7 @@ async def time_remaining(stock_count):
 
     #     global_stocks[stock_cusip] = new_stock
 
-    return global_stocks
+    # return global_stocks
 
 
 async def stock_filter(stocks):
