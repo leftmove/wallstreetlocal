@@ -107,6 +107,7 @@ const Gain = () => {
       <DndContext
         sensors={sensors}
         autoScroll={false}
+        collisionDetection={closestCenter}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >

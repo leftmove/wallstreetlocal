@@ -5,12 +5,14 @@ import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "900" });
 const interLight = Inter({ subsets: ["latin"], weight: "700" });
 
-import { useSelector } from "react-redux";
 // import useSWRSubscription from "swr/subscription";
 import axios from "axios";
 
-import { useInterval } from "@/components/Hooks/useInterval";
+import useInterval from "@/components/Hooks/useInterval";
+import Estimation from "./Estimation/Estimation";
+import useEllipsis from "@/components/Hooks/useEllipsis";
 
+const server = process.env.NEXT_PUBLIC_SERVER;
 const Progress = (props) => {
   // const [host, setHost] = useState("localhost:3000");
   // useEffect(() => {
@@ -23,7 +25,7 @@ const Progress = (props) => {
   // );
 
   // useSWRSubscription(
-  //   `ws://${host}https://content.wallstreetlocal.com/filers/logs?cik=${props.cik}`,
+  //   `ws://${host}/api/filers/logs?cik=${props.cik}`,
   //   (key, { next }) => {
   //     const socket = new WebSocket(key);
   //     socket.addEventListener("message", ({ data }) => {
@@ -44,7 +46,7 @@ const Progress = (props) => {
   //     return () => socket.close();
   //   }
   // );
-
+  const cik = props.cik;
   const [status, setStatus] = useReducer(
     (prev, next) => {
       const stop = next.stop;
@@ -68,8 +70,9 @@ const Progress = (props) => {
         remaining: "Estimating",
       };
     },
-    { logs: ["Initializing..."], count: 0 }
+    { logs: ["Initializing"], count: 0 }
   );
+  const { ellipsis } = useEllipsis();
   const logs = log.logs;
 
   const ref = useRef(null);
@@ -78,8 +81,8 @@ const Progress = (props) => {
   }, [logs]);
   useInterval(() => {
     axios
-      .get("https://content.wallstreetlocal.com/filers/logs", {
-        params: { cik: props.cik, start: log.count },
+      .get(server + "/filers/logs", {
+        params: { cik: cik, start: log.count },
       })
       .then((res) => res.data)
       .then((data) => {
@@ -104,22 +107,28 @@ const Progress = (props) => {
   }
 
   return (
-    <div className={[styles["progress"], inter.className].join(" ")}>
-      <span className={styles["header"]}>Building Filer...</span>
-      <div className={styles["logs"]}>
-        {logs.map((log, index) => {
-          return (
-            <span
-              key={index}
-              className={[styles["log"], interLight.className].join(" ")}
-            >
-              {log}
-            </span>
-          );
-        })}
-        <div className={styles["bottom"]} ref={ref}></div>
+    <>
+      <div className={[styles["progress"], inter.className].join(" ")}>
+        <span className={styles["header"]}>Building Filer</span>
+        <div className={styles["logs"]}>
+          {logs.map((log, index) => {
+            return (
+              <span
+                key={index}
+                className={[styles["log"], interLight.className].join(" ")}
+              >
+                {log}
+              </span>
+            );
+          })}
+          <span className={[styles["log"], interLight.className].join(" ")}>
+            {status.stop ? null : ellipsis}
+          </span>
+          <div className={styles["bottom"]} ref={ref}></div>
+        </div>
       </div>
-    </div>
+      <Estimation cik={cik} />
+    </>
   );
 };
 

@@ -91,7 +91,7 @@ async def main():
                 ]
             )
             companies_index.update_searchable_attributes(["name", "tickers", "cik"])
-            companies_index.update_filterable_attributes(["13f"])
+            companies_index.update_filterable_attributes(["thirteen_f"])
 
         progress.close()
 

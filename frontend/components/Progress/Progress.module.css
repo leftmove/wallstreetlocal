@@ -31,6 +31,7 @@
   width: 90%;
   height: 90%;
   margin: 20px;
+  margin-bottom: 0px;
   padding: 20px;
   border-radius: 5px;
 
@@ -42,4 +43,9 @@
   margin-bottom: 5px;
 
   color: white;
+}
+
+.estimation {
+  display: flex;
+  justify-content: center;
 }

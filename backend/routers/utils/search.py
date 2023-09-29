@@ -21,6 +21,15 @@ if "companies" not in [index.uid for index in search.get_indexes()["results"]]:
     sleep(3)
     search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
 companies_index = search.index("companies")
+companies_index.update_displayed_attributes(
+    [
+        "name",
+        "cik",
+        "tickers",
+    ]
+)
+companies_index.update_searchable_attributes(["name", "tickers", "cik"])
+companies_index.update_filterable_attributes(["13f"])
 
 
 async def search_companies(query, options={}):

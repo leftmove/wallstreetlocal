@@ -4,9 +4,9 @@
   align-items: center;
 
   height: 75px;
-  width: 100vw;
+  width: 100%;
 
-  background-color: var(--white);
+  background-color: var(--offwhite);
 }
 
 .logo-text {

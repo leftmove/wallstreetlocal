@@ -191,7 +191,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 // });
 
 // useEffect(() => {
-//   const url = "https://content.wallstreetlocal.com/stocks/info";
+//   const url = "http://localhost:8000/stocks/info";
 //   const time = 24 * 1000 * 60 * 60;
 //   const cacheStocks = async (url) => {
 //     const value = cacheData.get(url);
@@ -296,7 +296,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 // );
 // useEffect(() => {
 //   axios
-//     .get("https://content.wallstreetlocal.com/stocks/info", {
+//     .get("http://localhost:8000/stocks/info", {
 //       params: { cik: filer.cik },
 //     })
 //     .then((res) => res.data)
@@ -337,7 +337,7 @@ const Table = () => {
     error,
     isLoading: loading,
   } = useSWR(
-    ["https://content.wallstreetlocal.com/stocks/info", cik],
+    ["http://localhost:8000/stocks/info", cik],
     ([url, cik]) => getFetcher(url, cik),
     {
       revalidateOnFocus: false,

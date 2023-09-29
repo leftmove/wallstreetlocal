@@ -5,13 +5,13 @@
   overflow: hidden;
 
   width: 100%;
-  height: 100vh;
 }
 
 .landing-hero {
   display: flex;
 
   width: 100%;
+  max-height: 105vh;
   z-index: 0;
 }
 
@@ -66,7 +66,7 @@
   flex-direction: column;
   align-items: center;
 
-  height: 110vh;
+  height: 120vh;
 }
 
 .explore-header {

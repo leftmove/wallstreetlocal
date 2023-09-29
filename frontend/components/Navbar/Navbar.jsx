@@ -30,20 +30,25 @@ const Navbar = (props) => {
         </div>
         {variant === "home" ? null : <Search />}
       </div>
-      <ul className={styles["about"]}>
-        {/* <li className={styles["item"] + " " + inter.className}>
+      <div>
+        <ul className={styles["about"]}>
+          <li className={styles["item"] + " " + inter.className}>
+            <Link href="/filers/top">top filers</Link>
+          </li>
+          {/* <li className={styles["item"] + " " + inter.className}>
           <Link href="/">about</Link>
         </li> */}
-        <li className={styles["item"] + " " + inter.className}>
-          <Link href="/about/resources">RESOURCES</Link>
-        </li>
-        {/* <li className={styles["item"] + " " + inter.className}>
+          <li className={styles["item"] + " " + inter.className}>
+            <Link href="/about/resources">resources</Link>
+          </li>
+          {/* <li className={styles["item"] + " " + inter.className}>
           <Link href="/">pricing</Link>
         </li> */}
-        <li className={styles["item"] + " " + inter.className}>
-          <Link href="/about/contact">CONTACT</Link>
-        </li>
-      </ul>
+          <li className={styles["item"] + " " + inter.className}>
+            <Link href="/about/contact">contact</Link>
+          </li>
+        </ul>
+      </div>
     </nav>
   );
 };

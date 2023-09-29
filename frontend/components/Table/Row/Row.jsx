@@ -161,7 +161,7 @@ const Row = (props) => {
   const stock = props.stock;
 
   const headers = useSelector(selectHeaders);
-  const sortHeader = useSelector(selectSort).sort;
+  // const sortHeader = useSelector(selectSort).sort;
 
   return (
     <tr>

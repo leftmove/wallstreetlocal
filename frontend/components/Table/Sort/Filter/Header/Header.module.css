@@ -11,6 +11,7 @@
   all: unset;
   cursor: pointer;
   user-select: none;
+  text-align: center;
 
   opacity: 1 !important;
   flex-grow: 1;
@@ -19,7 +20,7 @@
   min-width: 71px;
   border: none;
 
-  background-color: var(--offwhite);
+  background-color: var(--offwhite-dark);
 
   transition: background-color 0.3s ease, border-color 0.3s ease,
     opacity 0.3s ease;

@@ -52,7 +52,7 @@
   flex-direction: column;
   align-items: center;
 
-  width: 280px;
+  max-width: 280px;
   padding: 20px;
   border-radius: 5px;
   height: 80%;

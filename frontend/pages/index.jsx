@@ -38,7 +38,7 @@ export default function Home() {
             className={styles["hero-image"]}
             src={Hero}
             alt="landing skyscraper"
-            sizes="100vw"
+            sizes="100%"
           />
         </div>
         <div className={styles["search-header"]}>
@@ -127,7 +127,7 @@ export default function Home() {
           </div>
         </div>
       </main>
-      <div className={styles["bottom"]}></div>
+      {/* <div className={styles["bottom"]}></div> */}
     </>
   );
 }

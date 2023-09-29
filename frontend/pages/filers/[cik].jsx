@@ -1,27 +1,13 @@
-import styles from "@/styles/Filer.module.css";
-import { useEffect, useReducer, useState } from "react";
-
 import axios from "axios";
-import useSWR, { SWRConfig } from "swr";
 
-import { Provider } from "react-redux";
+import { Provider, useDispatch } from "react-redux";
 import { wrapper } from "@/redux/store";
-import { useDispatch } from "react-redux";
 import { setCik } from "@/redux/filerSlice";
 
-import { useRouter } from "next/router";
-import Head from "next/head";
-import Error from "next/error";
-
 import Layout from "@/components/Layouts/Layout";
-import Table from "@/components/Table/Table";
-import Loading from "@/components/Loading/Loading";
-import Expand from "@/components/Expand/Expand";
-import Progress from "@/components/Progress/Progress";
-import Recommended from "@/components/Recommended/Filer/Recommended";
-
-import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "900" });
+import InfoPage from "./info";
+import ErrorPage from "./error";
+import BuildingPage from "./building";
 
 // const getFetcher = (url, cik) =>
 //   axios
@@ -54,11 +40,11 @@ const inter = Inter({ subsets: ["latin"], weight: "900" });
 //   //   data: queryData,
 //   //   error: queryError,
 //   //   loading: queryLoading,
-//   // } = useSWR("https://content.wallstreetlocal.com/filers/query", postFetcher({ cik: cik }));
+//   // } = useSWR("http://localhost:8000/filers/query", postFetcher({ cik: cik }));
 
 //   // const [infoData, setInfoData]: any = useState({});
 //   // const res = axios
-//   //   .get("https://content.wallstreetlocal.com/filers/info", { params: { cik: cik } })
+//   //   .get("http://localhost:8000/filers/info", { params: { cik: cik } })
 //   //   .then((res) => console.log(res))
 //   //   .then((data) => {
 //   //     setInfoData(data);
@@ -87,7 +73,7 @@ const inter = Inter({ subsets: ["latin"], weight: "900" });
 //   //   data: infoData,
 //   //   error: infoError,
 //   //   isLoading: infoLoading,
-//   // } = useSWR(["https://content.wallstreetlocal.com/filers/info", cik], ([url, cik]) => getFetcher(url, cik));
+//   // } = useSWR(["http://localhost:8000/filers/info", cik], ([url, cik]) => getFetcher(url, cik));
 
 //   // if (infoLoading || !infoData) {
 //   //   return <Loading />;
@@ -127,7 +113,7 @@ const inter = Inter({ subsets: ["latin"], weight: "900" });
 // export async function getStaticProps(context) {
 //   const props = {};
 //   axios
-//     .get("https://content.wallstreetlocal.com/filers/info", { params: { cik: context.params.cik } })
+//     .get("http://localhost:8000/filers/info", { params: { cik: context.params.cik } })
 //     .then((res) => {
 //       if (res.status == 201 || res.status == 409) {
 //         props.status = "building";
@@ -147,7 +133,7 @@ const inter = Inter({ subsets: ["latin"], weight: "900" });
 //     props: props,
 //   };
 // }
-// const url = "https://content.wallstreetlocal.com/filers/info";
+// const url = "http://localhost:8000/filers/info";
 // fetchWithCache(url, () => {
 //   setStatus({ loading: true });
 //   axios
@@ -175,154 +161,67 @@ const inter = Inter({ subsets: ["latin"], weight: "900" });
 //   }
 // };
 
-const fetcher = (url, cik) =>
-  axios
-    .get(url, { params: { cik: cik } })
-    .then((res) => res.data)
-    .catch((e) => {
-      const error = new Error("Error fetching data.");
-      const status = e.response.status;
+const Filer = (props) => {
+  const query = props.query;
+  const cik = props.cik;
 
-      switch (status) {
-        case 201:
-          error.building = true;
-          break;
-        case 409:
-          error.building = true;
-          break;
-        default:
-          error.error = true;
-          break;
-      }
-
-      throw error;
-    });
-
-const Filer = () => {
-  const router = useRouter();
-  const dispatch = useDispatch();
-  const { cik } = router.query;
-
-  const {
-    data: query,
-    loading: queryLoading,
-    error: queryError,
-  } = useSWR(
-    cik ? ["https://content.wallstreetlocal.com/filers/query/", cik] : null,
-    ([url, cik]) => fetcher(url, cik),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
-  );
-  const {
-    data: info,
-    isLoading: infoLoading,
-    error: infoError,
-  } = useSWR(
-    query ? ["https://content.wallstreetlocal.com/filers/info/", cik] : null,
-    ([url, cik]) => fetcher(url, cik),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
-  );
-
-  useEffect(() => {
-    if (router.isReady === false) return;
-    dispatch(setCik(cik));
-  }, [router.isReady, cik, dispatch]);
-  const [expand, setExpand] = useState(false);
-
-  if (queryError || infoError) {
-    if (queryError.building) {
-      return (
-        <>
-          <Head>
-            <title>Building</title>
-          </Head>
-          <Progress cik={cik} />
-          <Recommended />
-        </>
-      );
-    } else {
-      return (
-        <>
-          <Head>
-            <title>Error 404 - Filer not found</title>
-          </Head>
-          <Error statusCode={404} />
-        </>
-      );
-    }
-  }
-  if (queryLoading || infoLoading) {
-    return (
-      <>
-        <Head>
-          <title>Loading</title>
-        </Head>
-        <Loading />
-      </>
-    );
+  if (query.building) {
+    return <BuildingPage cik={cik} />;
   }
 
-  return (
-    <>
-      <Head>
-        <title>Filers - {info.name}</title>
-      </Head>
-      <SWRConfig value={{ provider: () => new Map() }}>
-        <div className={styles["header"]}>
-          <span className={[styles["main-header"], inter.className].join(" ")}>
-            {info.name}
-          </span>
-          <div
-            className={[
-              styles["sub-header"],
-              expand ? styles["sub-header-expanded"] : "",
-            ].join(" ")}
-          >
-            <div className={styles["secondary-header"]}>
-              <span
-                className={[
-                  styles["secondary-header-desc"],
-                  inter.className,
-                ].join(" ")}
-              >
-                {info.cik}{" "}
-                {info.tickers || [] ? `(${info.tickers.join(", ")})` : ""}
-              </span>
-              <Expand onClick={() => setExpand(!expand)} expandState={expand} />
-            </div>
-            <span
-              className={[styles["header-desc"], inter.className].join(" ")}
-            >
-              {info.data.description}
-            </span>
-          </div>
+  if (query.ok) {
+    return <InfoPage cik={cik} />;
+  }
 
-          {/* <span className={[styles["sub-desc"], inter.className].join(" ")}>
-        {info.data["Description"]}
-      </span> */}
-        </div>
-        <Table cik={cik} />
-        <div className={styles["header"]}>
-          {/* <span className={[styles["main-header"], inter.className].join(" ")}>
-          Info
-        </span> */}
-        </div>
-      </SWRConfig>
-    </>
-  );
+  if (query.error) {
+    return <ErrorPage />;
+  }
 };
 
-Filer.getLayout = ({ Component, ...rest }) => {
-  const { store, props: reduxProps } = wrapper.useWrappedStore(rest);
+export async function getServerSideProps(context) {
+  const { cik } = context.query;
+  const server = process.env.NEXT_PUBLIC_SERVER;
+
+  const query = {
+    ok: false,
+    building: false,
+    error: false,
+  };
+
+  const response = await axios.get(server + "/filers/query", {
+    params: { cik: cik },
+    validateStatus: (status) => status < 500,
+  });
+  switch (response.status) {
+    case 201:
+    case 409:
+      query.building = true;
+      break;
+    case 200:
+      query.ok = true;
+      break;
+    default:
+      query.error = true;
+      break;
+  }
+
+  return {
+    props: {
+      query,
+      cik,
+    },
+  };
+}
+
+Filer.getLayout = function getLayout({ Component, ...rest }) {
+  const { store, props } = wrapper.useWrappedStore(rest);
+  const { cik } = props.pageProps;
+  const reduxStore = { ...store, filer: { ...store.filer, cik: cik } };
+
   return (
     <Layout>
-      <Provider store={store}>
-        {<Component {...reduxProps.pageProps} />}
+      <Provider store={reduxStore}>
+        <Component {...props.pageProps} />
       </Provider>
     </Layout>
   );

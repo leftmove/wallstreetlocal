@@ -44,14 +44,7 @@ router = APIRouter(
 )
 
 
-@cache
-async def create_filer(cik):
-    try:
-        sec_data = await sec_filer_search(cik)
-    except Exception as e:
-        print(e)
-        raise HTTPException(404, detail="CIK not found.")
-
+async def create_filer(sec_data, cik):
     company = {
         "name": sec_data["name"],
         "cik": cik,
@@ -60,21 +53,19 @@ async def create_filer(cik):
             "logs": [],
             "stop": False,
             "time": {
-                "remaining": await run_in_background(
-                    lambda: estimate_time(sec_data, cik)
-                ),
+                "remaining": await estimate_time(sec_data, cik),
             },
             "start": datetime.now().timestamp(),
         },
     }
     await add_filer(company)
-    company = await run_in_background(lambda: scrape_filer(sec_data, cik))
+    company = await scrape_filer(sec_data, cik)
 
     company.update(
         {
             "cik": cik,
             "stocks": {
-                "local": await run_in_background(lambda: scrape_new_stocks(company)),
+                "local": await scrape_new_stocks(company),
                 "global": [],
             },
         }
@@ -132,7 +123,11 @@ async def query_filer(cik: str, background_tasks: BackgroundTasks):
     cik = cik.lstrip("0") or "0"
     filer = await find_filer(cik)
     if filer == None:
-        background_tasks.add_task(create_filer, cik)
+        try:
+            sec_data = await sec_filer_search(cik)
+        except Exception as e:
+            raise HTTPException(404, detail="CIK not found.")
+        background_tasks.add_task(create_filer, sec_data, cik)
         res = {"description": "Filer creation started."}
     else:
         res = await update_filer(filer)
@@ -253,6 +248,45 @@ async def logs(cik: str, start: int = 0):
     return log
 
 
+@router.get("/estimate")
+async def estimate(cik: str):
+    project = {
+        "_id": 0,
+        "name": 0,
+        "filings": 0,
+        "stocks": 0,
+        "data": 0,
+        "cik": 0,
+        "status": 0,
+        "tickers": 0,
+        "exchanges": 0,
+        "first_report": 0,
+        "last_report": 0,
+        "updated": 0,
+        "log.logs": 0,
+    }
+    try:
+        filer = await find_filer(
+            cik,
+            project,
+        )
+        log = filer["log"]
+        time_remaining = log["time"]["remaining"]
+
+        message = {
+            "description": "Found time estimation",
+            "time": time_remaining,
+        }
+
+    except (IndexError, TypeError):
+        raise HTTPException(404, detail="CIK not found.")
+    except Exception as e:
+        print(e)
+        raise HTTPException(404, detail="Error fetching time estimation.")
+
+    return message
+
+
 # @router.get("/aggregate/", tags=["filers"], status_code=201)
 # async def migrate_filers(password: str):
 #     if password != getenv("ADMIN_PASSWORD"):
@@ -283,10 +317,10 @@ async def logs(cik: str, start: int = 0):
 #                 name = filer["name"]
 #                 form_types = filings["form"]
 #                 if "13F-HR" in form_types:
-#                     thirteen_f = True
+#                     13f = True
 #                     print(f"Found 13F-HR filing for {name} ({count})")
 #                 else:
-#                     thirteen_f = False
+#                     13f = False
 
 #                 new_filer = {
 #                     "name": name,
@@ -295,7 +329,7 @@ async def logs(cik: str, start: int = 0):
 #                     "exchanges": filer["exchanges"],
 #                     "sic": filer["sic"],
 #                     "ein": filer["ein"],
-#                     "13f": thirteen_f,
+#                     "13f": 13f,
 #                     "description": filer["description"],
 #                     "sic_description": filer["sicDescription"],
 #                     "website": filer["website"],

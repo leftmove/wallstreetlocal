@@ -6,7 +6,7 @@ body {
   width: 100%;
   height: 100%;
 
-  background-color: var(--white);
+  background-color: var(--offwhite);
 }
 
 :root {
@@ -17,6 +17,7 @@ body {
   --white: white;
   --offwhite: #e2e1e1;
   --offwhite-dark: #b8b8b8;
+  --offwhite-darker: #a0a0a0;
 }
 
 a {

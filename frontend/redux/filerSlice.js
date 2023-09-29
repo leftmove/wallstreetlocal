@@ -1,4 +1,4 @@
-import { createSlice, current } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { HYDRATE } from "next-redux-wrapper";
 
 const initialDate = new Date();
@@ -123,6 +123,7 @@ export const filerSlice = createSlice({
   reducers: {
     setCik(state, action) {
       state.cik = action.payload;
+      console.log(state);
 
       return state;
     },
