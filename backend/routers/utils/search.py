@@ -32,7 +32,7 @@ companies_index.update_searchable_attributes(["name", "tickers", "cik"])
 companies_index.update_filterable_attributes(["13f"])
 
 
-async def search_companies(query, options={}):
+def search_companies(query, options={}):
     result = companies_index.search(query, options)
     hits = result["hits"]
 

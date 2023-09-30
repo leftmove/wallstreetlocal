@@ -1,7 +1,6 @@
 from .analysis import *
 from .mongo import *
 from .api import *
-from .worker import *
 
 
 from bs4 import BeautifulSoup
@@ -20,7 +19,6 @@ underscore_pattern = re.compile(r"([a-z0-9])([A-Z])")
 # type
 
 
-@worker.task
 def scrape_name(cusip, name, cik):
     msg = f"Querying Stock [ {name} ({cusip}) ]\n"
     found_stock = find_stock("cusip", cusip)
@@ -31,7 +29,7 @@ def scrape_name(cusip, name, cik):
             name = data["name"]
             ticker = data["symbol"]
 
-            stock = scrape_stock.delay(ticker, cusip, cik)
+            stock = scrape_stock(ticker, cusip, cik)
             stock["update"] = True
 
             add_stock(stock)
@@ -64,7 +62,6 @@ def scrape_name(cusip, name, cik):
         return found_stock["ticker"], found_stock["name"]
 
 
-@worker.task
 def scrape_names(stocks, cik):
     global_stocks = {}
     found_stocks = {}
@@ -99,7 +96,7 @@ def scrape_names(stocks, cik):
                 data = data["result"][0]
                 ticker = data["symbol"]
 
-                stock = scrape_stock.delay(ticker, cusip, cik)
+                stock = scrape_stock(ticker, cusip, cik)
                 name = stock["name"]
                 add_stock(stock)
 
@@ -140,7 +137,6 @@ def scrape_names(stocks, cik):
     return global_stocks
 
 
-@worker.task
 def scrape_filings(data):
     data_filings = data["filings"]["recent"]
     filings = {}
@@ -209,7 +205,6 @@ def sort_rows(row_one, row_two):
     return nameColumn, classColumn, cusipColumn, valueColumn, shrsColumn, multiplier
 
 
-@worker.task
 def scrape_keys(tickers, name, cik):
     if tickers == []:
         try:
@@ -230,14 +225,13 @@ def scrape_keys(tickers, name, cik):
     return name, stock_info  # type: ignore
 
 
-@worker.task
 def scrape_filer(data, cik):
-    filings, last_report, first_report = scrape_filings.delay(data)
+    filings, last_report, first_report = scrape_filings(data)
     time = (datetime.now()).timestamp()
 
     name = data["name"]
     tickers = data["tickers"]
-    name, info = scrape_keys.delay(tickers, name, cik)
+    name, info = scrape_keys(tickers, name, cik)
 
     extra_data = {}
     for key in info:
@@ -261,16 +255,14 @@ def scrape_filer(data, cik):
     return company
 
 
-@worker.task
 def scrape_filer_newest(company):
     cik = company["cik"]
     newest_data = sec_filer_search(cik)
-    filings, last_report = scrape_filings.delay(newest_data)  # type: ignore
+    filings, last_report = scrape_filings(newest_data)  # type: ignore
 
     return filings, last_report
 
 
-@worker.task
 def scrape_stock(ticker, cusip, cik):
     try:
         stock_info = ticker_request("OVERVIEW", ticker, cik)
@@ -318,7 +310,6 @@ def scrape_stock(ticker, cusip, cik):
     return info
 
 
-@worker.task
 def scrape_count_stocks(data):
     index_soup = BeautifulSoup(data, "html.parser")
     rows = index_soup.find_all("tr")
@@ -362,7 +353,6 @@ def scrape_count_stocks(data):
     return stock_count
 
 
-@worker.task
 def scrape_stocks(data, last_report, access_number, report_date, global_stocks, cik):
     index_soup = BeautifulSoup(data, "html.parser")
     rows = index_soup.find_all("tr")
@@ -468,7 +458,7 @@ def scrape_stocks(data, last_report, access_number, report_date, global_stocks, 
 
             global_stocks[stock_cusip] = new_stock
 
-    updated_stocks = scrape_names.delay(update_list, cik)
+    updated_stocks = scrape_names(update_list, cik)
     for new_stock in update_list:
         stock_cusip = new_stock["cusip"]
         new_stock.update(updated_stocks[stock_cusip])
@@ -492,7 +482,7 @@ def scrape_stocks(data, last_report, access_number, report_date, global_stocks, 
     #     if global_stock == None:
     #         new_stock = local_stock
     #         access_number = local_stock['access_number']
-    #         ticker, name = scrape_name.delay(stock_cusip, stock_name)
+    #         ticker, name = scrape_name(stock_cusip, stock_name)
     #         sold = False if access_number == last_report else True
 
     #         del new_stock['access_number']
@@ -522,7 +512,6 @@ def scrape_stocks(data, last_report, access_number, report_date, global_stocks, 
     return global_stocks
 
 
-@worker.task
 def scrape_new_stocks(company):
     cik = company["cik"]
     filings = company["filings"]
@@ -551,7 +540,6 @@ def scrape_new_stocks(company):
     return global_stocks
 
 
-@worker.task
 def scrape_latest_stocks(company):
     cik = company["cik"]
     filings = company["filings"]
@@ -583,19 +571,21 @@ def scrape_latest_stocks(company):
 
 
 def estimate_time(data, cik):
-    filings, _, _ = scrape_filings.delay(data)
+    filings, _, _ = scrape_filings(data)
 
     stock_count = 0
     for access_number in filings:
         data = sec_stock_search(cik=cik, access_number=access_number)
         try:
-            new_count = scrape_count_stocks.delay(data)
+            new_count = scrape_count_stocks(data)
             stock_count += new_count  # type: ignore
         except Exception as e:
             print(f"\nError Counting Stocks\n{e}\n--------------------------\n")
             continue
 
-    return stock_count
+    remaining = time_remaining(stock_count)
+
+    return remaining
 
 
 print("[ Data Initialized ]")

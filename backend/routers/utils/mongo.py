@@ -13,6 +13,7 @@ db = client["wallstreetlocal"]
 main = db["filers"]
 stocks = db["stocks"]
 companies = db["companies"]
+logs = db["logs"]
 
 
 def check_stock(ticker):
@@ -78,6 +79,10 @@ def watch_logs(pipeline):
 def aggregate_filers(pipeline):
     cursor = main.aggregate(pipeline)
     return cursor
+
+
+def add_query_log(log):
+    logs.insert_one(log)
 
 
 # def search_sec(pipeline):

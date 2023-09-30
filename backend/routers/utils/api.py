@@ -71,6 +71,14 @@ def sec_directory_search(directory):
     return data
 
 
+def rate_limit(cik):
+    add_log(cik, "Waiting 60 Seconds...")
+    edit_filer({"cik": cik}, {"$set": {"log.wait": True}})
+    edit_filer({"cik": cik}, {"$inc": {"log.time.required": 60}})
+    time.sleep(60)
+    edit_filer({"cik": cik}, {"$set": {"log.wait": False}})
+
+
 def ticker_request(function, symbol, cik):
     while True:
         params = {
@@ -80,11 +88,7 @@ def ticker_request(function, symbol, cik):
         }
         res = requests.get("https://www.alphavantage.co/query", params=params)
         if res.status_code == 429:
-            add_log(cik, "Waiting 60 Seconds...")
-            edit_filer({"cik": cik}, {"$set": {"log.wait": True}})
-
-            time.sleep(60)
-            edit_filer({"cik": cik}, {"$set": {"log.wait": False}})
+            rate_limit(cik)
         else:
             data = res.json()
             break
@@ -97,16 +101,7 @@ def cusip_request(value, cik):
         params = {"q": value, "token": FINN_HUB_API_KEY}
         res = requests.get(f"https://finnhub.io/api/v1/search", params=params)
         if res.status_code == 429:
-            if cik == "":
-                time.sleep(60)
-                continue
-
-            add_log(cik, "Waiting 60 Seconds...")
-            edit_filer({"cik": cik}, {"$set": {"log.wait": True}})
-
-            time.sleep(60)
-
-            edit_filer({"cik": cik}, {"$set": {"log.wait": False}})
+            rate_limit(cik)
         else:
             data = res.json()
             break

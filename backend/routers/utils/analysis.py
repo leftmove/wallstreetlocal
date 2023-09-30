@@ -3,7 +3,6 @@ from datetime import datetime
 from .mongo import *
 from .api import *
 from .scrape import *
-from .worker import *
 
 # pyright: reportGeneralTypeIssues=false
 # pyright: reportOptionalSubscript=false
@@ -160,7 +159,6 @@ def serialize_stock(local_stock, global_stock):
     }
 
 
-@worker.task
 def analyze_filer(cik):
     filer = find_filer(cik)
     filer_filings = filer["filings"]
@@ -278,93 +276,9 @@ def analyze_filer(cik):
     )
 
 
-@worker.task
 def time_remaining(stock_count):
-    time_required = len(stock_count)
-    return time_required / 2
-
-    # def update_stocks(local_stocks, last_report, cik):
-    #     global_stocks = {}
-    #     update_list = []
-    #     for key in local_stocks:
-    #         local_stock = local_stocks[key]
-    #         global_stock = global_stocks.get(key)
-    #         stock_cusip = local_stock["cusip"]
-    #         stock_name = local_stock["name"]
-
-    #         if global_stock == None and global_stock not in update_list:
-    #             new_stock = local_stock
-    #             update_list.append(new_stock)
-    #             continue
-
-    #         else:
-    #             local_date = local_stock["date"]
-    #             local_access_number = local_stock["access_number"]
-    #             global_date = global_stock["date"]
-
-    #             if local_date >= global_date:
-    #                 new_stock = global_stock
-    #                 new_stock["date"] = local_date
-    #                 new_stock["last_report"] = local_access_number
-
-    #             else:
-    #                 new_stock = global_stock
-    #                 new_stock["first_report"] = local_access_number
-
-    #             global_stocks[stock_cusip] = new_stock
-
-    #     updated_stocks = scrape_names.delay(update_list, cik)
-    #     for new_stock in update_list:
-    #         stock_cusip = new_stock["cusip"]
-    #         new_stock.update(updated_stocks[stock_cusip])
-    #         access_number = new_stock["access_number"]
-    #         sold = False if access_number == last_report else True
-
-    #         new_stock["sold"] = sold
-    #         new_stock["first_report"] = access_number
-    #         new_stock["last_report"] = access_number
-    #         del new_stock["access_number"]
-
-    #         global_stocks[stock_cusip] = new_stock
-
-    # Legacy Implementation
-    # for key in local_stocks:
-    #     local_stock = local_stocks[key]
-    #     global_stock = global_stocks.get(key)
-    #     stock_cusip = local_stock['cusip']
-    #     stock_name = local_stock['name']
-
-    #     if global_stock == None:
-    #         new_stock = local_stock
-    #         access_number = local_stock['access_number']
-    #         ticker, name = scrape_name.delay(stock_cusip, stock_name)
-    #         sold = False if access_number == last_report else True
-
-    #         del new_stock['access_number']
-    #         new_stock["name"] = name
-    #         new_stock["ticker"] = ticker
-    #         new_stock['sold'] = sold
-    #         new_stock['first_report'] = access_number
-    #         new_stock['last_report'] = access_number
-    #     else:
-    #         local_date = local_stock['date']
-    #         local_access_number = local_stock['access_number']
-    #         global_date = global_stock['date']
-
-    #         if local_date > global_date:
-
-    #             new_stock = global_stock
-    #             new_stock['date'] = local_date
-    #             new_stock['sold'] = sold
-    #             new_stock['last_report'] = local_access_number
-
-    #         elif local_date < global_date:
-    #             new_stock = global_stock
-    #             new_stock['first_report'] = local_access_number
-
-    #     global_stocks[stock_cusip] = new_stock
-
-    # return global_stocks
+    time_required = stock_count / 8
+    return time_required
 
 
 def stock_filter(stocks):

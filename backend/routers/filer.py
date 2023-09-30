@@ -9,7 +9,6 @@ from .utils.search import *
 from .utils.api import *
 from .utils.analysis import *
 from .utils.cache import *
-from .utils.worker import *
 
 from datetime import datetime
 import json
@@ -46,32 +45,40 @@ router = APIRouter(
 )
 
 
-@worker.task
 def create_filer(sec_data, cik):
+    timestamp = {
+        "logs": [],
+        "stop": False,
+        "time": {
+            "status": "Estimating",
+            "remaining": 0,
+            "elapsed": 0,
+            "required": 0,
+        },
+        "start": datetime.now().timestamp(),
+    }
     company = {
         "name": sec_data["name"],
         "cik": cik,
         "status": "Building",
-        "log": {
-            "logs": [],
-            "stop": False,
-            "time": {
-                "remaining": 0,
-            },
-            "start": datetime.now().timestamp(),
-        },
+        "log": timestamp,
     }
     add_filer(company)
-    company = scrape_filer.delay(sec_data, cik)
+    company = scrape_filer(sec_data, cik)
 
-    company["time"]["remaining"] = estimate_time(sec_data, cik)
+    timestamp["time"] = {
+        "status": "Calculated",
+        "required": estimate_time(sec_data, cik),
+        "elapsed": datetime.now().timestamp() - timestamp["start"],
+    }
     company.update(
         {
             "cik": cik,
             "stocks": {
-                "local": scrape_new_stocks.delay(company),
+                "local": scrape_new_stocks(company),
                 "global": [],
             },
+            "log": timestamp,
         }
     )
 
@@ -84,8 +91,20 @@ def create_filer(sec_data, cik):
         edit_filer({"cik": cik}, {"$set": {"status": "Updated", "update": False}})
         print(e)
 
+    filer_done = find_filer(cik, {"cik": 1, "name": 1, "log": 1})
+    query_log = {
+        "cik": filer_done["cik"],
+        "name": filer_done["name"],
+        "data": {
+            "estimated_required": filer_done["log"]["time"]["required"],
+            "real_elapsed": filer_done["log"]["time"]["elapsed"],
+            "started_on": filer_done["log"]["start"],
+        },
+        "timestamp": datetime.now().timestamp(),
+    }
+    add_query_log(query_log)
 
-@worker.task
+
 def update_filer(company):
     cik = company["cik"]
     time = datetime.now().timestamp()
@@ -99,8 +118,8 @@ def update_filer(company):
     update = check_new(cik=cik, last_updated=company["updated"])
     if update:
         edit_filer({"cik": cik}, {"$set": {"status": "Building"}})
-        filings, latest_report = scrape_filer_newest.delay(company)
-        scraped_stocks = scrape_latest_stocks.delay(company)
+        filings, latest_report = scrape_filer_newest(company)
+        scraped_stocks = scrape_latest_stocks(company)
         edit_filer(
             {"cik": cik},
             {
@@ -123,7 +142,7 @@ def update_filer(company):
     tags=["filers"],
     status_code=201,
 )
-async def query_filer(cik: str):
+async def query_filer(cik: str, background: BackgroundTasks):
     cik = cik.lstrip("0") or "0"
     filer = find_filer(cik)
     if filer == None:
@@ -132,7 +151,7 @@ async def query_filer(cik: str):
         except Exception as e:
             raise HTTPException(404, detail="CIK not found.")
 
-        create_filer.delay(sec_data, cik)
+        background.add_task(create_filer, sec_data, cik)
         res = {"description": "Filer creation started."}
     else:
         res = update_filer(filer)
@@ -186,7 +205,24 @@ async def logs(cik: str, start: int = 0):
         log["count"] = count
         log["logs"] = logs
 
-        edit_filer({"cik": cik}, {"$inc": {"log.time.remaining": 0 - count}})
+        time = log["time"]
+        required = time["required"]
+        start_time = log["start"]
+        now_time = datetime.now().timestamp()
+        elapsed = now_time - start_time
+        status = time["status"]
+
+        edit_filer(
+            {"cik": cik},
+            {
+                "$set": {
+                    "log.time.remaining": required - elapsed
+                    if status == "Calculated"
+                    else 0,
+                    "log.time.elapsed": elapsed,
+                }
+            },
+        )
     except (IndexError, TypeError):
         raise HTTPException(404, detail="CIK not found.")
     except Exception as e:
@@ -220,10 +256,14 @@ async def estimate(cik: str):
         )
         log = filer["log"]
         time_remaining = log["time"]["remaining"]
+        status = log["time"]["status"]
+        wait = log.get("wait", False)
 
         message = {
             "description": "Found time estimation",
             "time": time_remaining,
+            "status": status,
+            "wait": wait,
         }
 
     except (IndexError, TypeError):

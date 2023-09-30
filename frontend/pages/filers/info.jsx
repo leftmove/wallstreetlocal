@@ -14,6 +14,7 @@ import { setCik } from "@/redux/filerSlice";
 
 import Expand from "@/components/Expand/Expand";
 import Table from "@/components/Table/Table";
+import Reload from "@/components/Progress/Reload/Reload";
 
 const fetcher = (url, cik) =>
   axios

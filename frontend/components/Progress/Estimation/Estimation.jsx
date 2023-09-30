@@ -43,10 +43,14 @@ const Estimation = (props) => {
     [server + "/filers/estimate", cik],
     ([url, cik]) => fetcher(url, cik),
     {
-      refreshInterval: 5000,
+      refreshInterval: 10000,
     }
   );
-  const [time, setTime] = useState({ confirmed: 0, estimated: 0 });
+  const [time, setTime] = useState({
+    confirmed: 0,
+    estimated: 0,
+    status: "estimating",
+  });
 
   const { ellipsis } = useEllipsis();
 
@@ -54,15 +58,25 @@ const Estimation = (props) => {
     setTime({ ...time, estimated: time.estimated - 1 });
   }, 1000);
   useEffect(() => {
-    if (data && data !== data.confirmed) {
-      const time = data?.time;
-      setTime({ confirmed: time, estimated: time });
+    console.log(data);
+    if (data) {
+      const estimation = data?.time;
+      const status = data?.status;
+      const newEstimation = {
+        ...time,
+        status: status === "Estimating" ? "estimating" : "estimated",
+      };
+
+      if (estimation !== time.confirmed) {
+        newEstimation.confirmed = newEstimation.estimated = estimation;
+      }
+
+      setTime(newEstimation);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
-  // const timeReadable =
-  if (loading) {
+  if (loading || time.status === "estimating") {
     return (
       <div className={styles["estimation"]}>
         <span

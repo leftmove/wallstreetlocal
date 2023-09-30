@@ -9,8 +9,9 @@ const interLight = Inter({ subsets: ["latin"], weight: "700" });
 import axios from "axios";
 
 import useInterval from "@/components/Hooks/useInterval";
-import Estimation from "./Estimation/Estimation";
 import useEllipsis from "@/components/Hooks/useEllipsis";
+import Estimation from "./Estimation/Estimation";
+import Reload from "./Reload/Reload";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
 const Progress = (props) => {
@@ -101,9 +102,7 @@ const Progress = (props) => {
   }, status.delay);
 
   if (status.stop) {
-    setTimeout(() => {
-      window.location.reload();
-    }, 15 * 1000);
+    return <Reload />;
   }
 
   return (

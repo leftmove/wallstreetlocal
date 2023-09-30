@@ -5,7 +5,6 @@ from .utils.api import *
 from .utils.mongo import *
 from .utils.scrape import *
 from .utils.cache import *
-from .utils.worker import *
 
 # pyright: reportGeneralTypeIssues=false
 
@@ -30,7 +29,7 @@ async def query_stocks(stock: Tickers):
     tickers = stock.tickers
     found_stocks = find_stocks("ticker", {"$in": tickers})
 
-    async for found_stock in found_stocks:
+    for found_stock in found_stocks:
         if found_stock == None:
             continue
 
@@ -130,7 +129,7 @@ async def stock_timeseries(cik: str, time: float):
             },
         ]
     )
-    async for document in cursor:
+    for document in cursor:
         cusip = document["cusip"]
         close = document["timeseries"]["close"]
         close_str = f"${close}"
