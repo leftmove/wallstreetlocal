@@ -1,6 +1,7 @@
 from .analysis import *
 from .mongo import *
 from .api import *
+from .worker import *
 
 
 from bs4 import BeautifulSoup
@@ -18,56 +19,59 @@ capital_pattern = re.compile(r"(.)([A-Z][a-z]+)")
 underscore_pattern = re.compile(r"([a-z0-9])([A-Z])")
 # type
 
-async def scrape_name(cusip, name, cik):
+
+@worker.task
+def scrape_name(cusip, name, cik):
     msg = f"Querying Stock [ {name} ({cusip}) ]\n"
-    found_stock = await find_stock("cusip", cusip)
+    found_stock = find_stock("cusip", cusip)
     if found_stock == None:
         try:
-            data = await cusip_request(cusip, cik)
+            data = cusip_request(cusip, cik)
             data = data["result"][0]
             name = data["name"]
             ticker = data["symbol"]
 
-            stock = await scrape_stock(ticker, cusip, cik)
+            stock = scrape_stock.delay(ticker, cusip, cik)
             stock["update"] = True
 
-            await add_stock(stock)
+            add_stock(stock)
             msg += f"Success, Added Stock {name} ({cusip})"
 
-            await add_log(cik, msg)
+            add_log(cik, msg)
             return ticker, name
         except (KeyError, IndexError) as e:
             stock = {"name": name, "ticker": "NA", "cusip": cusip}
             stock["update"] = False
-            await add_stock(stock)
+            add_stock(stock)
             msg += f"Failed {name} ({cusip}), No Query Data"
 
-            await add_log(cik, msg)
+            add_log(cik, msg)
             return "NA", name
         except Exception as e:
             stock = {"name": name, "ticker": "NA", "cusip": cusip}
             stock["update"] = False
 
-            await add_stock(stock)
+            add_stock(stock)
             msg += f"Failed {name} ({cusip}), Unknown Error"
 
-            await add_log(cik, msg)
+            add_log(cik, msg)
             return "NA", name
     else:
         name = found_stock["name"]
         msg += f"Success, Found Stock {name} ({cusip})"
 
-        await add_log(cik, msg)
+        add_log(cik, msg)
         return found_stock["ticker"], found_stock["name"]
 
 
-async def scrape_names(stocks, cik):
+@worker.task
+def scrape_names(stocks, cik):
     global_stocks = {}
     found_stocks = {}
     skip = []
     cusip_list = list(map(lambda s: s["cusip"], stocks))
-    cursor = await find_stocks("cusip", {"$in": cusip_list})
-    async for found_stock in cursor:
+    cursor = find_stocks("cusip", {"$in": cusip_list})
+    for found_stock in cursor:
         cusip = found_stock["cusip"]
         found_stocks[cusip] = found_stock
 
@@ -87,17 +91,17 @@ async def scrape_names(stocks, cik):
                 "cusip": cusip,
                 "update": True,
             }
-            await add_log(cik, msg)
+            add_log(cik, msg)
 
         else:
             try:
-                data = await cusip_request(cusip, cik)
+                data = cusip_request(cusip, cik)
                 data = data["result"][0]
                 ticker = data["symbol"]
 
-                stock = await scrape_stock(ticker, cusip, cik)
+                stock = scrape_stock.delay(ticker, cusip, cik)
                 name = stock["name"]
-                await add_stock(stock)
+                add_stock(stock)
 
                 global_stocks[cusip] = {
                     "name": name,
@@ -106,19 +110,19 @@ async def scrape_names(stocks, cik):
                     "update": True,
                 }
                 msg += f"Success, Added Stock {name} ({cusip})"
-                await add_log(cik, msg)
+                add_log(cik, msg)
 
             except (KeyError, IndexError) as e:
                 if cusip in skip:
                     continue
 
                 stock = {"name": name, "ticker": "NA", "cusip": cusip, "update": False}
-                await add_stock(stock)
+                add_stock(stock)
                 skip.append(cusip)
                 global_stocks[cusip] = stock
 
                 msg += f"Failed {name} ({cusip}), No Query Data"
-                await add_log(cik, msg)
+                add_log(cik, msg)
 
             except Exception as e:
                 if cusip in skip:
@@ -126,17 +130,18 @@ async def scrape_names(stocks, cik):
 
                 stock = {"name": name, "ticker": "NA", "cusip": cusip, "update": False}
 
-                await add_stock(stock)
+                add_stock(stock)
                 skip.append(cusip)
                 global_stocks[cusip] = stock
 
                 msg += f"Failed {name} ({cusip}), Unknown Error"
-                await add_log(cik, msg)
+                add_log(cik, msg)
 
     return global_stocks
 
 
-async def scrape_filings(data):
+@worker.task
+def scrape_filings(data):
     data_filings = data["filings"]["recent"]
     filings = {}
     for i, form in enumerate(data_filings["form"]):
@@ -147,8 +152,8 @@ async def scrape_filings(data):
         filing = {
             # "form": data_filings["form"][i],
             "access_number": data_filings["accessionNumber"][i],
-            "filing_date": await convert_date(data_filings["filingDate"][i]),
-            "report_date": await convert_date(data_filings["reportDate"][i]),
+            "filing_date": convert_date(data_filings["filingDate"][i]),
+            "report_date": convert_date(data_filings["reportDate"][i]),
             "document": data_filings["primaryDocument"][i],
             "description": data_filings["primaryDocDescription"][i],
         }
@@ -169,9 +174,9 @@ async def scrape_filings(data):
 info_table_key = ["INFORMATION TABLE", "INFORMATION TABLE FOR FORM 13F"]
 
 
-async def check_new(cik, last_updated):
-    data = await sec_filer_search(cik)
-    new_date = await convert_date(data["filings"]["recent"]["filingDate"][-1])
+def check_new(cik, last_updated):
+    data = sec_filer_search(cik)
+    new_date = convert_date(data["filings"]["recent"]["filingDate"][-1])
 
     if new_date > last_updated:
         return True
@@ -179,7 +184,7 @@ async def check_new(cik, last_updated):
         return False
 
 
-async def sort_rows(row_one, row_two):
+def sort_rows(row_one, row_two):
     nameColumn = 0
     classColumn = 1
     cusipColumn = 2
@@ -204,10 +209,11 @@ async def sort_rows(row_one, row_two):
     return nameColumn, classColumn, cusipColumn, valueColumn, shrsColumn, multiplier
 
 
-async def scrape_keys(tickers, name, cik):
+@worker.task
+def scrape_keys(tickers, name, cik):
     if tickers == []:
         try:
-            data = await cusip_request(name, cik)
+            data = cusip_request(name, cik)
             stock_info = data["result"][0]
         except (KeyError, IndexError) as e:
             print(f"Failed, Key Error {name}\n{e}\n")
@@ -215,7 +221,7 @@ async def scrape_keys(tickers, name, cik):
     else:
         for ticker in tickers:
             try:
-                stock_info = await ticker_request("OVERVIEW", ticker, cik)
+                stock_info = ticker_request("OVERVIEW", ticker, cik)
                 name = stock_info["Name"]
                 break
             except Exception as e:
@@ -224,13 +230,14 @@ async def scrape_keys(tickers, name, cik):
     return name, stock_info  # type: ignore
 
 
-async def scrape_filer(data, cik):
-    filings, last_report, first_report = await scrape_filings(data)
+@worker.task
+def scrape_filer(data, cik):
+    filings, last_report, first_report = scrape_filings.delay(data)
     time = (datetime.now()).timestamp()
 
     name = data["name"]
     tickers = data["tickers"]
-    name, info = await scrape_keys(tickers, name, cik)
+    name, info = scrape_keys.delay(tickers, name, cik)
 
     extra_data = {}
     for key in info:
@@ -254,20 +261,20 @@ async def scrape_filer(data, cik):
     return company
 
 
-async def scrape_filer_newest(company):
+@worker.task
+def scrape_filer_newest(company):
     cik = company["cik"]
-    newest_data = await sec_filer_search(cik)
-    filings, last_report = await scrape_filings(newest_data)  # type: ignore
+    newest_data = sec_filer_search(cik)
+    filings, last_report = scrape_filings.delay(newest_data)  # type: ignore
 
     return filings, last_report
 
 
-async def scrape_stock(ticker, cusip, cik):
+@worker.task
+def scrape_stock(ticker, cusip, cik):
     try:
-        stock_info = await ticker_request("OVERVIEW", ticker, cik)
-        stock_price = (await ticker_request("GLOBAL_QUOTE", ticker, cik))[
-            "Global Quote"
-        ]
+        stock_info = ticker_request("OVERVIEW", ticker, cik)
+        stock_price = (ticker_request("GLOBAL_QUOTE", ticker, cik))["Global Quote"]
     except Exception as e:
         print(e)
         raise ConnectionError
@@ -311,7 +318,8 @@ async def scrape_stock(ticker, cusip, cik):
     return info
 
 
-async def scrape_count_stocks(data):
+@worker.task
+def scrape_count_stocks(data):
     index_soup = BeautifulSoup(data, "html.parser")
     rows = index_soup.find_all("tr")
     directory = None
@@ -324,7 +332,7 @@ async def scrape_count_stocks(data):
     if directory == None:
         return 0
 
-    data = await sec_directory_search(directory)
+    data = sec_directory_search(directory)
     stock_soup = BeautifulSoup(data, "html.parser")
     stock_table = stock_soup.find_all("table")[3]
     stock_fields = stock_table.find_all("tr")[1:3]
@@ -337,7 +345,7 @@ async def scrape_count_stocks(data):
         _,
         _,
         _,
-    ) = await sort_rows(stock_fields[0], stock_fields[1])
+    ) = sort_rows(stock_fields[0], stock_fields[1])
 
     stock_count = 0
     local_stocks = []
@@ -354,9 +362,8 @@ async def scrape_count_stocks(data):
     return stock_count
 
 
-async def scrape_stocks(
-    data, last_report, access_number, report_date, global_stocks, cik
-):
+@worker.task
+def scrape_stocks(data, last_report, access_number, report_date, global_stocks, cik):
     index_soup = BeautifulSoup(data, "html.parser")
     rows = index_soup.find_all("tr")
     directory = None
@@ -369,7 +376,7 @@ async def scrape_stocks(
     if directory == None:
         return {}
 
-    data = await sec_directory_search(directory)
+    data = sec_directory_search(directory)
     stock_soup = BeautifulSoup(data, "html.parser")
     stock_table = stock_soup.find_all("table")[3]
     stock_fields = stock_table.find_all("tr")[1:3]
@@ -383,7 +390,7 @@ async def scrape_stocks(
         valueColumn,
         shrsColumn,
         multiplier,
-    ) = await sort_rows(stock_fields[0], stock_fields[1])
+    ) = sort_rows(stock_fields[0], stock_fields[1])
 
     local_stocks = {}
     # stock_count = 0
@@ -416,7 +423,7 @@ async def scrape_stocks(
         local_stocks[stock_cusip] = new_stock
         # stock_count += 1
 
-    # await aggregate_filers(
+    # aggregate_filers(
     #     [
     #         {"$match": {"cik": cik}},
     #         {
@@ -461,7 +468,7 @@ async def scrape_stocks(
 
             global_stocks[stock_cusip] = new_stock
 
-    updated_stocks = await scrape_names(update_list, cik)
+    updated_stocks = scrape_names.delay(update_list, cik)
     for new_stock in update_list:
         stock_cusip = new_stock["cusip"]
         new_stock.update(updated_stocks[stock_cusip])
@@ -485,7 +492,7 @@ async def scrape_stocks(
     #     if global_stock == None:
     #         new_stock = local_stock
     #         access_number = local_stock['access_number']
-    #         ticker, name = await scrape_name(stock_cusip, stock_name)
+    #         ticker, name = scrape_name.delay(stock_cusip, stock_name)
     #         sold = False if access_number == last_report else True
 
     #         del new_stock['access_number']
@@ -515,7 +522,8 @@ async def scrape_stocks(
     return global_stocks
 
 
-async def scrape_new_stocks(company):
+@worker.task
+def scrape_new_stocks(company):
     cik = company["cik"]
     filings = company["filings"]
     last_report = company["last_report"]
@@ -525,9 +533,9 @@ async def scrape_new_stocks(company):
         document = filings[access_number]
         document_report_date = document["report_date"]
 
-        data = await sec_stock_search(cik=cik, access_number=access_number)
+        data = sec_stock_search(cik=cik, access_number=access_number)
         try:
-            new_stocks = await scrape_stocks(
+            new_stocks = scrape_stocks(
                 data=data,
                 last_report=last_report,
                 access_number=access_number,
@@ -543,7 +551,8 @@ async def scrape_new_stocks(company):
     return global_stocks
 
 
-async def scrape_latest_stocks(company):
+@worker.task
+def scrape_latest_stocks(company):
     cik = company["cik"]
     filings = company["filings"]
     last_report = company["last_report"]
@@ -553,9 +562,9 @@ async def scrape_latest_stocks(company):
     access_number = document["access_number"]
     document_report_date = document["report_date"]
 
-    data = await sec_stock_search(cik=cik, access_number=access_number)
+    data = sec_stock_search(cik=cik, access_number=access_number)
     try:
-        new_stocks = await scrape_stocks(
+        new_stocks = scrape_stocks(
             data=data,
             last_report=last_report,
             access_number=access_number,
@@ -573,14 +582,14 @@ async def scrape_latest_stocks(company):
     return scraped_stocks
 
 
-async def estimate_time(data, cik):
-    filings, _, _ = await scrape_filings(data)
+def estimate_time(data, cik):
+    filings, _, _ = scrape_filings.delay(data)
 
     stock_count = 0
     for access_number in filings:
-        data = await sec_stock_search(cik=cik, access_number=access_number)
+        data = sec_stock_search(cik=cik, access_number=access_number)
         try:
-            new_count = await scrape_count_stocks(data)
+            new_count = scrape_count_stocks.delay(data)
             stock_count += new_count  # type: ignore
         except Exception as e:
             print(f"\nError Counting Stocks\n{e}\n--------------------------\n")

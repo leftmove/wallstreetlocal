@@ -12,7 +12,7 @@ from .utils.search import *
 # pyright: reportUnboundVariable=false
 
 
-async def main():
+def main():
     print(
         r"""
 |---------------------------------------------|
@@ -31,7 +31,7 @@ async def main():
     """
     )
 
-    db_empty = True if await companies.count_documents({}) == 0 else False
+    db_empty = True if companies.count_documents({}) == 0 else False
     search_empty = (
         True if companies_index.get_stats().number_of_documents == 0 else False
     )
@@ -45,7 +45,7 @@ async def main():
     if db_empty or search_empty:
         backup_client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_BACKUP_URL)
         companies_backup = backup_client["wallstreetlocal"]["companies"]
-        companies_count = await companies_backup.count_documents({})
+        companies_count = companies_backup.count_documents({})
 
         batch = 4000
         i = 0
@@ -55,7 +55,7 @@ async def main():
             total=companies_count, desc="Loading Documents", unit="document"
         )
         cursor = companies_backup.find({})
-        async for document in cursor:
+        for document in cursor:
             if i < batch:
                 del document["_id"]
                 documents.append(document)
@@ -181,12 +181,13 @@ async def main():
 
 
 def initialize():
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        loop = None
+    main()
+    # try:
+    #     loop = asyncio.get_running_loop()
+    # except RuntimeError:
+    #     loop = None
 
-    if loop and loop.is_running():
-        loop.create_task(main())
-    else:
-        asyncio.run(main())
+    # if loop and loop.is_running():
+    #     loop.create_task(main())
+    # else:
+    #     asyncio.run(main())

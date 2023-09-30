@@ -3,18 +3,21 @@ from datetime import datetime
 from .mongo import *
 from .api import *
 from .scrape import *
+from .worker import *
 
 # pyright: reportGeneralTypeIssues=false
+# pyright: reportOptionalSubscript=false
+
 
 print("[ Analysis Initializing ] ...")
 
 
-async def convert_date(date_str):
+def convert_date(date_str):
     date = (datetime.strptime(date_str, "%Y-%m-%d")).timestamp()
     return date
 
 
-async def total_value(stocks):
+def total_value(stocks):
     market_values = []
     for key in stocks:
         stock = stocks[key]
@@ -39,7 +42,7 @@ quarters = [
 ]
 
 
-async def time_format(seconds: int) -> str:
+def time_format(seconds: int) -> str:
     if seconds is not None:
         seconds = int(seconds)
         d = seconds // (3600 * 24)
@@ -57,7 +60,7 @@ async def time_format(seconds: int) -> str:
     return "-"
 
 
-async def serialize_stock(local_stock, global_stock):
+def serialize_stock(local_stock, global_stock):
     cusip = local_stock["cusip"]
     update = global_stock["update"]
     ticker = local_stock["ticker"] if update else "NA"
@@ -157,20 +160,21 @@ async def serialize_stock(local_stock, global_stock):
     }
 
 
-async def analyze_filer(cik):
-    filer = await find_filer(cik)
+@worker.task
+def analyze_filer(cik):
+    filer = find_filer(cik)
     filer_filings = filer["filings"]
     filer_stocks = filer["stocks"]["local"]
-    await add_log(cik, f"Creating Filer {cik}")
+    add_log(cik, f"Creating Filer {cik}")
 
-    total_market_value = await total_value(filer_stocks)
+    total_market_value = total_value(filer_stocks)
 
     global_stocks = {}
     stock_list = []
     cusip_list = list(map(lambda s: filer_stocks[s]["cusip"], filer_stocks))
 
-    cursor = await find_stocks("cusip", {"$in": cusip_list})
-    async for updated_stock in cursor:
+    cursor = find_stocks("cusip", {"$in": cusip_list})
+    for updated_stock in cursor:
         cusip = updated_stock["cusip"]
         global_stocks[cusip] = updated_stock
 
@@ -189,14 +193,14 @@ async def analyze_filer(cik):
         percent_portfolio = market_value / total_market_value
 
         ticker = local_stock["ticker"]
-        global_stock = await find_stock("ticker", ticker)
+        global_stock = find_stock("ticker", ticker)
         if global_stock == None:
             continue
 
         try:
-            timeseries_info = (
-                await ticker_request("TIME_SERIES_MONTHLY", ticker, cik)
-            )["Monthly Time Series"]
+            timeseries_info = (ticker_request("TIME_SERIES_MONTHLY", ticker, cik))[
+                "Monthly Time Series"
+            ]
         except Exception as e:
             print(f"Failed {name}\n{e}\n")
             continue
@@ -213,7 +217,7 @@ async def analyze_filer(cik):
         # timeseries_local = {}
         for key in timeseries_info:
             info = timeseries_info[key]
-            date = await convert_date(key)
+            date = convert_date(key)
             price = {
                 "time": date,
                 "open": float(info["1. open"]),
@@ -232,9 +236,7 @@ async def analyze_filer(cik):
             timeseries_global, key=lambda x: abs((x["time"]) - sold_time)
         )
 
-        await edit_stock(
-            {"ticker": ticker}, {"$set": {"timeseries": timeseries_global}}
-        )
+        edit_stock({"ticker": ticker}, {"$set": {"timeseries": timeseries_global}})
 
         global_update = global_stock["update"]
         global_data = global_stock["data"] if global_update else "NA"
@@ -250,18 +252,18 @@ async def analyze_filer(cik):
         )
         filer_stocks[key] = local_stock
 
-        list_stock = await serialize_stock(local_stock, global_stock)
+        list_stock = serialize_stock(local_stock, global_stock)
         stock_list.append(list_stock)
 
-        await add_log(cik, f"Created Stock [ {name} ({cusip}) ]")
+        add_log(cik, f"Created Stock [ {name} ({cusip}) ]")
 
     stocks = {
         "local": filer_stocks,
         "global": stock_list,
     }
 
-    await add_log(cik, f"Finished Creating Filer {cik}")
-    await edit_filer(
+    add_log(cik, f"Finished Creating Filer {cik}")
+    edit_filer(
         {"cik": cik},
         {
             "$set": {
@@ -276,11 +278,12 @@ async def analyze_filer(cik):
     )
 
 
-async def time_remaining(stock_count):
+@worker.task
+def time_remaining(stock_count):
     time_required = len(stock_count)
     return time_required / 2
 
-    # async def update_stocks(local_stocks, last_report, cik):
+    # def update_stocks(local_stocks, last_report, cik):
     #     global_stocks = {}
     #     update_list = []
     #     for key in local_stocks:
@@ -310,7 +313,7 @@ async def time_remaining(stock_count):
 
     #             global_stocks[stock_cusip] = new_stock
 
-    #     updated_stocks = await scrape_names(update_list, cik)
+    #     updated_stocks = scrape_names.delay(update_list, cik)
     #     for new_stock in update_list:
     #         stock_cusip = new_stock["cusip"]
     #         new_stock.update(updated_stocks[stock_cusip])
@@ -334,7 +337,7 @@ async def time_remaining(stock_count):
     #     if global_stock == None:
     #         new_stock = local_stock
     #         access_number = local_stock['access_number']
-    #         ticker, name = await scrape_name(stock_cusip, stock_name)
+    #         ticker, name = scrape_name.delay(stock_cusip, stock_name)
     #         sold = False if access_number == last_report else True
 
     #         del new_stock['access_number']
@@ -364,7 +367,7 @@ async def time_remaining(stock_count):
     # return global_stocks
 
 
-async def stock_filter(stocks):
+def stock_filter(stocks):
     stock_list = []
     for stock in stocks:
         stock_list.append(stock)

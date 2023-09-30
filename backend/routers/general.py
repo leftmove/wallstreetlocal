@@ -10,19 +10,19 @@ router = APIRouter(
 )
 
 
-@cache(168)
+@cache
 @router.get("/", status_code=200)
 async def info():
     return {"message": "Hello World!"}
 
 
-@cache(168)
+@cache
 @router.get("/undefined", status_code=200)
 async def info_undefined():
     return {"message": "Hello World!"}
 
 
-@cache(168)
+@cache
 @router.get("/favicon.ico", status_code=200)
 async def favicon():
     return FileResponse("./public/favicon.ico")

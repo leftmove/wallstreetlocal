@@ -5,6 +5,7 @@ from .utils.api import *
 from .utils.mongo import *
 from .utils.scrape import *
 from .utils.cache import *
+from .utils.worker import *
 
 # pyright: reportGeneralTypeIssues=false
 
@@ -27,7 +28,7 @@ class Cusip(BaseModel):
 @router.post("/query/", tags=["stocks"], status_code=200)
 async def query_stocks(stock: Tickers):
     tickers = stock.tickers
-    found_stocks = await find_stocks("ticker", {"$in": tickers})
+    found_stocks = find_stocks("ticker", {"$in": tickers})
 
     async for found_stock in found_stocks:
         if found_stock == None:
@@ -42,14 +43,14 @@ async def query_stocks(stock: Tickers):
                 continue
 
         try:
-            price_info = await ticker_request("GLOBAL_QUOTE", ticker, "")
+            price_info = ticker_request("GLOBAL_QUOTE", ticker, "")
             global_quote = price_info["Global Quote"]
             price = global_quote["05. price"]
         except Exception as e:
             print(e)
             continue
 
-        await edit_stock(
+        edit_stock(
             {"ticker": ticker},
             {"$set": {"updated": time, "recent_price": price, "quote": global_quote}},
         )
@@ -63,7 +64,7 @@ async def query_stocks(stock: Tickers):
 #     cusip_list = stock.cusip
 #     results = {}
 
-#     cursor = await find_stocks('cusip', {'$in': cusip_list})
+#     cursor = find_stocks('cusip', {'$in': cusip_list})
 #     async for document in cursor:
 #         cusip = document['cusip']
 #         results[cusip] = document
@@ -72,7 +73,7 @@ async def query_stocks(stock: Tickers):
 @cache
 @router.get("/info/", tags=["stocks", "filers"], status_code=200)
 async def stock_info(cik: str):
-    stocks = await find_filer(
+    stocks = find_filer(
         cik, {"_id": 0, "stocks.local": 0, "stocks.global.timeseries": 0}
     )
     if stocks == None:
@@ -88,14 +89,14 @@ async def stock_info(cik: str):
 @cache(4)
 @router.get("/timeseries/", tags=["stocks", "filers"], status_code=200)
 async def stock_timeseries(cik: str, time: float):
-    filer = await find_filer(cik, {"stocks.local": 1})
+    filer = find_filer(cik, {"stocks.local": 1})
     if filer == None:
         raise HTTPException(detail="Filer not found.", status_code=404)
     filer_stocks = filer["stocks"]["local"]
 
     stock_list = []
     cusip_list = list(map(lambda x: x, filer_stocks))
-    cursor = await search_stocks(
+    cursor = search_stocks(
         [
             {"$match": {"cusip": {"$in": cusip_list}}},
             {

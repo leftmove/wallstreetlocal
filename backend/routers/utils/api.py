@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from os import getenv
-import asyncio
+import time
 
 import requests
 
@@ -40,7 +40,7 @@ FINN_HUB_API_KEY = getenv("FINN_HUB_API_KEY")
 ALPHA_VANTAGE_API_KEY = getenv("ALPHA_VANTAGE_API_KEY")
 
 
-async def sec_filer_search(cik):
+def sec_filer_search(cik):
     res = requests.get(
         f"https://data.sec.gov/submissions/CIK{cik.zfill(10)}.json", headers=headers
     )
@@ -52,7 +52,7 @@ async def sec_filer_search(cik):
     return data
 
 
-async def sec_stock_search(cik, access_number):
+def sec_stock_search(cik, access_number):
     access_number_replace = access_number.replace("-", " ")
 
     res = requests.get(
@@ -64,14 +64,14 @@ async def sec_stock_search(cik, access_number):
     return data
 
 
-async def sec_directory_search(directory):
+def sec_directory_search(directory):
     res = requests.get(f"https://www.sec.gov{directory}", headers=headers)
     data = res.text
 
     return data
 
 
-async def ticker_request(function, symbol, cik):
+def ticker_request(function, symbol, cik):
     while True:
         params = {
             "function": function,
@@ -80,11 +80,11 @@ async def ticker_request(function, symbol, cik):
         }
         res = requests.get("https://www.alphavantage.co/query", params=params)
         if res.status_code == 429:
-            await add_log(cik, "Waiting 60 Seconds...")
-            await edit_filer({"cik": cik}, {"$set": {"log.wait": True}})
+            add_log(cik, "Waiting 60 Seconds...")
+            edit_filer({"cik": cik}, {"$set": {"log.wait": True}})
 
-            await asyncio.sleep(60)
-            await edit_filer({"cik": cik}, {"$set": {"log.wait": False}})
+            time.sleep(60)
+            edit_filer({"cik": cik}, {"$set": {"log.wait": False}})
         else:
             data = res.json()
             break
@@ -92,21 +92,21 @@ async def ticker_request(function, symbol, cik):
     return data
 
 
-async def cusip_request(value, cik):
+def cusip_request(value, cik):
     while True:
         params = {"q": value, "token": FINN_HUB_API_KEY}
         res = requests.get(f"https://finnhub.io/api/v1/search", params=params)
         if res.status_code == 429:
             if cik == "":
-                await asyncio.sleep(60)
+                time.sleep(60)
                 continue
 
-            await add_log(cik, "Waiting 60 Seconds...")
-            await edit_filer({"cik": cik}, {"$set": {"log.wait": True}})
+            add_log(cik, "Waiting 60 Seconds...")
+            edit_filer({"cik": cik}, {"$set": {"log.wait": True}})
 
-            await asyncio.sleep(60)
+            time.sleep(60)
 
-            await edit_filer({"cik": cik}, {"$set": {"log.wait": False}})
+            edit_filer({"cik": cik}, {"$set": {"log.wait": False}})
         else:
             data = res.json()
             break
