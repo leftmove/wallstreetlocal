@@ -71,6 +71,7 @@
 
 .suggestion-description {
   text-align: center;
+  text-overflow:ellipsis;
 
   margin-top: 15px;
   font-size: 0.9rem;

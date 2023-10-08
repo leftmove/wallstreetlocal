@@ -4,23 +4,24 @@ from .api import *
 
 
 from bs4 import BeautifulSoup
-from time import sleep
 from dotenv import load_dotenv
 from datetime import datetime
+import lxml
+import cchardet
 import re
 
 load_dotenv()
-
+# type: reportGeneralTypeIssues=false
 
 print("[ Data Initializing ] ...")
 
+parser = "lxml"
 capital_pattern = re.compile(r"(.)([A-Z][a-z]+)")
 underscore_pattern = re.compile(r"([a-z0-9])([A-Z])")
-# type
 
 
 def scrape_name(cusip, name, cik):
-    msg = f"Querying Stock [ {name} ({cusip}) ]\n"
+    msg = f"Querying Stock\n"
     found_stock = find_stock("cusip", cusip)
     if found_stock == None:
         try:
@@ -33,32 +34,32 @@ def scrape_name(cusip, name, cik):
             stock["update"] = True
 
             add_stock(stock)
-            msg += f"Success, Added Stock {name} ({cusip})"
+            msg += f"Success, Added Stock"
 
-            add_log(cik, msg)
+            add_log(cik, msg, name, cusip)
             return ticker, name
-        except (KeyError, IndexError) as e:
+        except (KeyError, IndexError):
             stock = {"name": name, "ticker": "NA", "cusip": cusip}
             stock["update"] = False
             add_stock(stock)
-            msg += f"Failed {name} ({cusip}), No Query Data"
+            msg += f"Failed, No Query Data"
 
-            add_log(cik, msg)
+            add_log(cik, msg, name, cusip)
             return "NA", name
-        except Exception as e:
+        except Exception:
             stock = {"name": name, "ticker": "NA", "cusip": cusip}
             stock["update"] = False
 
             add_stock(stock)
-            msg += f"Failed {name} ({cusip}), Unknown Error"
+            msg += f"Failed, Unknown Error"
 
-            add_log(cik, msg)
+            add_log(cik, msg, name, cusip)
             return "NA", name
     else:
         name = found_stock["name"]
-        msg += f"Success, Found Stock {name} ({cusip})"
+        msg += f"Success, Found Stock"
 
-        add_log(cik, msg)
+        add_log(cik, msg, name, cusip)
         return found_stock["ticker"], found_stock["name"]
 
 
@@ -75,20 +76,20 @@ def scrape_names(stocks, cik):
     for stock in stocks:
         cusip = stock["cusip"]
         name = stock["name"]
-        msg = f"Querying Stock [ {name} ({cusip}) ]\n"
+        msg = f"Querying Stock\n"
 
         found_stock = found_stocks.get(cusip)
         if found_stock:
             ticker = found_stock["ticker"]
             name = found_stock["name"]
-            msg += f"Success, Found Stock {name} ({cusip})"
+            msg += f"Success, Found Stock"
             global_stocks[cusip] = {
                 "name": name,
                 "ticker": ticker,
                 "cusip": cusip,
                 "update": True,
             }
-            add_log(cik, msg)
+            add_log(cik, msg, name, cusip)
 
         else:
             try:
@@ -106,8 +107,8 @@ def scrape_names(stocks, cik):
                     "cusip": cusip,
                     "update": True,
                 }
-                msg += f"Success, Added Stock {name} ({cusip})"
-                add_log(cik, msg)
+                msg += f"Success, Added Stock"
+                add_log(cik, msg, name, cusip)
 
             except (KeyError, IndexError) as e:
                 if cusip in skip:
@@ -118,8 +119,8 @@ def scrape_names(stocks, cik):
                 skip.append(cusip)
                 global_stocks[cusip] = stock
 
-                msg += f"Failed {name} ({cusip}), No Query Data"
-                add_log(cik, msg)
+                msg += f"Failed, No Query Data"
+                add_log(cik, msg, name, cusip)
 
             except Exception as e:
                 if cusip in skip:
@@ -131,8 +132,8 @@ def scrape_names(stocks, cik):
                 skip.append(cusip)
                 global_stocks[cusip] = stock
 
-                msg += f"Failed {name} ({cusip}), Unknown Error"
-                add_log(cik, msg)
+                msg += f"Failed, Unknown Error"
+                add_log(cik, msg, name, cusip)
 
     return global_stocks
 
@@ -167,7 +168,7 @@ def scrape_filings(data):
     return filings, last_report, first_report
 
 
-info_table_key = ["INFORMATION TABLE", "INFORMATION TABLE FOR FORM 13F"]
+info_table_key = ["INFORMATION TABLE"]
 
 
 def check_new(cik, last_updated):
@@ -211,7 +212,7 @@ def scrape_keys(tickers, name, cik):
             data = cusip_request(name, cik)
             stock_info = data["result"][0]
         except (KeyError, IndexError) as e:
-            print(f"Failed, Key Error {name}\n{e}\n")
+            print(f"Failed to get Name Data {name}\n{e}\n")
             stock_info = {}
     else:
         for ticker in tickers:
@@ -245,7 +246,6 @@ def scrape_filer(data, cik):
         "tickers": tickers,
         "updated": time,
         "exchanges": data["exchanges"],
-        "stocks": {},
         "filings": filings,
         "first_report": first_report,
         "last_report": last_report,
@@ -311,12 +311,25 @@ def scrape_stock(ticker, cusip, cik):
 
 
 def scrape_count_stocks(data):
-    index_soup = BeautifulSoup(data, "html.parser")
+    index_soup = BeautifulSoup(data, parser)
     rows = index_soup.find_all("tr")
     directory = None
     for row in rows:
-        items = list(map(lambda b: b.text.strip(), row))
-        if any(item in items for item in info_table_key):
+        # The most genius code ever written
+        info_row = any(
+            [
+                True
+                if any(
+                    [
+                        True if d in table_key and d and d != " " else False
+                        for d in [b.text.strip() for b in row]
+                    ]
+                )
+                else False
+                for table_key in info_table_key
+            ]
+        )
+        if info_row:
             link = row.find("a")
             directory = link["href"]
             break
@@ -324,7 +337,7 @@ def scrape_count_stocks(data):
         return 0
 
     data = sec_directory_search(directory)
-    stock_soup = BeautifulSoup(data, "html.parser")
+    stock_soup = BeautifulSoup(data, parser)
     stock_table = stock_soup.find_all("table")[3]
     stock_fields = stock_table.find_all("tr")[1:3]
     stock_rows = stock_table.find_all("tr")[3:]
@@ -354,7 +367,7 @@ def scrape_count_stocks(data):
 
 
 def scrape_stocks(data, last_report, access_number, report_date, global_stocks, cik):
-    index_soup = BeautifulSoup(data, "html.parser")
+    index_soup = BeautifulSoup(data, parser)
     rows = index_soup.find_all("tr")
     directory = None
     for row in rows:
@@ -367,7 +380,7 @@ def scrape_stocks(data, last_report, access_number, report_date, global_stocks, 
         return {}
 
     data = sec_directory_search(directory)
-    stock_soup = BeautifulSoup(data, "html.parser")
+    stock_soup = BeautifulSoup(data, parser)
     stock_table = stock_soup.find_all("table")[3]
     stock_fields = stock_table.find_all("tr")[1:3]
     stock_rows = stock_table.find_all("tr")[3:]
@@ -533,6 +546,7 @@ def scrape_new_stocks(company):
                 cik=cik,
             )
             global_stocks.update(new_stocks)
+            edit_filer({"cik": cik}, {"$set": {"stocks.local": global_stocks}})
         except Exception as e:
             print(f"\nError Updating Stocks\n{e}\n--------------------------\n")
             continue
@@ -544,7 +558,7 @@ def scrape_latest_stocks(company):
     cik = company["cik"]
     filings = company["filings"]
     last_report = company["last_report"]
-    previous_stocks = company["stocks"]
+    previous_stocks = company["stocks"]["local"] if company.get("stocks") else {}
 
     document = filings[last_report]
     access_number = document["access_number"]
@@ -570,18 +584,29 @@ def scrape_latest_stocks(company):
     return scraped_stocks
 
 
-def estimate_time(data, cik):
-    filings, _, _ = scrape_filings(data)
-
+def estimate_time(filings, cik):
     stock_count = 0
     for access_number in filings:
-        data = sec_stock_search(cik=cik, access_number=access_number)
         try:
+            data = sec_stock_search(cik=cik, access_number=access_number)
             new_count = scrape_count_stocks(data)
             stock_count += new_count  # type: ignore
         except Exception as e:
             print(f"\nError Counting Stocks\n{e}\n--------------------------\n")
             continue
+
+    remaining = time_remaining(stock_count)
+
+    return remaining
+
+
+def estimate_time_newest(last_report, cik):
+    try:
+        data = sec_stock_search(cik=cik, access_number=last_report)
+        stock_count = scrape_count_stocks(data)
+    except Exception as e:
+        print(f"\nError Counting Stocks\n{e}\n--------------------------\n")
+        raise
 
     remaining = time_remaining(stock_count)
 

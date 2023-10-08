@@ -1,13 +1,13 @@
 import axios from "axios";
 
-import { Provider, useDispatch } from "react-redux";
+import { Provider } from "react-redux";
 import { wrapper } from "@/redux/store";
-import { setCik } from "@/redux/filerSlice";
 
 import Layout from "@/components/Layouts/Layout";
 import InfoPage from "./info";
 import ErrorPage from "./error";
 import BuildingPage from "./building";
+import Reload from "@/components/Progress/Reload/Reload";
 
 // const getFetcher = (url, cik) =>
 //   axios

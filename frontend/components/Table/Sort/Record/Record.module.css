@@ -20,7 +20,7 @@
 
 .record-button:hover {
   color: var(--secondary);
-  background-color: white;
+  background-color: var(--primary-dark);
 }
 
 .record-text {

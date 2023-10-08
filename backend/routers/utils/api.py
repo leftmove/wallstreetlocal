@@ -31,6 +31,7 @@ print("[ APIs Initializing ] ...")
 # )
 
 # Requests
+session = requests.Session()
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0"
 }
@@ -41,7 +42,7 @@ ALPHA_VANTAGE_API_KEY = getenv("ALPHA_VANTAGE_API_KEY")
 
 
 def sec_filer_search(cik):
-    res = requests.get(
+    res = session.get(
         f"https://data.sec.gov/submissions/CIK{cik.zfill(10)}.json", headers=headers
     )
     data = res.json()
@@ -55,24 +56,24 @@ def sec_filer_search(cik):
 def sec_stock_search(cik, access_number):
     access_number_replace = access_number.replace("-", " ")
 
-    res = requests.get(
+    res = session.get(
         f"https://www.sec.gov/Archives/edgar/data/{cik}/{access_number_replace}/{access_number}-index.html",
         headers=headers,
     )
-    data = res.text
+    data = res.content
 
     return data
 
 
 def sec_directory_search(directory):
-    res = requests.get(f"https://www.sec.gov{directory}", headers=headers)
-    data = res.text
+    res = session.get(f"https://www.sec.gov{directory}", headers=headers)
+    data = res.content
 
     return data
 
 
 def rate_limit(cik):
-    add_log(cik, "Waiting 60 Seconds...")
+    add_log(cik, "Waiting 60 Seconds...", "Rate Limit", cik)
     edit_filer({"cik": cik}, {"$set": {"log.wait": True}})
     edit_filer({"cik": cik}, {"$inc": {"log.time.required": 60}})
     time.sleep(60)
@@ -86,7 +87,7 @@ def ticker_request(function, symbol, cik):
             "symbol": symbol,
             "apikey": ALPHA_VANTAGE_API_KEY,
         }
-        res = requests.get("https://www.alphavantage.co/query", params=params)
+        res = session.get("https://www.alphavantage.co/query", params=params)
         if res.status_code == 429:
             rate_limit(cik)
         else:
@@ -99,7 +100,7 @@ def ticker_request(function, symbol, cik):
 def cusip_request(value, cik):
     while True:
         params = {"q": value, "token": FINN_HUB_API_KEY}
-        res = requests.get(f"https://finnhub.io/api/v1/search", params=params)
+        res = session.get(f"https://finnhub.io/api/v1/search", params=params)
         if res.status_code == 429:
             rate_limit(cik)
         else:

@@ -1,19 +1,25 @@
 import styles from "./Reload.module.css";
+import { useEffect } from "react";
 
-import useEllipsis from "@/components/Hooks/useEllipsis";
-
+import { useRouter } from "next/router";
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "700" });
 
-const Reload = () => {
+import useEllipsis from "@/components/Hooks/useEllipsis";
+
+const Reload = (props) => {
+  const router = useRouter();
   const { ellipsis } = useEllipsis();
-  setTimeout(() => {
-    window.location.reload();
-  }, 15 * 1000);
+  useEffect(() => {
+    setTimeout(() => {
+      router.replace(router.asPath);
+    }, props.delay || 1000);
+  }, []);
+
   return (
     <div className={styles["reload"]}>
       <span className={[styles["reload-text"], inter.className].join(" ")}>
-        Reloading Page Shortly {ellipsis}
+        Reloading Page {ellipsis}
       </span>
     </div>
   );

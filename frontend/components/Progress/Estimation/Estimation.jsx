@@ -49,7 +49,7 @@ const Estimation = (props) => {
   const [time, setTime] = useState({
     confirmed: 0,
     estimated: 0,
-    status: "estimating",
+    status: 2,
   });
 
   const { ellipsis } = useEllipsis();
@@ -58,13 +58,12 @@ const Estimation = (props) => {
     setTime({ ...time, estimated: time.estimated - 1 });
   }, 1000);
   useEffect(() => {
-    console.log(data);
     if (data) {
       const estimation = data?.time;
       const status = data?.status;
       const newEstimation = {
         ...time,
-        status: status === "Estimating" ? "estimating" : "estimated",
+        status,
       };
 
       if (estimation !== time.confirmed) {
@@ -76,7 +75,7 @@ const Estimation = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
-  if (loading || time.status === "estimating") {
+  if (loading || time.status > 2) {
     return (
       <div className={styles["estimation"]}>
         <span

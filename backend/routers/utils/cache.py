@@ -12,7 +12,7 @@ from os import getenv
 
 load_dotenv()
 REDIS_SERVER_URL = getenv("REDIS_SERVER_URL")
-CELERY_SERVER_URL = f"redis://{REDIS_SERVER_URL}:6379/0"
+# CELERY_SERVER_URL = f"redis://{REDIS_SERVER_URL}:6379/0"
 print("[ Cache (Redis) Initializing ] ...")
 
 # pyright: reportGeneralTypeIssues=false

@@ -3,21 +3,19 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  position: absolute;
 
-  margin: auto;
-  margin-bottom: 50px;
-  width: 60vw;
+  width: 50vw;
   height: 250px;
   padding: 25px;
   border-radius: 5px;
-  bottom: 75px;
+  margin-bottom: 15vh;
 
   /* opacity: 0;
   animation: slide-up 0.3s 2s;
   animation-fill-mode: forwards; */
 
   opacity: 0;
+  z-index: 5;
   transform: translateY(400px);
   transition: transform 0.5s ease, opacity 0.5s ease;
 
@@ -87,6 +85,8 @@
 
 .suggestion-description {
   text-align: center;
+  text-overflow: ellipsis;
+  overflow: hidden;
 
   margin-top: 15px;
   font-size: 0.9rem;

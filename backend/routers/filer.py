@@ -1,6 +1,6 @@
 from fastapi import BackgroundTasks, APIRouter, HTTPException, WebSocket
 from fastapi.concurrency import run_in_threadpool
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
 from .utils.scrape import *
@@ -36,6 +36,7 @@ router = APIRouter(
     responses={
         200: {"model": HTTPError, "description": "Success."},
         201: {"model": HTTPError, "description": "Successfully created object."},
+        202: {"model": HTTPError, "description": "Accepted."},
         404: {"model": HTTPError, "description": "Not found."},
         409: {
             "model": HTTPError,
@@ -45,12 +46,23 @@ router = APIRouter(
 )
 
 
+# Different Filer Stages
+# 3 : Filer was non-existent before and is being fully built from the ground up.
+# 2 : Filer's newest filing is built, but older filings are still being updated and sorted.
+# 1 : Fully built from previous query, but filer is being updated with newest filing recently acquired. That or newest filing is just missing.
+# 0 : Fully built, filer is up and ready to go.
+
+# Different Log Stages
+# 2 : Filer creation started, estimation time being calculated.
+# 1 : Filer still building, but estimation time has been calculated.
+# 0 : Filer is done being built, logs are no longer kept.
+
+
 def create_filer(sec_data, cik):
     timestamp = {
         "logs": [],
-        "stop": False,
+        "status": 3,
         "time": {
-            "status": "Estimating",
             "remaining": 0,
             "elapsed": 0,
             "required": 0,
@@ -60,78 +72,80 @@ def create_filer(sec_data, cik):
     company = {
         "name": sec_data["name"],
         "cik": cik,
-        "status": "Building",
+        "status": 3,
         "log": timestamp,
     }
     add_filer(company)
     company = scrape_filer(sec_data, cik)
 
-    timestamp["time"] = {
-        "status": "Calculated",
-        "required": estimate_time(sec_data, cik),
+    company["log"] = timestamp
+    company["log"]["time"] = {
+        "status": 2,
+        "required": estimate_time_newest(company["last_report"], cik),
         "elapsed": datetime.now().timestamp() - timestamp["start"],
     }
     company.update(
         {
             "cik": cik,
             "stocks": {
-                "local": scrape_new_stocks(company),
+                "local": scrape_latest_stocks(company),
                 "global": [],
             },
-            "log": timestamp,
         }
     )
 
-    name = company["name"]
-    add_log(cik, f"Filer Queried [ {name} ({cik}) ]")
+    add_log(cik, "Filer Queried with Latest Stocks", company["name"], cik)
     edit_filer({"cik": cik}, {"$set": company})
+    try:
+        analyze_filer_newest(cik, company["stocks"]["local"])
+    except Exception as e:
+        edit_filer({"cik": cik}, {"$set": {"status": 2, "update": False}})
+        print(e)
+    add_query_log(cik, "create-latest")
+
+    edit_filer({"cik": cik}, {"$set": {"log": {**timestamp, "status": 2}}})
+    scrape_new_stocks(company)
+    add_log(cik, "Filer Queried with Historical Stocks", company["name"], cik)
+
     try:
         analyze_filer(cik)
     except Exception as e:
-        edit_filer({"cik": cik}, {"$set": {"status": "Updated", "update": False}})
+        edit_filer({"cik": cik}, {"$set": {"status": 0, "update": False}})
         print(e)
-
-    filer_done = find_filer(cik, {"cik": 1, "name": 1, "log": 1})
-    query_log = {
-        "cik": filer_done["cik"],
-        "name": filer_done["name"],
-        "data": {
-            "estimated_required": filer_done["log"]["time"]["required"],
-            "real_elapsed": filer_done["log"]["time"]["elapsed"],
-            "started_on": filer_done["log"]["start"],
-        },
-        "timestamp": datetime.now().timestamp(),
-    }
-    add_query_log(query_log)
+    add_query_log(cik, "create-historical")
 
 
 def update_filer(company):
     cik = company["cik"]
     time = datetime.now().timestamp()
 
-    if company["status"] == "Building":
-        raise HTTPException(409, detail="Filer already building.")
+    if company["status"] > 2:
+        raise HTTPException(409, detail="Filer still building.")
 
     # if (time - company["updated"]) < 3600:
     #     raise HTTPException(detail="Filer queried too recently.", status_code=429)
 
     update = check_new(cik=cik, last_updated=company["updated"])
     if update:
-        edit_filer({"cik": cik}, {"$set": {"status": "Building"}})
+        edit_filer({"cik": cik}, {"$set": {"status": 1}})
         filings, latest_report = scrape_filer_newest(company)
         scraped_stocks = scrape_latest_stocks(company)
         edit_filer(
             {"cik": cik},
             {
                 "$set": {
-                    "status": "Updated",
                     "updated": time,
                     "filings": filings,
                     "latest_report": latest_report,
-                    "stocks": {"local": scraped_stocks, "global": []},
+                    "stocks": {"local": scraped_stocks},
                 }
             },
         )
+        try:
+            analyze_filer_newest(cik)
+        except Exception as e:
+            edit_filer({"cik": cik}, {"$set": {"status": 1, "update": False}})
+            print(e)
         return {"description": "Updated filer."}
     else:
         raise HTTPException(200, detail="Filer already up to date.")
@@ -174,7 +188,7 @@ async def search_filers(q: str):
     return {"description": "Successfully queried 13F filers.", "results": hits}
 
 
-@router.get("/logs")
+@router.get("/logs", status_code=202)
 async def logs(cik: str, start: int = 0):
     project = {
         "_id": 0,
@@ -183,7 +197,6 @@ async def logs(cik: str, start: int = 0):
         "stocks": 0,
         "data": 0,
         "cik": 0,
-        "status": 0,
         "tickers": 0,
         "exchanges": 0,
         "first_report": 0,
@@ -196,43 +209,59 @@ async def logs(cik: str, start: int = 0):
             cik,
             project,
         )
+        filer_status = filer["status"]
         log = filer["log"]
+        time = log["time"]
+
+        status = log["status"]
+        if status <= 1:
+            return JSONResponse(status_code=201, content={"time": time})
+        if status == 2:
+            return JSONResponse(status_code=200, content={"time": time})
+
         logs = []
         for raw_log in log["logs"]:
             logs.extend(raw_log.split("\n"))
+
         count = len(logs)
 
         log["count"] = count
         log["logs"] = logs
 
-        time = log["time"]
+        if time.get("wait") == True:
+            raise HTTPException(503, detail="Rate limited, please wait 60 seconds.")
+
         required = time["required"]
-        start_time = log["start"]
-        now_time = datetime.now().timestamp()
-        elapsed = now_time - start_time
-        status = time["status"]
+        elapsed = datetime.now().timestamp() - log["start"]
+        remaining = required - elapsed if status <= 2 else 0
+
+        log["time"]["elapsed"] = elapsed
+        log["time"]["remaining"] = remaining
 
         edit_filer(
             {"cik": cik},
             {
                 "$set": {
-                    "log.time.remaining": required - elapsed
-                    if status == "Calculated"
-                    else 0,
+                    "log.time.remaining": remaining,
                     "log.time.elapsed": elapsed,
                 }
             },
         )
+
+        return {
+            "logs": logs,
+            "time": time,
+            "status": filer_status,
+        }
+
     except (IndexError, TypeError):
         raise HTTPException(404, detail="CIK not found.")
     except Exception as e:
         print(e)
         raise HTTPException(404, detail="Error fetching logs.")
 
-    return log
 
-
-@router.get("/estimate")
+@router.get("/estimate", status_code=202)
 async def estimate(cik: str):
     project = {
         "_id": 0,
@@ -246,6 +275,7 @@ async def estimate(cik: str):
         "exchanges": 0,
         "first_report": 0,
         "last_report": 0,
+        "market_value": 0,
         "updated": 0,
         "log.logs": 0,
     }
@@ -254,16 +284,16 @@ async def estimate(cik: str):
             cik,
             project,
         )
+
         log = filer["log"]
         time_remaining = log["time"]["remaining"]
-        status = log["time"]["status"]
+        status = log["status"]
         wait = log.get("wait", False)
 
-        message = {
+        return {
             "description": "Found time estimation",
             "time": time_remaining,
             "status": status,
-            "wait": wait,
         }
 
     except (IndexError, TypeError):
@@ -271,8 +301,6 @@ async def estimate(cik: str):
     except Exception as e:
         print(e)
         raise HTTPException(404, detail="Error fetching time estimation.")
-
-    return message
 
 
 # @router.get("/aggregate/", tags=["filers"], status_code=201)
@@ -365,7 +393,7 @@ async def estimate(cik: str):
 #     websocket.send_text("Connected.")
 
 
-@cache
+@cache(1 / 6)
 @router.get("/info/", tags=["filers"], status_code=200)
 async def filer_info(cik: str):
     filer = find_filer(cik, {"_id": 0, "stocks": 0, "filings": 0})
