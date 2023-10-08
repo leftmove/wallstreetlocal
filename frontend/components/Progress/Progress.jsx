@@ -96,7 +96,7 @@ const Progress = (props) => {
     isLoading: loading,
     error,
   } = useSWR(
-    wait ? null : [server + "/filers/logs", cik, log.count],
+    wait || stop ? null : [server + "/filers/logs", cik, log.count],
     ([url, cik, start]) => logFetcher(url, cik, start),
     { refreshInterval: 10 * 1000 }
   );
