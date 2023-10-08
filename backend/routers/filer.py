@@ -213,16 +213,17 @@ async def logs(cik: str, start: int = 0):
         log = filer["log"]
         time = log["time"]
 
-        status = log["status"]
-        if status <= 1:
+        if filer_status <= 1:
             return JSONResponse(status_code=201, content={"time": time})
-        if status == 2:
-            return JSONResponse(status_code=200, content={"time": time})
 
         logs = []
         for raw_log in log["logs"]:
             logs.extend(raw_log.split("\n"))
 
+        if filer_status == 2:
+            return JSONResponse(status_code=200, content={"logs": logs, "time": time})
+
+        status = log["status"]
         count = len(logs)
 
         log["count"] = count
@@ -286,13 +287,15 @@ async def estimate(cik: str):
         )
 
         log = filer["log"]
-        time_remaining = log["time"]["remaining"]
+        time = log["time"]
+
+        elapsed = time["elapsed"]
+        required = time["required"]
         status = log["status"]
-        wait = log.get("wait", False)
 
         return {
             "description": "Found time estimation",
-            "time": time_remaining,
+            "time": required - elapsed,
             "status": status,
         }
 
@@ -498,3 +501,24 @@ async def partial_record(cik: str, time: float):
     return FileResponse(
         file_path, media_type="application/octet-stream", filename=filename
     )
+
+
+top_ciks = []
+
+
+@cache(24)
+@router.get("/top", status_code=200)
+async def top():
+    filers = []
+    project = {
+        "cik": 1,
+        "name": 1,
+        "tickers": 1,
+        "market_value": 1,
+        "updated": 1,
+    }
+    for cik in top_ciks:
+        filer = find_filer(cik, project)
+        filers.append(filer)
+
+    return {"filers": filers}

@@ -41,10 +41,30 @@ FINN_HUB_API_KEY = getenv("FINN_HUB_API_KEY")
 ALPHA_VANTAGE_API_KEY = getenv("ALPHA_VANTAGE_API_KEY")
 
 
+def get_request(url, params={}):
+    retries = 0
+    while True:
+        global session
+        try:
+            res = session.get(url, params=params, headers=headers)
+            break
+        except ConnectionError:
+            session = requests.Session()
+
+            retries += 1
+            if retries > 2:
+                raise ConnectionError
+
+            continue
+        except Exception as e:
+            print(e)
+            raise Exception
+
+    return res
+
+
 def sec_filer_search(cik):
-    res = session.get(
-        f"https://data.sec.gov/submissions/CIK{cik.zfill(10)}.json", headers=headers
-    )
+    res = get_request(f"https://data.sec.gov/submissions/CIK{cik.zfill(10)}.json")
     data = res.json()
 
     if res.status_code == 400:
@@ -56,9 +76,8 @@ def sec_filer_search(cik):
 def sec_stock_search(cik, access_number):
     access_number_replace = access_number.replace("-", " ")
 
-    res = session.get(
+    res = get_request(
         f"https://www.sec.gov/Archives/edgar/data/{cik}/{access_number_replace}/{access_number}-index.html",
-        headers=headers,
     )
     data = res.content
 
@@ -66,7 +85,7 @@ def sec_stock_search(cik, access_number):
 
 
 def sec_directory_search(directory):
-    res = session.get(f"https://www.sec.gov{directory}", headers=headers)
+    res = get_request(f"https://www.sec.gov{directory}")
     data = res.content
 
     return data
@@ -87,7 +106,7 @@ def ticker_request(function, symbol, cik):
             "symbol": symbol,
             "apikey": ALPHA_VANTAGE_API_KEY,
         }
-        res = session.get("https://www.alphavantage.co/query", params=params)
+        res = get_request("https://www.alphavantage.co/query", params=params)
         if res.status_code == 429:
             rate_limit(cik)
         else:
@@ -100,7 +119,7 @@ def ticker_request(function, symbol, cik):
 def cusip_request(value, cik):
     while True:
         params = {"q": value, "token": FINN_HUB_API_KEY}
-        res = session.get(f"https://finnhub.io/api/v1/search", params=params)
+        res = get_request(f"https://finnhub.io/api/v1/search", params=params)
         if res.status_code == 429:
             rate_limit(cik)
         else:

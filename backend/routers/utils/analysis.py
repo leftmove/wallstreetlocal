@@ -315,9 +315,11 @@ def analyze_filer_newest(cik, newest_stocks):
                 continue
 
             try:
-                timeseries_info = (ticker_request("TIME_SERIES_MONTHLY", ticker, cik))[
+                timeseries_info = ticker_request("TIME_SERIES_MONTHLY", ticker, cik)[
                     "Monthly Time Series"
                 ]
+            except KeyError:
+                timeseries_info = ticker_request("TIME_SERIES_MONTHLY", ticker, cik)
             except Exception as e:
                 print(f"Failed {name}\n{e}\n")
                 continue
@@ -337,7 +339,10 @@ def analyze_filer_newest(cik, newest_stocks):
             # timeseries_local = {}
             for key in timeseries_info:
                 info = timeseries_info[key]
-                date = convert_date(key)
+                try:
+                    date = convert_date(key)
+                except:
+                    continue
                 price = {
                     "time": date,
                     "open": float(info["1. open"]),
@@ -377,7 +382,8 @@ def analyze_filer_newest(cik, newest_stocks):
 
             add_log(cik, "Created Stock", name, cusip)
         except Exception as e:
-            add_log(cik, "Failed Stock", name, cusip)
+            print("Failed Stock", e)
+            add_log(cik, "Failed Stock", "NA", "NA")
             continue
 
     stocks = {
@@ -401,7 +407,7 @@ def analyze_filer_newest(cik, newest_stocks):
 
 def time_remaining(stock_count):
     time_required = stock_count
-    return time_required
+    return time_required / 2
 
 
 def stock_filter(stocks):

@@ -11,7 +11,7 @@ const interLight = Inter({ subsets: ["latin"], weight: "500" });
 import Layout from "@/components/Layouts/Home";
 
 import Search from "@/components/Search/Homepage/Search";
-import Recommended from "@/components/Recommended/Homepage/Recommended";
+import Recommended from "@/components/Recommended/Recommended";
 
 import File from "@/public/static/file.svg";
 import Folder from "@/public/static/folder.svg";
@@ -54,7 +54,7 @@ export default function Home() {
             </span>
           </div>
         </div>
-        <Recommended />
+        <Recommended variant="homepage" />
       </div>
       <main className={styles["explore"]}>
         <span

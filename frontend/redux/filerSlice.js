@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, current } from "@reduxjs/toolkit";
 import { HYDRATE } from "next-redux-wrapper";
 
 const initialDate = new Date();
@@ -102,6 +102,7 @@ const initialState = {
     sort: "ticker",
     type: "string",
     set: true,
+    na: true,
     sold: false,
     reverse: false,
   },
@@ -115,6 +116,15 @@ const initialState = {
       accessor: initialDate.toLocaleDateString(),
     },
   ],
+};
+const convertUnknown = (a, b) => {
+  if (a === undefined || a === "NA") {
+    return -1;
+  } else if (b === undefined || b === "NA") {
+    return 1;
+  } else {
+    return null;
+  }
 };
 
 export const filerSlice = createSlice({
@@ -205,6 +215,13 @@ export const filerSlice = createSlice({
       const sort = state.sort;
       const sold = sort.sold;
       state.sort = { ...sort, sold: !sold };
+
+      return state;
+    },
+    sortNa(state) {
+      const sort = state.sort;
+      const na = sort.na;
+      state.sort = { ...sort, na: !na };
 
       return state;
     },
@@ -348,6 +365,7 @@ export const selectCik = (state) => state.filer.cik;
 export const selectSort = (state) => state.filer.sort;
 export const selectActive = (state) => state.filer.sort.set;
 export const selectSold = (state) => state.filer.sort.sold;
+export const selectNa = (state) => state.filer.sort.na;
 export const selectHeaders = (state) => state.filer.headers;
 export const selectStocks = (state) => {
   const filer = state.filer;
@@ -367,20 +385,31 @@ export const selectStocks = (state) => {
     next = next.filter((s) => s.sold == false);
   }
 
+  if (sort.na == false) {
+    next = next.filter((s) => s[accessor] != "NA");
+  }
+
   if (sort.type == "string") {
     next = next.sort((a, b) => {
-      if (a[accessor] === undefined) {
-        return 1;
-      } else if (b[accessor] === undefined) {
-        return -1;
-      } else {
-        return a[accessor].localeCompare(b[accessor]);
-      }
+      a = a[accessor];
+      b = b[accessor];
+      const unknown = convertUnknown(a, b);
+      if (unknown === null) {
+        return a.localeCompare(b);
+      } else return unknown;
     });
   }
 
   if (sort.type == "number") {
-    next = next.sort((a, b) => a[accessor] - b[accessor]);
+    next = next.sort((a, b) => {
+      a = a[accessor];
+      b = b[accessor];
+      const unknown = convertUnknown(a, b);
+      if (unknown === null) {
+        console.log(a - b);
+        return a - b;
+      } else return unknown;
+    });
   }
 
   if (sort.reverse) {
@@ -401,6 +430,7 @@ export const {
   sortHeader,
   sortActive,
   sortSold,
+  sortNa,
   updateStocks,
   setStocks,
   sortStocks,

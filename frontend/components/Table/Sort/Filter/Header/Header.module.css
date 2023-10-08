@@ -2,7 +2,6 @@
   text-align: center;
 
   color: var(--secondary);
-  margin-right: 10px;
 
   transition: color 0.3s ease;
 }
@@ -14,10 +13,9 @@
   text-align: center;
 
   opacity: 1 !important;
-  flex-grow: 1;
   padding: 5px;
   max-width: fit-content;
-  min-width: 71px;
+  min-width: 70px;
   border: none;
 
   background-color: var(--offwhite-dark);

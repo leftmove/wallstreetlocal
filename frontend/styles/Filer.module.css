@@ -14,9 +14,17 @@
 }
 
 .main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+}
+
+.main-header-text {
   font-size: 4rem;
   color: var(--secondary);
 }
+
 
 .header-desc {
   color: var(--secondary);

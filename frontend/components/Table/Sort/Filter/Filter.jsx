@@ -21,8 +21,10 @@ import {
   selectHeaders,
   selectActive,
   selectSold,
+  selectNa,
   sortActive,
   sortSold,
+  sortNa,
   activateHeader,
   setHeaders,
 } from "@/redux/filerSlice";
@@ -36,6 +38,7 @@ const Filter = () => {
   const headers = useSelector(selectHeaders);
   const active = useSelector(selectActive);
   const sold = useSelector(selectSold);
+  const na = useSelector(selectNa);
   const dispatch = useDispatch();
 
   const [event, setEvent] = useReducer((prev, next) => {
@@ -118,6 +121,11 @@ const Filter = () => {
         <Header
           header={{ display: "Show Sold", active: sold }}
           activate={() => dispatch(sortSold())}
+          fixed={true}
+        />
+        <Header
+          header={{ display: "Show Unavailable", active: na }}
+          activate={() => dispatch(sortNa())}
           fixed={true}
         />
       </div>

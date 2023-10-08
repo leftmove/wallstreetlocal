@@ -164,9 +164,10 @@ import Reload from "@/components/Progress/Reload/Reload";
 const Filer = (props) => {
   const query = props.query;
   const cik = props.cik;
+  const persist = props.persist;
 
-  if (query.building) {
-    return <BuildingPage cik={cik} />;
+  if (query.building || persist) {
+    return <BuildingPage cik={cik} persist={persist} />;
   }
 
   if (query.ok) {
@@ -179,7 +180,7 @@ const Filer = (props) => {
 };
 
 export async function getServerSideProps(context) {
-  const { cik } = context.query;
+  const { cik, persist } = context.query;
   const server = process.env.NEXT_PUBLIC_SERVER;
 
   const query = {
@@ -209,6 +210,7 @@ export async function getServerSideProps(context) {
     props: {
       query,
       cik,
+      persist: persist || null,
     },
   };
 }

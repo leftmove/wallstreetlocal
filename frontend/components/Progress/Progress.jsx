@@ -151,7 +151,7 @@ const Progress = (props) => {
         <span className={styles["header"]}>Building Filer</span>
         <Console logs={log.logs} />
       </div>
-      <Estimation cik={cik} />
+      {persist ? null : <Estimation cik={cik} />}
     </>
   );
 };

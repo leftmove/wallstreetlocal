@@ -14,7 +14,7 @@ import { setCik } from "@/redux/filerSlice";
 
 import Expand from "@/components/Expand/Expand";
 import Table from "@/components/Table/Table";
-import Reload from "@/components/Progress/Reload/Reload";
+import Building from "@/components/Progress/Building/Building";
 
 const fetcher = (url, cik) =>
   axios
@@ -50,9 +50,15 @@ const InfoPage = (props) => {
         <title>Filers - {info?.name || "Loading"}</title>
       </Head>
       <div className={styles["header"]}>
-        <span className={[styles["main-header"], inter.className].join(" ")}>
-          {info?.name}
-        </span>
+        <div className={styles["main-header"]}>
+          <span
+            className={[styles["main-header-text"], inter.className].join(" ")}
+          >
+            {info?.name}
+          </span>
+          {info?.status > 0 ? <Building cik={cik} /> : null}
+        </div>
+
         <div
           className={[
             styles["sub-header"],

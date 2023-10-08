@@ -15,6 +15,10 @@
   z-index: 999;
 }
 
+.no-background {
+  background: none;
+}
+
 .loading {
   display: flex;
   justify-content: center;
