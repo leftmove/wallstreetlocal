@@ -184,10 +184,7 @@ async def query_filer(cik: str, background: BackgroundTasks):
         background.add_task(create_filer, sec_data, cik)
         res = {"description": "Filer creation started."}
     else:
-        try:
-            res = update_filer(filer)
-        except Exception:
-            raise HTTPException(404, detail="CIK not found.")
+        res = update_filer(filer)
 
     return res
 
