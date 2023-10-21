@@ -1,8 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, BackgroundTasks
 from fastapi.responses import FileResponse
-from fastapi.concurrency import run_in_threadpool
 
 from .utils.cache import *
+from .utils.backup import *
 
 router = APIRouter(
     tags=["general"],
@@ -20,6 +20,16 @@ async def info():
 @router.get("/undefined", status_code=200)
 async def info_undefined():
     return {"message": "Hello World!"}
+
+
+@cache
+@router.get("/backup", status_code=200)
+async def backup(password: str, background: BackgroundTasks):
+    if password != "whale":
+        return {}
+
+    background.add_task(backup_collections)
+    return {"message": "Backup started."}
 
 
 @cache

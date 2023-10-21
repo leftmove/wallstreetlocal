@@ -54,7 +54,7 @@ export default function Home() {
             </span>
           </div>
         </div>
-        <Recommended variant="homepage" />
+        {/* <Recommended variant="homepage" /> */}
       </div>
       <main className={styles["explore"]}>
         <span

@@ -61,7 +61,7 @@ router = APIRouter(
 def create_filer(sec_data, cik):
     timestamp = {
         "logs": [],
-        "status": 3,
+        "status": 2,
         "time": {
             "remaining": 0,
             "elapsed": 0,
@@ -503,12 +503,12 @@ async def partial_record(cik: str, time: float):
     )
 
 
-top_ciks = []
-
-
 @cache(24)
 @router.get("/top", status_code=200)
 async def top():
+    with open("./public/top.json") as t:
+        filer_ciks = json.load(t)
+
     filers = []
     project = {
         "cik": 1,
@@ -517,8 +517,11 @@ async def top():
         "market_value": 1,
         "updated": 1,
     }
-    for cik in top_ciks:
+
+    for cik in filer_ciks:
         filer = find_filer(cik, project)
-        filers.append(filer)
+        if filer != None:
+            filers.append(filer)
+    filers = filers.sort(key=lambda c: c["market_value"], reverse=True)
 
     return {"filers": filers}

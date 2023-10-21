@@ -9,7 +9,7 @@ import Link from "next/link";
 
 import filers from "@/public/static/recommended.json";
 
-const maxLength = 300;
+const maxLength = 200;
 
 const Recommended = (props) => {
   const variant = props.variant || "default";
@@ -50,8 +50,8 @@ const Recommended = (props) => {
               ? filer.description.slice(0, maxLength) + "..."
               : filer.description;
           return (
-            <Link key={filer.cik} href={`/filers/${filer.cik}`}>
-              <div className={styles["suggestion"]}>
+            <div className={styles["suggestion"]}>
+              <Link href={`/filers/${filer.cik}`}>
                 <span
                   className={[styles["suggestion-title"], inter.className].join(
                     " "
@@ -59,27 +59,27 @@ const Recommended = (props) => {
                 >
                   {filer.title}
                 </span>
-                <div
-                  className={[
-                    styles["suggestion-ids"],
-                    interLight.className,
-                  ].join(" ")}
-                >
-                  {filer.cik}{" "}
-                  {filer.tickers.length === 0
-                    ? ""
-                    : `(${filer.tickers.join(",   ")})`}
-                </div>
-                <span
-                  className={[
-                    styles["suggestion-description"],
-                    interLight.className,
-                  ].join(" ")}
-                >
-                  {description}
-                </span>
+              </Link>
+              <div
+                className={[
+                  styles["suggestion-ids"],
+                  interLight.className,
+                ].join(" ")}
+              >
+                {filer.cik}{" "}
+                {filer.tickers.length === 0
+                  ? ""
+                  : `(${filer.tickers.join(",   ")})`}
               </div>
-            </Link>
+              <span
+                className={[
+                  styles["suggestion-description"],
+                  interLight.className,
+                ].join(" ")}
+              >
+                {description}
+              </span>
+            </div>
           );
         })}
       </div>

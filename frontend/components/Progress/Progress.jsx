@@ -1,6 +1,7 @@
 import styles from "./Progress.module.css";
-import { useEffect, useReducer, useRef, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 
+import { redirect } from "next/navigation";
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "900" });
 const interLight = Inter({ subsets: ["latin"], weight: "700" });
@@ -9,8 +10,6 @@ const interLight = Inter({ subsets: ["latin"], weight: "700" });
 import axios from "axios";
 import useSWR from "swr";
 
-import useInterval from "@/components/Hooks/useInterval";
-import useEllipsis from "@/components/Hooks/useEllipsis";
 import Loading from "@/components/Loading/Loading";
 import Estimation from "./Estimation/Estimation";
 import Reload from "./Reload/Reload";
@@ -86,7 +85,7 @@ const Progress = (props) => {
         wait: false,
       };
     },
-    { logs: ["Initializing"], count: 0 }
+    { logs: ["Initializing, this may take a while..."], count: 0 }
   );
   const [wait, setWait] = useState(false);
   const [stop, setStop] = useState(false);
@@ -144,9 +143,13 @@ const Progress = (props) => {
     return <Loading />;
   }
 
+  if (stop) {
+    redirect(`/filers/redirect?filer=${cik}&wait=1`);
+  }
+
   return (
     <>
-      {stop ? <Reload /> : null}
+      {/* {stop ? <Reload /> : null} */}
       <div className={[styles["progress"], inter.className].join(" ")}>
         <span className={styles["header"]}>Building Filer</span>
         <Console logs={log.logs} />

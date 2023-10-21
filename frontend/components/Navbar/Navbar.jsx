@@ -33,7 +33,7 @@ const Navbar = (props) => {
       <div>
         <ul className={styles["about"]}>
           <li className={styles["item"] + " " + inter.className}>
-            <Link href="/filers/top">top filers</Link>
+            <Link href="/top/filers">top filers</Link>
           </li>
           {/* <li className={styles["item"] + " " + inter.className}>
           <Link href="/">about</Link>

@@ -133,7 +133,6 @@ export const filerSlice = createSlice({
   reducers: {
     setCik(state, action) {
       state.cik = action.payload;
-      console.log(state);
 
       return state;
     },
@@ -406,7 +405,6 @@ export const selectStocks = (state) => {
       b = b[accessor];
       const unknown = convertUnknown(a, b);
       if (unknown === null) {
-        console.log(a - b);
         return a - b;
       } else return unknown;
     });
