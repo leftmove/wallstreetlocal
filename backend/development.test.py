@@ -6,6 +6,7 @@ import os
 import json
 from itertools import islice
 import requests
+import json5
 
 import lxml
 import cchardet
@@ -13,7 +14,7 @@ import cchardet
 from bs4 import BeautifulSoup
 
 load_dotenv()
-# type: reportGeneralTypeIssues=false
+# type: reportGeneralTypeIssues=False
 
 # MONGO_SERVER_URL = os.getenv("MONGO_SERVER_URL")
 # client = motor.motor_asyncio.AsyncIOMotorClient()
@@ -22,31 +23,90 @@ load_dotenv()
 # stocks = db["stocks"]
 # companies = db["companies"]
 
-session = requests.Session()
-
 
 async def main():
-    companies = []
-    with open(r"C:\Users\Anonyo\Downloads\poop.txt") as f:
-        lines = f.readlines()
-        for line in lines:
-            country = line[:18].strip()
-            if country == "United States":
-                companies.append(line[18:].strip())
+    py_obj = [
+        {
+            "display": "Ticker",
+            "sort": "ticker",
+            "accessor": "ticker_str",
+            "active": True,
+        },
+        {"display": "Name", "sort": "name", "accessor": "name", "active": False},
+        {"display": "Class", "sort": "class", "accessor": "class", "active": False},
+        {"display": "Sector", "sort": "sector", "accessor": "sector", "active": False},
+        {
+            "display": "Shares Held (Or Principal Amount)",
+            "sort": "shares_held",
+            "accessor": "shares_held_str",
+            "active": False,
+        },
+        {
+            "display": "Market Value",
+            "sort": "market_value",
+            "accessor": "market_value_str",
+            "active": True,
+        },
+        {
+            "display": "% of Portfolio",
+            "sort": "portfolio_percent",
+            "accessor": "portfolio_str",
+            "active": True,
+        },
+        {
+            "display": "% Ownership",
+            "sort": "ownership_percent",
+            "accessor": "ownership_str",
+            "active": False,
+        },
+        {
+            "display": "Sold",
+            "sort": "sold_time",
+            "accessor": "sold_str",
+            "active": False,
+        },
+        {"display": "Buy Date", "sort": "buy", "accessor": "buy_str", "active": False},
+        {
+            "display": "Price Paid",
+            "sort": "buy_price",
+            "accessor": "buy_price_str",
+            "active": True,
+        },
+        {
+            "display": "Recent Price",
+            "sort": "recent_price",
+            "accessor": "recent_price_str",
+            "active": True,
+        },
+        {
+            "display": "% Gain",
+            "sort": "gain_percent",
+            "accessor": "gain_str",
+            "active": True,
+        },
+        {
+            "display": "Industry",
+            "sort": "industry",
+            "accessor": "industry",
+            "active": False,
+        },
+        {
+            "display": "Report Date",
+            "sort": "report",
+            "accessor": "report_str",
+            "active": False,
+        },
+    ]
+    new_obj = []
+    for key in py_obj:
+        del key["active"]
+        del key["sort"]
 
-    company_ciks = []
-    for company in companies:
-        res = session.get("http://localhost:8000/filers/search", params={"q": company})
-        data = res.json()
+        new_obj.append(key)
 
-        results = data["results"]
-        found_company = results[0] if results else None
+    py_obj = new_obj
 
-        if found_company:
-            company_ciks.append(found_company["cik"])
-
-    with open(r"C:\Users\Anonyo\Downloads\poop.json", "w") as f:
-        json.dump(company_ciks, f)
+    print(py_obj)
 
 
 if __name__ == "__main__":

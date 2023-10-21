@@ -92,11 +92,27 @@ def sec_directory_search(directory):
 
 
 def rate_limit(cik):
+    log = find_log(
+        cik,
+        {
+            "_id": 0,
+            "logs": 0,
+        },
+    )
     add_log(cik, "Waiting 60 Seconds...", "Rate Limit", cik)
-    edit_filer({"cik": cik}, {"$set": {"log.wait": True}})
-    edit_filer({"cik": cik}, {"$inc": {"log.time.required": 60}})
+
+    if log == None:
+        raise LookupError
+
+    log["rate_limit"] = True
+    log["time"]["required"] += 60
+    edit_log(cik, log)
+
     time.sleep(60)
-    edit_filer({"cik": cik}, {"$set": {"log.wait": False}})
+
+    log["rate_limit"] = False
+    edit_log(cik, log)
+    add_log(cik, "Resuming...", "Rate Limit", cik)
 
 
 def ticker_request(function, symbol, cik):

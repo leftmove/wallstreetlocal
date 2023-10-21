@@ -37,6 +37,12 @@
   margin: 30px;
 }
 
+.sort-downloads {
+  display: flex;
+
+  margin-top: 50px;
+}
+
 .sort-expanded {
   background-color: var(--white);
   max-height: 800px;

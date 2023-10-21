@@ -1,4 +1,8 @@
 from datetime import datetime
+import csv
+import json
+
+# import xlsxwriter
 
 from .mongo import *
 from .api import *
@@ -39,6 +43,9 @@ quarters = [
     "Q4",
     "Q4",
 ]
+
+# fix bindings
+# fix api rate limit bindings
 
 
 def time_format(seconds: int) -> str:
@@ -116,10 +123,10 @@ def serialize_stock(local_stock, global_stock):
         if ownership_percentage and ownership_percentage != "NA"
         else "NA"
     )
-    gain_value = (
+    gain_value = float(
         price_recent - price_bought if update and buy_timeseries != "NA" else "NA"
     )
-    gain_percent = (
+    gain_percent = float(
         (gain_value / price_bought) * 100 if update and buy_timeseries != "NA" else "NA"
     )
     shares_held_str = f"{int(shares_held):,}"
@@ -131,7 +138,7 @@ def serialize_stock(local_stock, global_stock):
         else "NA"
     )
     gain_value_str = (
-        "{:.2f}".format(round(float(gain_value), 2))
+        "{:.2f}".format(round(gain_value, 2))
         if update and buy_timeseries != "NA"
         else "NA"
     )
@@ -302,14 +309,12 @@ def analyze_filer(cik):
         {"cik": cik},
         {
             "$set": {
-                "status": 0,
                 "stocks": stocks,
                 "market_value": total_market_value,
-                "log.logs": [],
-                "log.status": 0,
             }
         },
     )
+    edit_status(cik, 0)
 
 
 def analyze_filer_newest(cik, newest_stocks):
@@ -436,24 +441,127 @@ def analyze_filer_newest(cik, newest_stocks):
         {"cik": cik},
         {
             "$set": {
-                "status": 2,
                 "stocks": stocks,
                 "market_value": total_market_value,
-                "log.status": 0,
             }
         },
     )
+    edit_status(cik, 2)
 
 
 def time_remaining(stock_count):
     time_required = stock_count
-    return time_required / 8
+    return time_required / 5
 
 
 def stock_filter(stocks):
     stock_list = []
     for stock in stocks:
         stock_list.append(stock)
+
+
+def create_json(cik, filename):
+    file_path = f"./public/filers/{filename}.json"
+    try:
+        with open(file_path, "r"):
+            pass
+    except:
+        filer = find_filer(cik, {"_id": 0, "stocks.global.timeseries": 0})
+        with open(file_path, "w") as r:
+            json.dump(filer, r, indent=6)
+
+    return file_path
+
+
+header_format = [
+    {"display": "Ticker", "accessor": "ticker_str"},
+    {"display": "Name", "accessor": "name"},
+    {"display": "Class", "accessor": "class"},
+    {"display": "Sector", "accessor": "sector"},
+    {"display": "Shares Held (Or Principal Amount)", "accessor": "shares_held_str"},
+    {"display": "Market Value", "accessor": "market_value_str"},
+    {"display": r"% of Portfolio", "accessor": "portfolio_str"},
+    {"display": "% Ownership", "accessor": "ownership_str"},
+    {"display": "Sold", "accessor": "sold_str"},
+    {"display": "Buy Date", "accessor": "buy_str"},
+    {"display": "Price Paid", "accessor": "buy_price_str"},
+    {"display": "Recent Price", "accessor": "recent_price_str"},
+    {"display": r"% Gain", "accessor": "gain_str"},
+    {"display": "Industry", "accessor": "industry"},
+    {"display": "Report Date", "accessor": "report_str"},
+]
+
+
+# def style_excel(file_path):
+#     workbook = xlsxwriter.Workbook(file_path)
+#     worksheet = workbook.add_worksheet()
+
+#     cell_format = workbook.add_format({'bold': True, 'font_color': 'red'})
+#     cell_format.set_font_size(16)
+#     cell_format.set_underline(2)
+#     cell_format.set_align('center')
+
+#     cell_format1 = workbook.add_format({'font_color': 'blue'})
+
+#     cell_format1.set_align('center')
+#     worksheet.write('A1', 'Name', cell_format)
+#     worksheet.write('B1', 'Department', cell_format)
+#     row = 1
+#     col = 0
+
+#     data = (
+#         ['Rajendra', 'Hi, You are on SQLShack.com, refer to all SQL Server related contents.'],
+#         ['Kashish','How do you get to see a physiotherapist?'],
+#         ['Arun', 'I am a student of class 1 in Bookburn primary school.'],
+#         ['Rohan','Are you a Bank Manager?'],
+#     )
+
+#     worksheet.set_column('B1:B1', 60)
+#     worksheet.set_column('B2:B5',60,cell_format1)
+#     worksheet.set_column('A1:A5', 20,cell_format1)
+
+#     for name, score in (data):
+#         worksheet.write(row, col, name)
+#         worksheet.write(row, col + 1, score)
+#         row += 1
+
+
+def create_dataframe(global_stocks):
+    headers = []
+    for header in header_format:
+        display = header["display"]
+        headers.append(display)
+
+    csv_data = [headers]
+
+    for stock in global_stocks:
+        stock_display = []
+        for header in header_format:
+            key = header["accessor"]
+            value = stock[key]
+            stock_display.append(value)
+
+        csv_data.append(stock_display)
+
+    return csv_data
+
+
+def create_csv(cik, filename):
+    file_path = f"./public/filers/{filename}.csv"
+    try:
+        with open(file_path, "r"):
+            pass
+    except:
+        filer = find_filer(cik, {"stocks.global": 1})
+        global_stocks = filer["stocks"]["global"]
+        stock_list = create_dataframe(global_stocks)
+
+        with open(file_path, "w") as f:
+            writer = csv.writer(f)
+            for stock in stock_list:
+                writer.writerow(stock)
+
+    return file_path
 
 
 print("[ Analysis Initialized ]")

@@ -20,9 +20,3 @@
   display: flex;
   margin-top: 20px;
 }
-
-.filter-hint {
-  font-size: 0.8rem;
-  margin-top: 10px;
-  opacity: 0.5;
-}

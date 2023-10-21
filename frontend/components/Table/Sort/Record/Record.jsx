@@ -7,17 +7,28 @@ import { useSelector } from "react-redux";
 import { selectCik } from "@/redux/filerSlice";
 
 import DataIcon from "@/public/static/data.svg";
+import TableIcon from "@/public/static/csv.svg";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
-const Record = () => {
+const Record = (props) => {
   const cik = useSelector(selectCik);
+  const variant = props.variant || "json";
   return (
-    <a href={`${server}/filers/record?cik=${cik}`} target="_blank">
+    <a
+      href={`${server}/filers/record${
+        variant === "csv" ? "csv" : ""
+      }?cik=${cik}`}
+      target="_blank"
+    >
       <button className={styles["record-button"]}>
         <span className={[styles["record-text"], inter.className].join(" ")}>
-          Download
+          {variant === "csv" ? "Table" : "Raw"}
         </span>
-        <DataIcon className={styles["record-icon"]} />
+        {variant === "csv" ? (
+          <TableIcon className={styles["record-icon"]} />
+        ) : (
+          <DataIcon className={styles["record-icon"]} />
+        )}
       </button>
     </a>
   );

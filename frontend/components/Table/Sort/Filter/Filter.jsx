@@ -29,10 +29,8 @@ import {
   setHeaders,
 } from "@/redux/filerSlice";
 
-import { Inter } from "@next/font/google";
-const interLight = Inter({ subsets: ["latin"], weight: "700" });
-
 import Header from "./Header/Header";
+import Tip from "@/components/Tip/Tip";
 
 const Filter = () => {
   const headers = useSelector(selectHeaders);
@@ -129,9 +127,7 @@ const Filter = () => {
           fixed={true}
         />
       </div>
-      <span className={[styles["filter-hint"], interLight.className].join(" ")}>
-        (You can drag the top headers to rearrange the columns.)
-      </span>
+      <Tip text="(You can drag the top headers to rearrange the columns.)" />
     </div>
   );
 };

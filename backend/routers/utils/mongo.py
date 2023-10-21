@@ -15,6 +15,7 @@ main = db["filers"]
 stocks = db["stocks"]
 companies = db["companies"]
 logs = db["logs"]
+statistics = db["statistics"]
 
 
 def check_stock(ticker):
@@ -61,9 +62,26 @@ def edit_filer(query, value):
     main.update_one(query, value)
 
 
+def create_log(cik, value):
+    logs.insert_one({"cik": cik}, value)
+
+
+def find_log(cik, project={"_id": 0}):
+    result = logs.find_one({"cik": cik}, project)
+    return result
+
+
 def add_log(cik, message, name, identifier):
-    logs = [f"{log} ({name}) ({identifier})" for log in message.split("\n")]
-    main.update_one({"cik": cik}, {"$push": {"log.logs": {"$each": logs}}})
+    logs_string = [f"{log} ({name}) ({identifier})" for log in message.split("\n")]
+    logs.update_one({"cik": cik}, {"$push": {"logs": {"$each": logs_string}}})
+
+
+def edit_log(cik, stamp):
+    logs.update_one({"cik": cik}, {"$set": stamp})
+
+
+def edit_status(cik, status):
+    logs.update_one({"cik": cik}, {"$set": {"status": status}})
 
 
 def find_logs(pipeline):
@@ -84,14 +102,16 @@ def aggregate_filers(pipeline):
 
 def add_query_log(cik, query):
     try:
-        filer_done = find_filer(cik, {"cik": 1, "name": 1, "log": 1, "_id": 0})
-        if filer_done:
+        filer_done = find_filer(cik, {"cik": 1, "name": 1, "_id": 0})
+        filer_log = find_log(cik)
+        if filer_done and filer_log:
             query_log = {
                 **filer_done,
+                "log": filer_log,
                 "type": query,
                 "timestamp": datetime.now().timestamp(),
             }
-            logs.insert_one(query_log)
+            statistics.insert_one(query_log)
     except Exception as e:
         print(e)
 

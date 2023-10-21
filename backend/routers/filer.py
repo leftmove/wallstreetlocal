@@ -57,11 +57,25 @@ router = APIRouter(
 # 1 : Filer still building, but estimation time has been calculated.
 # 0 : Filer is done being built, logs are no longer kept.
 
+# Different Filer Stages
+# 4 : Filer was non-existent before and is being fully built from the ground up.
+# 3 : Filer still building, but estimation time has been calculated.
+# 2 : Filer's newest filing is built, but older filings are still being updated and sorted. Estimation time is calculated.
+# 1 : Fully built from previous query, but filer is being updated with newest filing recently acquired. That or newest filing is just missing.
+# 0 : Fully built, filer is up and ready to go.
+
+# Note: Once two is set, three MUST be cancelled.
+
 
 def create_filer(sec_data, cik):
-    timestamp = {
+    company = {
+        "name": sec_data["name"],
+        "cik": cik,
+    }
+    stamp = {
+        **company,
         "logs": [],
-        "status": 2,
+        "status": 4,
         "time": {
             "remaining": 0,
             "elapsed": 0,
@@ -69,21 +83,19 @@ def create_filer(sec_data, cik):
         },
         "start": datetime.now().timestamp(),
     }
-    company = {
-        "name": sec_data["name"],
-        "cik": cik,
-        "status": 3,
-        "log": timestamp,
-    }
+
+    create_log(cik, stamp)
     add_filer(company)
     company = scrape_filer(sec_data, cik)
 
-    company["log"] = timestamp
-    company["log"]["time"] = {
-        "status": 2,
+    stamp["status"] = 3
+    stamp["time"] = {
         "required": estimate_time_newest(company["last_report"], cik),
-        "elapsed": datetime.now().timestamp() - timestamp["start"],
+        "elapsed": datetime.now().timestamp() - stamp["start"],
     }
+    edit_log(cik, stamp)
+    edit_filer({"cik": cik}, {"$set": company})
+
     company.update(
         {
             "cik": cik,
@@ -99,18 +111,20 @@ def create_filer(sec_data, cik):
     try:
         analyze_filer_newest(cik, company["stocks"]["local"])
     except Exception as e:
-        edit_filer({"cik": cik}, {"$set": {"status": 2, "update": False}})
+        edit_filer({"cik": cik}, {"$set": {"update": False}})
+        edit_status(cik, 2)
         print(e)
     add_query_log(cik, "create-latest")
 
-    edit_filer({"cik": cik}, {"$set": {"log": {**timestamp, "status": 2}}})
+    edit_status(cik, 2)
     scrape_new_stocks(company)
     add_log(cik, "Filer Queried with Historical Stocks", company["name"], cik)
 
     try:
         analyze_filer(cik)
     except Exception as e:
-        edit_filer({"cik": cik}, {"$set": {"status": 0, "update": False}})
+        edit_filer({"cik": cik}, {"$set": {"update": False}})
+        edit_status(cik, 0)
         print(e)
     add_query_log(cik, "create-historical")
 
@@ -119,7 +133,8 @@ def update_filer(company):
     cik = company["cik"]
     time = datetime.now().timestamp()
 
-    if company["status"] > 2:
+    operation = find_log(cik)
+    if operation["status"] > 2:
         raise HTTPException(409, detail="Filer still building.")
 
     # if (time - company["updated"]) < 3600:
@@ -127,7 +142,7 @@ def update_filer(company):
 
     update = check_new(cik=cik, last_updated=company["updated"])
     if update:
-        edit_filer({"cik": cik}, {"$set": {"status": 1}})
+        edit_status(cik, 1)
         filings, latest_report = scrape_filer_newest(company)
         scraped_stocks = scrape_latest_stocks(company)
         edit_filer(
@@ -144,7 +159,8 @@ def update_filer(company):
         try:
             analyze_filer_newest(cik)
         except Exception as e:
-            edit_filer({"cik": cik}, {"$set": {"status": 1, "update": False}})
+            edit_filer({"cik": cik}, {"$set": {"update": False}})
+            edit_status(cik, 1)
             print(e)
         return {"description": "Updated filer."}
     else:
@@ -162,13 +178,16 @@ async def query_filer(cik: str, background: BackgroundTasks):
     if filer == None:
         try:
             sec_data = sec_filer_search(cik)
-        except Exception as e:
+        except Exception:
             raise HTTPException(404, detail="CIK not found.")
 
         background.add_task(create_filer, sec_data, cik)
         res = {"description": "Filer creation started."}
     else:
-        res = update_filer(filer)
+        try:
+            res = update_filer(filer)
+        except Exception:
+            raise HTTPException(404, detail="CIK not found.")
 
     return res
 
@@ -205,12 +224,12 @@ async def logs(cik: str, start: int = 0):
         "log.logs": {"$slice": [start, 10**5]},
     }
     try:
-        filer = find_filer(
-            cik,
-            project,
-        )
-        filer_status = filer["status"]
-        log = filer["log"]
+        log = find_log(cik)
+
+        if log == None:
+            raise HTTPException(404, detail="CIK not found.")
+
+        filer_status = log["status"]
         time = log["time"]
 
         if filer_status <= 1:
@@ -223,18 +242,16 @@ async def logs(cik: str, start: int = 0):
         if filer_status == 2:
             return JSONResponse(status_code=200, content={"logs": logs, "time": time})
 
-        status = log["status"]
         count = len(logs)
-
         log["count"] = count
         log["logs"] = logs
 
-        if time.get("wait") == True:
+        if log.get("rate_limit") == True:
             raise HTTPException(503, detail="Rate limited, please wait 60 seconds.")
 
         required = time["required"]
         elapsed = datetime.now().timestamp() - log["start"]
-        remaining = required - elapsed if status <= 2 else 0
+        remaining = required - elapsed if filer_status <= 3 else 0
 
         log["time"]["elapsed"] = elapsed
         log["time"]["remaining"] = remaining
@@ -409,18 +426,27 @@ async def filer_info(cik: str):
 @cache(24)
 @router.get("/record/", tags=["filers", "records"], status_code=200)
 async def record(cik: str):
-    filer = find_filer(cik, {"_id": 0})
+    filer = find_filer(cik, {"_id": 1})
     if filer == None:
         raise HTTPException(404, detail="Filer not found.")
 
     filename = f"wallstreetlocal-{cik}.json"
-    file_path = f"./public/filers/{filename}"
-    try:
-        with open(file_path, "w") as r:
-            pass
-    except:
-        with open(file_path, "w+") as r:
-            json.dump(filer, r, indent=6)
+    file_path = create_json(cik, filename)
+
+    return FileResponse(
+        file_path, media_type="application/octet-stream", filename=filename
+    )
+
+
+@cache(24)
+@router.get("/recordcsv/", tags=["filers", "records"], status_code=200)
+async def record_csv(cik: str):
+    filer = find_filer(cik, {"_id": 1})
+    if filer == None:
+        raise HTTPException(404, detail="Filer not found.")
+
+    filename = f"wallstreetlocal-{cik}"
+    file_path = create_csv(cik, filename)
 
     return FileResponse(
         file_path, media_type="application/octet-stream", filename=filename
@@ -495,7 +521,7 @@ async def partial_record(cik: str, time: float):
 
     filename = f"wallstreetlocal-{cik}-{int(time)}.json"
     file_path = f"./public/filers/{filename}"
-    with open(file_path, "w+") as r:
+    with open(file_path, "w") as r:
         json.dump(filer, r, indent=6)
 
     return FileResponse(

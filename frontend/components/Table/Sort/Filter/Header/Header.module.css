@@ -29,11 +29,6 @@
   padding: 5px;
 }
 
-.filter-fixed {
-  width: 200px;
-  flex-grow: 0;
-}
-
 .filter-item:hover,
 .filter-clicked {
   background-color: var(--primary);
