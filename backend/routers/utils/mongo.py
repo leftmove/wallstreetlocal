@@ -62,8 +62,8 @@ def edit_filer(query, value):
     main.update_one(query, value)
 
 
-def create_log(cik, value):
-    logs.insert_one({"cik": cik}, value)
+def create_log(value):
+    logs.insert_one(value)
 
 
 def find_log(cik, project={"_id": 0}):
@@ -74,6 +74,19 @@ def find_log(cik, project={"_id": 0}):
 def add_log(cik, message, name, identifier):
     logs_string = [f"{log} ({name}) ({identifier})" for log in message.split("\n")]
     logs.update_one({"cik": cik}, {"$push": {"logs": {"$each": logs_string}}})
+
+
+def add_logs(cik, formatted_logs):
+    logs_split = []
+    for formatted_log in formatted_logs:
+        logs_split.extend(
+            [
+                f"{log_message} ({formatted_log['name']}) ({formatted_log['identifier']})"
+                for log_message in formatted_log["message"].split("\n")
+            ]
+        )
+
+    logs.update_one({"cik": cik}, {"$push": {"logs": {"$each": logs_split}}})
 
 
 def edit_log(cik, stamp):

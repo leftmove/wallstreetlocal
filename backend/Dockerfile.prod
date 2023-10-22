@@ -8,7 +8,7 @@ COPY requirements.txt ./requirements.txt
 COPY routers ./routers
 COPY public ./public
 
-VOLUME [ "./public/backup:/public/backup" ]
+VOLUME [ "./public:/public/" ]
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 EXPOSE 8000

@@ -69,20 +69,20 @@ def time_format(seconds: int) -> str:
 def serialize_stock(local_stock, global_stock):
     cusip = local_stock["cusip"]
     update = global_stock["update"]
-    ticker = local_stock["ticker"] if update else "NA"
+    ticker = global_stock["ticker"] if update else "NA"
     rights = local_stock["class"]
     sold = local_stock["sold"]
     sector = global_stock["sector"] if update else "NA"
     industry = global_stock["industry"] if update else "NA"
 
-    timeseries = global_stock.get("timeseries")
+    timeseries = True if global_stock.get("timeseries") else False
     prices = local_stock.get("prices")
     buy_timeseries = prices.get("buy")
     sold_timeseries = prices.get("sold")
     price_recent = global_stock["price"] if update else "NA"
     price_bought = buy_timeseries["close"] if buy_timeseries != "NA" else "NA"
     price_recent_str = f"${price_recent}" if update else "NA"
-    price_bought_str = f"${price_bought}" if timeseries else "NA"
+    price_bought_str = f"${price_bought}" if buy_timeseries != "NA" else "NA"
 
     buy_float = buy_timeseries["time"] if buy_timeseries != "NA" else "NA"
     buy_date = datetime.fromtimestamp(buy_float) if buy_timeseries != "NA" else "NA"
@@ -111,30 +111,42 @@ def serialize_stock(local_stock, global_stock):
     name = local_stock["name"]
     name_str = f"{name}" if update else "NA"
     name_str = f"{ticker}" if name == "NA" and update else name_str
-    ticker_str = f"{ticker} (Sold)" if sold and update and timeseries else ticker
+    ticker_str = f"{ticker} (Sold)" if sold and update else ticker
 
     shares_held = local_stock["shares_held"]
     market_value = local_stock["market_value"]
     portfolio_percentage = local_stock.get("portfolio")
-    portfolio_percentage = portfolio_percentage * 100 if portfolio_percentage else "NA"
+    portfolio_percentage = (
+        portfolio_percentage * 100
+        if portfolio_percentage and portfolio_percentage != "NA"
+        else "NA"
+    )
     ownership_percentage = local_stock.get("ownership")
     ownership_percentage = (
         ownership_percentage * 100
         if ownership_percentage and ownership_percentage != "NA"
         else "NA"
     )
-    gain_value = float(
-        price_recent - price_bought if update and buy_timeseries != "NA" else "NA"
+    gain_value = (
+        float(price_recent - price_bought)
+        if update and buy_timeseries != "NA"
+        else "NA"
     )
-    gain_percent = float(
-        (gain_value / price_bought) * 100 if update and buy_timeseries != "NA" else "NA"
+    gain_percent = (
+        float((gain_value / price_bought) * 100)
+        if update and buy_timeseries != "NA"
+        else "NA"
     )
     shares_held_str = f"{int(shares_held):,}"
     market_value_str = f"${int(market_value):,}"
-    portfolio_percentage_str = "{:.2f}".format(round(portfolio_percentage, 2))
+    portfolio_percentage_str = (
+        "{:.2f}".format(round(portfolio_percentage, 2))
+        if portfolio_percentage != "NA"
+        else "NA"
+    )
     ownership_percentage_str = (
         "{:.2f}".format(round(ownership_percentage, 2))
-        if ownership_percentage and ownership_percentage != "NA"
+        if ownership_percentage != "NA"
         else "NA"
     )
     gain_value_str = (
@@ -158,7 +170,6 @@ def serialize_stock(local_stock, global_stock):
         "class": rights,
         "update": update,
         "sold": sold,
-        "timeseries": timeseries,
         "recent_price": price_recent,
         "recent_price_str": price_recent_str,
         "buy_price": price_bought,
@@ -184,27 +195,19 @@ def serialize_stock(local_stock, global_stock):
     }
 
 
-def analyze_filer(cik):
-    filer = find_filer(cik)
-    filer_name = filer["name"]
+def analyze_filer(cik, local_stocks, batch_limit):
+    filer = find_filer(cik, {"_id": 0, "stocks": 0})
     filer_filings = filer["filings"]
-    filer_stocks = filer["stocks"]["local"]
-    add_log(cik, "Creating Filer", filer_name, cik)
 
-    total_market_value = total_value(filer_stocks)
-
-    global_stocks = {}
+    total_market_value = total_value(local_stocks)
+    local_stocks_old = dict(local_stocks)
     stock_list = []
-    cusip_list = list(map(lambda s: filer_stocks[s]["cusip"], filer_stocks))
+    log_list = []
 
-    cursor = find_stocks("cusip", {"$in": cusip_list})
-    for updated_stock in cursor:
-        cusip = updated_stock["cusip"]
-        global_stocks[cusip] = updated_stock
-
-    for key in list(filer_stocks):
+    batch = 0
+    for key in local_stocks_old:
         try:
-            local_stock = filer_stocks[key]
+            local_stock = local_stocks_old[key]
             name = local_stock["name"]
             cusip = local_stock["cusip"]
 
@@ -222,45 +225,38 @@ def analyze_filer(cik):
             if global_stock == None:
                 continue
 
-            try:
-                timeseries_info = ticker_request("TIME_SERIES_MONTHLY", ticker, cik)[
-                    "Monthly Time Series"
-                ]
-            except KeyError:
-                timeseries_info = ticker_request("TIME_SERIES_MONTHLY", ticker, cik)
-            except Exception as e:
-                print(f"Failed to Find Time Data {name}\n{e}\n")
-                continue
-
-            try:
-                global_data = global_stock.get("data")
-                if global_data:
-                    shares_outstanding = float(global_data.get("shares_outstanding"))
-                    shares_held = local_stock["shares_held"]
-                    percent_ownership = shares_held / shares_outstanding
-                else:
-                    percent_ownership = "NA"
-            except:
-                percent_ownership = "NA"
-
-            timeseries_global = []
-            # timeseries_local = {}
-            for time_key in timeseries_info:
-                info = timeseries_info[time_key]
+            timeseries_global = global_stock.get("timeseries")
+            if timeseries_global == None:
+                update_timeseries = True
                 try:
-                    date = convert_date(time_key)
-                except:
+                    timeseries_info = ticker_request(
+                        "TIME_SERIES_MONTHLY", ticker, cik
+                    )["Monthly Time Series"]
+                except KeyError:
+                    timeseries_info = ticker_request("TIME_SERIES_MONTHLY", ticker, cik)
+                except Exception as e:
+                    print(f"Failed to Find Time Data {name}\n{e}\n")
                     continue
-                price = {
-                    "time": date,
-                    "open": float(info["1. open"]),
-                    "close": float(info["4. close"]),
-                    "high": float(info["2. high"]),
-                    "low": float(info["3. low"]),
-                    "volume": float(info["5. volume"]),
-                }
-                # timeseries_local[key] = price
-                timeseries_global.append(price)
+
+                timeseries_global = []
+                for time_key in timeseries_info:
+                    info = timeseries_info[time_key]
+                    try:
+                        date = convert_date(time_key)
+                    except:
+                        continue
+                    price = {
+                        "time": date,
+                        "open": float(info["1. open"]),
+                        "close": float(info["4. close"]),
+                        "high": float(info["2. high"]),
+                        "low": float(info["3. low"]),
+                        "volume": float(info["5. volume"]),
+                    }
+                    # timeseries_local[key] = price
+                    timeseries_global.append(price)
+            else:
+                update_timeseries = False
 
             if timeseries_global != []:
                 buy_timeseries = min(
@@ -273,7 +269,18 @@ def analyze_filer(cik):
                 buy_timeseries = "NA"
                 sold_timeseries = "NA"
 
-            edit_stock({"ticker": ticker}, {"$set": {"timeseries": timeseries_global}})
+            if update_timeseries:
+                edit_stock(
+                    {"ticker": ticker}, {"$set": {"timeseries": timeseries_global}}
+                )
+
+            try:
+                global_data = global_stock["data"]
+                shares_outstanding = float(global_data["shares_outstanding"])
+                shares_held = local_stock["shares_held"]
+                percent_ownership = shares_held / shares_outstanding
+            except:
+                percent_ownership = "NA"
 
             global_update = global_stock["update"]
             global_data = global_stock["data"] if global_update else "NA"
@@ -287,165 +294,66 @@ def analyze_filer(cik):
                     },
                 }
             )
-            filer_stocks[key] = local_stock
+            local_stocks[key] = local_stock
 
             list_stock = serialize_stock(local_stock, global_stock)
-            stock_list.append(list_stock)
+            log_stock = {"name": name, "message": "Created Stock", "identifier": cusip}
 
-            add_log(cik, "Created Stock", name, cusip)
+            stock_list.append(list_stock)
+            log_list.append(log_stock)
+            batch += 1
+
+            if batch >= batch_limit:
+                edit_filer(
+                    {"cik": cik}, {"$push": {"stocks.global": {"$each": stock_list}}}
+                )
+                edit_filer({"cik": cik}, {"$set": {"stocks.local": local_stocks}})
+                add_logs(cik, log_list)
+
+                batch = 0
+                local_stocks = {}
+                stock_list = []
+                log_list = []
 
         except Exception as e:
             print("Failed Stock", e)
             add_log(cik, "Failed Stock", "NA", "NA")
             continue
 
-    stocks = {
-        "local": filer_stocks,
-        "global": stock_list,
-    }
+    if batch > 0:
+        edit_filer({"cik": cik}, {"$push": {"stocks.global": {"$each": stock_list}}})
+        add_logs(cik, log_list)
 
-    add_log(cik, "Finished Creating Filer", filer_name, cik)
     edit_filer(
         {"cik": cik},
         {
             "$set": {
-                "stocks": stocks,
                 "market_value": total_market_value,
             }
         },
     )
+
+
+def analyze_historical(cik):
+    filer = find_filer(cik)
+    filer_name = filer["name"]
+    filer_stocks = filer["stocks"]["local"]
+
+    add_log(cik, "Creating Filer (Historical)", filer_name, cik)
+    analyze_filer(cik, filer_stocks, 4000)
+
+    add_log(cik, "Created Filer (Historical)", filer_name, cik)
     edit_status(cik, 0)
 
 
-def analyze_filer_newest(cik, newest_stocks):
-    filer = find_filer(cik, {"_id": 0, "stocks": 0})
-    filer_filings = filer["filings"]
-    filer_stocks = newest_stocks
+def analyze_newest(cik, newest_stocks):
+    filer = find_filer(cik, {"name": 1})
     filer_name = filer["name"]
-    add_log(cik, "Creating Filer", filer_name, cik)
 
-    total_market_value = total_value(filer_stocks)
+    add_log(cik, "Creating Filer (Newest)", filer_name, cik)
+    analyze_filer(cik, newest_stocks, 5)
 
-    global_stocks = {}
-    stock_list = []
-    cusip_list = list(map(lambda s: filer_stocks[s]["cusip"], filer_stocks))
-
-    cursor = find_stocks("cusip", {"$in": cusip_list})
-    for updated_stock in cursor:
-        cusip = updated_stock["cusip"]
-        global_stocks[cusip] = updated_stock
-
-    for key in list(filer_stocks):
-        try:
-            local_stock = filer_stocks[key]
-            name = local_stock["name"]
-            cusip = local_stock["cusip"]
-
-            market_value = local_stock["market_value"]
-
-            first_report = local_stock["first_report"]
-            last_report = local_stock["last_report"]
-            buy_time = filer_filings[first_report]["report_date"]
-            sold_time = filer_filings[last_report]["report_date"]
-
-            percent_portfolio = market_value / total_market_value
-
-            ticker = local_stock["ticker"]
-            global_stock = find_stock("ticker", ticker)
-            if global_stock == None:
-                continue
-
-            try:
-                timeseries_info = ticker_request("TIME_SERIES_MONTHLY", ticker, cik)[
-                    "Monthly Time Series"
-                ]
-            except KeyError:
-                timeseries_info = ticker_request("TIME_SERIES_MONTHLY", ticker, cik)
-            except Exception as e:
-                print(f"Failed to Find Time Data {name}\n{e}\n")
-                continue
-
-            try:
-                global_data = global_stock.get("data")
-                if global_data:
-                    shares_outstanding = float(global_data.get("shares_outstanding"))
-                    shares_held = local_stock["shares_held"]
-                    percent_ownership = shares_held / shares_outstanding
-                else:
-                    percent_ownership = "NA"
-            except:
-                percent_ownership = "NA"
-
-            timeseries_global = []
-            # timeseries_local = {}
-            for time_key in timeseries_info:
-                info = timeseries_info[time_key]
-                try:
-                    date = convert_date(time_key)
-                except:
-                    continue
-                price = {
-                    "time": date,
-                    "open": float(info["1. open"]),
-                    "close": float(info["4. close"]),
-                    "high": float(info["2. high"]),
-                    "low": float(info["3. low"]),
-                    "volume": float(info["5. volume"]),
-                }
-                # timeseries_local[key] = price
-                timeseries_global.append(price)
-
-            if timeseries_global != []:
-                buy_timeseries = min(
-                    timeseries_global, key=lambda x: abs((x["time"]) - buy_time)
-                )
-                sold_timeseries = min(
-                    timeseries_global, key=lambda x: abs((x["time"]) - sold_time)
-                )
-            else:
-                buy_timeseries = "NA"
-                sold_timeseries = "NA"
-
-            edit_stock({"ticker": ticker}, {"$set": {"timeseries": timeseries_global}})
-
-            global_update = global_stock["update"]
-            global_data = global_stock["data"] if global_update else "NA"
-            local_stock.update(
-                {
-                    "portfolio": percent_portfolio,
-                    "ownership": percent_ownership,
-                    "prices": {
-                        "buy": buy_timeseries,
-                        "sold": sold_timeseries,
-                    },
-                }
-            )
-            filer_stocks[key] = local_stock
-
-            list_stock = serialize_stock(local_stock, global_stock)
-            stock_list.append(list_stock)
-
-            add_log(cik, "Created Stock", name, cusip)
-        except Exception as e:
-            print("Failed Stock", e)
-            add_log(cik, "Failed Stock", "NA", "NA")
-            continue
-
-    stocks = {
-        "local": filer_stocks,
-        "global": stock_list,
-    }
-
-    add_log(cik, "Finished Creating Filer", filer_name, cik)
-    edit_filer(
-        {"cik": cik},
-        {
-            "$set": {
-                "stocks": stocks,
-                "market_value": total_market_value,
-            }
-        },
-    )
+    add_log(cik, "Created Filer (Newest)", filer_name, cik)
     edit_status(cik, 2)
 
 

@@ -12,6 +12,7 @@ from .utils.cache import *
 
 from datetime import datetime
 import json
+import asyncio
 
 
 from dotenv import load_dotenv
@@ -72,6 +73,7 @@ def create_filer(sec_data, cik):
         "name": sec_data["name"],
         "cik": cik,
     }
+    start = datetime.now().timestamp()
     stamp = {
         **company,
         "logs": [],
@@ -81,26 +83,27 @@ def create_filer(sec_data, cik):
             "elapsed": 0,
             "required": 0,
         },
-        "start": datetime.now().timestamp(),
+        "start": start,
     }
 
-    create_log(cik, stamp)
+    create_log(stamp)
     add_filer(company)
     company = scrape_filer(sec_data, cik)
 
-    stamp["status"] = 3
-    stamp["time"] = {
-        "required": estimate_time_newest(company["last_report"], cik),
-        "elapsed": datetime.now().timestamp() - stamp["start"],
+    stamp = {
+        "name": company["name"],
     }
+    # loop = asyncio.get_running_loop()
+    # loop.run_in_executor(None, estimate_time_newest, cik, company["last_report"])
     edit_log(cik, stamp)
     edit_filer({"cik": cik}, {"$set": company})
 
+    local_stocks = scrape_latest_stocks(company)
     company.update(
         {
             "cik": cik,
             "stocks": {
-                "local": scrape_latest_stocks(company),
+                "local": local_stocks,
                 "global": [],
             },
         }
@@ -109,11 +112,14 @@ def create_filer(sec_data, cik):
     add_log(cik, "Filer Queried with Latest Stocks", company["name"], cik)
     edit_filer({"cik": cik}, {"$set": company})
     try:
-        analyze_filer_newest(cik, company["stocks"]["local"])
+        analyze_newest(cik, local_stocks)
     except Exception as e:
         edit_filer({"cik": cik}, {"$set": {"update": False}})
         edit_status(cik, 2)
         print(e)
+
+    stamp = {"time.elapsed": datetime.now().timestamp() - start}
+    edit_log(cik, stamp)
     add_query_log(cik, "create-latest")
 
     edit_status(cik, 2)
@@ -121,11 +127,14 @@ def create_filer(sec_data, cik):
     add_log(cik, "Filer Queried with Historical Stocks", company["name"], cik)
 
     try:
-        analyze_filer(cik)
+        analyze_historical(cik)
     except Exception as e:
         edit_filer({"cik": cik}, {"$set": {"update": False}})
         edit_status(cik, 0)
         print(e)
+
+    stamp = {"time.elapsed": datetime.now().timestamp() - start}
+    edit_log(cik, stamp)
     add_query_log(cik, "create-historical")
 
 
@@ -134,6 +143,8 @@ def update_filer(company):
     time = datetime.now().timestamp()
 
     operation = find_log(cik)
+    if operation == None:
+        raise HTTPException(404, detail="CIK not found.")
     if operation["status"] > 2:
         raise HTTPException(409, detail="Filer still building.")
 
@@ -152,12 +163,12 @@ def update_filer(company):
                     "updated": time,
                     "filings": filings,
                     "latest_report": latest_report,
-                    "stocks": {"local": scraped_stocks},
+                    "stocks.local": scraped_stocks,
                 }
             },
         )
         try:
-            analyze_filer_newest(cik)
+            analyze_newest(cik, scraped_stocks)
         except Exception as e:
             edit_filer({"cik": cik}, {"$set": {"update": False}})
             edit_status(cik, 1)
@@ -182,6 +193,7 @@ async def query_filer(cik: str, background: BackgroundTasks):
             raise HTTPException(404, detail="CIK not found.")
 
         background.add_task(create_filer, sec_data, cik)
+        background.add_task(estimate_time_newest, cik)
         res = {"description": "Filer creation started."}
     else:
         res = update_filer(filer)
@@ -206,22 +218,13 @@ async def search_filers(q: str):
 
 @router.get("/logs", status_code=202)
 async def logs(cik: str, start: int = 0):
-    project = {
-        "_id": 0,
-        "name": 0,
-        "filings": 0,
-        "stocks": 0,
-        "data": 0,
-        "cik": 0,
-        "tickers": 0,
-        "exchanges": 0,
-        "first_report": 0,
-        "last_report": 0,
-        "updated": 0,
-        "log.logs": {"$slice": [start, 10**5]},
-    }
     try:
-        log = find_log(cik)
+        log = find_log(
+            cik,
+            {
+                "log.logs": {"$slice": [start, 10**5]},
+            },
+        )
 
         if log == None:
             raise HTTPException(404, detail="CIK not found.")
@@ -253,15 +256,7 @@ async def logs(cik: str, start: int = 0):
         log["time"]["elapsed"] = elapsed
         log["time"]["remaining"] = remaining
 
-        edit_filer(
-            {"cik": cik},
-            {
-                "$set": {
-                    "log.time.remaining": remaining,
-                    "log.time.elapsed": elapsed,
-                }
-            },
-        )
+        edit_log(cik, log)
 
         return {
             "logs": logs,
@@ -278,26 +273,13 @@ async def logs(cik: str, start: int = 0):
 
 @router.get("/estimate", status_code=202)
 async def estimate(cik: str):
-    project = {
-        "_id": 0,
-        "name": 0,
-        "filings": 0,
-        "stocks": 0,
-        "data": 0,
-        "cik": 0,
-        "status": 0,
-        "tickers": 0,
-        "exchanges": 0,
-        "first_report": 0,
-        "last_report": 0,
-        "market_value": 0,
-        "updated": 0,
-        "log.logs": 0,
-    }
     try:
-        filer = find_filer(
+        filer = find_log(
             cik,
-            project,
+            {
+                "_id": 0,
+                "log.logs": 0,
+            },
         )
 
         log = filer["log"]
@@ -548,3 +530,25 @@ async def top():
     filers = filers.sort(key=lambda c: c["market_value"], reverse=True)
 
     return {"filers": filers}
+
+@cache(24)
+@router.get("/top/update", status_code=200)
+async def update_top(password: str):
+
+    if password != "whale":
+       return {}
+
+    with open("./public/top.json") as t:
+        filer_ciks = json.load(t)
+
+    for cik in filer_ciks:
+        found_filer = find_filer(cik)
+        if found_filer == None:
+            try:
+                sec_data = sec_filer_search(cik)
+            except Exception:
+                raise HTTPException(404, detail="CIK not found.")
+
+            create_filer(sec_data, cik)
+
+    return {"message": "Filers updated."}
