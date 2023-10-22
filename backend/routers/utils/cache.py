@@ -1,5 +1,4 @@
 import redis
-from celery import Celery
 
 from .mongo import *
 
