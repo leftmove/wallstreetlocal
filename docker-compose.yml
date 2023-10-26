@@ -37,8 +37,6 @@ services:
       context: ./backend/database
       dockerfile: Dockerfile
     restart: always
-    logging:
-      driver: "none"
     networks:
       - staging
   search:

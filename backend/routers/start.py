@@ -1,7 +1,6 @@
 import asyncio
 
 
-import motor.motor_asyncio
 from tqdm import tqdm
 
 from .utils.mongo import *
@@ -43,7 +42,7 @@ def main():
         print("[ Database (MongoDB) Loading ] ...")
 
     if db_empty or search_empty:
-        backup_client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_BACKUP_URL)
+        backup_client = MongoClient(MONGO_BACKUP_URL)
         companies_backup = backup_client["wallstreetlocal"]["companies"]
         companies_count = companies_backup.count_documents({})
 
