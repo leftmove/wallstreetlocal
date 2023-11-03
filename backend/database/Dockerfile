@@ -6,4 +6,4 @@ VOLUME [ "/data.mongo:/data/db" ]
 EXPOSE 27017
 EXPOSE 28017
 
-CMD ["mongod", "--quiet", "--logpath", "/dev/null"]
+CMD ["mongod"]
