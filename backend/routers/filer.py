@@ -222,7 +222,7 @@ async def logs(cik: str, start: int = 0):
         log = find_log(
             cik,
             {
-                "log.logs": {"$slice": [start, 10**5]},
+                "logs": {"$slice": [start, 10**5]},
             },
         )
 
@@ -278,7 +278,7 @@ async def estimate(cik: str):
             cik,
             {
                 "_id": 0,
-                "log.logs": 0,
+                "logs": 0,
             },
         )
 
@@ -531,12 +531,12 @@ async def top():
 
     return {"filers": filers}
 
+
 @cache(24)
 @router.get("/top/update", status_code=200)
 async def update_top(password: str):
-
     if password != "whale":
-       return {}
+        return {}
 
     with open("./public/top.json") as t:
         filer_ciks = json.load(t)
