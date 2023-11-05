@@ -4,6 +4,7 @@ from .mongo import *
 
 from functools import wraps
 import json
+
 from time import time
 from inspect import iscoroutinefunction
 from dotenv import load_dotenv
@@ -37,28 +38,76 @@ def timing(f):
     return wrap
 
 
-def cache(func, hours=2):
-    @wraps(func)
-    async def wrapper(*args, **kwargs):
-        key_parts = [func.__name__] + list(args)
-        key = "-".join(str(k) for k in key_parts)
-        result = r.get(key)
+# def cache_sync(func, hours=2):
+#     @wraps(func)
+#     def wrapper(*args, **kwargs):
+#         key_parts = [func.__name__] + list(args)
+#         key = "-".join(str(k) for k in key_parts)
+#         result = r.get(key)
 
-        if result is None:
-            coroutine = iscoroutinefunction(func)
-            if coroutine:
-                value = await func(*args, **kwargs)
+#         if result is None:
+#             value = func(*args, **kwargs)
+#             value_json = json.dumps(value)
+
+#             expire_time = 60 * 60 * hours
+#             r.setex(key, expire_time, value_json)
+#         else:
+#             value_json = result.decode("utf-8")
+#             value = json.loads(value_json)
+
+#         return value
+
+#     return wrapper
+
+
+# async def cache(func, hours=2):
+#     @wraps(func)
+#     async def wrapper(*args, **kwargs):
+#         key_parts = [func.__name__] + list(args)
+#         key = "-".join(str(k) for k in key_parts)
+#         result = r.get(key)
+
+#         if result is None:
+#             value = await func(*args, **kwargs)
+#             value_json = json.dumps(value)
+
+#             expire_time = 60 * 60 * hours
+#             r.setex(key, expire_time, value_json)
+#         else:
+#             value_json = result.decode("utf-8")
+#             value = json.loads(value_json)
+
+#         return value
+
+#     return wrapper
+
+
+def cache(_, hours=2):
+    def wrapper(func):
+        @wraps(func)
+        async def wrapped(*args, **kwargs):
+            key_parts = [func.__name__] + list(args)
+            key = "-".join(str(k) for k in key_parts)
+            result = r.get(key)
+
+            if result is None:
+                is_coroutine = iscoroutinefunction(func)
+
+                if is_coroutine:
+                    value = await func(*args, **kwargs)
+                else:
+                    value = func(*args, **kwargs)
+                value_json = json.dumps(value)
+
+                expire_time = 60 * 60 * hours
+                r.setex(key, expire_time, value_json)
             else:
-                value = func(*args, **kwargs)
-            value_json = json.dumps(value)
+                value_json = result.decode("utf-8")
+                value = json.loads(value_json)
 
-            expire_time = 60 * 60 * hours
-            r.setex(key, expire_time, value_json)
-        else:
-            value_json = result.decode("utf-8")
-            value = json.loads(value_json)
+            return value
 
-        return value
+        return wrapped
 
     return wrapper
 

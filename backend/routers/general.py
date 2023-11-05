@@ -10,7 +10,7 @@ router = APIRouter(
 )
 
 
-@cache
+@cache(24)
 @router.get("/", status_code=200)
 async def info():
     return {"message": "Hello World!"}
