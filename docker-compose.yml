@@ -18,8 +18,6 @@ services:
     build:
       context: ./backend/cache
       dockerfile: Dockerfile
-    volumes:
-      - /data.redis:/data
     restart: always
     networks:
       - staging
@@ -29,7 +27,7 @@ services:
       context: ./backend/database
       dockerfile: Dockerfile
     volumes:
-      - /data.mongo:/data/db
+      - ./backend/database/main_db:/data/db
     restart: always
     networks:
       - staging
@@ -38,8 +36,8 @@ services:
     build:
       context: ./backend/search
       dockerfile: Dockerfile
-    # volumes:
-    #   - /data.ms:/data/data.ms
+    volumes:
+      - ./backend/search/search_db/:/data/meili_data
     restart: always
     networks:
       - staging
