@@ -19,6 +19,7 @@ services:
   #     - MEILISEARCH_MASTER_KEY=${MEILISEARCH_MASTER_KEY}
   #   volumes:
   #     - ./backend/routers:/code/routers
+  #     - ./backend/public/backup:/public/backup
   #   networks:
   #     - staging
   #   ports:
@@ -37,15 +38,15 @@ services:
       - staging
     ports:
       - 6379:6379
-    volumes:
-      - ./backend/public/backup:/public/backup
+    # volumes:
+    #   - ./backend/cache/cache_db:/data
   database:
     container_name: database
     build:
       context: ./backend/database
       dockerfile: Dockerfile
     volumes:
-      - ./backend/database/data.mongo:/data/db
+      - ./backend/database/main_db:/data/db
     restart: always
     networks:
       - staging
@@ -56,6 +57,8 @@ services:
     build:
       context: ./backend/search
       dockerfile: Dockerfile
+    volumes:
+      - ./backend/search/search_db/:/data/meili_data
     restart: always
     networks:
       - staging
