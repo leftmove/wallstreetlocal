@@ -66,9 +66,7 @@ services:
 
   proxy:
     container_name: proxy
-    build:
-      context: ./proxy
-      dockerfile: Dockerfile
+    image: jc21/nginx-proxy-manager:latest
     restart: unless-stopped
     ports:
       - 81:81
