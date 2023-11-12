@@ -57,7 +57,7 @@ services:
       context: ./backend/search
       dockerfile: Dockerfile
     volumes:
-      - ./backend/search/data.ms:/data/data.ms
+      - ./backend/search/data.ms:/data/meili_data
     restart: always
     networks:
       - staging
@@ -66,7 +66,9 @@ services:
 
   proxy:
     container_name: proxy
-    image: jc21/nginx-proxy-manager:latest
+    build:
+      context: ./proxy
+      dockerfile: Dockerfile
     restart: unless-stopped
     ports:
       - 81:81
