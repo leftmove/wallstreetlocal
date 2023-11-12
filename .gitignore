@@ -34,11 +34,8 @@ start.sh
 **/__pycache__/
 /backend/public/companies.bson
 /backend/public/companies.json
-/backend/public/filers/*
-/backend/public/stocks/*
 
 /backend/search/companies.json
-/backend/search/data.ms/*
 
 /proxy/letsencrypt
 /proxy/data
