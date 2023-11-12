@@ -47,8 +47,6 @@ services:
     volumes:
       - ./backend/database/data.mongo:/data/db
     restart: always
-    logging:
-      driver: "none"
     networks:
       - staging
     ports:
