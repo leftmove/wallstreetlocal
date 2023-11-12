@@ -1,7 +1,7 @@
 FROM getmeili/meilisearch:v1.3
 
 WORKDIR /data
-VOLUME [ "/data/data.ms" ]
+VOLUME [ "/data.ms:/data/data.ms" ]
 
 COPY config.toml ./config.toml
 

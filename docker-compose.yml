@@ -38,8 +38,8 @@ services:
     build:
       context: ./backend/search
       dockerfile: Dockerfile
-    volumes:
-      - /data.ms:/data/data.ms
+    # volumes:
+    #   - /data.ms:/data/data.ms
     restart: always
     networks:
       - staging
