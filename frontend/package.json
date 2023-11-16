@@ -25,7 +25,7 @@
     "react-redux": "^8.0.5",
     "react-transition-group": "^4.4.5",
     "sass": "^1.62.1",
-    "sharp": "^0.32.2",
+    "sharp": "^0.32.6",
     "swr": "^2.1.1"
   },
   "devDependencies": {

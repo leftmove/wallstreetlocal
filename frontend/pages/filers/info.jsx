@@ -2,6 +2,7 @@ import styles from "@/styles/Filer.module.css";
 import { useState, useEffect } from "react";
 
 import Head from "next/head";
+import Error from "next/error";
 
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "900" });
@@ -24,7 +25,12 @@ const fetcher = (url, cik) =>
 
 const server = process.env.NEXT_PUBLIC_SERVER;
 const InfoPage = (props) => {
-  const cik = props.cik;
+  const cik = props.cik || null;
+
+  if (cik == null) {
+    return <Error statusCode={404} />;
+  }
+
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(setCik(cik));

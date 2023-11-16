@@ -8,7 +8,12 @@ const inter = Inter({ subsets: ["latin"], weight: "700" });
 import useEllipsis from "@/components/Hooks/useEllipsis";
 
 const Redirect = (props) => {
-  const cik = props.cik;
+  const cik = props.cik || null;
+
+  if (cik == null) {
+    return <Error statusCode={404} />;
+  }
+
   const wait = props.wait || 1000;
 
   const { ellipsis } = useEllipsis();
