@@ -58,7 +58,7 @@ services:
       context: ./backend/search
       dockerfile: Dockerfile
     volumes:
-      - ./backend/search/search_db/:/data/meili_data
+      - ./backend/search/search_db:/meili_data
     restart: always
     networks:
       - staging
