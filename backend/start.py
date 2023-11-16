@@ -1,6 +1,5 @@
 import uvicorn
 import asyncio
-import daemon
 from tqdm import tqdm
 
 from routers.utils.mongo import *

@@ -17,7 +17,6 @@ meilisearch==0.28.2
 motor==3.1.2
 pydantic==1.10.7
 pymongo==4.3.3
-python-daemon==3.0.1 
 python-dotenv==1.0.0
 redis==4.5.4
 requests==2.29.0
