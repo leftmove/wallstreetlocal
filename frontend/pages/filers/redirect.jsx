@@ -1,7 +1,6 @@
-import styles from "./Reload.module.css";
+import styles from "@/styles/Filer.module.css";
 import { useEffect } from "react";
 
-import { useRouter } from "next/router";
 import { redirect } from "next/navigation";
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "700" });
