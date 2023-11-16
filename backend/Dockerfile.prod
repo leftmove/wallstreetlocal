@@ -4,14 +4,14 @@ WORKDIR /code
 
 COPY main.py ./main.py
 COPY requirements.txt ./requirements.txt
+COPY start.py ./start.py
 
 COPY routers ./routers
 COPY public ./public
 
-VOLUME [ "./public:/public/" ]
-
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN python start.py
+
 EXPOSE 8000
 
-# CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "9"]
 CMD ["gunicorn", "main:app", "--workers", "9", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000"]
