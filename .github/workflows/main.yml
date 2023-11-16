@@ -21,7 +21,5 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: ${{ secrets.SSH_PORT }}
         script: |
-          # Navigate to your repository directory on the server
           cd server
-          # Execute the deployment script
           bash deploy.sh

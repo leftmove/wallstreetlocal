@@ -13,8 +13,6 @@ services:
       - database
       - cache
       - search
-    ports:
-      - 8000:8000
   cache:
     container_name: cache
     build:

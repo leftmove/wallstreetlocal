@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "800" });
 
+const server = process.env.NEXT_PUBLIC_SERVER;
 const fetcher = (url, input) =>
   axios
     .get(url, { params: { q: input } })
@@ -20,7 +21,7 @@ const Search = () => {
   const [isFocused, setIsFocused] = useState(false);
 
   const { data } = useSWR(
-    searchInput ? ["http://localhost:8000/filers/search/", searchInput] : null,
+    searchInput ? [server + "/filers/search/", searchInput] : null,
     ([url, input]) => fetcher(url, input),
     {
       revalidateOnFocus: false,

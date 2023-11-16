@@ -1,6 +1,7 @@
 FROM python:3.9-alpine
 
 WORKDIR /code
+ENV WORKERS=1
 
 COPY requirements.txt ./requirements.txt
 COPY main.py ./main.py
@@ -10,8 +11,8 @@ COPY routers ./routers
 COPY public ./public
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
-RUN python start.py
+# ENTRYPOINT ["sh", "-c", "source ./entrypoint.sh", "-s"]
 
 EXPOSE 8000
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["python", "start.py"]

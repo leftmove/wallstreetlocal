@@ -1,10 +1,10 @@
+import uvicorn
 import asyncio
-
-
+import daemon
 from tqdm import tqdm
 
-from .routers.utils.mongo import *
-from .routers.utils.search import *
+from routers.utils.mongo import *
+from routers.utils.search import *
 
 
 # pyright: reportGeneralTypeIssues=false
@@ -178,18 +178,36 @@ def main():
 # functions running
 # TLDR: Fix later
 
+workers = int(getenv("WORKERS"))
+port = 8000
+host = "0.0.0.0"
 
-def initialize():
+
+def run(app):
+    if workers == 1:
+        uvicorn.run(app, host=host, port=port, reload=True)
+    else:
+        uvicorn.run(app, host=host, port=port, workers=workers)
+
+
+# def initialize():
+#     main()
+#     # with daemon.DaemonContext():
+#     #     main()
+
+#     run("main:app")
+
+#     # try:
+#     #     loop = asyncio.get_running_loop()
+#     # except RuntimeError:
+#     #     loop = None
+
+#     # if loop and loop.is_running():
+#     #     loop.create_task(main())
+#     # else:
+#     #     asyncio.run(main())
+
+
+if __name__ == "__main__":
     main()
-    # try:
-    #     loop = asyncio.get_running_loop()
-    # except RuntimeError:
-    #     loop = None
-
-    # if loop and loop.is_running():
-    #     loop.create_task(main())
-    # else:
-    #     asyncio.run(main())
-
-
-initialize()
+    run("main:app")

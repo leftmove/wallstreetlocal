@@ -12,7 +12,6 @@ import useSWR from "swr";
 
 import Loading from "@/components/Loading/Loading";
 import Estimation from "./Estimation/Estimation";
-import Reload from "./Reload/Reload";
 import Console from "./Console/Console";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
