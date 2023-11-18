@@ -13,6 +13,8 @@ services:
       - database
       - cache
       - search
+    volumes:
+      - ./backend/public:/code/public
   cache:
     container_name: cache
     build:
