@@ -1,9 +1,8 @@
-from fastapi import BackgroundTasks, HTTPException, WebSocket
+from fastapi import BackgroundTasks, HTTPException, WebSocket, APIRouter
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
-from .router import APIRouter
 from .utils.scrape import *
 from .utils.mongo import *
 from .utils.search import *

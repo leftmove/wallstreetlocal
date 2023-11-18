@@ -1,7 +1,6 @@
-from fastapi import BackgroundTasks, Request
+from fastapi import BackgroundTasks, Request, APIRouter
 from fastapi.responses import FileResponse
 
-from .router import APIRouter
 from .utils.cache import *
 from .utils.backup import *
 

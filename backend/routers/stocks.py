@@ -1,7 +1,6 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, APIRouter
 from pydantic import BaseModel
 
-from .router import APIRouter
 from .utils.api import *
 from .utils.mongo import *
 from .utils.scrape import *

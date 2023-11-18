@@ -184,9 +184,9 @@ host = "0.0.0.0"
 
 def run(app):
     if workers == 1:
-        uvicorn.run(app, host=host, port=port, reload=True)
+        uvicorn.run(app, host=host, port=port, forwarded_allow_ips="*", reload=True)
     else:
-        uvicorn.run(app, host=host, port=port, workers=workers)
+        uvicorn.run(app, host=host, port=port, forwarded_allow_ips="*", workers=workers)
 
 
 # def initialize():
