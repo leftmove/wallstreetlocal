@@ -109,8 +109,6 @@ def serialize_stock(local_stock, global_stock):
     )
 
     name = local_stock["name"]
-    name_str = f"{name}" if update else "NA"
-    name_str = f"{ticker}" if name == "NA" and update else name_str
     ticker_str = f"{ticker} (Sold)" if sold and update else ticker
 
     shares_held = local_stock["shares_held"]
@@ -161,7 +159,7 @@ def serialize_stock(local_stock, global_stock):
     )
 
     return {
-        "name": name_str,
+        "name": name,
         "cusip": cusip,
         "ticker": ticker,
         "ticker_str": ticker_str,
@@ -391,7 +389,7 @@ header_format = [
     {"display": "Market Value", "accessor": "market_value_str"},
     {"display": r"% of Portfolio", "accessor": "portfolio_str"},
     {"display": "% Ownership", "accessor": "ownership_str"},
-    {"display": "Sold", "accessor": "sold_str"},
+    {"display": "Sold Date", "accessor": "sold_str"},
     {"display": "Buy Date", "accessor": "buy_str"},
     {"display": "Price Paid", "accessor": "buy_price_str"},
     {"display": "Recent Price", "accessor": "recent_price_str"},
@@ -456,7 +454,7 @@ def create_dataframe(global_stocks):
 
 
 def create_csv(cik, filename):
-    file_path = f"./public/filers/{filename}.csv"
+    file_path = f"./public/filers/{filename}"
     try:
         with open(file_path, "r"):
             pass

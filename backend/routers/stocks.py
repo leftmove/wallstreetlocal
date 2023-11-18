@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import HTTPException
 from pydantic import BaseModel
 
+from .router import APIRouter
 from .utils.api import *
 from .utils.mongo import *
 from .utils.scrape import *
@@ -24,7 +25,7 @@ class Cusip(BaseModel):
 
 
 @cache
-@router.post("/query/", tags=["stocks"], status_code=200)
+@router.post("/query", tags=["stocks"], status_code=200)
 async def query_stocks(stock: Tickers):
     tickers = stock.tickers
     found_stocks = find_stocks("ticker", {"$in": tickers})
@@ -57,7 +58,7 @@ async def query_stocks(stock: Tickers):
     return {"description": "Stocks updated."}
 
 
-# @router.post("/info/", tags=["stocks"], status_code=200)
+# @router.post("/info", tags=["stocks"], status_code=200)
 # async def stock_info(stock: Cusip):
 
 #     cusip_list = stock.cusip
@@ -70,7 +71,7 @@ async def query_stocks(stock: Tickers):
 
 
 @cache
-@router.get("/info/", tags=["stocks", "filers"], status_code=200)
+@router.get("/info", tags=["stocks", "filers"], status_code=200)
 async def stock_info(cik: str):
     stocks = find_filer(
         cik, {"_id": 0, "stocks.local": 0, "stocks.global.timeseries": 0}
@@ -86,7 +87,7 @@ async def stock_info(cik: str):
 
 
 @cache(4)
-@router.get("/timeseries/", tags=["stocks", "filers"], status_code=200)
+@router.get("/timeseries", tags=["stocks", "filers"], status_code=200)
 async def stock_timeseries(cik: str, time: float):
     filer = find_filer(cik, {"stocks.local": 1})
     if filer == None:

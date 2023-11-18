@@ -1,8 +1,9 @@
-from fastapi import BackgroundTasks, APIRouter, HTTPException, WebSocket
+from fastapi import BackgroundTasks, HTTPException, WebSocket
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
+from .router import APIRouter
 from .utils.scrape import *
 from .utils.mongo import *
 from .utils.search import *
@@ -179,7 +180,7 @@ def update_filer(company):
 
 
 @router.get(
-    "/query/",
+    "/query",
     tags=["filers"],
     status_code=201,
 )
@@ -202,7 +203,7 @@ async def query_filer(cik: str, background: BackgroundTasks):
 
 
 @cache(24)
-@router.get("/search/", tags=["filers"], status_code=200)
+@router.get("/search", tags=["filers"], status_code=200)
 async def search_filers(q: str):
     options = {"limit": 4, "filter": ["13f = true"]}
     hits = search_companies(q, options)
@@ -302,7 +303,7 @@ async def estimate(cik: str):
         raise HTTPException(404, detail="Error fetching time estimation.")
 
 
-# @router.get("/aggregate/", tags=["filers"], status_code=201)
+# @router.get("/aggregate", tags=["filers"], status_code=201)
 # async def migrate_filers(password: str):
 #     if password != getenv("ADMIN_PASSWORD"):
 #         raise HTTPException(
@@ -393,7 +394,7 @@ async def estimate(cik: str):
 
 
 @cache(1 / 6)
-@router.get("/info/", tags=["filers"], status_code=200)
+@router.get("/info", tags=["filers"], status_code=200)
 async def filer_info(cik: str):
     filer = find_filer(cik, {"_id": 0, "stocks": 0, "filings": 0})
     if filer == None:
@@ -403,7 +404,7 @@ async def filer_info(cik: str):
 
 
 @cache(24)
-@router.get("/record/", tags=["filers", "records"], status_code=200)
+@router.get("/record", tags=["filers", "records"], status_code=200)
 async def record(cik: str):
     filer = find_filer(cik, {"_id": 1})
     if filer == None:
@@ -418,13 +419,13 @@ async def record(cik: str):
 
 
 @cache(24)
-@router.get("/recordcsv/", tags=["filers", "records"], status_code=200)
+@router.get("/recordcsv", tags=["filers", "records"], status_code=200)
 async def record_csv(cik: str):
     filer = find_filer(cik, {"_id": 1})
     if filer == None:
         raise HTTPException(404, detail="Filer not found.")
 
-    filename = f"wallstreetlocal-{cik}"
+    filename = f"wallstreetlocal-{cik}.csv"
     file_path = create_csv(cik, filename)
 
     return FileResponse(
@@ -433,7 +434,7 @@ async def record_csv(cik: str):
 
 
 @cache(24)
-@router.get("/record/timeseries/", tags=["filers", "records"], status_code=200)
+@router.get("/record/timeseries", tags=["filers", "records"], status_code=200)
 async def partial_record(cik: str, time: float):
     filer = find_filer(cik, {"stocks.local": 1, "tickers": 1, "name": 1})
     if filer == None:
