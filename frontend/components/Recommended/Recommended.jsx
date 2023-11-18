@@ -2,8 +2,9 @@ import styles from "./Recommended.module.css";
 import { useEffect, useState } from "react";
 
 import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "700" });
-const interLight = Inter({ subsets: ["latin"], weight: "600" });
+const inter = Inter({ subsets: ["latin"], weight: "600" });
+const interLight = Inter({ subsets: ["latin"], weight: "500" });
+const interBold = Inter({ subsets: ["latin"], weight: "700" });
 
 import Link from "next/link";
 
@@ -38,9 +39,9 @@ const Recommended = (props) => {
       ].join(" ")}
     >
       <span
-        className={[styles["recommended-title"], inter.className].join(" ")}
+        className={[styles["recommended-title"], interBold.className].join(" ")}
       >
-        Recommended Filers
+        Popular Filers
       </span>
 
       <div className={styles["recommended-list"]}>

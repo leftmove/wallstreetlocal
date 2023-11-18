@@ -6,7 +6,7 @@ import axios from "axios";
 import useSWR from "swr";
 
 import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "700" });
+const inter = Inter({ subsets: ["latin"], weight: "600" });
 
 import useEllipsis from "@/components/Hooks/useEllipsis";
 import useInterval from "@/components/Hooks/useInterval";
@@ -75,7 +75,7 @@ const Estimation = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
-  if (loading || time.status > 2) {
+  if (loading || time.status > 0) {
     return (
       <div className={styles["estimation"]}>
         <span

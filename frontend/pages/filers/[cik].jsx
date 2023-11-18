@@ -190,7 +190,10 @@ export async function getServerSideProps(context) {
   };
 
   await axios
-    .get(server + "/filers/query", { params: { cik } })
+    .get(server + "/filers/query", {
+      params: { cik },
+      validateStatus: (status) => status < 500,
+    })
     .then((r) => {
       switch (r?.status) {
         case 201:
