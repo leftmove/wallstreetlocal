@@ -399,6 +399,10 @@ async def filer_info(cik: str):
     if filer == None:
         raise HTTPException(404, detail="Filer not found.")
 
+    return JSONResponse(
+        {"description": "Found filer.", "filer": filer},
+        headers={"Access-Control-Allow-Origin": "*"},
+    )
     return {"description": "Found filer.", "filer": filer}
 
 
@@ -476,7 +480,7 @@ async def partial_record(cik: str, time: float):
             },
         ]
     )
-    async for document in cursor:
+    for document in cursor:
         cusip = document["cusip"]
         close = document["timeseries"]["close"]
         close_str = f"${close}"

@@ -127,7 +127,7 @@ const Filter = () => {
           fixed={true}
         />
       </div>
-      <Tip text="(You can drag the top headers to rearrange the columns.)" />
+      <Tip text="You can drag the top headers to rearrange the columns." />
     </div>
   );
 };

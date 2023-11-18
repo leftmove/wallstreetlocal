@@ -4,10 +4,9 @@ import { Provider } from "react-redux";
 import { wrapper } from "@/redux/store";
 
 import Layout from "@/components/Layouts/Layout";
-import InfoPage from "./info";
-import ErrorPage from "./error";
-import BuildingPage from "./building";
-import Reload from "@/components/Progress/Reload/Reload";
+import Info from "@/components/Filer/Info";
+import Other from "@/components/Filer/Other";
+import Building from "@/components/Filer/Building";
 
 // const getFetcher = (url, cik) =>
 //   axios
@@ -40,11 +39,11 @@ import Reload from "@/components/Progress/Reload/Reload";
 //   //   data: queryData,
 //   //   error: queryError,
 //   //   loading: queryLoading,
-//   // } = useSWR("http://localhost:8000/filers/query", postFetcher({ cik: cik }));
+//   // } = useSWR(server + "/filers/query", postFetcher({ cik: cik }));
 
 //   // const [infoData, setInfoData]: any = useState({});
 //   // const res = axios
-//   //   .get("http://localhost:8000/filers/info", { params: { cik: cik } })
+//   //   .get(server + "/filers/info", { params: { cik: cik } })
 //   //   .then((res) => console.log(res))
 //   //   .then((data) => {
 //   //     setInfoData(data);
@@ -73,7 +72,7 @@ import Reload from "@/components/Progress/Reload/Reload";
 //   //   data: infoData,
 //   //   error: infoError,
 //   //   isLoading: infoLoading,
-//   // } = useSWR(["http://localhost:8000/filers/info", cik], ([url, cik]) => getFetcher(url, cik));
+//   // } = useSWR([server + "/filers/info", cik], ([url, cik]) => getFetcher(url, cik));
 
 //   // if (infoLoading || !infoData) {
 //   //   return <Loading />;
@@ -113,7 +112,7 @@ import Reload from "@/components/Progress/Reload/Reload";
 // export async function getStaticProps(context) {
 //   const props = {};
 //   axios
-//     .get("http://localhost:8000/filers/info", { params: { cik: context.params.cik } })
+//     .get(server + "/filers/info", { params: { cik: context.params.cik } })
 //     .then((res) => {
 //       if (res.status == 201 || res.status == 409) {
 //         props.status = "building";
@@ -133,7 +132,7 @@ import Reload from "@/components/Progress/Reload/Reload";
 //     props: props,
 //   };
 // }
-// const url = "http://localhost:8000/filers/info";
+// const url = server + "/filers/info";
 // fetchWithCache(url, () => {
 //   setStatus({ loading: true });
 //   axios
@@ -167,20 +166,21 @@ const Filer = (props) => {
   const persist = props.persist;
 
   if (query.building || persist) {
-    return <BuildingPage cik={cik} persist={persist} />;
+    return <Building cik={cik} persist={persist} />;
   }
 
   if (query.ok) {
-    return <InfoPage cik={cik} />;
+    return <Info cik={cik} />;
   }
 
   if (query.error) {
-    return <ErrorPage />;
+    return <Other />;
   }
 };
 
 export async function getServerSideProps(context) {
-  const { cik, persist } = context.query;
+  const cik = context.query.cik;
+  const persist = context.query.persist;
   const server = process.env.NEXT_PUBLIC_SERVER;
 
   const query = {
@@ -189,22 +189,26 @@ export async function getServerSideProps(context) {
     error: false,
   };
 
-  const response = await axios.get(server + "/filers/query", {
-    params: { cik: cik },
-    validateStatus: (status) => status < 500,
-  });
-  switch (response.status) {
-    case 201:
-    case 409:
-      query.building = true;
-      break;
-    case 200:
-      query.ok = true;
-      break;
-    default:
+  await axios
+    .get(server + "/filers/query", { params: { cik: cik } })
+    .then((r) => {
+      switch (r?.status) {
+        case 201:
+        case 409:
+          query.building = true;
+          break;
+        case 200:
+          query.ok = true;
+          break;
+        default:
+          query.error = true;
+          break;
+      }
+    })
+    .catch((e) => {
+      console.error(e);
       query.error = true;
-      break;
-  }
+    });
 
   return {
     props: {

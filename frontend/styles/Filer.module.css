@@ -17,14 +17,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-
 }
 
 .main-header-text {
   font-size: 4rem;
   color: var(--secondary);
 }
-
 
 .header-desc {
   color: var(--secondary);
@@ -68,23 +66,38 @@
 }
 
 .reload {
-    position: fixed;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-    width: 100vw;
-    height: 100vh;
-    z-index: 1000;
-    opacity: 0.5;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1000;
+  opacity: 0.5;
 
-    background-color: var(--secondary);
-
+  background-color: var(--secondary);
 }
 
 .reload-text {
-    font-size: 2rem;
-    opacity: 1;
+  font-size: 2rem;
+  opacity: 1;
 
-    color: var(--primary);
+  color: var(--primary);
+}
+
+.source-button {
+  all: unset;
+  cursor: pointer;
+
+  width: 20px;
+  margin-left: 10px;
+  transition: color 0.3s ease, scale 0.3s ease;
+
+  color: black;
+}
+
+.source-button:hover {
+  color: var(--primary-dark);
+  scale: 1.1;
 }

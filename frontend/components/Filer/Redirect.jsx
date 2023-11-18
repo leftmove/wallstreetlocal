@@ -1,7 +1,7 @@
 import styles from "@/styles/Filer.module.css";
 import { useEffect } from "react";
 
-import { redirect } from "next/navigation";
+import { useRouter } from "next/router";
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "700" });
 
@@ -9,24 +9,20 @@ import useEllipsis from "@/components/Hooks/useEllipsis";
 
 const Redirect = (props) => {
   const cik = props.cik || null;
-
-  if (cik == null) {
-    return <Error statusCode={404} />;
-  }
-
   const wait = props.wait || 1000;
 
+  const router = useRouter();
   const { ellipsis } = useEllipsis();
   useEffect(() => {
     setTimeout(() => {
-      redirect("/filers/" + cik);
+      router.push("/filers/" + cik);
     }, props.delay || wait);
   }, []);
 
   return (
     <div className={styles["reload"]}>
       <span className={[styles["reload-text"], inter.className].join(" ")}>
-        Reloading Page {ellipsis}
+        Redirecting {ellipsis}
       </span>
     </div>
   );

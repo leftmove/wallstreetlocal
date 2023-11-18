@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Error from "next/error";
 
-const ErrorPage = () => {
+const Other = () => {
   return (
     <>
       <Head>
@@ -12,4 +12,4 @@ const ErrorPage = () => {
   );
 };
 
-export default ErrorPage;
+export default Other;

@@ -191,7 +191,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 // });
 
 // useEffect(() => {
-//   const url = "http://localhost:8000/stocks/info";
+//   const url = server + "/stocks/info";
 //   const time = 24 * 1000 * 60 * 60;
 //   const cacheStocks = async (url) => {
 //     const value = cacheData.get(url);
@@ -296,7 +296,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 // );
 // useEffect(() => {
 //   axios
-//     .get("http://localhost:8000/stocks/info", {
+//     .get(server + "/stocks/info", {
 //       params: { cik: filer.cik },
 //     })
 //     .then((res) => res.data)
@@ -312,6 +312,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 //   // eslint-disable-next-line react-hooks/exhaustive-deps
 // }, []);
 
+const server = process.env.NEXT_PUBLIC_SERVER;
 const getFetcher = (url, cik) =>
   axios
     .get(url, { params: { cik: cik } })
@@ -337,7 +338,7 @@ const Table = () => {
     error,
     isLoading: loading,
   } = useSWR(
-    ["http://localhost:8000/stocks/info", cik],
+    cik ? [server + "/stocks/info", cik] : null,
     ([url, cik]) => getFetcher(url, cik),
     {
       revalidateOnFocus: false,

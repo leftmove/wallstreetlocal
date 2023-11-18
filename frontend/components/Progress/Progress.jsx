@@ -1,16 +1,16 @@
 import styles from "./Progress.module.css";
 import { useEffect, useReducer, useState } from "react";
 
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "900" });
-const interLight = Inter({ subsets: ["latin"], weight: "700" });
 
 // import useSWRSubscription from "swr/subscription";
 import axios from "axios";
 import useSWR from "swr";
 
 import Loading from "@/components/Loading/Loading";
+import Redirect from "@/components/Filer/Redirect";
 import Estimation from "./Estimation/Estimation";
 import Console from "./Console/Console";
 
@@ -143,7 +143,7 @@ const Progress = (props) => {
   }
 
   if (stop) {
-    redirect(`/filers/redirect?filer=${cik}&wait=1`);
+    return <Redirect cik={cik} delay={0} />;
   }
 
   return (

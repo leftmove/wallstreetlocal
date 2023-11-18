@@ -33,6 +33,7 @@ import Loading from "@/components/Loading/Loading";
 //   return true;
 // };
 
+const server = process.env.NEXT_PUBLIC_SERVER;
 const getFetcher = (url, cik, time) =>
   axios
     .get(url, { params: { cik: cik, time: time } })
@@ -44,7 +45,7 @@ const Select = (props) => {
   const accessor = propDate.accessor;
   const index = props.index;
   const dispatch = useDispatch();
-  const cik = useSelector(selectCik);
+  const cik = useSelector(selectCik) || false;
   const headers = useSelector(selectHeaders);
 
   const date =
@@ -58,7 +59,7 @@ const Select = (props) => {
     error,
     isLoading: loading,
   } = useSWR(
-    open ? null : ["http://localhost:8000/stocks/timeseries", cik, time],
+    open || cik === false ? null : [server + "/stocks/timeseries", cik, time],
     ([url, cik, time]) => getFetcher(url, cik, time),
     {
       revalidateOnFocus: false,
@@ -90,7 +91,7 @@ const Select = (props) => {
   //   if (open) return;
 
   //   axios
-  //     .get("http://localhost:8000/stocks/timeseries", { params: { cik: cik, time: time } })
+  //     .get(server + "/stocks/timeseries", { params: { cik: cik, time: time } })
   //     // .then((r) => r.data)
   //     .then((r) => {
   //       const url = axios.getUri({
@@ -159,12 +160,14 @@ const Select = (props) => {
   // const [download, setDownload] = useState("");
   const handleDownload = () => {
     window.open(
-      `/api/filers/record/timeseries?cik=${cik}&time=${time}`,
+      server +
+        "/filers/record/timeseries?" +
+        new URLSearchParams({ cik, time }),
       "_blank"
     );
     // setDownload("loading");
     // axios
-    //   .get("http://localhost:8000/filer/record", { params: { cik: cik } })
+    //   .get(server + "/filer/record", { params: { cik: cik } })
     //   .then(() => setDownload(""))
     //   .catch((e) => console.error(e));
   };

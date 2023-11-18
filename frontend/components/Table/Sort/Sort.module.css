@@ -41,6 +41,7 @@
   display: flex;
 
   margin-top: 50px;
+  margin-bottom: 10px;
 }
 
 .sort-expanded {
@@ -50,6 +51,10 @@
   transition-property: max-height, background-color;
   transition-duration: 0.3s;
   transition-timing-function: cubic-bezier(1, 1, 1, 1);
+}
+
+.sort-icon {
+  margin-right: 10px;
 }
 
 .sort-expanded .sort-icon {

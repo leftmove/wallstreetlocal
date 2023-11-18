@@ -33,7 +33,7 @@ const Sort = () => {
           <Record variant="json" />
           <Record variant="csv" />
         </div>
-        <Tip text="(Downloads for bulk data.)" />
+        <Tip text="Downloads for bulk data." />
       </div>
     </div>
   );

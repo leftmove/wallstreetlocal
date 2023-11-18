@@ -16,6 +16,7 @@ import { setCik } from "@/redux/filerSlice";
 import Expand from "@/components/Expand/Expand";
 import Table from "@/components/Table/Table";
 import Building from "@/components/Progress/Building/Building";
+import SourceIcon from "@/public/static/contact.svg";
 
 const fetcher = (url, cik) =>
   axios
@@ -24,13 +25,8 @@ const fetcher = (url, cik) =>
     .catch((e) => console.error(e));
 
 const server = process.env.NEXT_PUBLIC_SERVER;
-const InfoPage = (props) => {
+const Info = (props) => {
   const cik = props.cik || null;
-
-  if (cik == null) {
-    return <Error statusCode={404} />;
-  }
-
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(setCik(cik));
@@ -64,7 +60,6 @@ const InfoPage = (props) => {
           </span>
           {info?.status > 0 ? <Building cik={cik} /> : null}
         </div>
-
         <div
           className={[
             styles["sub-header"],
@@ -81,12 +76,23 @@ const InfoPage = (props) => {
               {info?.cik} {info?.tickers ? `(${info?.tickers.join(", ")})` : ""}
             </span>
             <Expand onClick={() => setExpand(!expand)} expandState={expand} />
+            <button
+              className={styles["source-button"]}
+              onClick={() =>
+                window.open(
+                  "https://www.sec.gov/cgi-bin/browse-edgar?" +
+                    new URLSearchParams({ CIK: cik.padStart(10, 0) }),
+                  "_blank"
+                )
+              }
+            >
+              <SourceIcon />
+            </button>
           </div>
           <span className={[styles["header-desc"], inter.className].join(" ")}>
             {info?.data?.description}
           </span>
         </div>
-
         {/* <span className={[styles["sub-desc"], inter.className].join(" ")}>
         {info.data["Description"]}
       </span> */}
@@ -101,4 +107,4 @@ const InfoPage = (props) => {
   );
 };
 
-export default InfoPage;
+export default Info;

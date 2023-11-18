@@ -56,19 +56,19 @@ services:
     ports:
       - 7700:7700
 
-  # proxy:
-  #   container_name: proxy
-  #   image: jc21/nginx-proxy-manager:latest
-  #   restart: unless-stopped
-  #   ports:
-  #     - 81:81
-  #     - 80:80
-  #     - 443:443
-  #   volumes:
-  #     - ./proxy/data:/data
-  #     - ./proxy/letsencrypt:/etc/letsencrypt
-  #   networks:
-  #     - staging
+  proxy:
+    container_name: proxy
+    image: jc21/nginx-proxy-manager:latest
+    restart: unless-stopped
+    ports:
+      - 81:81
+      - 80:80
+      - 443:443
+    volumes:
+      - ./proxy/data:/data
+      - ./proxy/letsencrypt:/etc/letsencrypt
+    networks:
+      - staging
 
 networks:
   staging:

@@ -1,16 +1,10 @@
 import Head from "next/head";
-import Error from "next/error";
 
 import Progress from "@/components/Progress/Progress";
 import Recommended from "@/components/Recommended/Recommended";
 
-const BuildingPage = (props) => {
+const Building = (props) => {
   const cik = props.cik || null;
-
-  if (cik == null) {
-    return <Error statusCode={404} />;
-  }
-
   const persist = props.persist;
   return (
     <>
@@ -23,4 +17,4 @@ const BuildingPage = (props) => {
   );
 };
 
-export default BuildingPage;
+export default Building;
