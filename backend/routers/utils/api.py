@@ -155,7 +155,7 @@ def ticker_request(function, symbol, cik):
     return data
 
 
-def cusip_request(value, cik):
+def stock_request(value, cik, backup=None):
     params = {"q": value, "token": FINN_HUB_API_KEY}
     res = get_request(f"https://finnhub.io/api/v1/search", cik, params=params)
 
@@ -195,6 +195,24 @@ def cusip_request(value, cik):
 
         result = {"ticker": result["ticker"], "name": result["name"]}
         return result
+
+    if backup:
+        params = {"q": backup, "token": FINN_HUB_API_KEY}
+        res = get_request(f"https://finnhub.io/api/v1/search", cik, params=params)
+
+        data = res.json()
+        count = data["count"]
+
+        if count > 0:
+            result = data["result"][0]
+
+            name = result["description"]
+            ticker = result["symbol"]
+            name = name if name else "NA"
+            ticker = ticker if ticker else "NA"
+
+            result = {"ticker": ticker, "name": result["description"]}
+            return result
 
     raise LookupError
 

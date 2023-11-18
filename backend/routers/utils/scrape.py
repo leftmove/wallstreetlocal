@@ -98,7 +98,7 @@ def scrape_names(stocks, cik):
 
         else:
             try:
-                result = cusip_request(cusip, cik)
+                result = stock_request(cusip, cik, name)
                 ticker = result["ticker"]
                 name = result["name"]
 
@@ -210,7 +210,7 @@ def sort_rows(row_one, row_two):
 def scrape_keys(tickers, name, cik):
     if tickers == []:
         try:
-            data = cusip_request(name, cik)
+            data = stock_request(name, cik)
             stock_info = data["result"][0]
         except (KeyError, IndexError) as e:
             print(f"Failed to get Name Data {name}\n{e}\n")
@@ -235,12 +235,6 @@ def scrape_filer(data, cik):
     tickers = data["tickers"]
     name, info = scrape_keys(tickers, name, cik)
 
-    extra_data = {}
-    for key in info:
-        new_key = capital_pattern.sub(r"\1_\2", key)
-        new_key = underscore_pattern.sub(r"\1_\2", new_key).lower()
-        extra_data[new_key] = info[key]
-
     company = {
         "name": name,
         "cik": cik,
@@ -250,8 +244,16 @@ def scrape_filer(data, cik):
         "filings": filings,
         "first_report": first_report,
         "last_report": last_report,
-        "data": extra_data,
     }
+
+    extra_data = {}
+    for key in info:
+        if key in company:
+            continue
+        new_key = capital_pattern.sub(r"\1_\2", key)
+        new_key = underscore_pattern.sub(r"\1_\2", new_key).lower()
+        extra_data[new_key] = info[key]
+    company["data"] = extra_data
 
     return company
 
@@ -477,7 +479,11 @@ def scrape_stocks(data, last_report, access_number, report_date, global_stocks, 
     updated_stocks = scrape_names(update_list, cik)
     for new_stock in update_list:
         stock_cusip = new_stock["cusip"]
+
+        updated_stock = updated_stocks[stock_cusip]
+        updated_stock.pop("_id", None)
         new_stock.update(updated_stocks[stock_cusip])
+
         access_number = new_stock["access_number"]
         sold = False if access_number == last_report else True
 

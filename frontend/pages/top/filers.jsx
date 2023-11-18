@@ -14,6 +14,7 @@ const headers = [
 ];
 
 const TopFilers = (props) => {
+  console.log(props.filers);
   return (
     <>
       <Head>
@@ -65,12 +66,13 @@ const TopFilers = (props) => {
   );
 };
 
-const server = process.env.NEXT_PUBLIC_SERVER_URL;
+const server = process.env.NEXT_PUBLIC_SERVER;
 export async function getServerSideProps() {
   const data = await axios
     .get(server + "/filers/top")
     .then((r) => r.data)
     .catch((e) => console.log(e));
+  console.log(data);
   const filers = data?.filers || [];
   return {
     props: {

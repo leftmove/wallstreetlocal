@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "800" });
 
+const server = process.env.NEXT_PUBLIC_SERVER;
 const fetcher = (url, input) =>
   axios
     .get(url, { params: { q: input } })

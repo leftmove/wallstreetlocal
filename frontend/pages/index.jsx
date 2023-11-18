@@ -62,7 +62,20 @@ export default function Home() {
         >
           Explore historical stock data, directly from the SEC.
         </span>
-        <div className={styles["selling-points"]}>
+        <p
+          className={[styles["explore-explanation"], interLight.className].join(
+            " "
+          )}
+        >
+          13F filers are institutional investment managers required to submit a
+          13F Form with the U.S. Securities and Exchange Commission (SEC). To
+          qualify as a 13F filer, an institutional investment manager must have
+          a market value of at least $100 million. The form, filed quarterly,
+          discloses the manager's holdings, providing transparency into their
+          investment activities and allowing the public and other market
+          participants to monitor large institutional investors.
+        </p>
+        {/* <div className={styles["selling-points"]}>
           <div className={styles["selling-point"]}>
             <Folder className={styles["selling-svg"]} />
             <div className={styles["selling-text"]}>
@@ -125,7 +138,7 @@ export default function Home() {
               </span>
             </div>
           </div>
-        </div>
+        </div> */}
       </main>
       {/* <div className={styles["bottom"]}></div> */}
     </>

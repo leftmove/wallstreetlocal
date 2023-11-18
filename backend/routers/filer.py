@@ -399,10 +399,6 @@ async def filer_info(cik: str):
     if filer == None:
         raise HTTPException(404, detail="Filer not found.")
 
-    return JSONResponse(
-        {"description": "Found filer.", "filer": filer},
-        headers={"Access-Control-Allow-Origin": "*"},
-    )
     return {"description": "Found filer.", "filer": filer}
 
 

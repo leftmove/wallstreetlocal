@@ -179,7 +179,7 @@ const Filer = (props) => {
 };
 
 export async function getServerSideProps(context) {
-  const cik = context.query.cik;
+  const cik = context.query.cik || null;
   const persist = context.query.persist;
   const server = process.env.NEXT_PUBLIC_SERVER;
 
@@ -190,7 +190,7 @@ export async function getServerSideProps(context) {
   };
 
   await axios
-    .get(server + "/filers/query", { params: { cik: cik } })
+    .get(server + "/filers/query", { params: { cik } })
     .then((r) => {
       switch (r?.status) {
         case 201:

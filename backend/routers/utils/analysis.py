@@ -369,12 +369,13 @@ def stock_filter(stocks):
 
 
 def create_json(cik, filename):
-    file_path = f"./public/filers/{filename}.json"
+    file_path = f"./public/filers/{filename}"
     try:
         with open(file_path, "r"):
             pass
     except:
         filer = find_filer(cik, {"_id": 0, "stocks.global.timeseries": 0})
+        print(filer)
         with open(file_path, "w") as r:
             json.dump(filer, r, indent=6)
 

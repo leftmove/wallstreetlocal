@@ -70,14 +70,22 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  height: 120vh;
 }
 
 .explore-header {
   color: var(--secondary);
-  font-size: 2rem;
-  margin-top: 30px;
+  background-color: var(--primary-dark);
+
+  font-size: 3rem;
+  margin: 30px 10%;
+  padding: 3px;
+  border-radius: 5px;
+}
+
+.explore-explanation {
+  margin: 0px 10%;
+  margin-bottom: 50px;
+  text-indent: 30px;
 }
 
 .selling-points {
