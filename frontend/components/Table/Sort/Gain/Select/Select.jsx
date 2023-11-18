@@ -161,7 +161,7 @@ const Select = (props) => {
   const handleDownload = () => {
     window.open(
       server +
-        "/filers/record/timeseries?" +
+        "/filers/record/timeseries/?" +
         new URLSearchParams({ cik, time }),
       "_blank"
     );

@@ -30,7 +30,12 @@ const initialState = {
       accessor: "sector",
       active: false,
     },
-
+    {
+      display: "CUSIP",
+      sort: "cusip",
+      accessor: "cusip",
+      active: false,
+    },
     {
       display: "Shares Held (Or Principal Amount)",
       sort: "shares_held",
@@ -56,7 +61,7 @@ const initialState = {
       active: false,
     },
     {
-      display: "Sold",
+      display: "Sold Date",
       sort: "sold_time",
       accessor: "sold_str",
       active: false,
@@ -153,6 +158,7 @@ export const filerSlice = createSlice({
         case "sector":
         case "industry":
         case "class":
+        case "cusip":
           type = "string";
           break;
         case "shares_held":
@@ -169,6 +175,9 @@ export const filerSlice = createSlice({
           break;
         case "date":
           type = "date";
+          break;
+        default:
+          type = typeof payload.sort === "number" ? "number" : "string";
           break;
       }
       state.sort = { ...state.sort, ...payload, type: type };
