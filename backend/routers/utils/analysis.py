@@ -341,6 +341,7 @@ def analyze_historical(cik):
     analyze_filer(cik, filer_stocks, 4000)
 
     add_log(cik, "Created Filer (Historical)", filer_name, cik)
+    edit_log(cik, {"stop": datetime.now().timestamp()})
     edit_status(cik, 0)
 
 
