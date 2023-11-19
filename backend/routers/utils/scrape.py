@@ -1,14 +1,13 @@
-from .analysis import *
-from .mongo import *
-from .api import *
-
-
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from datetime import datetime
 import lxml
 import cchardet
 import re
+
+from .mongo import *
+from .api import *
+from .analysis import *
 
 load_dotenv()
 # type: reportGeneralTypeIssues=false
@@ -591,6 +590,7 @@ def scrape_latest_stocks(company):
     scraped_stocks.update(new_stocks)
 
     return scraped_stocks
+
 
 def query_stocks(found_stocks):
     for found_stock in found_stocks:
