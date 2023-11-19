@@ -15,8 +15,8 @@ import { setCik } from "@/redux/filerSlice";
 
 import Expand from "@/components/Expand/Expand";
 import Table from "@/components/Table/Table";
+import Source from "@/components/Source/Source";
 import Building from "@/components/Progress/Building/Building";
-import SourceIcon from "@/public/static/contact.svg";
 
 const fetcher = (url, cik) =>
   axios
@@ -45,6 +45,7 @@ const Info = (props) => {
     }
   );
   const info = data?.filer || null;
+  console.log(info);
 
   return (
     <>
@@ -73,21 +74,13 @@ const Info = (props) => {
                 inter.className,
               ].join(" ")}
             >
-              {info?.cik} {info?.tickers ? `(${info?.tickers.join(", ")})` : ""}
+              {info?.cik}{" "}
+              {info?.tickers.length ? `(${info?.tickers.join(", ")})` : ""}
             </span>
-            <Expand onClick={() => setExpand(!expand)} expandState={expand} />
-            <button
-              className={styles["source-button"]}
-              onClick={() =>
-                window.open(
-                  "https://www.sec.gov/cgi-bin/browse-edgar?" +
-                    new URLSearchParams({ CIK: cik.padStart(10, 0) }),
-                  "_blank"
-                )
-              }
-            >
-              <SourceIcon />
-            </button>
+            {info?.data.description ? (
+              <Expand onClick={() => setExpand(!expand)} expandState={expand} />
+            ) : null}
+            <Source cik={cik} />
           </div>
           <span className={[styles["header-desc"], inter.className].join(" ")}>
             {info?.data?.description}

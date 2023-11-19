@@ -12,9 +12,12 @@
 }
 
 .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   text-align: center;
 
-  width: 20%;
+  width: 15%;
   font-size: 2rem;
   padding: 10px;
   border-radius: 5px;

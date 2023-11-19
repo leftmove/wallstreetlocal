@@ -203,8 +203,8 @@ async def query_filer(cik: str, background: BackgroundTasks):
 
 @cache(24)
 @router.get("/search", tags=["filers"], status_code=200)
-async def search_filers(q: str):
-    options = {"limit": 4, "filter": ["13f = true"]}
+async def search_filers(q: str, limit=4):
+    options = {"limit": limit, "filter": ["13f = true"]}
     hits = search_companies(q, options)
 
     results = []
@@ -398,6 +398,9 @@ async def filer_info(cik: str):
     filer = find_filer(cik, {"_id": 0, "stocks": 0, "filings": 0})
     if filer == None:
         raise HTTPException(404, detail="Filer not found.")
+
+    status = find_log(cik, {"status": 1})
+    filer['status'] = status
 
     return {"description": "Found filer.", "filer": filer}
 

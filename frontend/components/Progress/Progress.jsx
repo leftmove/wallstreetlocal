@@ -11,6 +11,7 @@ import useSWR from "swr";
 
 import Loading from "@/components/Loading/Loading";
 import Redirect from "@/components/Filer/Redirect";
+import Source from "@/components/Source/Source";
 import Estimation from "./Estimation/Estimation";
 import Console from "./Console/Console";
 
@@ -150,7 +151,9 @@ const Progress = (props) => {
     <>
       {/* {stop ? <Reload /> : null} */}
       <div className={[styles["progress"], inter.className].join(" ")}>
-        <span className={styles["header"]}>Building Filer</span>
+        <div className={styles["header"]}>
+          <span>Building Filer</span> <Source cik={cik} color="light" />
+        </div>
         <Console logs={log.logs} />
       </div>
       {persist ? null : <Estimation cik={cik} />}

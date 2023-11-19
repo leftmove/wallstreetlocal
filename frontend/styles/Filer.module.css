@@ -85,19 +85,3 @@
 
   color: var(--primary);
 }
-
-.source-button {
-  all: unset;
-  cursor: pointer;
-
-  width: 20px;
-  margin-left: 10px;
-  transition: color 0.3s ease, scale 0.3s ease;
-
-  color: black;
-}
-
-.source-button:hover {
-  color: var(--primary-dark);
-  scale: 1.1;
-}

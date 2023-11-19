@@ -6,6 +6,11 @@
   border-radius: 5px;
 
   background-color: var(--offwhite);
+  transition: padding-bottom 0.3s ease;
+}
+
+.search-expand {
+  padding-bottom: 15px;
 }
 
 .search-box {
@@ -43,7 +48,6 @@
   max-height: 0px;
   margin-top: -15px;
   border-radius: 5px;
-  padding-bottom: 10px;
   z-index: 5;
 
   background-color: var(--offwhite);
@@ -70,7 +74,11 @@
   justify-content: space-between;
 
   border: none;
-  margin-top: 10px;
+  padding: 2px;
+}
+
+.result:hover {
+  background-color: var(--offwhite-dark);
 }
 
 .result span {
@@ -79,5 +87,5 @@
   min-width: 140px;
   font-size: 1rem;
 
-  color: rgb(65, 65, 65);
+  color: var(--secondary);
 }

@@ -16,12 +16,15 @@
 
 .logo {
   display: flex;
-  align-items: flex-start;
-  align-self: flex-start;
+  align-items: center;
+
+  width: 50%;
+
+  flex-wrap: nowrap;
 }
 
 .logo-title {
-  height: 30px;
+  min-width: 375px;
 }
 
 .logo-text {
@@ -34,6 +37,11 @@
 
 #market {
   color: white;
+}
+
+.search {
+  margin-left: 15px;
+  width: 100%;
 }
 
 .about {

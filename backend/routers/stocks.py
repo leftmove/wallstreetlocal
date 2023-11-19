@@ -88,7 +88,7 @@ async def stock_info(cik: str):
 @cache(4)
 @router.get("/timeseries", tags=["stocks", "filers"], status_code=200)
 async def stock_timeseries(cik: str, time: float):
-    filer = find_filer(cik, {"stocks.local": 1})
+    filer = find_filer(cik, {"stocks.local.cusip": 1})
     if filer == None:
         raise HTTPException(detail="Filer not found.", status_code=404)
     filer_stocks = filer["stocks"]["local"]

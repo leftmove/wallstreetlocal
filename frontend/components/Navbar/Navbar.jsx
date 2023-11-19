@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "900" });
 
-import Search from "@/components/Search/Navbar/Search";
+import Search from "@/components/Search/Button/Search";
 
 const Navbar = (props) => {
   const variant = props.variant || null;

@@ -1,5 +1,5 @@
 import styles from "./Search.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 
 import axios from "axios";
 import useSWR from "swr";
@@ -9,20 +9,28 @@ import { Inter } from "@next/font/google";
 const inter = Inter({ subsets: ["latin"], weight: "800" });
 
 const server = process.env.NEXT_PUBLIC_SERVER;
-const fetcher = (url, input) =>
+const fetcher = (url, query, limit) =>
   axios
-    .get(url, { params: { q: input } })
+    .get(url, { params: { q: input, limit } })
     .then((res) => res.data)
     .catch((e) => console.error(e));
 
 const Search = () => {
-  const [searchInput, setSearchInput] = useState("");
-  const [results, setResults] = useState([]);
-  const [isFocused, setIsFocused] = useState(false);
+  const [input, setInput] = useReducer(
+    (prev, next) => {
+      return { ...prev, ...next };
+    },
+    {
+      search: "",
+      results: [],
+      focus: false,
+    }
+  );
 
+  const limit = 10;
   const { data } = useSWR(
-    searchInput ? [server + "/filers/search", searchInput] : null,
-    ([url, input]) => fetcher(url, input),
+    input.search ? [server + "/filers/search", input.search, limit] : null,
+    ([url, query, limit]) => fetcher(url, query, limit),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -30,32 +38,39 @@ const Search = () => {
   );
   useEffect(() => {
     if (data) {
-      setResults(data.results);
+      setInput({ results: data.results });
+    } else {
+      setInput({ results: [] });
     }
   }, [data]);
 
   return (
-    <div className={styles["search"]}>
+    <div
+      className={[
+        styles["search"],
+        input.focus ? styles["search-expand"] : "",
+      ].join(" ")}
+    >
       <div className={styles["search-box"]}>
         <input
           type="text"
           className={[styles["search-input"], inter.className].join(" ")}
-          value={searchInput}
-          placeholder={isFocused ? "" : "Search..."}
-          onChange={(e) => setSearchInput(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
+          value={input.search}
+          placeholder={input.focus ? "" : "Search..."}
+          onChange={(e) => setInput({ search: e.target.value })}
+          onFocus={() => setInput({ focus: true })}
+          onBlur={() => setInput({ focus: false })}
         />
       </div>
       <div
         className={[
           styles["results"],
-          isFocused && searchInput ? styles["results-expand"] : "",
+          input.focus && input.search.length ? styles["results-expand"] : "",
         ].join(" ")}
       >
         {
           <ul className={styles["result-list"]}>
-            {results.map((result) => {
+            {input.results.map((result) => {
               return (
                 <li key={result.cik}>
                   <Link href={`/filers/${result.cik}`}>
