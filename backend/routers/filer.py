@@ -400,7 +400,7 @@ async def filer_info(cik: str):
         raise HTTPException(404, detail="Filer not found.")
 
     status = find_log(cik, {"status": 1})
-    filer['status'] = status
+    filer["status"] = status
 
     return {"description": "Found filer.", "filer": filer}
 
@@ -536,7 +536,7 @@ async def top():
 
 
 @cache(24)
-@router.get("/top/update", status_code=200)
+@router.get("/top/update", status_code=200, include_in_schema=False)
 async def update_top(password: str):
     if password != "whale":
         return {}
@@ -555,3 +555,13 @@ async def update_top(password: str):
             create_filer(sec_data, cik)
 
     return {"message": "Filers updated."}
+
+
+@router.get("/hang", status_code=200, include_in_schema=False)
+async def hang_dangling(password: str):
+    if password != "whale":
+        return {}
+
+    results = end_dangling()
+
+    return {"description": "Successfully ended dangling processes.", "ciks": results}

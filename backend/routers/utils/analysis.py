@@ -472,4 +472,17 @@ def create_csv(cik, filename):
     return file_path
 
 
+def end_dangling():
+    filers = find_logs({"status": {"$gt": 0}})
+    ciks = []
+    for filer in filers:
+        ciks.append(filer["cik"])
+
+    query = {"cik": {"$in": ciks}}
+    delete_filers(query)
+    delete_logs(query)
+
+    return ciks
+
+
 print("[ Analysis Initialized ]")

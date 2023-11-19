@@ -3,12 +3,18 @@ from fastapi.responses import FileResponse
 
 from .utils.cache import *
 from .utils.backup import *
+from .utils.analysis import *
 
 
 router = APIRouter(
     tags=["general"],
     responses={},
 )
+
+
+@router.on_event("startup")
+async def startup():
+    end_dangling()
 
 
 @cache(24)

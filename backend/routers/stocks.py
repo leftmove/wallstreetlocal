@@ -1,4 +1,4 @@
-from fastapi import HTTPException, APIRouter
+from fastapi import HTTPException, APIRouter, BackgroundTasks
 from pydantic import BaseModel
 
 from .utils.api import *
@@ -25,36 +25,13 @@ class Cusip(BaseModel):
 
 @cache
 @router.post("/query", tags=["stocks"], status_code=200)
-async def query_stocks(stock: Tickers):
+async def query_stocks(stock: Tickers, background: BackgroundTasks):
     tickers = stock.tickers
+
     found_stocks = find_stocks("ticker", {"$in": tickers})
+    background.add_task(query_stocks, found_stocks)
 
-    for found_stock in found_stocks:
-        if found_stock == None:
-            continue
-
-        ticker = found_stock.get("ticker")
-        time = datetime.now().timestamp()
-        last_updated = found_stock.get("updated")
-
-        if last_updated != None:
-            if (time - last_updated) < 172800:
-                continue
-
-        try:
-            price_info = ticker_request("GLOBAL_QUOTE", ticker, "")
-            global_quote = price_info["Global Quote"]
-            price = global_quote["05. price"]
-        except Exception as e:
-            print(e)
-            continue
-
-        edit_stock(
-            {"ticker": ticker},
-            {"$set": {"updated": time, "recent_price": price, "quote": global_quote}},
-        )
-
-    return {"description": "Stocks updated."}
+    return {"description": "Stocks started updating."}
 
 
 # @router.post("/info", tags=["stocks"], status_code=200)
@@ -88,47 +65,76 @@ async def stock_info(cik: str):
 @cache(4)
 @router.get("/timeseries", tags=["stocks", "filers"], status_code=200)
 async def stock_timeseries(cik: str, time: float):
-    filer = find_filer(cik, {"stocks.local.cusip": 1})
+    filer = find_filer(cik, {"stocks.global.cusip": 1})
     if filer == None:
         raise HTTPException(detail="Filer not found.", status_code=404)
-    filer_stocks = filer["stocks"]["local"]
+    filer_stocks = filer["stocks"]["global"]
 
     stock_list = []
-    cusip_list = list(map(lambda x: x, filer_stocks))
-    cursor = search_stocks(
-        [
-            {"$match": {"cusip": {"$in": cusip_list}}},
-            {
-                "$project": {
-                    "_id": 0,
-                    "cusip": 1,
-                    "ticker": 1,
-                    "timeseries": {
-                        "$map": {
-                            "input": "$timeseries",
-                            "as": "time",
-                            "in": {
-                                "close": "$$time.close",
-                                "time": "$$time.time",
-                                "diff": {"$abs": {"$subtract": [time, "$$time.time"]}},
-                            },
-                        }
-                    },
-                }
-            },
-            {"$unwind": "$timeseries"},
-            {"$sort": {"timeseries.diff": 1}},
-            {"$group": {"_id": "$cusip", "timeseries": {"$first": "$timeseries"}}},
-            {
-                "$project": {
-                    "cusip": "$_id",
-                    "_id": 0,
-                    "timeseries.close": 1,
-                    "timeseries.time": 1,
-                }
-            },
-        ]
-    )
+    cusip_list = list(map(lambda x: x["cusip"], filer_stocks))
+
+    batch = []
+    batch_limit = 100
+    pipeline = [
+        {"$match": {"cusip": {"$in": batch}}},
+        {
+            "$project": {
+                "_id": 0,
+                "cusip": 1,
+                "ticker": 1,
+                "timeseries": {
+                    "$map": {
+                        "input": "$timeseries",
+                        "as": "time",
+                        "in": {
+                            "close": "$$time.close",
+                            "time": "$$time.time",
+                            "diff": {"$abs": {"$subtract": [time, "$$time.time"]}},
+                        },
+                    }
+                },
+            }
+        },
+        {"$unwind": "$timeseries"},
+        {"$sort": {"timeseries.diff": 1}},
+        {
+            "$group": {
+                "_id": "$cusip",
+                "timeseries": {"$first": "$timeseries"},
+            }
+        },
+        {
+            "$project": {
+                "cusip": "$_id",
+                "_id": 0,
+                "timeseries.close": 1,
+                "timeseries.time": 1,
+            }
+        },
+    ]
+
+    for batch_cusip in cusip_list:
+        if len(batch) < batch_limit:
+            batch.append(batch_cusip)
+            continue
+        else:
+            cursor = search_stocks(pipeline)
+            for document in cursor:
+                cusip = document["cusip"]
+                close = document["timeseries"]["close"]
+                close_str = f"${close}"
+                close_time = document["timeseries"]["time"]
+                stock_list.append(
+                    {
+                        "cusip": cusip,
+                        "close": close,
+                        "close_str": close_str,
+                        "time": close_time,
+                    }
+                )
+            batch = []
+
+    cursor = search_stocks(pipeline)
     for document in cursor:
         cusip = document["cusip"]
         close = document["timeseries"]["close"]

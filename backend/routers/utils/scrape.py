@@ -592,6 +592,32 @@ def scrape_latest_stocks(company):
 
     return scraped_stocks
 
+def query_stocks(found_stocks):
+    for found_stock in found_stocks:
+        if found_stock == None:
+            continue
+
+        ticker = found_stock.get("ticker")
+        time = datetime.now().timestamp()
+        last_updated = found_stock.get("updated")
+
+        if last_updated != None:
+            if (time - last_updated) < 172800:
+                continue
+
+        try:
+            price_info = ticker_request("GLOBAL_QUOTE", ticker, "")
+            global_quote = price_info["Global Quote"]
+            price = global_quote["05. price"]
+        except Exception as e:
+            print(e)
+            continue
+
+        edit_stock(
+            {"ticker": ticker},
+            {"$set": {"updated": time, "recent_price": price, "quote": global_quote}},
+        )
+
 
 def estimate_time(filings, cik):
     stock_count = 0

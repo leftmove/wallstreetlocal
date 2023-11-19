@@ -62,6 +62,10 @@ def edit_filer(query, value):
     main.update_one(query, value)
 
 
+def delete_filers(query):
+    main.delete_many(query)
+
+
 def create_log(value):
     logs.insert_one(value)
 
@@ -92,15 +96,17 @@ def add_logs(cik, formatted_logs):
 def edit_log(cik, stamp):
     logs.update_one({"cik": cik}, {"$set": stamp})
 
+def delete_logs(query):
+    logs.delete_many(query)
 
 def edit_status(cik, status):
     logs.update_one({"cik": cik}, {"$set": {"status": status}})
 
 
-def find_logs(pipeline):
-    cursor = main.aggregate(pipeline)
+def find_logs(project={"_id": 0}):
+    result = logs.find(project)
 
-    return cursor
+    return result
 
 
 def watch_logs(pipeline):
