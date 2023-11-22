@@ -70,6 +70,7 @@ def generate_collections():
             series_id = fund[1]
             class_id = fund[2]
 
+            company_sec = sec_filer_search(cik)
             if company_sec["tickers"] != []:
                 ticker = fund[3]
                 company_sec["tickers"] = [ticker]
@@ -93,3 +94,34 @@ def generate_collections():
             with open(f"./public/backup/error-{stamp}.log", "w+") as f:
                 f.write(str(e))
             print("Error Occured")
+
+
+def get_confirm_token(response):
+    for key, value in response.cookies.items():
+        if key.startswith("download_warning"):
+            return value
+
+    return None
+
+
+def save_response_content(response, destination):
+    CHUNK_SIZE = 32768
+
+    with open(destination, "wb") as f:
+        for chunk in response.iter_content(CHUNK_SIZE):
+            if chunk:
+                f.write(chunk)
+
+
+def download_drive(file_id, destination):
+    url = "https://docs.google.com/uc?export=download&confirm=1"
+    session = requests.Session()
+
+    response = session.get(url, params={"id": file_id}, stream=True)
+    token = get_confirm_token(response)
+
+    if token:
+        params = {"id": file_id, "confirm": token}
+        response = session.get(url, params=params, stream=True)
+
+    save_response_content(response, destination)
