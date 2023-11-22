@@ -57,6 +57,16 @@ def generate_collections():
                 f.write(str(e))
             print("Error Occured")
 
+    try:
+        for d in documents:
+            companies.update_one({"cik": d["cik"]}, {"$set": d}, upsert=True)
+            documents = []
+    except Exception as e:
+        stamp = str(datetime.now())
+        with open(f"./public/backup/error-{stamp}.log", "w+") as f:
+            f.write(str(e))
+        print("Error Occured")
+
     company_funds = fund_tickers()
     for fund in company_funds["data"]:
         try:
@@ -94,6 +104,16 @@ def generate_collections():
             with open(f"./public/backup/error-{stamp}.log", "w+") as f:
                 f.write(str(e))
             print("Error Occured")
+
+    try:
+        for d in documents:
+            companies.update_one({"cik": d["cik"]}, {"$set": d}, upsert=True)
+            documents = []
+    except Exception as e:
+        stamp = str(datetime.now())
+        with open(f"./public/backup/error-{stamp}.log", "w+") as f:
+            f.write(str(e))
+        print("Error Occured")
 
 
 def get_confirm_token(response):
