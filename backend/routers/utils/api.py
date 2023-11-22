@@ -42,8 +42,10 @@ FINN_HUB_API_KEY = getenv("FINN_HUB_API_KEY")
 ALPHA_VANTAGE_API_KEY = getenv("ALPHA_VANTAGE_API_KEY")
 OPEN_FIGI_API_KEY = getenv("OPEN_FIGI_API_KEY")
 
+# pyright: reportUnboundVariable=false
 
-def rate_limit(cik):
+
+def rate_limit(cik, wait=60):
     if cik:
         log = find_log(
             cik,
@@ -62,7 +64,7 @@ def rate_limit(cik):
         log["time"]["required"] += 60
         edit_log(cik, log)
 
-    time.sleep(60)
+    time.sleep(wait)
 
     if cik:
         log["rate_limit"] = False
@@ -70,19 +72,14 @@ def rate_limit(cik):
         add_log(cik, "Resuming...", "Rate Limit", cik)
 
 
-def get_request(
-    url,
-    cik=None,
-    params={},
-    custom_headers=headers,
-):
+def get_request(url, cik=None, params={}, custom_headers=headers, custom_wait=60):
     retries = 5
     while retries:
         try:
             res = session.get(url, params=params, headers=custom_headers)
 
             if res.status_code == 429:
-                rate_limit(cik)
+                rate_limit(cik, custom_wait)
                 retries -= 1
                 continue
 
@@ -94,19 +91,14 @@ def get_request(
     raise LookupError
 
 
-def post_request(
-    url,
-    cik,
-    payload={},
-    custom_headers=headers,
-):
+def post_request(url, cik, payload={}, custom_headers=headers, custom_wait=60):
     retries = 5
     while retries:
         try:
             res = session.post(url, json=payload, headers=custom_headers)
 
             if res.status_code == 429:
-                rate_limit(cik)
+                rate_limit(cik, wait=custom_wait)
                 retries -= 1
                 continue
 
@@ -133,7 +125,9 @@ def fund_tickers():
 
 
 def sec_filer_search(cik):
-    res = get_request(f"https://data.sec.gov/submissions/CIK{cik.zfill(10)}.json", cik)
+    res = get_request(
+        f"https://data.sec.gov/submissions/CIK{cik.zfill(10)}.json", cik, custom_wait=1
+    )
     data = res.json()
 
     if res.status_code == 400:
@@ -150,6 +144,7 @@ def sec_stock_search(cik, access_number):
     res = get_request(
         f"https://www.sec.gov/Archives/edgar/data/{cik}/{access_number_replace}/{access_number}-index.html",
         cik,
+        custom_wait=1,
     )
     data = res.content
 
@@ -157,7 +152,7 @@ def sec_stock_search(cik, access_number):
 
 
 def sec_directory_search(directory, cik):
-    res = get_request(f"https://www.sec.gov{directory}", cik)
+    res = get_request(f"https://www.sec.gov{directory}", cik, custom_wait=1)
     data = res.content
 
     return data

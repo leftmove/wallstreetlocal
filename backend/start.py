@@ -53,6 +53,7 @@ def main():
             ]:
                 time.sleep(1)
                 continue
+            companies_index.add_documents([])
             retries -= 1
         raise RuntimeError
     except:
