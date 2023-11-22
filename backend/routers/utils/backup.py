@@ -54,7 +54,7 @@ def generate_collections():
         except Exception as e:
             stamp = str(datetime.now())
             with open(f"./public/backup/error-{stamp}.log", "w+") as f:
-                f.write(e)
+                f.write(str(e))
             print("Error Occured")
 
     company_funds = fund_tickers()
@@ -91,5 +91,5 @@ def generate_collections():
         except Exception as e:
             stamp = str(datetime.now())
             with open(f"./public/backup/error-{stamp}.log", "w+") as f:
-                f.write(e)
+                f.write(str(e))
             print("Error Occured")
