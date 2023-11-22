@@ -15,8 +15,6 @@ load_dotenv()
 print("[ Data Initializing ] ...")
 
 parser = "lxml"
-capital_pattern = re.compile(r"(.)([A-Z][a-z]+)")
-underscore_pattern = re.compile(r"([a-z0-9])([A-Z])")
 
 
 # def scrape_name(cusip, name, cik):
@@ -245,13 +243,7 @@ def scrape_filer(data, cik):
         "last_report": last_report,
     }
 
-    extra_data = {}
-    for key in info:
-        if key in company:
-            continue
-        new_key = capital_pattern.sub(r"\1_\2", key)
-        new_key = underscore_pattern.sub(r"\1_\2", new_key).lower()
-        extra_data[new_key] = info[key]
+    extra_data = convert_underscore(info, company)
     company["data"] = extra_data
 
     return company

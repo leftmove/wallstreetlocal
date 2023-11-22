@@ -11,7 +11,7 @@ const inter = Inter({ subsets: ["latin"], weight: "800" });
 const server = process.env.NEXT_PUBLIC_SERVER;
 const fetcher = (url, query, limit) =>
   axios
-    .get(url, { params: { q: input, limit } })
+    .get(url, { params: { q: query, limit } })
     .then((res) => res.data)
     .catch((e) => console.error(e));
 
@@ -27,7 +27,7 @@ const Search = () => {
     }
   );
 
-  const limit = 10;
+  const limit = 5;
   const { data } = useSWR(
     input.search ? [server + "/filers/search", input.search, limit] : null,
     ([url, query, limit]) => fetcher(url, query, limit),

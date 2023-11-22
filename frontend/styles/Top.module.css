@@ -7,6 +7,7 @@
   border-radius: 5px;
   width: fit-content;
   margin: 20px auto;
+  margin-top: 100px;
 
   background-color: var(--secondary);
 }

@@ -1,24 +1,24 @@
 services:
-  # backend:
-  #   container_name: backend
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile.dev
-  #   restart: always
-  #   env_file:
-  #     - "development.env"
-  #   volumes:
-  #     - ./backend/routers:/code/routers
-  #     - ./backend/public:/code/public
-  #     - ./backend/main.py:/code/main.py
-  #   networks:
-  #     - staging
-  #   ports:
-  #     - 8000:8000
-  #   depends_on:
-  #     - database
-  #     - cache
-  #     - search
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    restart: always
+    env_file:
+      - "development.env"
+    volumes:
+      - ./backend/routers:/code/routers
+      - ./backend/public:/code/public
+      - ./backend/main.py:/code/main.py
+    networks:
+      - staging
+    ports:
+      - 8000:8000
+    depends_on:
+      - database
+      - cache
+      - search
   cache:
     container_name: cache
     build:

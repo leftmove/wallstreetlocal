@@ -361,6 +361,22 @@ def time_remaining(stock_count):
     return time_required / 5
 
 
+capital_pattern = re.compile(r"(.)([A-Z][a-z]+)")
+underscore_pattern = re.compile(r"([a-z0-9])([A-Z])")
+
+
+def convert_underscore(dictionary, new_dict={}):
+    for key in dictionary:
+        if key in new_dict:
+            continue
+
+        new_key = capital_pattern.sub(r"\1_\2", key)
+        new_key = underscore_pattern.sub(r"\1_\2", new_key).lower()
+        new_dict[new_key] = dictionary[key]
+
+    return new_dict
+
+
 def stock_filter(stocks):
     stock_list = []
     for stock in stocks:

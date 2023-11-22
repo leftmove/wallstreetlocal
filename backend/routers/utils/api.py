@@ -5,6 +5,7 @@ import time
 import requests
 
 from .mongo import *
+from .analysis import *
 
 # from requests_ratelimiter import LimiterMixin, MemoryQueueBucket
 # from requests_cache import CacheMixin, SQLiteCache
@@ -43,32 +44,35 @@ OPEN_FIGI_API_KEY = getenv("OPEN_FIGI_API_KEY")
 
 
 def rate_limit(cik):
-    log = find_log(
-        cik,
-        {
-            "_id": 0,
-            "logs": 0,
-        },
-    )
-    add_log(cik, "Waiting 60 Seconds...", "Rate Limit", cik)
+    if cik:
+        log = find_log(
+            cik,
+            {
+                "_id": 0,
+                "logs": 0,
+            },
+        )
 
-    if log == None:
-        raise LookupError
+        if log == None:
+            raise LookupError
 
-    log["rate_limit"] = True
-    log["time"]["required"] += 60
-    edit_log(cik, log)
+        add_log(cik, "Waiting 60 Seconds...", "Rate Limit", cik)
+
+        log["rate_limit"] = True
+        log["time"]["required"] += 60
+        edit_log(cik, log)
 
     time.sleep(60)
 
-    log["rate_limit"] = False
-    edit_log(cik, log)
-    add_log(cik, "Resuming...", "Rate Limit", cik)
+    if cik:
+        log["rate_limit"] = False
+        edit_log(cik, log)
+        add_log(cik, "Resuming...", "Rate Limit", cik)
 
 
 def get_request(
     url,
-    cik,
+    cik=None,
     params={},
     custom_headers=headers,
 ):
@@ -114,6 +118,20 @@ def post_request(
     raise LookupError
 
 
+def company_tickers():
+    res = get_request("https://www.sec.gov/files/company_tickers.json")
+    data = res.json()
+
+    return data
+
+
+def fund_tickers():
+    res = get_request("https://www.sec.gov/files/company_tickers_mf.json")
+    data = res.json()
+
+    return data
+
+
 def sec_filer_search(cik):
     res = get_request(f"https://data.sec.gov/submissions/CIK{cik.zfill(10)}.json", cik)
     data = res.json()
@@ -121,7 +139,9 @@ def sec_filer_search(cik):
     if res.status_code == 400:
         raise LookupError
 
-    return data
+    data_converted = convert_underscore(data, {})
+
+    return data_converted
 
 
 def sec_stock_search(cik, access_number):
