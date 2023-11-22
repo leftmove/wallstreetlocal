@@ -52,8 +52,8 @@ def main():
                 index.uid for index in search.get_indexes()["results"]
             ]:
                 time.sleep(1)
-                retries -= 1
                 continue
+            retries -= 1
         raise RuntimeError
     except:
         time.sleep(3)
