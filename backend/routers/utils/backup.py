@@ -27,7 +27,7 @@ def generate_collections():
             if len(documents) >= batch_limit:
                 for d in documents:
                     companies.update_one({"cik": d["cik"]}, {"$set": d}, upsert=True)
-                companies_index.add_documents(documents)
+                # companies_index.add_documents(documents)
                 documents = []
 
             cik = str(company_filer["cik_str"])
@@ -63,7 +63,7 @@ def generate_collections():
             if len(documents) >= batch_limit:
                 for d in documents:
                     companies.update_one({"cik": d["cik"]}, {"$set": d}, upsert=True)
-                companies_index.add_documents(documents)
+                # companies_index.add_documents(documents)
                 documents = []
 
             cik = str(fund[0])
