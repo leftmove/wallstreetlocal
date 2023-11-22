@@ -1,6 +1,7 @@
 import uvicorn
 import asyncio
 from tqdm import tqdm
+from datetime import datetime
 
 from routers.utils.mongo import *
 from routers.utils.search import *
@@ -61,13 +62,19 @@ def main():
                 if db_empty:
                     try:
                         companies.insert_many(documents)
-                    except:
-                        pass
+                    except Exception as e:
+                        stamp = str(datetime.now())
+                        with open(f"./public/backup/error-{stamp}.log", "w+") as f:
+                            f.write(str(e))
+                        print("Error Occured")
                 if search_empty:
                     try:
                         companies_index.add_documents(documents)
-                    except:
-                        pass
+                    except Exception as e:
+                        stamp = str(datetime.now())
+                        with open(f"./public/backup/error-{stamp}.log", "w+") as f:
+                            f.write(str(e))
+                        print("Error Occured")
                 progress.update(batch)
                 documents = []
                 i = 0
@@ -75,9 +82,21 @@ def main():
 
         if documents != []:
             if db_empty:
-                companies.insert_many(documents)
+                try:
+                    companies.insert_many(documents)
+                except Exception as e:
+                    stamp = str(datetime.now())
+                    with open(f"./public/backup/error-{stamp}.log", "w+") as f:
+                        f.write(str(e))
+                    print("Error Occured")
             if search_empty:
-                companies_index.add_documents(documents)
+                try:
+                    companies_index.add_documents(documents)
+                except Exception as e:
+                    stamp = str(datetime.now())
+                    with open(f"./public/backup/error-{stamp}.log", "w+") as f:
+                        f.write(str(e))
+                    print("Error Occured")
             progress.update(companies_count % batch)
 
         if search_empty:
