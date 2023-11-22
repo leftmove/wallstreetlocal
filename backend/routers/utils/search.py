@@ -12,7 +12,6 @@ load_dotenv()
 
 MEILISEARCH_SERVER_URL = f'http://{getenv("MEILISEARCH_SERVER_URL")}:7700'
 MEILISEARCH_MASTER_KEY = getenv("MEILISEARCH_MASTER_KEY")
-MONGO_BACKUP_URL = getenv("MONGO_BACKUP_URL")
 print("[ Search (Meilisearch) Initializing ] ...")
 
 search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
@@ -29,7 +28,7 @@ companies_index.update_displayed_attributes(
     ]
 )
 companies_index.update_searchable_attributes(["name", "tickers", "cik"])
-companies_index.update_filterable_attributes(["13f"])
+companies_index.update_filterable_attributes(["thirteen_f"])
 
 
 def search_companies(query, options={}):

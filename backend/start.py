@@ -1,14 +1,46 @@
 import uvicorn
-import asyncio
 from tqdm import tqdm
+from dotenv import load_dotenv
+from os import getenv
 from datetime import datetime
+import time
 
-from routers.utils.mongo import *
-from routers.utils.search import *
+from pymongo import MongoClient
+import meilisearch
+
+load_dotenv()
 
 
 # pyright: reportGeneralTypeIssues=false
 # pyright: reportUnboundVariable=false
+
+MONGO_SERVER_URL = getenv("MONGO_SERVER_URL")
+print("[ Database (MongoDB) Initializing ] ...")
+
+client = MongoClient(MONGO_SERVER_URL)
+db = client["wallstreetlocal"]
+companies = db["companies"]
+
+MEILISEARCH_SERVER_URL = f'http://{getenv("MEILISEARCH_SERVER_URL")}:7700'
+MEILISEARCH_MASTER_KEY = getenv("MEILISEARCH_MASTER_KEY")
+MONGO_BACKUP_URL = getenv("MONGO_BACKUP_URL")
+print("[ Search (Meilisearch) Initializing ] ...")
+
+search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
+if "companies" not in [index.uid for index in search.get_indexes()["results"]]:
+    search.create_index("companies", {"primaryKey": "cik"})
+    time.sleep(3)
+    search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
+companies_index = search.index("companies")
+companies_index.update_displayed_attributes(
+    [
+        "name",
+        "cik",
+        "tickers",
+    ]
+)
+companies_index.update_searchable_attributes(["name", "tickers", "cik"])
+companies_index.update_filterable_attributes(["thirteen_f"])
 
 
 def main():
