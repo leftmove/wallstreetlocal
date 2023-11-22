@@ -14,34 +14,6 @@ load_dotenv()
 # pyright: reportGeneralTypeIssues=false
 # pyright: reportUnboundVariable=false
 
-MONGO_SERVER_URL = getenv("MONGO_SERVER_URL")
-print("[ Database (MongoDB) Initializing ] ...")
-
-client = MongoClient(MONGO_SERVER_URL)
-db = client["wallstreetlocal"]
-companies = db["companies"]
-
-MEILISEARCH_SERVER_URL = f'http://{getenv("MEILISEARCH_SERVER_URL")}:7700'
-MEILISEARCH_MASTER_KEY = getenv("MEILISEARCH_MASTER_KEY")
-MONGO_BACKUP_URL = getenv("MONGO_BACKUP_URL")
-print("[ Search (Meilisearch) Initializing ] ...")
-
-search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
-if "companies" not in [index.uid for index in search.get_indexes()["results"]]:
-    search.create_index("companies", {"primaryKey": "cik"})
-    time.sleep(3)
-    search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
-companies_index = search.index("companies")
-companies_index.update_displayed_attributes(
-    [
-        "name",
-        "cik",
-        "tickers",
-    ]
-)
-companies_index.update_searchable_attributes(["name", "tickers", "cik"])
-companies_index.update_filterable_attributes(["thirteen_f"])
-
 
 def main():
     print(
@@ -74,9 +46,37 @@ def main():
         print("[ Database (MongoDB) Loading ] ...")
 
     if db_empty or search_empty:
+        MONGO_SERVER_URL = getenv("MONGO_SERVER_URL")
+        MONGO_BACKUP_URL = getenv("MONGO_BACKUP_URL")
+
+        client = MongoClient(MONGO_SERVER_URL)
+        companies = client["wallstreetlocal"]["companies"]
         backup_client = MongoClient(MONGO_BACKUP_URL)
         companies_backup = backup_client["wallstreetlocal"]["companies"]
         companies_count = companies_backup.count_documents({})
+
+        MEILISEARCH_SERVER_URL = f'http://{getenv("MEILISEARCH_SERVER_URL")}:7700'
+        MEILISEARCH_MASTER_KEY = getenv("MEILISEARCH_MASTER_KEY")
+
+        try:
+            retries = 3
+            while retries:
+                search = meilisearch.Client(
+                    MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY
+                )
+                search.create_index("companies")
+                companies_index = search.index("companies")
+                if "companies" not in [
+                    index.uid for index in search.get_indexes()["results"]
+                ]:
+                    time.sleep(1)
+                    retries -= 1
+                    continue
+            raise RuntimeError
+        except:
+            time.sleep(3)
+            search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
+            companies_index = search.index("companies")
 
         batch = 4000
         i = 0
