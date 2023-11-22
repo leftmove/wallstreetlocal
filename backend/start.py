@@ -11,10 +11,6 @@ import meilisearch
 load_dotenv()
 
 
-# pyright: reportGeneralTypeIssues=false
-# pyright: reportUnboundVariable=false
-
-
 def main():
     print(
         r"""
@@ -34,6 +30,36 @@ def main():
     """
     )
 
+    MONGO_SERVER_URL = getenv("MONGO_SERVER_URL")
+    MONGO_BACKUP_URL = getenv("MONGO_BACKUP_URL")
+
+    client = MongoClient(MONGO_SERVER_URL)
+    companies = client["wallstreetlocal"]["companies"]
+    backup_client = MongoClient(MONGO_BACKUP_URL)
+    companies_backup = backup_client["wallstreetlocal"]["companies"]
+    companies_count = companies_backup.count_documents({})
+
+    MEILISEARCH_SERVER_URL = f'http://{getenv("MEILISEARCH_SERVER_URL")}:7700'
+    MEILISEARCH_MASTER_KEY = getenv("MEILISEARCH_MASTER_KEY")
+
+    try:
+        retries = 3
+        while retries:
+            search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
+            search.create_index("companies")
+            companies_index = search.index("companies")
+            if "companies" not in [
+                index.uid for index in search.get_indexes()["results"]
+            ]:
+                time.sleep(1)
+                retries -= 1
+                continue
+        raise RuntimeError
+    except:
+        time.sleep(3)
+        search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
+        companies_index = search.index("companies")
+
     db_empty = True if companies.count_documents({}) == 0 else False
     search_empty = (
         True if companies_index.get_stats().number_of_documents == 0 else False
@@ -46,38 +72,6 @@ def main():
         print("[ Database (MongoDB) Loading ] ...")
 
     if db_empty or search_empty:
-        MONGO_SERVER_URL = getenv("MONGO_SERVER_URL")
-        MONGO_BACKUP_URL = getenv("MONGO_BACKUP_URL")
-
-        client = MongoClient(MONGO_SERVER_URL)
-        companies = client["wallstreetlocal"]["companies"]
-        backup_client = MongoClient(MONGO_BACKUP_URL)
-        companies_backup = backup_client["wallstreetlocal"]["companies"]
-        companies_count = companies_backup.count_documents({})
-
-        MEILISEARCH_SERVER_URL = f'http://{getenv("MEILISEARCH_SERVER_URL")}:7700'
-        MEILISEARCH_MASTER_KEY = getenv("MEILISEARCH_MASTER_KEY")
-
-        try:
-            retries = 3
-            while retries:
-                search = meilisearch.Client(
-                    MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY
-                )
-                search.create_index("companies")
-                companies_index = search.index("companies")
-                if "companies" not in [
-                    index.uid for index in search.get_indexes()["results"]
-                ]:
-                    time.sleep(1)
-                    retries -= 1
-                    continue
-            raise RuntimeError
-        except:
-            time.sleep(3)
-            search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
-            companies_index = search.index("companies")
-
         batch = 4000
         i = 0
         documents = []
@@ -228,7 +222,7 @@ def main():
 # functions running
 # TLDR: Fix later
 
-workers = int(getenv("WORKERS"))
+workers = int(getenv("WORKERS"))  # type: ignore
 port = 8000
 host = "0.0.0.0"
 
