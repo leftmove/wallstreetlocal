@@ -1,15 +1,55 @@
 import uvicorn
-from tqdm import tqdm
-from dotenv import load_dotenv
-from os import getenv
-from datetime import datetime
 import time
-import bson
+import requests
+import json
+
+from tqdm import tqdm
+from datetime import datetime
 
 from pymongo import MongoClient
 import meilisearch
 
+from dotenv import load_dotenv
+from os import getenv
+
 load_dotenv()
+
+
+def get_confirm_token(response):
+    for key, value in response.cookies.items():
+        if key.startswith("download_warning"):
+            return value
+
+    return None
+
+
+def save_response_content(response, destination):
+    chunk_size = 32 * 1024
+    with open(destination, "wb") as f:
+        for chunk in response.iter_content(chunk_size):
+            if chunk:  # filter out keep-alive new chunks
+                f.write(chunk)
+
+
+def download_drive(file_id, destination):
+    try:
+        file = open(destination)
+        file.close()
+        return
+    except:
+        pass
+
+    url = f"https://drive.google.com/uc?export=download&id={file_id}&confirm=t "
+    session = requests.Session()
+
+    response = session.get(url, params={"id": file_id}, stream=True)
+    token = get_confirm_token(response)
+
+    if token:
+        params = {"id": file_id, "confirm": token}
+        response = session.get(url, params=params, stream=True)
+
+    save_response_content(response, destination)
 
 
 def main():
@@ -32,6 +72,7 @@ def main():
     )
 
     MONGO_SERVER_URL = getenv("MONGO_SERVER_URL")
+    MONGO_BACKUP_URL = getenv("MONGO_BACKUP_URL")
 
     client = MongoClient(MONGO_SERVER_URL)
     companies = client["wallstreetlocal"]["companies"]
@@ -46,12 +87,7 @@ def main():
             search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
             search.create_index("companies")
             companies_index = search.index("companies")
-            if "companies" not in [
-                index.uid for index in search.get_indexes()["results"]
-            ]:
-                time.sleep(1)
-                continue
-            companies_index.add_documents([])
+            companies_index.add_documents([{"name": "TEST"}])
             retries -= 1
         raise RuntimeError
     except:
@@ -63,13 +99,14 @@ def main():
     search_empty = (
         True if companies_index.get_stats().number_of_documents == 0 else False
     )
+    backup_path = "./public/backup"
 
     def insert_database(document_list):
         try:
             companies.insert_many(document_list)
         except Exception as e:
             stamp = str(datetime.now())
-            with open(f"./public/backup/error-{stamp}.log", "w+") as f:
+            with open(f"{backup_path}/error-{stamp}.log", "w+") as f:
                 f.write(str(e))
             print("Error Occured")
 
@@ -78,7 +115,7 @@ def main():
             companies_index.add_documents(document_list)
         except Exception as e:
             stamp = str(datetime.now())
-            with open(f"./public/backup/error-{stamp}.log", "w+") as f:
+            with open(f"{backup_path}/error-{stamp}.log", "w+") as f:
                 f.write(str(e))
             print("Error Occured")
 
@@ -89,34 +126,52 @@ def main():
         print("[ Database (MongoDB) Loading ] ...")
 
     if db_empty or search_empty:
-        batch = 4000
-        documents = []
+        file_path = f"{backup_path}/companies.bson"
+        download_drive(MONGO_BACKUP_URL, file_path)
 
+        batch = 4000
+        database_documents = []
+        search_documents = []
         progress = tqdm(
             total=companies_count, desc="Loading Documents", unit="document"
         )
-        companies_bson = open("./public/backup/companies.bson", "rb")
+        companies_bson = open(file_path, "rb")
 
-        for document in bson.decode_file_iter(companies_bson):
-            if len(documents) < batch:
-                del document["_id"]
-                documents.append(document)
-            else:
-                if db_empty:
-                    insert_database(documents)
-                if search_empty:
-                    insert_search(documents)
+        for line in companies_bson:
+            document = json.loads(line.rstrip())
+            document.pop("_id", None)
+
+            if db_empty:
+                database_documents.append(document)
+            if search_empty:
+                search_documents.append(
+                    {
+                        "name": document.get("name"),
+                        "tickers": document.get("tickers"),
+                        "cik": document.get("cik"),
+                    }
+                )
+
+            if db_empty and len(database_documents) >= batch:
+                insert_database(database_documents)
+                database_documents = []
 
                 progress.update(batch)
-                documents = []
 
-        if documents != []:
-            if db_empty:
-                insert_database(documents)
-            if search_empty:
-                insert_search(documents)
-            progress.update(len(documents))
-            documents = []
+            if search_empty and len(search_documents) >= batch:
+                insert_search(search_documents)
+                search_documents = []
+
+                progress.update(batch)
+
+        if search_empty and search_documents != []:
+            insert_search(search_documents)
+            search_documents = []
+        if db_empty and database_documents != []:
+            insert_database(database_documents)
+            database_documents = []
+
+        progress.update(len(database_documents))
 
         if search_empty:
             companies_index.update_displayed_attributes(
@@ -130,19 +185,13 @@ def main():
             companies_index.update_filterable_attributes(["thirteen_f"])
 
         progress.close()
+        companies_bson.close()
 
     if search_empty:
         print("[ Search (Meilisearch) Loaded ]")
     if db_empty:
         print("[ Database (MongoDB) Loaded ]")
 
-
-# Below code is very clunky/hackish
-# Leaving for now as it only runs once at startup
-# Could use lots of work, as of now it uses
-# a pretty roundabout method just to get async
-# functions running
-# TLDR: Fix later
 
 workers = int(getenv("WORKERS"))  # type: ignore
 port = 8000

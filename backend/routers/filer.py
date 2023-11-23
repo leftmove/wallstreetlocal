@@ -204,7 +204,7 @@ async def query_filer(cik: str, background: BackgroundTasks):
 @cache(24)
 @router.get("/search", tags=["filers"], status_code=200)
 async def search_filers(q: str, limit: int = 4):
-    options = {"limit": limit, "filter": ["13f = true"]}
+    options = {"limit": limit, "filter": ["thirteen_f = true"]}
     hits = search_companies(q, options)
 
     results = []

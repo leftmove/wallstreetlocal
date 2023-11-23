@@ -43,13 +43,3 @@ async def backup(password: str, background: BackgroundTasks):
 @router.get("/favicon.ico", status_code=200)
 async def favicon():
     return FileResponse("./public/favicon.ico")
-
-
-@router.get("/generate", status_code=200, include_in_schema=False)
-async def generate(password: str, background: BackgroundTasks):
-    if password != "whale":
-        return {}
-
-    background.add_task(generate_collections)
-
-    return {"description": "Successfully started generating collections."}
