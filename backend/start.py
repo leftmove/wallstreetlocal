@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from os import getenv
 from datetime import datetime
 import time
+import bson
 
 from pymongo import MongoClient
 import meilisearch
@@ -31,13 +32,10 @@ def main():
     )
 
     MONGO_SERVER_URL = getenv("MONGO_SERVER_URL")
-    MONGO_BACKUP_URL = getenv("MONGO_BACKUP_URL")
 
     client = MongoClient(MONGO_SERVER_URL)
     companies = client["wallstreetlocal"]["companies"]
-    backup_client = MongoClient(MONGO_BACKUP_URL)
-    companies_backup = backup_client["wallstreetlocal"]["companies"]
-    companies_count = companies_backup.count_documents({})
+    companies_count = 852491
 
     MEILISEARCH_SERVER_URL = f'http://{getenv("MEILISEARCH_SERVER_URL")}:7700'
     MEILISEARCH_MASTER_KEY = getenv("MEILISEARCH_MASTER_KEY")
@@ -66,6 +64,24 @@ def main():
         True if companies_index.get_stats().number_of_documents == 0 else False
     )
 
+    def insert_database(document_list):
+        try:
+            companies.insert_many(document_list)
+        except Exception as e:
+            stamp = str(datetime.now())
+            with open(f"./public/backup/error-{stamp}.log", "w+") as f:
+                f.write(str(e))
+            print("Error Occured")
+
+    def insert_search(document_list):
+        try:
+            companies_index.add_documents(document_list)
+        except Exception as e:
+            stamp = str(datetime.now())
+            with open(f"./public/backup/error-{stamp}.log", "w+") as f:
+                f.write(str(e))
+            print("Error Occured")
+
     if search_empty:
         print("[ Search (Meilisearch) Loading ] ...")
 
@@ -74,57 +90,33 @@ def main():
 
     if db_empty or search_empty:
         batch = 4000
-        i = 0
         documents = []
 
         progress = tqdm(
             total=companies_count, desc="Loading Documents", unit="document"
         )
-        cursor = companies_backup.find({})
-        for document in cursor:
-            if i < batch:
+        companies_bson = open("./public/backup/companies.bson", "rb")
+
+        for document in bson.decode_file_iter(companies_bson):
+            if len(documents) < batch:
                 del document["_id"]
                 documents.append(document)
             else:
                 if db_empty:
-                    try:
-                        companies.insert_many(documents)
-                    except Exception as e:
-                        stamp = str(datetime.now())
-                        with open(f"./public/backup/error-{stamp}.log", "w+") as f:
-                            f.write(str(e))
-                        print("Error Occured")
+                    insert_database(documents)
                 if search_empty:
-                    try:
-                        companies_index.add_documents(documents)
-                    except Exception as e:
-                        stamp = str(datetime.now())
-                        with open(f"./public/backup/error-{stamp}.log", "w+") as f:
-                            f.write(str(e))
-                        print("Error Occured")
+                    insert_search(documents)
+
                 progress.update(batch)
                 documents = []
-                i = 0
-            i += 1
 
         if documents != []:
             if db_empty:
-                try:
-                    companies.insert_many(documents)
-                except Exception as e:
-                    stamp = str(datetime.now())
-                    with open(f"./public/backup/error-{stamp}.log", "w+") as f:
-                        f.write(str(e))
-                    print("Error Occured")
+                insert_database(documents)
             if search_empty:
-                try:
-                    companies_index.add_documents(documents)
-                except Exception as e:
-                    stamp = str(datetime.now())
-                    with open(f"./public/backup/error-{stamp}.log", "w+") as f:
-                        f.write(str(e))
-                    print("Error Occured")
-            progress.update(companies_count % batch)
+                insert_search(documents)
+            progress.update(len(documents))
+            documents = []
 
         if search_empty:
             companies_index.update_displayed_attributes(
@@ -138,77 +130,6 @@ def main():
             companies_index.update_filterable_attributes(["thirteen_f"])
 
         progress.close()
-
-        # companies_path = "./static"
-        # if search_empty:
-        #     with open(f"{companies_path}/companies.json", "w+") as f:
-        #         progress = tqdm(
-        #             total=companies_count, desc="Pulling Index", unit="document"
-        #         )
-        #         cursor = companies_backup.find({})
-
-        #         f.write("[")
-        #         i = 1
-        #         async for document in cursor:
-        #             if i != 1:
-        #                 f.write(",")
-        #             f.write(dumps(document))
-        #             i += 1
-        #             progress.update(1)
-        #         f.write("]")
-
-        #         progress.close()
-
-        #     with open(f"{companies_path}/companies.json", "r") as f:
-        #         progress = tqdm(
-        #             total=companies_count,
-        #             desc="Inserting Search Documents",
-        #             unit="document",
-        #         )
-
-        #         company_json = json.load(f)
-        #         batch = 4000
-        #         batch_remainer = companies_count % batch
-        #         for i in range(companies_count // batch):
-        #             sliced_batch = company_json[i * batch : (i + 1) * batch]
-        #             companies_index.add_documents(sliced_batch)
-        #             progress.update(batch)
-
-        #         sliced_batch = company_json[companies_count - batch_remainer : -1]
-        #         companies_index.add_documents(sliced_batch)
-        #         progress.update(batch_remainer)
-
-        #         progress.close()
-
-        # if db_empty:
-        #     with open(f"{companies_path}/companies.bson", "ab") as f:
-        #         progress = tqdm(
-        #             total=companies_count,
-        #             desc="Pulling Database Documents",
-        #             unit="document",
-        #         )
-        #         cursor = companies_backup.find({})
-
-        #         async for document in cursor:
-        #             document_bson = bson.BSON.encode(document)
-        #             f.write(document_bson)
-        #             progress.update(1)
-
-        #         progress.close()
-
-        #     with open(f"{companies_path}/companies.bson", "rb") as f:
-        #         progress = tqdm(
-        #             total=companies_count,
-        #             desc="Inserting Database Documents",
-        #             unit="document",
-        #         )
-
-        #         company_bson = bson.BSON(f.read())
-        #         for document in company_bson:
-        #             companies.insert_one(document)
-        #             progress.update(1)
-
-        #         progress.close()
 
     if search_empty:
         print("[ Search (Meilisearch) Loaded ]")
