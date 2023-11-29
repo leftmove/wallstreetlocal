@@ -7,14 +7,13 @@ db_path = "./meili_data"
 
 # Configures the instance's environment. Value must be either `production` or `development`.
 # https://www.meilisearch.com/docs/learn/configuration/instance_options#environment
-env = "development"
+env = "production"
 
 # The address on which the HTTP server will listen.
 http_addr = "localhost:7700"
 
 # Sets the instance's master key, automatically protecting all routes except GET /health.
 # https://www.meilisearch.com/docs/learn/configuration/instance_options#master-key
-master_key = "***REMOVED***"
 
 # Deactivates Meilisearch's built-in telemetry when provided.
 # Meilisearch automatically collects data from all instances that do not opt out using this flag.
@@ -125,7 +124,7 @@ ignore_snapshot_if_db_exists = false
 
 # # Experimental metrics feature. For more information, see: <https://github.com/meilisearch/meilisearch/discussions/3518>
 # # Enables the Prometheus metrics on the `GET /metrics` endpoint.
-# experimental_enable_metrics = false
+experimental_enable_metrics = true
 
 # # Experimental RAM reduction during indexing, do not use in production, see: <https://github.com/meilisearch/product/discussions/652>
 # experimental_reduce_indexing_memory_usage = false

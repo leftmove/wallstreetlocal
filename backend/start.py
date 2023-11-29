@@ -78,22 +78,23 @@ def main():
     companies = client["wallstreetlocal"]["companies"]
     companies_count = 852491
 
-    MEILISEARCH_SERVER_URL = f'http://{getenv("MEILISEARCH_SERVER_URL")}:7700'
-    MEILISEARCH_MASTER_KEY = getenv("MEILISEARCH_MASTER_KEY")
+    MEILI_SERVER_URL = f'http://{getenv("MEILI_SERVER_URL")}:7700'
+    MEILI_MASTER_KEY = getenv("MEILI_MASTER_KEY")
 
     try:
         retries = 3
         while retries:
-            search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
+            search = meilisearch.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)
             search.create_index("companies")
-            companies_index = search.index("companies")
+            companies_index = search.index("companies", {"primaryKey": "cik"})
             companies_index.add_documents([{"name": "TEST"}])
             retries -= 1
         raise RuntimeError
     except:
-        time.sleep(3)
-        search = meilisearch.Client(MEILISEARCH_SERVER_URL, MEILISEARCH_MASTER_KEY)
+        search = meilisearch.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)
         companies_index = search.index("companies")
+    search.get_keys()
+    companies_index.update(primary_key="cik")
 
     db_empty = True if companies.count_documents({}) == 0 else False
     search_empty = (
@@ -112,7 +113,7 @@ def main():
 
     def insert_search(document_list):
         try:
-            companies_index.add_documents(document_list)
+            companies_index.add_documents(document_list, "cik")
         except Exception as e:
             stamp = str(datetime.now())
             with open(f"{backup_path}/error-{stamp}.log", "w+") as f:
@@ -141,37 +142,43 @@ def main():
             document = json.loads(line.rstrip())
             document.pop("_id", None)
 
+            database_count = len(database_documents)
+            search_count = len(search_documents)
+
             if db_empty:
                 database_documents.append(document)
+
+                if database_count >= batch:
+                    insert_database(database_documents)
+                    progress.update(database_count)
+                    database_documents = []
+
             if search_empty:
                 search_documents.append(
                     {
                         "name": document.get("name"),
                         "tickers": document.get("tickers"),
                         "cik": document.get("cik"),
+                        "thirteen_f": document.get("thirteen_f"),
                     }
                 )
 
-            if db_empty and len(database_documents) >= batch:
-                insert_database(database_documents)
-                database_documents = []
+                if search_count >= batch:
+                    insert_search(search_documents)
+                    progress.update(search_count)
+                    search_documents = []
 
-                progress.update(batch)
+        database_count = len(database_documents)
+        search_count = len(search_documents)
 
-            if search_empty and len(search_documents) >= batch:
-                insert_search(search_documents)
-                search_documents = []
-
-                progress.update(batch)
-
-        if search_empty and search_documents != []:
+        if search_empty and search_count:
             insert_search(search_documents)
+            progress.update(search_count)
             search_documents = []
-        if db_empty and database_documents != []:
+        if db_empty and database_count:
             insert_database(database_documents)
+            progress.update(database_count)
             database_documents = []
-
-        progress.update(len(database_documents))
 
         if search_empty:
             companies_index.update_displayed_attributes(

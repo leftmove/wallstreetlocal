@@ -29,6 +29,7 @@ start.sh
 /frontend/.vercel
 /frontend/.prettierrc
 
+/backend/.venv
 /backend/development.test.py
 **/__pycache__/
 /backend/public/companies.bson

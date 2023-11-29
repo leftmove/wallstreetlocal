@@ -51,6 +51,8 @@ services:
     volumes:
       - ./backend/search/search_db:/meili_data
     restart: always
+    env_file:
+      - "development.env"
     networks:
       - staging
     ports:
