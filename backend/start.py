@@ -85,9 +85,9 @@ def main():
         retries = 3
         while retries:
             search = meilisearch.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)
-            search.create_index("companies")
-            companies_index = search.index("companies", {"primaryKey": "cik"})
-            companies_index.add_documents([{"name": "TEST"}])
+            search.create_index("companies", {"primaryKey": "cik"})
+            companies_index = search.index("companies")
+            companies_index.add_documents([{"cik": "TEST"}])
             retries -= 1
         raise RuntimeError
     except:
@@ -98,7 +98,7 @@ def main():
 
     db_empty = True if companies.count_documents({}) == 0 else False
     search_empty = (
-        True if companies_index.get_stats().number_of_documents == 0 else False
+        True if companies_index.get_stats().number_of_documents == 1 else False
     )
     backup_path = "./public/backup"
 

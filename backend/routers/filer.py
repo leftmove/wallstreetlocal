@@ -204,14 +204,12 @@ async def query_filer(cik: str, background: BackgroundTasks):
 @cache(24)
 @router.get("/search", tags=["filers"], status_code=200)
 async def search_filers(q: str, limit: int = 4):
-    options = {"limit": limit, "filter": ["thirteen_f = true"]}
+    options = {"limit": limit, "filter": "thirteen_f = true"}
     hits = search_companies(q, options)
 
     results = []
     for result in hits:
-        result_names = list(map(lambda n: n["name"], results))
-        if result["name"] not in result_names:
-            results.append(result)
+        results.append(result)
 
     return {"description": "Successfully queried 13F filers.", "results": hits}
 
