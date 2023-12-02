@@ -1,7 +1,7 @@
 import meilisearch
 
 from dotenv import load_dotenv
-from os import getenv
+import os
 from time import sleep
 
 from .mongo import *
@@ -10,8 +10,8 @@ load_dotenv()
 
 # pyright: reportGeneralTypeIssues=false
 
-MEILI_SERVER_URL = f'http://{getenv("MEILI_SERVER_URL")}:7700'
-MEILI_MASTER_KEY = getenv("MEILI_MASTER_KEY")
+MEILI_SERVER_URL = f'http://{os.environ["MEILI_SERVER_URL"]}:7700'
+MEILI_MASTER_KEY = os.environ["MEILI_MASTER_KEY"]
 print("[ Search (Meilisearch) Initializing ] ...")
 
 search = meilisearch.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)

@@ -1,8 +1,8 @@
 FROM python:3.9-alpine
 
 WORKDIR /code
-ENV WORKERS=1
 
+COPY .env.development ./.env.development
 COPY requirements.txt ./requirements.txt
 COPY main.py ./main.py
 COPY start.py ./start.py
@@ -15,4 +15,4 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 EXPOSE 8000
 
-CMD ["python", "start.py"]
+CMD ["python", "start.py", "development"]

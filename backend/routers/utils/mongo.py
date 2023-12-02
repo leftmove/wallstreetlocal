@@ -1,12 +1,12 @@
 from dotenv import load_dotenv
-from os import getenv
+import os
 from datetime import datetime
 
 from pymongo import MongoClient
 
 load_dotenv()
 
-MONGO_SERVER_URL = getenv("MONGO_SERVER_URL")
+MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
 print("[ Database (MongoDB) Initializing ] ...")
 
 client = MongoClient(MONGO_SERVER_URL)
@@ -96,8 +96,10 @@ def add_logs(cik, formatted_logs):
 def edit_log(cik, stamp):
     logs.update_one({"cik": cik}, {"$set": stamp})
 
+
 def delete_logs(query):
     logs.delete_many(query)
+
 
 def edit_status(cik, status):
     logs.update_one({"cik": cik}, {"$set": {"status": status}})

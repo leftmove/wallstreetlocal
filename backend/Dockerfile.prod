@@ -3,8 +3,10 @@ FROM python:3.9-alpine
 WORKDIR /code
 ENV WORKERS=9
 
-COPY main.py ./main.py
+COPY .env.production ./.env.production
 COPY requirements.txt ./requirements.txt
+
+COPY main.py ./main.py
 COPY start.py ./start.py
 
 COPY routers ./routers
@@ -14,4 +16,4 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 EXPOSE 8000
 
-CMD ["python", "start.py"]
+CMD ["python", "start.py", "production"]

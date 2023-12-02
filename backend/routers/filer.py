@@ -302,7 +302,7 @@ async def estimate(cik: str):
 
 # @router.get("/aggregate", tags=["filers"], status_code=201)
 # async def migrate_filers(password: str):
-#     if password != getenv("ADMIN_PASSWORD"):
+#     if password != os.environ["ADMIN_PASSWORD"]:
 #         raise HTTPException(
 #             403,
 #             detail="Incorrect password, access is forbidden. This route is meant for admins.",

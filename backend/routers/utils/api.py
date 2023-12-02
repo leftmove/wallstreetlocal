@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from os import getenv
+import os
 import time
 
 import requests
@@ -38,9 +38,9 @@ headers = {
 }
 
 # Environment Variables
-FINN_HUB_API_KEY = getenv("FINN_HUB_API_KEY")
-ALPHA_VANTAGE_API_KEY = getenv("ALPHA_VANTAGE_API_KEY")
-OPEN_FIGI_API_KEY = getenv("OPEN_FIGI_API_KEY")
+FINN_HUB_API_KEY = os.environ["FINN_HUB_API_KEY"]
+ALPHA_VANTAGE_API_KEY = os.environ["ALPHA_VANTAGE_API_KEY"]
+OPEN_FIGI_API_KEY = os.environ["OPEN_FIGI_API_KEY"]
 
 # pyright: reportUnboundVariable=false
 

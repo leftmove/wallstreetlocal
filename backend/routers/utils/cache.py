@@ -8,10 +8,10 @@ import json
 from time import time
 from inspect import iscoroutinefunction
 from dotenv import load_dotenv
-from os import getenv
+import os
 
 load_dotenv()
-REDIS_SERVER_URL = getenv("REDIS_SERVER_URL")
+REDIS_SERVER_URL = os.environ["REDIS_SERVER_URL"]
 # CELERY_SERVER_URL = f"redis://{REDIS_SERVER_URL}:6379/0"
 print("[ Cache (Redis) Initializing ] ...")
 

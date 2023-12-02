@@ -1,5 +1,4 @@
 import uvicorn
-import time
 import requests
 import json
 
@@ -10,9 +9,12 @@ from pymongo import MongoClient
 import meilisearch
 
 from dotenv import load_dotenv
-from os import getenv
+from sys import argv
+import os
 
-load_dotenv()
+argument = argv[1] if argv else None
+environment = "production" if argument == "production" else "development"
+load_dotenv(".env." + environment)
 
 
 def get_confirm_token(response):
@@ -71,15 +73,15 @@ def main():
     """
     )
 
-    MONGO_SERVER_URL = getenv("MONGO_SERVER_URL")
-    MONGO_BACKUP_URL = getenv("MONGO_BACKUP_URL")
+    MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
+    MONGO_BACKUP_URL = os.environ["MONGO_BACKUP_URL"]
 
     client = MongoClient(MONGO_SERVER_URL)
     companies = client["wallstreetlocal"]["companies"]
     companies_count = 852491
 
-    MEILI_SERVER_URL = f'http://{getenv("MEILI_SERVER_URL")}:7700'
-    MEILI_MASTER_KEY = getenv("MEILI_MASTER_KEY")
+    MEILI_SERVER_URL = f'http://{os.environ["MEILI_SERVER_URL"]}:7700'
+    MEILI_MASTER_KEY = os.environ["MEILI_MASTER_KEY"]
 
     try:
         retries = 3
@@ -200,15 +202,15 @@ def main():
         print("[ Database (MongoDB) Loaded ]")
 
 
-workers = int(getenv("WORKERS"))  # type: ignore
 port = 8000
 host = "0.0.0.0"
 
 
 def run(app):
-    if workers == 1:
+    if environment == "development":
         uvicorn.run(app, host=host, port=port, forwarded_allow_ips="*", reload=True)
     else:
+        workers = int(os.environ["WORKERS"])  # type: ignore
         uvicorn.run(app, host=host, port=port, forwarded_allow_ips="*", workers=workers)
 
 

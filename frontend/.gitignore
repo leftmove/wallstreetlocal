@@ -18,10 +18,7 @@
 /frontend/yarn-error.log*
 /frontend/.pnpm-debug.log*
 
-/frontend/.env*.local
-
 /frontend/.vercel
 /frontend/.prettierrc
 
 /backend/development.test.py
-

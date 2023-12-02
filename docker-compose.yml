@@ -5,8 +5,6 @@ services:
       context: ./backend
       dockerfile: Dockerfile.prod
     restart: always
-    env_file:
-      - "production.env"
     networks:
       - staging
     depends_on:
