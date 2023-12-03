@@ -1,4 +1,3 @@
-from dotenv import load_dotenv
 import os
 import time
 
@@ -13,7 +12,6 @@ from .analysis import *
 # from requests.adapters import HTTPAdapter
 # from urllib3.util.retry import Retry
 
-load_dotenv()
 
 print("[ APIs Initializing ] ...")
 

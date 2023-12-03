@@ -1,5 +1,4 @@
 import bson
-from datetime import datetime
 
 from .mongo import *
 from .search import *

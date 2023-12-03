@@ -1,12 +1,10 @@
 import meilisearch
 
-from dotenv import load_dotenv
 import os
 from time import sleep
 
 from .mongo import *
 
-load_dotenv()
 
 # pyright: reportGeneralTypeIssues=false
 

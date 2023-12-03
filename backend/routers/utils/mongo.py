@@ -1,10 +1,8 @@
-from dotenv import load_dotenv
 import os
 from datetime import datetime
 
 from pymongo import MongoClient
 
-load_dotenv()
 
 MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
 print("[ Database (MongoDB) Initializing ] ...")
