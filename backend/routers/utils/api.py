@@ -9,28 +9,7 @@ from .mongo import edit_log
 
 from .analysis import convert_underscore
 
-# from requests_ratelimiter import LimiterMixin, MemoryQueueBucket
-# from requests_cache import CacheMixin, SQLiteCache
-# from requests import Session
-# from requests.adapters import HTTPAdapter
-# from urllib3.util.retry import Retry
-
-
 print("[ APIs Initializing ] ...")
-
-# # YFinance
-# session = requests.Session()
-# retry = Retry(connect=3, backoff_factor=0.5)
-# adapter = HTTPAdapter(max_retries=retry)
-# session.mount("http://", adapter)
-# session.mount("https://", adapter)
-# class CachedLimiterSession(CacheMixin, LimiterMixin, Session):
-#     """ """
-# yfSession = CachedLimiterSession(
-#     per_second=0.9,
-#     bucket_class=MemoryQueueBucket,
-#     backend=SQLiteCache("yfinance.cache"),
-# )
 
 # Requests
 session = requests.Session()
