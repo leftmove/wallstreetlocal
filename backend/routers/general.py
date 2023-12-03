@@ -1,10 +1,9 @@
 from fastapi import BackgroundTasks, APIRouter
 from fastapi.responses import FileResponse
 
-from .utils.cache import *
-from .utils.backup import *
-from .utils.analysis import *
-
+from .utils.cache import cache
+from .utils.backup import backup_collections
+from .utils.analysis import end_dangling
 
 router = APIRouter(
     tags=["general"],

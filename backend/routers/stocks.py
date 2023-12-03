@@ -1,12 +1,12 @@
 from fastapi import HTTPException, APIRouter, BackgroundTasks
 from pydantic import BaseModel
 
-from .utils.api import *
-from .utils.mongo import *
-from .utils.scrape import *
-from .utils.cache import *
+from .utils.mongo import search_stocks
 
-# pyright: reportGeneralTypeIssues=false
+from .utils.scrape import find_filer
+from .utils.scrape import find_stocks
+
+from .utils.cache import cache
 
 router = APIRouter(
     prefix="/stocks",
@@ -29,7 +29,7 @@ async def query_stocks(stock: Tickers, background: BackgroundTasks):
     tickers = stock.tickers
 
     found_stocks = find_stocks("ticker", {"$in": tickers})
-    background.add_task(query_stocks, found_stocks)
+    background.add_task(query_stocks, found_stocks)  # pyright: ignore
 
     return {"description": "Stocks started updating."}
 

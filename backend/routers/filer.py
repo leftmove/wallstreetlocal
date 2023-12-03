@@ -2,19 +2,39 @@ from fastapi import BackgroundTasks, HTTPException, APIRouter
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
-from .utils.scrape import *
-from .utils.mongo import *
-from .utils.search import *
-from .utils.api import *
-from .utils.analysis import *
-from .utils.cache import *
-
 from datetime import datetime
 import json
 
+from .utils.scrape import scrape_filer
+from .utils.scrape import scrape_latest_stocks
+from .utils.scrape import scrape_new_stocks
+from .utils.scrape import scrape_filer_newest
+from .utils.scrape import check_new
+from .utils.scrape import estimate_time_newest
 
-# pyright: reportGeneralTypeIssues=false
-# pyright: reportOptionalSubscript=false
+from .utils.mongo import find_log
+from .utils.mongo import add_filer
+from .utils.mongo import create_log
+from .utils.mongo import add_query_log
+from .utils.mongo import search_stocks
+
+from .utils.search import search_companies
+from .utils.api import sec_filer_search
+
+from .utils.analysis import find_filer
+from .utils.analysis import edit_filer
+from .utils.analysis import add_log
+from .utils.analysis import edit_log
+from .utils.analysis import edit_status
+from .utils.analysis import analyze_newest
+from .utils.analysis import analyze_historical
+from .utils.analysis import create_json
+from .utils.analysis import create_csv
+from .utils.analysis import end_dangling
+
+from .utils.cache import cache
+
+
 
 
 class Filer(BaseModel):
@@ -273,6 +293,9 @@ async def estimate(cik: str):
                 "logs": 0,
             },
         )
+
+        if not filer:
+            raise HTTPException(404, detail="CIK not found.")
 
         log = filer["log"]
         time = log["time"]
