@@ -13,17 +13,21 @@
 
 .header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   text-align: center;
 
-  width: 15%;
+  width: 50%;
   font-size: 2rem;
   padding: 10px;
   border-radius: 5px;
 
   color: var(--primary-dark);
   background-color: var(--secondary);
+}
+
+.header span {
+  margin-right: 20px;
 }
 
 .logs {

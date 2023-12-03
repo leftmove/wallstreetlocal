@@ -43,7 +43,7 @@ const Recommended = (props) => {
       >
         Popular Filers
       </span>
-
+      {/* 
       <div className={styles["recommended-list"]}>
         {filers.map((filer) => {
           const description =
@@ -83,7 +83,7 @@ const Recommended = (props) => {
             </div>
           );
         })}
-      </div>
+      </div> */}
     </div>
   );
 };
