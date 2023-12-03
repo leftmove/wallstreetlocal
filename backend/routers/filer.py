@@ -1,5 +1,4 @@
-from fastapi import BackgroundTasks, HTTPException, WebSocket, APIRouter
-from fastapi.concurrency import run_in_threadpool
+from fastapi import BackgroundTasks, HTTPException, APIRouter
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
@@ -12,12 +11,7 @@ from .utils.cache import *
 
 from datetime import datetime
 import json
-import asyncio
 
-
-from dotenv import load_dotenv
-
-load_dotenv()
 
 # pyright: reportGeneralTypeIssues=false
 # pyright: reportOptionalSubscript=false
