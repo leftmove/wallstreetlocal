@@ -1,7 +1,5 @@
 import redis
 
-from .mongo import *
-
 from functools import wraps
 import json
 

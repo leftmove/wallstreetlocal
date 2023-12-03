@@ -3,9 +3,6 @@ import meilisearch
 import os
 from time import sleep
 
-from .mongo import *
-
-
 # pyright: reportGeneralTypeIssues=false
 
 MEILI_SERVER_URL = f'http://{os.environ["MEILI_SERVER_URL"]}:7700'
