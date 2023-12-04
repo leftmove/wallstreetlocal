@@ -5,18 +5,7 @@ import re
 
 # import xlsxwriter
 
-from .mongo import find_filer
-from .mongo import edit_filer
-from .mongo import delete_filers
-from .mongo import find_logs
-from .mongo import add_logs
-from .mongo import delete_logs
-from .mongo import add_log
-from .mongo import edit_log
-from .mongo import edit_status
-from .mongo import find_stock
-from .mongo import edit_stock
-
+from . import database
 from .api import ticker_request
 
 # pyright: reportGeneralTypeIssues=false
@@ -205,7 +194,7 @@ def serialize_stock(local_stock, global_stock):
 
 
 def analyze_filer(cik, local_stocks, batch_limit):
-    filer = find_filer(cik, {"_id": 0, "stocks": 0})
+    filer = database.find_filer(cik, {"_id": 0, "stocks": 0})
     filer_filings = filer["filings"]
 
     total_market_value = total_value(local_stocks)
@@ -230,7 +219,7 @@ def analyze_filer(cik, local_stocks, batch_limit):
             percent_portfolio = market_value / total_market_value
 
             ticker = local_stock["ticker"]
-            global_stock = find_stock("ticker", ticker)
+            global_stock = database.find_stock("ticker", ticker)
             if global_stock == None:
                 continue
 
@@ -279,7 +268,7 @@ def analyze_filer(cik, local_stocks, batch_limit):
                 sold_timeseries = "NA"
 
             if update_timeseries:
-                edit_stock(
+                database.edit_stock(
                     {"ticker": ticker}, {"$set": {"timeseries": timeseries_global}}
                 )
 
@@ -313,11 +302,13 @@ def analyze_filer(cik, local_stocks, batch_limit):
             batch += 1
 
             if batch >= batch_limit:
-                edit_filer(
+                database.edit_filer(
                     {"cik": cik}, {"$push": {"stocks.global": {"$each": stock_list}}}
                 )
-                edit_filer({"cik": cik}, {"$set": {"stocks.local": local_stocks}})
-                add_logs(cik, log_list)
+                database.edit_filer(
+                    {"cik": cik}, {"$set": {"stocks.local": local_stocks}}
+                )
+                database.add_logs(cik, log_list)
 
                 batch = 0
                 local_stocks = {}
@@ -326,14 +317,16 @@ def analyze_filer(cik, local_stocks, batch_limit):
 
         except Exception as e:
             print("Failed Stock", e)
-            add_log(cik, "Failed Stock", "NA", "NA")
+            database.add_log(cik, "Failed Stock", "NA", "NA")
             continue
 
     if batch > 0:
-        edit_filer({"cik": cik}, {"$push": {"stocks.global": {"$each": stock_list}}})
-        add_logs(cik, log_list)
+        database.edit_filer(
+            {"cik": cik}, {"$push": {"stocks.global": {"$each": stock_list}}}
+        )
+        database.add_logs(cik, log_list)
 
-    edit_filer(
+    database.edit_filer(
         {"cik": cik},
         {
             "$set": {
@@ -344,27 +337,27 @@ def analyze_filer(cik, local_stocks, batch_limit):
 
 
 def analyze_historical(cik):
-    filer = find_filer(cik)
+    filer = database.find_filer(cik)
     filer_name = filer["name"]
     filer_stocks = filer["stocks"]["local"]
 
-    add_log(cik, "Creating Filer (Historical)", filer_name, cik)
+    database.add_log(cik, "Creating Filer (Historical)", filer_name, cik)
     analyze_filer(cik, filer_stocks, 4000)
 
-    add_log(cik, "Created Filer (Historical)", filer_name, cik)
-    edit_log(cik, {"stop": datetime.now().timestamp()})
-    edit_status(cik, 0)
+    database.add_log(cik, "Created Filer (Historical)", filer_name, cik)
+    database.edit_log(cik, {"stop": datetime.now().timestamp()})
+    database.edit_status(cik, 0)
 
 
 def analyze_newest(cik, newest_stocks):
-    filer = find_filer(cik, {"name": 1})
+    filer = database.find_filer(cik, {"name": 1})
     filer_name = filer["name"]
 
-    add_log(cik, "Creating Filer (Newest)", filer_name, cik)
+    database.add_log(cik, "Creating Filer (Newest)", filer_name, cik)
     analyze_filer(cik, newest_stocks, 5)
 
-    add_log(cik, "Created Filer (Newest)", filer_name, cik)
-    edit_status(cik, 2)
+    database.add_log(cik, "Created Filer (Newest)", filer_name, cik)
+    database.edit_status(cik, 2)
 
 
 def time_remaining(stock_count):
@@ -400,7 +393,7 @@ def create_json(cik, filename):
         with open(file_path, "r"):
             pass
     except:
-        filer = find_filer(cik, {"_id": 0, "stocks.global.timeseries": 0})
+        filer = database.find_filer(cik, {"_id": 0, "stocks.global.timeseries": 0})
         print(filer)
         with open(file_path, "w") as r:
             json.dump(filer, r, indent=6)
@@ -429,14 +422,14 @@ header_format = [
 
 # def style_excel(file_path):
 #     workbook = xlsxwriter.Workbook(file_path)
-#     worksheet = workbook.add_worksheet()
+#     worksheet = workbook.database.add_worksheet()
 
-#     cell_format = workbook.add_format({'bold': True, 'font_color': 'red'})
+#     cell_format = workbook.database.add_format({'bold': True, 'font_color': 'red'})
 #     cell_format.set_font_size(16)
 #     cell_format.set_underline(2)
 #     cell_format.set_align('center')
 
-#     cell_format1 = workbook.add_format({'font_color': 'blue'})
+#     cell_format1 = workbook.database.add_format({'font_color': 'blue'})
 
 #     cell_format1.set_align('center')
 #     worksheet.write('A1', 'Name', cell_format)
@@ -487,7 +480,7 @@ def create_csv(cik, filename):
         with open(file_path, "r"):
             pass
     except:
-        filer = find_filer(cik, {"stocks.global": 1})
+        filer = database.find_filer(cik, {"stocks.global": 1})
         global_stocks = filer["stocks"]["global"]
         stock_list = create_dataframe(global_stocks)
 
@@ -500,14 +493,14 @@ def create_csv(cik, filename):
 
 
 def end_dangling():
-    filers = find_logs({"status": {"$gt": 0}})
+    filers = database.find_logs({"status": {"$gt": 0}})
     ciks = []
     for filer in filers:
         ciks.append(filer["cik"])
 
     query = {"cik": {"$in": ciks}}
-    delete_filers(query)
-    delete_logs(query)
+    database.delete_filers(query)
+    database.delete_logs(query)
 
     return ciks
 

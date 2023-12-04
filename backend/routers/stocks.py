@@ -1,11 +1,7 @@
 from fastapi import HTTPException, APIRouter, BackgroundTasks
 from pydantic import BaseModel
 
-from .utils.mongo import search_stocks
-
-from .utils.scrape import find_filer
-from .utils.scrape import find_stocks
-
+from .utils import database
 from .utils.cache import cache
 
 router = APIRouter(
@@ -28,7 +24,7 @@ class Cusip(BaseModel):
 async def query_stocks(stock: Tickers, background: BackgroundTasks):
     tickers = stock.tickers
 
-    found_stocks = find_stocks("ticker", {"$in": tickers})
+    found_stocks = database.find_stocks("ticker", {"$in": tickers})
     background.add_task(query_stocks, found_stocks)  # pyright: ignore
 
     return {"description": "Stocks started updating."}
@@ -40,7 +36,7 @@ async def query_stocks(stock: Tickers, background: BackgroundTasks):
 #     cusip_list = stock.cusip
 #     results = {}
 
-#     cursor = find_stocks('cusip', {'$in': cusip_list})
+#     cursor = database.find_stocks('cusip', {'$in': cusip_list})
 #     async for document in cursor:
 #         cusip = document['cusip']
 #         results[cusip] = document
@@ -49,7 +45,7 @@ async def query_stocks(stock: Tickers, background: BackgroundTasks):
 @cache
 @router.get("/info", tags=["stocks", "filers"], status_code=200)
 async def stock_info(cik: str):
-    stocks = find_filer(
+    stocks = database.find_filer(
         cik, {"_id": 0, "stocks.local": 0, "stocks.global.timeseries": 0}
     )
     if stocks == None:
@@ -65,7 +61,7 @@ async def stock_info(cik: str):
 @cache(4)
 @router.get("/timeseries", tags=["stocks", "filers"], status_code=200)
 async def stock_timeseries(cik: str, time: float):
-    filer = find_filer(cik, {"stocks.global.cusip": 1})
+    filer = database.find_filer(cik, {"stocks.global.cusip": 1})
     if filer == None:
         raise HTTPException(detail="Filer not found.", status_code=404)
     filer_stocks = filer["stocks"]["global"]
@@ -118,7 +114,7 @@ async def stock_timeseries(cik: str, time: float):
             batch.append(batch_cusip)
             continue
         else:
-            cursor = search_stocks(pipeline)
+            cursor = database.search_stocks(pipeline)
             for document in cursor:
                 cusip = document["cusip"]
                 close = document["timeseries"]["close"]
@@ -134,7 +130,7 @@ async def stock_timeseries(cik: str, time: float):
                 )
             batch = []
 
-    cursor = search_stocks(pipeline)
+    cursor = database.search_stocks(pipeline)
     for document in cursor:
         cusip = document["cusip"]
         close = document["timeseries"]["close"]

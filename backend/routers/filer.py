@@ -5,36 +5,13 @@ from pydantic import BaseModel
 from datetime import datetime
 import json
 
-from .utils.scrape import scrape_filer
-from .utils.scrape import scrape_latest_stocks
-from .utils.scrape import scrape_new_stocks
-from .utils.scrape import scrape_filer_newest
-from .utils.scrape import check_new
-from .utils.scrape import estimate_time_newest
-
-from .utils.mongo import find_log
-from .utils.mongo import add_filer
-from .utils.mongo import create_log
-from .utils.mongo import add_query_log
-from .utils.mongo import search_stocks
+from .utils import web
+from .utils import database
+from .utils import analysis
 
 from .utils.search import search_companies
 from .utils.api import sec_filer_search
-
-from .utils.analysis import find_filer
-from .utils.analysis import edit_filer
-from .utils.analysis import add_log
-from .utils.analysis import edit_log
-from .utils.analysis import edit_status
-from .utils.analysis import analyze_newest
-from .utils.analysis import analyze_historical
-from .utils.analysis import create_json
-from .utils.analysis import create_csv
-from .utils.analysis import end_dangling
-
 from .utils.cache import cache
-
-
 
 
 class Filer(BaseModel):
@@ -100,63 +77,61 @@ def create_filer(sec_data, cik):
         "start": start,
     }
 
-    create_log(stamp)
-    add_filer(company)
-    company = scrape_filer(sec_data, cik)
+    database.create_log(stamp)
+    database.add_filer(company)
+    company = web.process_filer(sec_data, cik)
 
+    company_name = company["name"]
     stamp = {
-        "name": company["name"],
+        "name": company_name,
     }
-    # loop = asyncio.get_running_loop()
-    # loop.run_in_executor(None, estimate_time_newest, cik, company["last_report"])
-    edit_log(cik, stamp)
-    edit_filer({"cik": cik}, {"$set": company})
+    database.edit_log(cik, stamp)
+    database.edit_filer({"cik": cik}, {"$set": company})
 
-    local_stocks = scrape_latest_stocks(company)
-    company.update(
-        {
-            "cik": cik,
-            "stocks": {
-                "local": local_stocks,
-                "global": [],
-            },
-        }
-    )
+    local_stocks = web.process_latest_stocks(company)
+    company_update = {
+        "cik": cik,
+        "stocks": {
+            "local": local_stocks,
+            "global": [],
+        },
+    }
+    company.update(company_update)
 
-    add_log(cik, "Filer Queried with Latest Stocks", company["name"], cik)
-    edit_filer({"cik": cik}, {"$set": company})
+    database.add_log(cik, "Filer Queried with Latest Stocks", company["name"], cik)
+    database.edit_filer({"cik": cik}, {"$set": company_update})
     try:
-        analyze_newest(cik, local_stocks)
+        analysis.analyze_newest(cik, local_stocks)
     except Exception as e:
-        edit_filer({"cik": cik}, {"$set": {"update": False}})
-        edit_status(cik, 2)
+        database.edit_filer({"cik": cik}, {"$set": {"update": False}})
+        database.edit_status(cik, 2)
         print(e)
 
     stamp = {"time.elapsed": datetime.now().timestamp() - start}
-    edit_log(cik, stamp)
-    add_query_log(cik, "create-latest")
+    database.edit_log(cik, stamp)
+    database.add_query_log(cik, "create-latest")
 
-    edit_status(cik, 2)
-    scrape_new_stocks(company)
-    add_log(cik, "Filer Queried with Historical Stocks", company["name"], cik)
+    database.edit_status(cik, 2)
+    web.process_new_stocks(company)
+    database.add_log(cik, "Filer Queried with Historical Stocks", company_name, cik)
 
     try:
-        analyze_historical(cik)
+        analysis.analyze_historical(cik)
     except Exception as e:
-        edit_filer({"cik": cik}, {"$set": {"update": False}})
-        edit_status(cik, 0)
+        database.edit_filer({"cik": cik}, {"$set": {"update": False}})
+        database.edit_status(cik, 0)
         print(e)
 
     stamp = {"time.elapsed": datetime.now().timestamp() - start}
-    edit_log(cik, stamp)
-    add_query_log(cik, "create-historical")
+    database.edit_log(cik, stamp)
+    database.add_query_log(cik, "create-historical")
 
 
 def update_filer(company):
     cik = company["cik"]
     time = datetime.now().timestamp()
 
-    operation = find_log(cik)
+    operation = database.find_log(cik)
     if operation == None:
         raise HTTPException(404, detail="CIK not found.")
     if operation["status"] > 2:
@@ -165,12 +140,12 @@ def update_filer(company):
     # if (time - company["updated"]) < 3600:
     #     raise HTTPException(detail="Filer queried too recently.", status_code=429)
 
-    update = check_new(cik=cik, last_updated=company["updated"])
+    update = web.check_new(cik=cik, last_updated=company["updated"])
     if update:
-        edit_status(cik, 1)
-        filings, latest_report = scrape_filer_newest(company)
-        scraped_stocks = scrape_latest_stocks(company)
-        edit_filer(
+        database.edit_status(cik, 1)
+        filings, latest_report = web.process_filer_newest(company)
+        scraped_stocks = web.process_latest_stocks(company)
+        database.edit_filer(
             {"cik": cik},
             {
                 "$set": {
@@ -182,10 +157,10 @@ def update_filer(company):
             },
         )
         try:
-            analyze_newest(cik, scraped_stocks)
+            analysis.analyze_newest(cik, scraped_stocks)
         except Exception as e:
-            edit_filer({"cik": cik}, {"$set": {"update": False}})
-            edit_status(cik, 1)
+            database.edit_filer({"cik": cik}, {"$set": {"update": False}})
+            database.edit_status(cik, 1)
             print(e)
         return {"description": "Updated filer."}
     else:
@@ -199,7 +174,7 @@ def update_filer(company):
 )
 async def query_filer(cik: str, background: BackgroundTasks):
     cik = cik.lstrip("0") or "0"
-    filer = find_filer(cik)
+    filer = database.find_filer(cik)
     if filer == None:
         try:
             sec_data = sec_filer_search(cik)
@@ -207,7 +182,7 @@ async def query_filer(cik: str, background: BackgroundTasks):
             raise HTTPException(404, detail="CIK not found.")
 
         background.add_task(create_filer, sec_data, cik)
-        background.add_task(estimate_time_newest, cik)
+        background.add_task(web.estimate_time_newest, cik)
         res = {"description": "Filer creation started."}
     else:
         res = update_filer(filer)
@@ -231,7 +206,7 @@ async def search_filers(q: str, limit: int = 4):
 @router.get("/logs", status_code=202)
 async def logs(cik: str, start: int = 0):
     try:
-        log = find_log(
+        log = database.find_log(
             cik,
             {
                 "logs": {"$slice": [start, 10**5]},
@@ -268,7 +243,7 @@ async def logs(cik: str, start: int = 0):
         log["time"]["elapsed"] = elapsed
         log["time"]["remaining"] = remaining
 
-        edit_log(cik, log)
+        database.edit_log(cik, log)
 
         return {
             "logs": logs,
@@ -286,7 +261,7 @@ async def logs(cik: str, start: int = 0):
 @router.get("/estimate", status_code=202)
 async def estimate(cik: str):
     try:
-        filer = find_log(
+        filer = database.find_log(
             cik,
             {
                 "_id": 0,
@@ -341,7 +316,7 @@ async def estimate(cik: str):
 #                 filings = filer["filings"]["recent"]
 
 #             cik = filer["cik"]
-#             found_filer = companies.find_one({"cik": filer["cik"]})
+#             found_filer = companies.database.find_one({"cik": filer["cik"]})
 
 #             if found_filer == None:
 #                 name = filer["name"]
@@ -410,11 +385,11 @@ async def estimate(cik: str):
 @cache(1 / 6)
 @router.get("/info", tags=["filers"], status_code=200)
 async def filer_info(cik: str):
-    filer = find_filer(cik, {"_id": 0, "stocks": 0, "filings": 0})
+    filer = database.find_filer(cik, {"_id": 0, "stocks": 0, "filings": 0})
     if filer == None:
         raise HTTPException(404, detail="Filer not found.")
 
-    status = find_log(cik, {"status": 1})
+    status = database.find_log(cik, {"status": 1, "_id": 0})
     filer["status"] = status
 
     return {"description": "Found filer.", "filer": filer}
@@ -423,12 +398,12 @@ async def filer_info(cik: str):
 @cache(24)
 @router.get("/record", tags=["filers", "records"], status_code=200)
 async def record(cik: str):
-    filer = find_filer(cik, {"_id": 1})
+    filer = database.find_filer(cik, {"_id": 1})
     if filer == None:
         raise HTTPException(404, detail="Filer not found.")
 
     filename = f"wallstreetlocal-{cik}.json"
-    file_path = create_json(cik, filename)
+    file_path = analysis.create_json(cik, filename)
 
     return FileResponse(
         file_path, media_type="application/octet-stream", filename=filename
@@ -438,12 +413,12 @@ async def record(cik: str):
 @cache(24)
 @router.get("/recordcsv", tags=["filers", "records"], status_code=200)
 async def record_csv(cik: str):
-    filer = find_filer(cik, {"_id": 1})
+    filer = database.find_filer(cik, {"_id": 1})
     if filer == None:
         raise HTTPException(404, detail="Filer not found.")
 
     filename = f"wallstreetlocal-{cik}.csv"
-    file_path = create_csv(cik, filename)
+    file_path = analysis.create_csv(cik, filename)
 
     return FileResponse(
         file_path, media_type="application/octet-stream", filename=filename
@@ -453,14 +428,14 @@ async def record_csv(cik: str):
 @cache(24)
 @router.get("/record/timeseries", tags=["filers", "records"], status_code=200)
 async def partial_record(cik: str, time: float):
-    filer = find_filer(cik, {"stocks.local": 1, "tickers": 1, "name": 1})
+    filer = database.find_filer(cik, {"stocks.local": 1, "tickers": 1, "name": 1})
     if filer == None:
         raise HTTPException(detail="Filer not found.", status_code=404)
     filer_stocks = filer["stocks"]["local"]
 
     stock_list = []
     cusip_list = list(map(lambda x: x, filer_stocks))
-    cursor = search_stocks(
+    cursor = database.search_stocks(
         [
             {"$match": {"cusip": {"$in": cusip_list}}},
             {
@@ -542,7 +517,7 @@ async def top():
     }
 
     for cik in filer_ciks:
-        filer = find_filer(cik, project)
+        filer = database.find_filer(cik, project)
         if filer != None:
             filers.append(filer)
     filers = filers.sort(key=lambda c: c["market_value"], reverse=True)
@@ -560,7 +535,7 @@ async def update_top(password: str):
         filer_ciks = json.load(t)
 
     for cik in filer_ciks:
-        found_filer = find_filer(cik)
+        found_filer = database.find_filer(cik)
         if found_filer == None:
             try:
                 sec_data = sec_filer_search(cik)
@@ -577,6 +552,6 @@ async def hang_dangling(password: str):
     if password != "whale":
         return {}
 
-    results = end_dangling()
+    results = analysis.end_dangling()
 
     return {"description": "Successfully ended dangling processes.", "ciks": results}

@@ -50,6 +50,7 @@
 .secondary-header {
   display: flex;
   justify-content: flex-start;
+  overflow-x: visible;
 }
 
 .secondary-header-desc {

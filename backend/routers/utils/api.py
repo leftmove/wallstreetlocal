@@ -3,11 +3,9 @@ import time
 
 import requests
 
-from .mongo import find_log
-from .mongo import add_log
-from .mongo import edit_log
 
-from .analysis import convert_underscore
+import database
+
 
 print("[ APIs Initializing ] ...")
 
@@ -27,7 +25,7 @@ OPEN_FIGI_API_KEY = os.environ["OPEN_FIGI_API_KEY"]
 
 def rate_limit(cik, wait=60):
     if cik:
-        log = find_log(
+        log = database.find_log(
             cik,
             {
                 "_id": 0,
@@ -38,18 +36,18 @@ def rate_limit(cik, wait=60):
         if log == None:
             raise LookupError
 
-        add_log(cik, "Waiting 60 Seconds...", "Rate Limit", cik)
+        database.add_log(cik, "Waiting 60 Seconds...", "Rate Limit", cik)
 
         log["rate_limit"] = True
         log["time"]["required"] += 60
-        edit_log(cik, log)
+        database.edit_log(cik, log)
 
     time.sleep(wait)
 
     if cik:
         log["rate_limit"] = False
-        edit_log(cik, log)
-        add_log(cik, "Resuming...", "Rate Limit", cik)
+        database.edit_log(cik, log)
+        database.add_log(cik, "Resuming...", "Rate Limit", cik)
 
 
 def get_request(url, cik=None, params={}, custom_headers=headers, custom_wait=60):
@@ -112,6 +110,8 @@ def sec_filer_search(cik):
 
     if res.status_code == 400:
         raise LookupError
+
+    from .analysis import convert_underscore
 
     data_converted = convert_underscore(data, {})
 
@@ -178,9 +178,9 @@ def stock_request(value, cik, backup=None):
     )
 
     data = res.json()
-    results = data[0]["data"]
+    results = data[0].get("data")
 
-    if len(results) > 0:
+    if results and len(results) > 0:
         result = results[0]
 
         name = result["name"]

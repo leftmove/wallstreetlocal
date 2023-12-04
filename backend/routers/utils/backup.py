@@ -2,7 +2,7 @@ import bson
 import requests
 
 from pymongo import MongoClient
-from .mongo import MONGO_SERVER_URL
+from .database import MONGO_SERVER_URL
 
 
 def backup_collections():
