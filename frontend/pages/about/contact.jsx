@@ -1,8 +1,7 @@
 import styles from "@/styles/Contact.module.css";
 
 import Head from "next/head";
-import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "900" });
+import { font } from "@fonts";
 
 import MailSVG from "@/public/static/envelope.svg";
 import DiscordSVG from "@/public/static/discord.svg";
@@ -14,7 +13,7 @@ export default function Contact() {
       <Head>
         <title>wallstreetlocal | contact</title>
       </Head>
-      <div className={[styles["contact"], inter.className].join(" ")}>
+      <div className={[styles["contact"], font.className].join(" ")}>
         <h1 className={styles["contact-header"]}>Donation and Links</h1>
         <div className={styles["contact-info"]}>
           <div className={styles["contact-items"]}>

@@ -4,16 +4,16 @@
   font-size: 0.875rem;
   line-height: 1.5rem;
   letter-spacing: 0.01071em;
-  display: table-cell;
-  vertical-align: inherit;
   border: 2px solid gray;
   text-align: left;
   padding: 16px;
 }
 
 .header-column {
-  text-align: left;
-  vertical-align: middle;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  vertical-align: baseline;
 }
 
 .column-highlighted {
@@ -23,6 +23,8 @@
 .column-button {
   all: unset;
   cursor: pointer;
+
+  margin-right: 5px;
 }
 
 .button {
@@ -48,6 +50,10 @@
 }
 
 .button-image {
-  margin-right: 4px;
-  margin-left: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  height: 12px;
+  width: 12px;
 }

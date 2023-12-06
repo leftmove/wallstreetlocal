@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 
 import Link from "next/link";
 
-import { font } from "@fonts";
+import { font, fontLight, fontBold } from "@fonts";
+import filers from "@/public/static/recommended.json";
 
-import searchedFilers from "@/public/static/recommended.json";
-import topFilers from "@/public/static/top.json";
+const maxLength = 200;
 
 const Recommended = (props) => {
   const variant = props.variant || "default";
@@ -37,35 +37,6 @@ const Recommended = (props) => {
       <span className={[styles["recommended-title"], font.className].join(" ")}>
         Popular Filers
       </span>
-      <div className={[styles["recommended-lists"], font.className].join(" ")}>
-        <div className={styles["recommended-list"]}>
-          <Link href="/top/filers">
-            <span className={styles["list-title"]}>Biggest</span>
-          </Link>
-          <ul>
-            {searchedFilers.map((filer) => (
-              <li className={styles["recommended-item"]}>
-                <Link href={`/filers/${filer.cik}`}>
-                  <span>{filer.title}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className={styles["recommended-list"]}>
-          <span className={styles["list-title"]}>Most Searched</span>
-          <ul>
-            {searchedFilers.map((filer) => (
-              <li className={styles["recommended-item"]}>
-                <Link href={`/filers/${filer.cik}`}>
-                  <span>{filer.title}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
       {/* 
       <div className={styles["recommended-list"]}>
         {filers.map((filer) => {
@@ -87,7 +58,7 @@ const Recommended = (props) => {
               <div
                 className={[
                   styles["suggestion-ids"],
-                  fontLight.className,
+                  interLight.className,
                 ].join(" ")}
               >
                 {filer.cik}{" "}
@@ -98,7 +69,7 @@ const Recommended = (props) => {
               <span
                 className={[
                   styles["suggestion-description"],
-                  fontLight.className,
+                  interLight.className,
                 ].join(" ")}
               >
                 {description}

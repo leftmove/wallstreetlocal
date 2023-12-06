@@ -1,11 +1,10 @@
 import styles from "./Tip.module.css";
 
-import { Inter } from "@next/font/google";
-const interLight = Inter({ subsets: ["latin"], weight: "700" });
+import { fontLight } from "@fonts";
 
 const Tip = (props) => {
   return (
-    <span className={[styles["tip"], interLight.className].join(" ")}>
+    <span className={[styles["tip"], fontLight.className].join(" ")}>
       {props.text}
     </span>
   );

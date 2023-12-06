@@ -327,7 +327,7 @@ def process_count_stocks(data, cik):
     if directory == None:
         return 0
 
-    data = analysis.sec_directory_search(directory, cik)
+    data = api.sec_directory_search(directory, cik)
     stock_soup = BeautifulSoup(data, parser)
     stock_table = stock_soup.find_all("table")[3]
     stock_fields = stock_table.find_all("tr")[1:3]

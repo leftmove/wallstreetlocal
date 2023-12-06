@@ -82,7 +82,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 //         className={[
 //           styles["column"],
 //           styles["body-column"],
-//           inter.className,
+//           font.className,
 //         ].join(" ")}
 //       >
 //         {name} ({ticker})
@@ -91,7 +91,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 //         className={[
 //           styles["column"],
 //           styles["body-column"],
-//           inter.className,
+//           font.className,
 //         ].join(" ")}
 //       >
 //         {sector}
@@ -100,7 +100,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 //         className={[
 //           styles["column"],
 //           styles["body-column"],
-//           inter.className,
+//           font.className,
 //         ].join(" ")}
 //       >
 //         {industry}
@@ -109,7 +109,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 //         className={[
 //           styles["column"],
 //           styles["body-column"],
-//           inter.className,
+//           font.className,
 //         ].join(" ")}
 //       >
 //         {sharesHeld}
@@ -118,7 +118,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 //         className={[
 //           styles["column"],
 //           styles["body-column"],
-//           inter.className,
+//           font.className,
 //         ].join(" ")}
 //       >
 //         {marketValue}
@@ -127,7 +127,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 //         className={[
 //           styles["column"],
 //           styles["body-column"],
-//           inter.className,
+//           font.className,
 //         ].join(" ")}
 //       >
 //         {portfolioPercentage}
@@ -136,7 +136,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 //         className={[
 //           styles["column"],
 //           styles["body-column"],
-//           inter.className,
+//           font.className,
 //         ].join(" ")}
 //       >
 //         {ownershipPercantage}
@@ -145,7 +145,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 //         className={[
 //           styles["column"],
 //           styles["body-column"],
-//           inter.className,
+//           font.className,
 //         ].join(" ")}
 //       >
 //         {buyQtr}
@@ -154,7 +154,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 //         className={[
 //           styles["column"],
 //           styles["body-column"],
-//           inter.className,
+//           font.className,
 //         ].join(" ")}
 //       >
 //         {priceBought}
@@ -163,7 +163,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 //         className={[
 //           styles["column"],
 //           styles["body-column"],
-//           inter.className,
+//           font.className,
 //         ].join(" ")}
 //       >
 //         {priceRecent}
@@ -172,7 +172,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 //         className={[
 //           styles["column"],
 //           styles["body-column"],
-//           inter.className,
+//           font.className,
 //         ].join(" ")}
 //       >
 //         {percentGain}
@@ -181,7 +181,7 @@ import { setStocks, selectCik, selectStocks } from "@/redux/filerSlice";
 //         className={[
 //           styles["column"],
 //           styles["body-column"],
-//           inter.className,
+//           font.className,
 //         ].join(" ")}
 //       >
 //         {reportQtr}

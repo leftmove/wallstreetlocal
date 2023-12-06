@@ -15,6 +15,7 @@ import os
 argument = argv[1] if argv else None
 environment = "production" if argument == "production" else "development"
 load_dotenv(".env." + environment)
+os.environ["ENVIRONMENT"] = environment
 
 
 def get_confirm_token(response):

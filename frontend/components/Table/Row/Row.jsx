@@ -3,8 +3,7 @@ import tableStyles from "../Table.module.css";
 import { useSelector } from "react-redux";
 import { selectHeaders, selectSort } from "@/redux/filerSlice";
 
-import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "900" });
+import { font } from "@fonts";
 
 // const quarters = [
 //   "Q1",
@@ -178,7 +177,7 @@ const Row = (props) => {
                 // sortHeader === h.sort
                 //   ? tableStyles["column-highlighted"]
                 //   : tableStyles["column-dehighlighted"],
-                inter.className,
+                font.className,
               ].join(" ")}
             >
               {display}

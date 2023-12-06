@@ -1,12 +1,11 @@
 import styles from "@/styles/Fill.module.css";
 
-import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "900" });
+import { font } from "@fonts";
 
 export default function MobileLayout() {
   return (
     <div className={styles.fill}>
-      <span className={inter.className}>
+      <span className={font.className}>
         wallstreetlocal is not available on mobile just yet.
       </span>
     </div>

@@ -5,7 +5,7 @@ import Filter from "./Filter/Filter";
 import Gain from "./Gain/Gain";
 import Record from "./Record/Record";
 import Tip from "@/components/Tip/Tip";
-import SortIcon from "@/public/static/filter.svg";
+import FunnelIcon from "@/public/static/filter.svg";
 
 const Sort = () => {
   const [expand, setExpand] = useState(false);
@@ -18,10 +18,10 @@ const Sort = () => {
       ].join(" ")}
     >
       <div className={styles["sort-header"]}>
-        {/* <span className={[styles["filter-text"], inter.className].join(" ")}>
+        {/* <span className={[styles["filter-text"], font.className].join(" ")}>
             FILTER
           </span> */}
-        <SortIcon
+        <FunnelIcon
           className={styles["sort-icon"]}
           onClick={() => setExpand(!expand)}
         />

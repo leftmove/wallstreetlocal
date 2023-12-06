@@ -3,10 +3,7 @@ import styles from "@/styles/Home.module.css";
 import Head from "next/head";
 
 import Image from "next/image";
-import { Inter } from "@next/font/google";
-const interBold = Inter({ subsets: ["latin"], weight: "900" });
-const inter = Inter({ subsets: ["latin"], weight: "700" });
-const interLight = Inter({ subsets: ["latin"], weight: "500" });
+import { font, fontLight, fontBold } from "@fonts";
 
 import Layout from "@/components/Layouts/Home";
 
@@ -45,11 +42,11 @@ export default function Home() {
           <Search />
           <div className={styles["header"]}>
             <span
-              className={[styles["main-header"], interBold.className].join(" ")}
+              className={[styles["main-header"], fontBold.className].join(" ")}
             >
               Thousands of filings from the world&apos;s biggest investors.
             </span>
-            <span className={[styles["sub-header"], inter.className].join(" ")}>
+            <span className={[styles["sub-header"], font.className].join(" ")}>
               Wall Street&apos;s stock portfolio, for free.
             </span>
           </div>
@@ -58,12 +55,12 @@ export default function Home() {
       </div>
       <main className={styles["explore"]}>
         <span
-          className={[styles["explore-header"], interBold.className].join(" ")}
+          className={[styles["explore-header"], fontBold.className].join(" ")}
         >
           Explore historical stock data, directly from the SEC.
         </span>
         <p
-          className={[styles["explore-explanation"], interLight.className].join(
+          className={[styles["explore-explanation"], fontLight.className].join(
             " "
           )}
         >
@@ -80,7 +77,7 @@ export default function Home() {
             <Folder className={styles["selling-svg"]} />
             <div className={styles["selling-text"]}>
               <span
-                className={[styles["selling-header"], inter.className].join(
+                className={[styles["selling-header"], font.className].join(
                   " "
                 )}
               >
@@ -89,7 +86,7 @@ export default function Home() {
               <span
                 className={[
                   styles["selling-description"],
-                  interLight.className,
+                  fontLight.className,
                 ].join(" ")}
               >
                 Stock and filing data from over 20 years to compare. Avaiable in
@@ -101,7 +98,7 @@ export default function Home() {
             <File className={styles["selling-svg"]} />
             <div className={styles["selling-text"]}>
               <span
-                className={[styles["selling-header"], inter.className].join(
+                className={[styles["selling-header"], font.className].join(
                   " "
                 )}
               >
@@ -110,7 +107,7 @@ export default function Home() {
               <span
                 className={[
                   styles["selling-description"],
-                  interLight.className,
+                  fontLight.className,
                 ].join(" ")}
               >
                 Filings directly from the SEC, served in an accessible format.
@@ -122,7 +119,7 @@ export default function Home() {
             <Book className={styles["selling-svg"]} />
             <div className={styles["selling-text"]}>
               <span
-                className={[styles["selling-header"], inter.className].join(
+                className={[styles["selling-header"], font.className].join(
                   " "
                 )}
               >
@@ -131,7 +128,7 @@ export default function Home() {
               <span
                 className={[
                   styles["selling-description"],
-                  interLight.className,
+                  fontLight.className,
                 ].join(" ")}
               >
                 The entire backlog of the SEC, free and without quotas.

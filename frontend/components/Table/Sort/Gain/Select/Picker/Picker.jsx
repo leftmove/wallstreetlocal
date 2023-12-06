@@ -1,8 +1,7 @@
 import styles from "./Picker.module.css";
 import { useState, useEffect } from "react";
 
-import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "900" });
+import { font } from "@fonts";
 
 import { editDate, openDate } from "@/redux/filerSlice";
 import { useDispatch } from "react-redux";
@@ -84,7 +83,7 @@ const Picker = (props) => {
         }
         className={styles["date"]}
       >
-        <span className={[styles["date-text"], inter.className].join(" ")}>
+        <span className={[styles["date-text"], font.className].join(" ")}>
           {display}
         </span>
         <CalendarSVG className={styles["calendar-svg"]} />
@@ -106,7 +105,7 @@ const Picker = (props) => {
               }
         }
       >
-        <div className={[styles["years"], inter.className].join(" ")}>
+        <div className={[styles["years"], font.className].join(" ")}>
           <button
             className={styles["chevron-button"]}
             onClick={() =>
@@ -123,7 +122,7 @@ const Picker = (props) => {
           </button>
           <input
             type="text"
-            className={styles["year-input"] + " " + inter.className}
+            className={styles["year-input"] + " " + font.className}
             value={focus ? dateDisplay : year}
             onChange={(e) => handleDateChange(e.target.value)}
             onFocus={() => setFocus(true)}
@@ -145,7 +144,7 @@ const Picker = (props) => {
             <RightSVG className={styles["chevron"]} />
           </button>
         </div>
-        <div className={[styles["months"], inter.className].join(" ")}>
+        <div className={[styles["months"], font.className].join(" ")}>
           {months.map((month) => (
             <button
               key={month.value}

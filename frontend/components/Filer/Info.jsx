@@ -2,10 +2,8 @@ import styles from "@/styles/Filer.module.css";
 import { useState, useEffect } from "react";
 
 import Head from "next/head";
-import Error from "next/error";
 
-import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "900" });
+import { font } from "@fonts";
 
 import useSWR from "swr";
 import axios from "axios";
@@ -17,6 +15,7 @@ import Expand from "@/components/Expand/Expand";
 import Table from "@/components/Table/Table";
 import Source from "@/components/Source/Source";
 import Building from "@/components/Progress/Building/Building";
+import Reccomended from "@/components/Recommended/Recommended";
 
 const fetcher = (url, cik) =>
   axios
@@ -45,7 +44,6 @@ const Info = (props) => {
     }
   );
   const info = data?.filer || null;
-  console.log(info);
 
   return (
     <>
@@ -55,12 +53,13 @@ const Info = (props) => {
       <div className={styles["header"]}>
         <div className={styles["main-header"]}>
           <span
-            className={[styles["main-header-text"], inter.className].join(" ")}
+            className={[styles["main-header-text"], font.className].join(" ")}
           >
             {info?.name}
           </span>
           {info?.status > 0 ? <Building cik={cik} /> : null}
         </div>
+
         <div
           className={[
             styles["sub-header"],
@@ -69,10 +68,9 @@ const Info = (props) => {
         >
           <div className={styles["secondary-header"]}>
             <span
-              className={[
-                styles["secondary-header-desc"],
-                inter.className,
-              ].join(" ")}
+              className={[styles["secondary-header-desc"], font.className].join(
+                " "
+              )}
             >
               {info?.cik}{" "}
               {info?.tickers.length ? `(${info?.tickers.join(", ")})` : ""}
@@ -82,17 +80,17 @@ const Info = (props) => {
             ) : null}
             <Source cik={cik} />
           </div>
-          <span className={[styles["header-desc"], inter.className].join(" ")}>
+          <span className={[styles["header-desc"], font.className].join(" ")}>
             {info?.data?.description}
           </span>
         </div>
-        {/* <span className={[styles["sub-desc"], inter.className].join(" ")}>
+        {/* <span className={[styles["sub-desc"], font.className].join(" ")}>
         {info.data["Description"]}
       </span> */}
       </div>
       <Table />
       <div className={styles["header"]}>
-        {/* <span className={[styles["main-header"], inter.className].join(" ")}>
+        {/* <span className={[styles["main-header"], font.className].join(" ")}>
           Info
         </span> */}
       </div>

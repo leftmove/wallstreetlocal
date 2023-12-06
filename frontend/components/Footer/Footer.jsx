@@ -1,8 +1,7 @@
 import styles from "./Footer.module.css";
 
 import Link from "next/link";
-import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "900" });
+import { font } from "@fonts";
 
 const Footer = () => {
   return (
@@ -10,13 +9,13 @@ const Footer = () => {
       <div className={styles["logo"]}>
         <Link href="/">
           <span
-            className={styles["logo-text"] + " " + inter.className}
+            className={styles["logo-text"] + " " + font.className}
             id={styles["whale"]}
           >
             <i>wallstreet</i>
           </span>
           <span
-            className={styles["logo-text"] + " " + inter.className}
+            className={styles["logo-text"] + " " + font.className}
             id={styles["market"]}
           >
             {" "}

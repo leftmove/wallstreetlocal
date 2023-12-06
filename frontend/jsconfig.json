@@ -3,6 +3,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
+      "@fonts": ["./components/fonts/index.js"],
       "@/components": ["./components/*"],
       "@/images": ["./public/static/*"]
     }

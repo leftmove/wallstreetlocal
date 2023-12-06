@@ -54,7 +54,7 @@ import Building from "@/components/Filer/Building";
 //   // if (queryError || queryLoading) {
 //   //   console.log(queryError);
 //   //   return (
-//   //     <div className={styles["loading"] + " " + inter.className}>
+//   //     <div className={styles["loading"] + " " + font.className}>
 //   //       Loading...
 //   //     </div>
 //   //   );
@@ -62,7 +62,7 @@ import Building from "@/components/Filer/Building";
 
 //   // if (res.status == 102) {
 //   //   return (
-//   //     <div className={styles["loading"] + " " + inter.className}>
+//   //     <div className={styles["loading"] + " " + font.className}>
 //   //       Building...
 //   //     </div>
 //   //   );
@@ -81,13 +81,13 @@ import Building from "@/components/Filer/Building";
 //   // if (infoError) {
 //   //   if ((infoError.status = 201 || infoError.status == 409)) {
 //   //     return (
-//   //       <div className={[styles["loading"], inter.className].join(" ")}>
+//   //       <div className={[styles["loading"], font.className].join(" ")}>
 //   //         Building...
 //   //       </div>
 //   //     );
 //   //   } else {
 //   //     return (
-//   //       <div className={[styles["loading"], inter.className].join(" ")}>
+//   //       <div className={[styles["loading"], font.className].join(" ")}>
 //   //         <Error statusCode={404} />
 //   //       </div>
 //   //     );
@@ -97,13 +97,13 @@ import Building from "@/components/Filer/Building";
 // if (infoError) {
 //   if ((infoError.status = 201 || infoError.status == 409)) {
 //     return (
-//       <div className={[styles["loading"], inter.className].join(" ")}>
+//       <div className={[styles["loading"], font.className].join(" ")}>
 //         Building...
 //       </div>
 //     );
 //   } else {
 //     return (
-//       <div className={[styles["loading"], inter.className].join(" ")}>
+//       <div className={[styles["loading"], font.className].join(" ")}>
 //         <Error statusCode={404} />
 //       </div>
 //     );

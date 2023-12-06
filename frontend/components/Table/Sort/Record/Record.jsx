@@ -1,7 +1,6 @@
 import styles from "./Record.module.css";
 
-import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "900" });
+import { font } from "@fonts";
 
 import { useSelector } from "react-redux";
 import { selectCik } from "@/redux/filerSlice";
@@ -21,7 +20,7 @@ const Record = (props) => {
       target="_blank"
     >
       <button className={styles["record-button"]}>
-        <span className={[styles["record-text"], inter.className].join(" ")}>
+        <span className={[styles["record-text"], font.className].join(" ")}>
           {variant === "csv" ? "Table" : "Raw"}
         </span>
         {variant === "csv" ? (

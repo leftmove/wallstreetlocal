@@ -5,8 +5,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import useSWR from "swr";
 
-import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "600" });
+import { fontLight } from "@fonts";
 
 import useEllipsis from "@/components/Hooks/useEllipsis";
 import useInterval from "@/components/Hooks/useInterval";
@@ -79,7 +78,7 @@ const Estimation = (props) => {
     return (
       <div className={styles["estimation"]}>
         <span
-          className={[styles["estimation-text"], inter.className].join(" ")}
+          className={[styles["estimation-text"], fontLight.className].join(" ")}
         >
           Estimating Time Remaining {ellipsis}
         </span>
@@ -91,7 +90,7 @@ const Estimation = (props) => {
   //   return (
   //     <div className={styles["estimation"]}>
   //       <span
-  //         className={[styles["estimation-text"], inter.className].join(" ")}
+  //         className={[styles["estimation-text"], fontLight.className].join(" ")}
   //       >
   //         Finishing Up {ellipsis}
   //       </span>
@@ -103,7 +102,7 @@ const Estimation = (props) => {
     return (
       <div className={styles["estimation"]}>
         <span
-          className={[styles["estimation-text"], inter.className].join(" ")}
+          className={[styles["estimation-text"], fontLight.className].join(" ")}
         >
           Failed to estimate time remaining.
         </span>
@@ -114,7 +113,9 @@ const Estimation = (props) => {
   const timeReadable = secondsToDhms(time.estimated);
   return (
     <div className={styles["estimation"]}>
-      <span className={[styles["estimation-text"], inter.className].join(" ")}>
+      <span
+        className={[styles["estimation-text"], fontLight.className].join(" ")}
+      >
         {timeReadable} {ellipsis}
       </span>
     </div>

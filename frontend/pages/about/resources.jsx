@@ -2,8 +2,7 @@ import styles from "@/styles/Resources.module.css";
 
 import Head from "next/head";
 import Link from "next/link";
-import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "900" });
+import { font } from "@fonts";
 
 export default function Resources() {
   return (
@@ -14,12 +13,12 @@ export default function Resources() {
       <div className={styles["resources"]}>
         <div className={styles["resources-head"]}>
           <h1
-            className={[styles["resources-header"], inter.className].join(" ")}
+            className={[styles["resources-header"], font.className].join(" ")}
           >
             Resources
           </h1>
           <span
-            className={[styles["resources-description"], inter.className].join(
+            className={[styles["resources-description"], font.className].join(
               " "
             )}
           >
@@ -32,7 +31,7 @@ export default function Resources() {
           <div className={styles["resources-item"]}>
             <Link href="https://www.sec.gov/edgar/search/" target="_blank">
               <button
-                className={[styles["resources-button"], inter.className].join(
+                className={[styles["resources-button"], font.className].join(
                   " "
                 )}
               >
@@ -40,7 +39,7 @@ export default function Resources() {
               </button>
             </Link>
             <span
-              className={[styles["button-tooltip"], inter.className].join(" ")}
+              className={[styles["button-tooltip"], font.className].join(" ")}
             >
               (Add 13F to the filing category field to find companies that have
               filed 13F filings.)
@@ -52,7 +51,7 @@ export default function Resources() {
               target="_blank"
             >
               <button
-                className={[styles["resources-button"], inter.className].join(
+                className={[styles["resources-button"], font.className].join(
                   " "
                 )}
               >
@@ -60,7 +59,7 @@ export default function Resources() {
               </button>
             </Link>
             <span
-              className={[styles["button-tooltip"], inter.className].join(" ")}
+              className={[styles["button-tooltip"], font.className].join(" ")}
             >
               (Bulk Data via the SEC)
             </span>
@@ -71,7 +70,7 @@ export default function Resources() {
               target="_blank"
             >
               <button
-                className={[styles["resources-button"], inter.className].join(
+                className={[styles["resources-button"], font.className].join(
                   " "
                 )}
               >
@@ -79,7 +78,7 @@ export default function Resources() {
               </button>
             </Link>
             <span
-              className={[styles["button-tooltip"], inter.className].join(" ")}
+              className={[styles["button-tooltip"], font.className].join(" ")}
             >
               (Bulk Data via the SEC)
             </span>
@@ -90,7 +89,7 @@ export default function Resources() {
               target="_blank"
             >
               <button
-                className={[styles["resources-button"], inter.className].join(
+                className={[styles["resources-button"], font.className].join(
                   " "
                 )}
               >
@@ -98,7 +97,7 @@ export default function Resources() {
               </button>
             </Link>
             <span
-              className={[styles["button-tooltip"], inter.className].join(" ")}
+              className={[styles["button-tooltip"], font.className].join(" ")}
             >
               (Bulk Data via the SEC)
             </span>
@@ -106,7 +105,7 @@ export default function Resources() {
           <div className={styles["resources-item"]}>
             <Link href="https://www.sec.gov/forms" target="_blank">
               <button
-                className={[styles["resources-button"], inter.className].join(
+                className={[styles["resources-button"], font.className].join(
                   " "
                 )}
               >
@@ -114,14 +113,14 @@ export default function Resources() {
               </button>
             </Link>
             <span
-              className={[styles["button-tooltip"], inter.className].join(" ")}
+              className={[styles["button-tooltip"], font.className].join(" ")}
             >
               (Explanations for Different Form Types)
             </span>
           </div>
         </div>
         <span
-          className={[styles["resources-description"], inter.className].join(
+          className={[styles["resources-description"], font.className].join(
             " "
           )}
         >

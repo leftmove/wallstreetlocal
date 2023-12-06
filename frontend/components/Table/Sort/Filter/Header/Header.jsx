@@ -1,7 +1,6 @@
 import styles from "./Header.module.css";
 
-import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "900" });
+import { font } from "@fonts";
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -41,7 +40,7 @@ const Header = (props) => {
       {...attributes}
       ref={setNodeRef}
     >
-      <span className={[inter.className, styles["filter-text"]].join(" ")}>
+      <span className={[font.className, styles["filter-text"]].join(" ")}>
         {header.display}
       </span>
     </button>

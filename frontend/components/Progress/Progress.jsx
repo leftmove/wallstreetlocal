@@ -2,8 +2,7 @@ import styles from "./Progress.module.css";
 import { useEffect, useReducer, useState } from "react";
 
 import { useRouter } from "next/navigation";
-import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "900" });
+import { font } from "@fonts";
 
 // import useSWRSubscription from "swr/subscription";
 import axios from "axios";
@@ -150,7 +149,7 @@ const Progress = (props) => {
   return (
     <>
       {/* {stop ? <Reload /> : null} */}
-      <div className={[styles["progress"], inter.className].join(" ")}>
+      <div className={[styles["progress"], font.className].join(" ")}>
         <div className={styles["header"]}>
           <span>Building Filer</span> <Source cik={cik} color="light" />
         </div>

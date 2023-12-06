@@ -2,13 +2,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
 
   height: fit-content;
-  padding: 25px;
+  padding: 10px;
+  max-width: 35vw;
   border-radius: 5px;
   margin: auto;
-  max-width: 80vw;
 
   /* opacity: 0;
   animation: slide-up 0.3s 2s;
@@ -18,6 +17,39 @@
   transition: transform 0.5s ease, opacity 0.5s ease;
 
   background-color: var(--secondary);
+}
+
+.recommended-lists {
+  display: flex;
+  justify-content: center;
+
+  padding: 10px;
+  width: 100%;
+}
+
+.list-title {
+  font-size: 1rem;
+
+  color: white;
+  transition: color 0.3s ease;
+}
+
+.list-title:hover {
+  color: var(--primary-dark);
+}
+
+.recommended-item {
+  font-size: 1.01rem;
+
+  cursor: pointer;
+  text-align: left;
+
+  color: white;
+  transition: color 0.3s ease;
+}
+
+.recommended-item:hover {
+  color: var(--primary-dark);
 }
 
 .recommended-homepage {
@@ -46,19 +78,14 @@
 .recommended-title {
   font-size: 2rem;
 
-  color: var(--primary-dark);
+  color: white;
 }
 
 .recommended-list {
-  display: flex;
-  justify-content: center;
+  text-align: center;
 
   height: 100%;
   width: 100%;
-}
-
-.reccommended-item {
-  display: inline;
 }
 
 .suggestion {

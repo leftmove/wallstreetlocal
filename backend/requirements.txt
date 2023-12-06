@@ -8,6 +8,7 @@ colorama==0.4.6
 Cython==3.0.4
 dnspython==2.3.0
 fastapi==0.95.1
+fastapi-analytics==1.2.0
 faust-cchardet==2.1.19
 gunicorn==21.2.0
 h11==0.14.0

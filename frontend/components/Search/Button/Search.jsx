@@ -5,8 +5,7 @@ import axios from "axios";
 import useSWR from "swr";
 
 import Link from "next/link";
-import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "800" });
+import { font } from "@fonts";
 
 import SearchIcon from "@/public/static/search.svg";
 
@@ -67,7 +66,7 @@ const Search = () => {
           <div className={styles["search"]}>
             <input
               type="text"
-              className={[styles["search-input"], inter.className].join(" ")}
+              className={[styles["search-input"], font.className].join(" ")}
               value={input.search}
               placeholder={input.focus ? "" : "Start Typing..."}
               onChange={(e) => setInput({ search: e.target.value })}
@@ -86,13 +85,13 @@ const Search = () => {
                       onClick={() => setShow(false)}
                     >
                       <div className={styles["result"]}>
-                        <span className={inter.className}>
+                        <span className={font.className}>
                           {result.name.toUpperCase()}{" "}
                           {result.tickers.length == 0
                             ? ""
                             : `(${result.tickers.join(", ")})`}
                         </span>
-                        <span className={inter.className}>
+                        <span className={font.className}>
                           CIK{result.cik.padStart(10, "0")}
                         </span>
                       </div>
@@ -117,7 +116,7 @@ const Search = () => {
   //     <div className={styles["search-box"]}>
   //       <input
   //         type="text"
-  //         className={[styles["search-input"], inter.className].join(" ")}
+  //         className={[styles["search-input"], font.className].join(" ")}
   //         value={searchInput}
   //         placeholder={isFocused ? "" : "Search..."}
   //         onChange={(e) => setSearchInput(e.target.value)}
@@ -133,13 +132,13 @@ const Search = () => {
   //               <li key={result.cik}>
   //                 <Link href={`/filers/${result.cik}`}>
   //                   <div className={styles["result"]}>
-  //                     <span className={inter.className}>
+  //                     <span className={font.className}>
   //                       {result.name.toUpperCase()}{" "}
   //                       {result.tickers.length == 0
   //                         ? ""
   //                         : `(${result.tickers.join(", ")})`}
   //                     </span>
-  //                     <span className={inter.className}>
+  //                     <span className={font.className}>
   //                       CIK{result.cik.padStart(10, "0")}
   //                     </span>
   //                   </div>

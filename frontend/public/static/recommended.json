@@ -12,12 +12,5 @@
     "cik": "1364742",
     "tickers": ["BLK"],
     "link": "https://www.blackrock.com"
-  },
-  {
-    "title": "Citadel Advisors LLC",
-    "description": "Citadel LLC is an American multinational hedge fund and financial services company. Founded in 1990 by Ken Griffin, it has more than $62 billion in assets under management as of December 2022.",
-    "cik": "1423053",
-    "tickers": [],
-    "link": "https://www.microsoft.com/"
   }
 ]

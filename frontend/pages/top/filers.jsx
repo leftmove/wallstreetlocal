@@ -1,8 +1,7 @@
 import styles from "@/styles/Top.module.css";
 
 import Head from "next/head";
-import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "800" });
+import { font } from "@fonts";
 
 import axios from "axios";
 
@@ -21,13 +20,13 @@ const TopFilers = (props) => {
         <title>Top Filers</title>
       </Head>
       <div className={styles["header"]}>
-        <span className={[styles["main-header"], inter.className].join(" ")}>
+        <span className={[styles["main-header"], font.className].join(" ")}>
           Top Filers
         </span>
       </div>
       <div className={styles["description"]}>
         <span
-          className={[styles["description-text"], inter.className].join(" ")}
+          className={[styles["description-text"], font.className].join(" ")}
         >
           The following consists of the top thirty investing firms in America,
           sorted by market value. Click on any filer to see extensive info from
@@ -43,7 +42,7 @@ const TopFilers = (props) => {
                   className={[
                     styles["column"],
                     styles["header-column"],
-                    inter.className,
+                    font.className,
                   ].join(" ")}
                 >
                   {header.display}

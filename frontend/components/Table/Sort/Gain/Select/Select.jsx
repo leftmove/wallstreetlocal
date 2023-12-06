@@ -17,8 +17,7 @@ import {
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "900" });
+import { font } from "@fonts";
 
 import Picker from "./Picker/Picker";
 import Loading from "@/components/Loading/Loading";
@@ -200,7 +199,7 @@ const Select = (props) => {
       <button
         className={[
           styles["button"],
-          inter.className,
+          font.className,
           active ? "" : styles["remove-table"],
         ].join(" ")}
         onClick={() => handleTable()}
@@ -208,7 +207,7 @@ const Select = (props) => {
         Table
       </button>
       <button
-        className={[styles["button"], styles["download"], inter.className].join(
+        className={[styles["button"], styles["download"], font.className].join(
           " "
         )}
         onClick={() => handleDownload()}

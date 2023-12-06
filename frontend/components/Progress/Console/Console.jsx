@@ -1,8 +1,7 @@
 import styles from "../Progress.module.css";
 import { useEffect, useRef } from "react";
 
-import { Inter } from "@next/font/google";
-const interLight = Inter({ subsets: ["latin"], weight: "700" });
+import { fontLight } from "@fonts";
 
 import useEllipsis from "@/components/Hooks/useEllipsis";
 
@@ -22,13 +21,13 @@ const Console = (props) => {
         return (
           <span
             key={index}
-            className={[styles["log"], interLight.className].join(" ")}
+            className={[styles["log"], fontLight.className].join(" ")}
           >
             {log}
           </span>
         );
       })}
-      <span className={[styles["log"], interLight.className].join(" ")}>
+      <span className={[styles["log"], fontLight.className].join(" ")}>
         {stall ? null : ellipsis}
       </span>
       <div className={styles["bottom"]} ref={ref}></div>

@@ -2,8 +2,7 @@ import styles from "./Reload.module.css";
 import { useEffect } from "react";
 
 import { useRouter } from "next/router";
-import { Inter } from "@next/font/google";
-const inter = Inter({ subsets: ["latin"], weight: "700" });
+import { fontLight } from "@fonts";
 
 import useEllipsis from "@/components/Hooks/useEllipsis";
 
@@ -18,7 +17,7 @@ const Reload = (props) => {
 
   return (
     <div className={styles["reload"]}>
-      <span className={[styles["reload-text"], inter.className].join(" ")}>
+      <span className={[styles["reload-text"], fontLight.className].join(" ")}>
         Reloading Page {ellipsis}
       </span>
     </div>

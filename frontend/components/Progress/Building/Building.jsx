@@ -1,8 +1,7 @@
 import styles from "./Building.module.css";
 
 import Link from "next/link";
-import { Inter } from "@next/font/google";
-const interLight = Inter({ subsets: ["latin"], weight: "700" });
+import { fontLight } from "@fonts";
 
 import Loading from "@/components/Loading/Loading";
 
@@ -11,7 +10,7 @@ const Building = (props) => {
     <Link href={`/filers/${props.cik}?persist=true`}>
       <div className={[styles["building"]].join(" ")}>
         <span
-          className={[styles["building-text"], interLight.className].join(" ")}
+          className={[styles["building-text"], fontLight.className].join(" ")}
         >
           Filer building still partially in progress.
         </span>
