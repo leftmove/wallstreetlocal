@@ -2,7 +2,8 @@ import os
 
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
-from api_analytics.fastapi import Analytics
+
+# from api_analytics.fastapi import Analytics
 
 
 ENVIRONMENT = os.environ["ENVIRONMENT"]
@@ -14,8 +15,8 @@ middleware = [
     )
 ]
 
-if ENVIRONMENT == "production":
-    middleware.append(Middleware(Analytics, api_key=ANALYTICS_API_KEY))
+# if ENVIRONMENT == "production":
+#     middleware.append(Middleware(Analytics, api_key=ANALYTICS_API_KEY))
 
 
 def pipeline():
