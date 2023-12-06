@@ -44,7 +44,7 @@ services:
 
   proxy:
     container_name: proxy
-    image: jc21/nginx-proxy-manager:latest
+    image: jc21/nginx-proxy-manager:2.9.21
     restart: unless-stopped
     ports:
       - 81:81
