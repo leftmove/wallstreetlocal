@@ -4,7 +4,7 @@ import time
 import requests
 
 
-import database
+from . import database
 
 
 print("[ APIs Initializing ] ...")
