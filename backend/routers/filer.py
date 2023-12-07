@@ -527,17 +527,11 @@ async def top():
 
 def create_filer_try(filer_ciks):
     for cik in filer_ciks:
-        found_filer = database.find_filer(cik)
-        if found_filer == None:
-            try:
-                sec_data = sec_filer_search(cik)
-            except Exception as e:
-                stamp = str(datetime.now())
-                with open(f"./public/errors/error-{stamp}.log", "w+") as f:
-                    f.write(str(e))
-                print("Error Occured")
         try:
-            create_filer(sec_data, cik)
+            found_filer = database.find_filer(cik)
+            if found_filer == None:
+                sec_data = sec_filer_search(cik)
+                create_filer(sec_data, cik)
         except Exception as e:
             stamp = str(datetime.now())
             with open(f"./public/errors/error-{stamp}.log", "w+") as f:

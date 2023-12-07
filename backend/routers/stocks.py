@@ -45,7 +45,13 @@ async def query_stocks(stock: Tickers, background: BackgroundTasks):
 @cache
 @router.get("/info", tags=["stocks", "filers"], status_code=200)
 async def stock_info(
-    cik: str, offset: int, limit: int, sort: str, sold: bool, reverse: bool, na: bool
+    cik: str,
+    limit: int,
+    offset: int,
+    sort: str,
+    sold: bool,
+    reverse: bool,
+    unavailable: bool,
 ):
     try:
         pipeline = [
@@ -55,15 +61,19 @@ async def stock_info(
             {"$replaceRoot": {"newRoot": "$stocks"}},
             {"$group": {"_id": "$cusip", "doc": {"$first": "$$ROOT"}}},
             {"$replaceRoot": {"newRoot": "$doc"}},
-            {"$sort": {sort: 1 if reverse else -1, "_id": 1}},
-            {"$skip": offset},
-            {"$limit": limit},
         ]
-        # if not sold:
-        #     pipeline.append({"$match": {"stocks.global.sold": False}})
-        # if not na:
-        #     pipeline.append({"$match": {sort_key: {"$ne": "NA"}}})
-        # pipeline.append({"$project": {"stocks.global": 1}})
+        if not sold:
+            pipeline.append({"$match": {"sold": False}})
+        if not unavailable:
+            pipeline.append({"$match": {sort: {"$ne": "NA"}}})
+        pipeline.extend(
+            [
+                {"$sort": {sort: 1 if reverse else -1, "_id": 1}},
+                {"$project": {"_id": 0}},
+                {"$skip": offset},
+                {"$limit": limit},
+            ]
+        )
         cursor = database.search_filers(pipeline)
     except Exception as e:
         print(e)

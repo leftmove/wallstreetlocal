@@ -18,308 +18,11 @@ import {
   selectCik,
   selectStocks,
   selectPagination,
+  selectSort,
 } from "@/redux/filerSlice";
 
-// const fetcher = (url, stocks, dispatch) => {
-//   console.log("here:", stocks);
-//   axios
-//     .post(url, {
-//       cusips: [...Object.entries(stocks)].map((s) => s.cusip),
-//     })
-//     .then((res) => res.data)
-//     .then((data) => {
-//       const results = data.results;
-//       const updatedStocks = new Map(
-//         Object.keys(stocks).map((cusip) => {
-//           const stock = stocks[cusip];
-//           const result = results[cusip];
-//           return { ...stock, ...result };
-//         })
-//       );
-//       dispatch(setStocks(updatedStocks));
-//     });
-// };
-
-// const table = stocks.map((stock) => {
-//   const cusip = stock.cusip;
-//   const name = stock.name;
-//   const ticker = stock.ticker;
-//   const sector = stock.sector;
-//   const industry = stock.industry;
-
-//   const priceRecent = stock.recent_price;
-//   const priceBought = stock.timeseries
-//     ? stock.timeseries[stock.prices.buy].close
-//     : "NA";
-
-//   const sharesHeld = stock.shares_held
-//     .toString()
-//     .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-//   const marketValue = `$${stock.market_value
-//     .toString()
-//     .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
-//   const portfolioPercentage = stock.percent_portfolio
-//     ? `${(stock.percent_portfolio * 100).toFixed(2)}`
-//     : "NA";
-//   const ownershipPercantage =
-//     stock.percent_ownership !== "NA"
-//       ? `${(stock.percent_ownership * 100).toFixed(2)}`
-//       : "NA";
-//   const percentGain =
-//     stock.recent_price == "NA"
-//       ? "NA"
-//       : (((priceRecent - priceBought) / priceBought) * 100).toFixed(2);
-
-//   const buyDate = stock.timeseries
-//     ? new Date(stock.timeseries[stock.prices.buy].time * 1000)
-//     : "NA";
-//   const reportDate = new Date(stock.date * 1000);
-//   const buyQtr =
-//     buyDate !== "NA"
-//       ? `${quarters[buyDate.getMonth()]} ${buyDate.getFullYear()}`
-//       : "NA";
-//   const reportQtr = `${
-//     quarters[reportDate.getMonth()]
-//   } ${reportDate.getFullYear()}`;
-
-//   return (
-//     <tr key={cusip}>
-//       <td // Name
-//         className={[
-//           styles["column"],
-//           styles["body-column"],
-//           font.className,
-//         ].join(" ")}
-//       >
-//         {name} ({ticker})
-//       </td>
-//       <td // Sector
-//         className={[
-//           styles["column"],
-//           styles["body-column"],
-//           font.className,
-//         ].join(" ")}
-//       >
-//         {sector}
-//       </td>
-//       <td // Industry
-//         className={[
-//           styles["column"],
-//           styles["body-column"],
-//           font.className,
-//         ].join(" ")}
-//       >
-//         {industry}
-//       </td>
-//       <td // Shares Held
-//         className={[
-//           styles["column"],
-//           styles["body-column"],
-//           font.className,
-//         ].join(" ")}
-//       >
-//         {sharesHeld}
-//       </td>
-//       <td // Market Value
-//         className={[
-//           styles["column"],
-//           styles["body-column"],
-//           font.className,
-//         ].join(" ")}
-//       >
-//         {marketValue}
-//       </td>
-//       <td // % of Portfolio
-//         className={[
-//           styles["column"],
-//           styles["body-column"],
-//           font.className,
-//         ].join(" ")}
-//       >
-//         {portfolioPercentage}
-//       </td>
-//       <td // % Ownership
-//         className={[
-//           styles["column"],
-//           styles["body-column"],
-//           font.className,
-//         ].join(" ")}
-//       >
-//         {ownershipPercantage}
-//       </td>
-//       <td // Buy Date
-//         className={[
-//           styles["column"],
-//           styles["body-column"],
-//           font.className,
-//         ].join(" ")}
-//       >
-//         {buyQtr}
-//       </td>
-//       <td // Price Paid
-//         className={[
-//           styles["column"],
-//           styles["body-column"],
-//           font.className,
-//         ].join(" ")}
-//       >
-//         {priceBought}
-//       </td>
-//       <td // Recent Price
-//         className={[
-//           styles["column"],
-//           styles["body-column"],
-//           font.className,
-//         ].join(" ")}
-//       >
-//         {priceRecent}
-//       </td>
-//       <td // % Gain
-//         className={[
-//           styles["column"],
-//           styles["body-column"],
-//           font.className,
-//         ].join(" ")}
-//       >
-//         {percentGain}
-//       </td>
-//       <td // Date
-//         className={[
-//           styles["column"],
-//           styles["body-column"],
-//           font.className,
-//         ].join(" ")}
-//       >
-//         {reportQtr}
-//       </td>
-//     </tr>
-//   );
-// });
-
-// useEffect(() => {
-//   const url = server + "/stocks/info";
-//   const time = 24 * 1000 * 60 * 60;
-//   const cacheStocks = async (url) => {
-//     const value = cacheData.get(url);
-//     if (value) {
-//       return value;
-//     } else {
-//       return false;
-//     }
-//   };
-
-//   cacheStocks(url).then((check) => {
-//     if (check) {
-//       console.log(check);
-//       dispatch(setStocks(check));
-//     } else {
-//       const stocks = Object.keys(filer.stocks).map(
-//         (cusip) => filer.stocks[cusip]
-//       );
-//       axios
-//         .post(url, {
-//           cusip: stocks.map((s) => s.cusip),
-//         })
-//         .then((res) => res.data)
-//         .then((data) => {
-//           const results = data.results;
-//           const cache = stocks.map((stock) => {
-//             const cusip = stock.cusip;
-//             const result = results[cusip];
-//             return { ...stock, ...result };
-//           });
-//           cacheData.put(url, cache, time);
-//           dispatch(setStocks(cache));
-//           setStatus("");
-//         })
-//         .catch((e) => {
-//           setStatus("error");
-//         });
-//     }
-//   });
-
-//   // eslint-disable-next-line react-hooks/exhaustive-deps
-// }, []);
-
-// switch (accessor) {
-//   case "name":
-//     case "sector":
-//     case "industry":
-//       next.sort((a, b) => {
-//         if (a[accessor] === undefined) {
-//           return 1;
-//         } else if (b[accessor] === undefined) {
-//           return -1;
-//         } else {
-//           return a[accessor].localeCompare(b[accessor]);
-//         }
-//       });
-//       break;
-//     case "shares_held":
-//     case "market_value":
-//     case "percent_portfolio":
-//     case "percent_ownership":
-//     case "percent_gain":
-//     case "recent_price":
-//     case "price_paid":
-//     case "date":
-//       next.sort((a, b) => a[accessor] - b[accessor]);
-//       break;
-//     case "buy":
-//       next.sort((a, b) => {
-//         return (
-//           new Date(a.prices[accessor]).getTime() -
-//           new Date(b.prices[accessor]).getTime()
-//         );
-//       });
-//   }
-// switch (sort.type) {
-//   case "string":
-//     next.sort((a, b) => a[accessor].localeCompare(b[accessor]));
-//   case "number":
-//     next.sort((a, b) => a[accessor] - b[accessor]);
-// }
-
-// const cacheStocks = async (url) => {
-//   const value = cacheData.get(url);
-//   if (value) {
-//     return value;
-//   } else {
-//     return false;
-//   }
-// };
-
-// const [status, setStatus] = useReducer(
-//   (prev, next) => {
-//     prev.building = prev.loading = prev.error = false;
-//     return { ...prev, ...next };
-//   },
-//   {
-//     loading: true,
-//     building: false,
-//     error: false,
-//   }
-// );
-// useEffect(() => {
-//   axios
-//     .get(server + "/stocks/info", {
-//       params: { cik: filer.cik },
-//     })
-//     .then((res) => res.data)
-//     .then((data) => {
-//       dispatch(setStocks(data.stocks));
-//       setStatus({ loading: false });
-//     })
-//     .catch((e) => {
-//       console.error(e);
-//       setStatus({ error: true });
-//     });
-
-//   // eslint-disable-next-line react-hooks/exhaustive-deps
-// }, []);
-
 const server = process.env.NEXT_PUBLIC_SERVER;
-const getFetcher = (url, cik) =>
+const getFetcher = (url, cik, { offset, sold, unavailable }) =>
   axios
     .get(url, { params: { cik: cik } })
     .then((r) => {
@@ -338,15 +41,15 @@ const Table = () => {
   const dispatch = useDispatch();
   const cik = useSelector(selectCik);
   const stocks = useSelector(selectStocks);
-  const pagination = useSelector(selectPagination);
+  const sort = useSelector(selectSort);
 
   const {
     data,
     error,
     isLoading: loading,
   } = useSWR(
-    cik ? [server + "/stocks/info", cik] : null,
-    ([url, cik]) => getFetcher(url, cik),
+    cik ? [server + "/stocks/info", cik, sort] : null,
+    ([url, cik, sort]) => getFetcher(url, cik, sort),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -371,12 +74,9 @@ const Table = () => {
           <Header />
         </thead>
         <tbody>
-          {stocks.map((s, i) =>
-            i >= pagination.offset &&
-            i < pagination.offset + pagination.limit ? (
-              <Row key={s.cusip} stock={s} />
-            ) : null
-          )}
+          {stocks.map((s) => (
+            <Row key={s.cusip} stock={s} />
+          ))}
         </tbody>
       </table>
       <Pagination />
