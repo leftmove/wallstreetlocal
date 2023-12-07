@@ -391,7 +391,6 @@ export const selectHeaders = (state) => state.filer.headers;
 export const selectStocks = (state) => {
   const filer = state.filer;
   const sort = filer.sort;
-  const accessor = sort.sort;
   let next = filer.value.slice();
 
   if (!next) return next;
@@ -402,39 +401,39 @@ export const selectStocks = (state) => {
     });
   }
 
-  if (sort.sold == false) {
-    next = next.filter((s) => s.sold == false);
-  }
+  // if (sort.sold == false) {
+  //   next = next.filter((s) => s.sold == false);
+  // }
 
-  if (sort.na == false) {
-    next = next.filter((s) => s[accessor] != "NA");
-  }
+  // if (sort.na == false) {
+  //   next = next.filter((s) => s[accessor] != "NA");
+  // }
 
-  if (sort.type == "string") {
-    next = next.sort((a, b) => {
-      a = a[accessor];
-      b = b[accessor];
-      const unknown = convertUnknown(a, b);
-      if (unknown === null) {
-        return a.localeCompare(b);
-      } else return unknown;
-    });
-  }
+  // if (sort.type == "string") {
+  //   next = next.sort((a, b) => {
+  //     a = a[accessor];
+  //     b = b[accessor];
+  //     const unknown = convertUnknown(a, b);
+  //     if (unknown === null) {
+  //       return a.localeCompare(b);
+  //     } else return unknown;
+  //   });
+  // }
 
-  if (sort.type == "number") {
-    next = next.sort((a, b) => {
-      a = a[accessor];
-      b = b[accessor];
-      const unknown = convertUnknown(a, b);
-      if (unknown === null) {
-        return a - b;
-      } else return unknown;
-    });
-  }
+  // if (sort.type == "number") {
+  //   next = next.sort((a, b) => {
+  //     a = a[accessor];
+  //     b = b[accessor];
+  //     const unknown = convertUnknown(a, b);
+  //     if (unknown === null) {
+  //       return a - b;
+  //     } else return unknown;
+  //   });
+  // }
 
-  if (sort.reverse) {
-    next = next.reverse();
-  }
+  // if (sort.reverse) {
+  //   next = next.reverse();
+  // }
 
   return next;
 };

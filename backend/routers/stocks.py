@@ -44,14 +44,36 @@ async def query_stocks(stock: Tickers, background: BackgroundTasks):
 
 @cache
 @router.get("/info", tags=["stocks", "filers"], status_code=200)
-async def stock_info(cik: str):
-    stocks = database.find_filer(
-        cik, {"_id": 0, "stocks.local": 0, "stocks.global.timeseries": 0}
-    )
-    if stocks == None:
+async def stock_info(
+    cik: str, offset: int, limit: int, sort: str, sold: bool, reverse: bool, na: bool
+):
+    try:
+        pipeline = [
+            {"$match": {"cik": cik}},
+            {"$unwind": "$stocks.global"},
+            {"$addFields": {"stocks": {"$mergeObjects": [{}, "$stocks.global"]}}},
+            {"$replaceRoot": {"newRoot": "$stocks"}},
+            {"$group": {"_id": "$cusip", "doc": {"$first": "$$ROOT"}}},
+            {"$replaceRoot": {"newRoot": "$doc"}},
+            {"$sort": {sort: 1 if reverse else -1, "_id": 1}},
+            {"$skip": offset},
+            {"$limit": limit},
+        ]
+        # if not sold:
+        #     pipeline.append({"$match": {"stocks.global.sold": False}})
+        # if not na:
+        #     pipeline.append({"$match": {sort_key: {"$ne": "NA"}}})
+        # pipeline.append({"$project": {"stocks.global": 1}})
+        cursor = database.search_filers(pipeline)
+    except Exception as e:
+        print(e)
+        raise HTTPException(detail="Invalid search requirements.", status_code=422)
+
+    if cursor == None:
         raise HTTPException(detail="Filer not found.", status_code=404)
     try:
-        stock_list = stocks["stocks"]["global"]
+        # stock_list = [filer["stocks"]["global"] for filer in cursor]
+        stock_list = [{**result, "_id": 1} for result in cursor]
     except KeyError:
         raise HTTPException(detail="Filer not found.", status_code=404)
 

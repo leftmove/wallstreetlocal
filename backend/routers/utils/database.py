@@ -52,6 +52,11 @@ def find_filer(cik, project={"_id": 0}):
     return result
 
 
+def search_filers(pipeline):
+    cursor = main.aggregate(pipeline)
+    return cursor
+
+
 def add_filer(company):
     main.insert_one(company)
 
