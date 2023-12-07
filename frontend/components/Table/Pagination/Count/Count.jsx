@@ -1,5 +1,5 @@
 import styles from "../Pagination.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { setOffset, selectPagination } from "@/redux/filerSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,9 +11,13 @@ const Count = () => {
   const pagination = useSelector(selectPagination);
 
   const totalPageCount = Math.ceil(pagination.count / pagination.limit);
-  const realPageCount = pagination.offset / pagination.limit + 1;
+  const realPageCount = Math.floor(pagination.offset / pagination.limit) + 1;
   const [focus, setFocus] = useState(false);
   const [pageCount, setPageCount] = useState(1);
+
+  useEffect(() => {
+    setPageCount(realPageCount);
+  }, realPageCount);
 
   const handleBlur = () => {
     if (pageCount >= 1 && pageCount <= totalPageCount) {

@@ -525,32 +525,38 @@ async def top():
     return {"filers": filers}
 
 
+def create_filer_try(filer_ciks):
+    for cik in filer_ciks:
+        found_filer = database.find_filer(cik)
+        if found_filer == None:
+            try:
+                sec_data = sec_filer_search(cik)
+            except Exception as e:
+                stamp = str(datetime.now())
+                with open(f"./public/errors/error-{stamp}.log", "w+") as f:
+                    f.write(str(e))
+                print("Error Occured")
+        try:
+            create_filer(sec_data, cik)
+        except Exception as e:
+            stamp = str(datetime.now())
+            with open(f"./public/errors/error-{stamp}.log", "w+") as f:
+                f.write(str(e))
+            print("Error Occured")
+
+
 @cache(24)
 @router.get("/top/update", status_code=200, include_in_schema=False)
-async def update_top(password: str):
+async def update_top(password: str, background: BackgroundTasks):
     if password != "whale":
         return {}
 
     with open("./public/top.json") as t:
         filer_ciks = json.load(t)
 
-    for cik in filer_ciks:
-        found_filer = database.find_filer(cik)
-        if found_filer == None:
-            try:
-                sec_data = sec_filer_search(cik)
-            except Exception:
-                raise HTTPException(404, detail="CIK not found.")
+    background.add_task(create_filer_try, filer_ciks)
 
-            try:
-                create_filer(sec_data, cik)
-            except Exception as e:
-                stamp = str(datetime.now())
-                with open(f"./public/errors/error-{stamp}.log", "w+") as f:
-                    f.write(str(e))
-                print("Error Occured")
-
-    return {"message": "Filers updated."}
+    return {"message": "Filers updating."}
 
 
 @router.get("/hang", status_code=200, include_in_schema=False)
