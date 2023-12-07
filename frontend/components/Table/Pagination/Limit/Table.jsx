@@ -21,7 +21,7 @@ import {
 } from "@/redux/filerSlice";
 
 // const fetcher = (url, stocks, dispatch) => {
-//   console.log("here:", stocks);
+//   cons("here:", stocks);
 //   axios
 //     .post(url, {
 //       cusips: [...Object.entries(stocks)].map((s) => s.cusip),
@@ -210,7 +210,7 @@ import {
 
 //   cacheStocks(url).then((check) => {
 //     if (check) {
-//       console.log(check);
+//       cons(check);
 //       dispatch(setStocks(check));
 //     } else {
 //       const stocks = Object.keys(filer.stocks).map(

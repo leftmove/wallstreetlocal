@@ -35,12 +35,12 @@ const Recommended = (props) => {
       ].join(" ")}
     >
       <span className={[styles["recommended-title"], font.className].join(" ")}>
-        Popular Filers
+        popular filers
       </span>
       <div className={[styles["recommended-lists"], font.className].join(" ")}>
         <div className={styles["recommended-list"]}>
           <Link href="/top/filers">
-            <span className={styles["list-title"]}>Biggest</span>
+            <span className={styles["list-title"]}>biggest</span>
           </Link>
           <ul>
             {searchedFilers.map((filer) => (
@@ -53,7 +53,7 @@ const Recommended = (props) => {
           </ul>
         </div>
         <div className={styles["recommended-list"]}>
-          <span className={styles["list-title"]}>Most Searched</span>
+          <span className={styles["list-title"]}>most searched</span>
           <ul>
             {searchedFilers.map((filer) => (
               <li className={styles["recommended-item"]}>

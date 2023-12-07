@@ -110,6 +110,8 @@ const initialState = {
     na: true,
     sold: false,
     reverse: false,
+    pagination: 100,
+    offset: 0,
   },
   dates: [
     {
@@ -360,6 +362,17 @@ export const filerSlice = createSlice({
       state.dates = dates;
       return state;
     },
+    setPagination(state, action) {
+      state.sort.pagination = action.payload;
+      return state;
+    },
+    setOffset(state, action) {
+      const payload = action.payload;
+      if (payload >= 0) {
+        state.sort.offset = Number(payload);
+      }
+      return state;
+    },
     [HYDRATE]: (state, action) => {
       return {
         ...state,
@@ -429,6 +442,11 @@ export const selectDates = (state) =>
   state.filer.dates.map((d) => {
     return { ...d, id: d.accessor };
   });
+export const selectPagination = (state) => {
+  const sort = state.filer.sort;
+  const count = selectStocks(state).length;
+  return { limit: sort.pagination, offset: sort.offset, count };
+};
 export const {
   setCik,
   activateHeader,
@@ -448,6 +466,8 @@ export const {
   openDate,
   updateDates,
   newDate,
+  setPagination,
+  setOffset,
 } = filerSlice.actions;
 
 export default filerSlice.reducer;

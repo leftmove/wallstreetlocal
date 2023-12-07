@@ -542,7 +542,13 @@ async def update_top(password: str):
             except Exception:
                 raise HTTPException(404, detail="CIK not found.")
 
-            create_filer(sec_data, cik)
+            try:
+                create_filer(sec_data, cik)
+            except Exception as e:
+                stamp = str(datetime.now())
+                with open(f"./public/errors/error-{stamp}.log", "w+") as f:
+                    f.write(str(e))
+                print("Error Occured")
 
     return {"message": "Filers updated."}
 

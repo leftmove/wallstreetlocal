@@ -32,19 +32,21 @@ const Navbar = (props) => {
       <div>
         <ul className={styles["about"]}>
           <li className={styles["item"] + " " + font.className}>
-            <Link href="/top/filers">top filers</Link>
+            <Link href="/top/filers">Top Filers</Link>
           </li>
           {/* <li className={styles["item"] + " " + font.className}>
           <Link href="/">about</Link>
         </li> */}
           <li className={styles["item"] + " " + font.className}>
-            <Link href="/about/resources">resources</Link>
+            <Link href="/about/resources">Resources</Link>
           </li>
           {/* <li className={styles["item"] + " " + font.className}>
           <Link href="/">pricing</Link>
         </li> */}
           <li className={styles["item"] + " " + font.className}>
-            <Link href="/about/contact">contact</Link>
+            <Link href="https://github.com/bruhbruhroblox" target="_blank">
+              Contact
+            </Link>
           </li>
         </ul>
       </div>

@@ -69,8 +69,8 @@ export async function getServerSideProps() {
   const data = await axios
     .get(server + "/filers/top")
     .then((r) => r.data)
-    .catch((e) => console.log(e));
-  console.log(data);
+    .catch((e) => cons(e));
+  cons(data);
   const filers = data?.filers || [];
   return {
     props: {
