@@ -4,10 +4,12 @@ import { useEffect, useRef } from "react";
 import { fontLight } from "@fonts";
 
 import useEllipsis from "@/components/Hooks/useEllipsis";
+import Loading from "@/components/Loading/Loading";
 
 const Console = (props) => {
   const logs = props.logs;
   const stall = props.stall || true;
+  const loading = props.loading || false;
 
   const { ellipsis } = useEllipsis();
   const ref = useRef(null);
@@ -17,6 +19,7 @@ const Console = (props) => {
 
   return (
     <div className={styles["logs"]}>
+      {loading ? <Loading /> : null}
       {logs.map((log, index) => {
         return (
           <span

@@ -138,10 +138,6 @@ const Progress = (props) => {
     }
   }
 
-  if (loading) {
-    return <Loading />;
-  }
-
   if (stop) {
     return <Redirect cik={cik} delay={0} />;
   }
@@ -153,7 +149,7 @@ const Progress = (props) => {
         <div className={styles["header"]}>
           <span>Building Filer</span> <Source cik={cik} color="light" />
         </div>
-        <Console logs={log.logs} />
+        <Console loading={loading} logs={log.logs} />
       </div>
       {persist ? null : <Estimation cik={cik} />}
     </>

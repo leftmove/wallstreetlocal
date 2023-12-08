@@ -80,7 +80,7 @@ const Estimation = (props) => {
         <span
           className={[styles["estimation-text"], fontLight.className].join(" ")}
         >
-          estimating time remaining {ellipsis}
+          Estimating Time Remaining {ellipsis}
         </span>
       </div>
     );

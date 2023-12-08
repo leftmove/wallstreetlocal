@@ -199,8 +199,8 @@ const Select = (props) => {
       <button
         className={[
           styles["button"],
-          font.className,
           active ? "" : styles["remove-table"],
+          font.className,
         ].join(" ")}
         onClick={() => handleTable()}
       >

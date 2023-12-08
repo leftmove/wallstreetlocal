@@ -370,9 +370,10 @@ export const filerSlice = createSlice({
     setCount(state, action) {
       const sort = state.sort;
       const payload = action.payload;
+      const pagination = sort.pagination;
 
-      if (sort.pagination < 0) {
-        state.sort.pagination = payload;
+      if (pagination < 0) {
+        state.sort.pagination = payload > 100 ? 100 : payload;
       }
 
       state.sort.count = payload;
