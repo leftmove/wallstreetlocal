@@ -63,6 +63,8 @@ async def stock_info(
             {"$group": {"_id": "$cusip", "doc": {"$first": "$$ROOT"}}},
             {"$replaceRoot": {"newRoot": "$doc"}},
         ]
+        if limit < 0:
+            raise LookupError
         if not sold:
             pipeline.append({"$match": {"sold": False}})
         if not unavailable:
@@ -78,10 +80,9 @@ async def stock_info(
                 {"$sort": {sort: 1 if reverse else -1, "_id": 1}},
                 {"$project": {"_id": 0}},
                 {"$skip": offset},
+                {"$limit": limit}
             ]
         )
-        if limit > 0:
-            pipeline.append({"$limit": limit})
         cursor = database.search_filers(pipeline)
     except Exception as e:
         print(e)
