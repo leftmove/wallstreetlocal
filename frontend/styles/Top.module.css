@@ -61,6 +61,14 @@
   padding: 16px;
 }
 
+.column-link {
+  transition: color 0.3s ease;
+}
+
+.column-link:hover {
+  color: var(--primary);
+}
+
 .column-highlighted {
   color: white;
 }

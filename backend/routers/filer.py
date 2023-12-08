@@ -441,7 +441,8 @@ async def top():
             )
             filer["market_value"] = f"${int(filer['market_value']):,}"
             filer.pop("_id", None)
-    except:
+    except Exception as e:
+        print(e)
         raise HTTPException(detail="Error getting values.", status_code=422)
 
     return {"filers": filers_sorted}

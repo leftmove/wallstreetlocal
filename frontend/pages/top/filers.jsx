@@ -61,11 +61,16 @@ const TopFilers = (props) => {
                     switch (accessor) {
                       case "name":
                         display = (
-                          <Link href={`/filers/${filer.cik}`}>
+                          <Link
+                            href={`/filers/${filer.cik}`}
+                            className={styles["column-link"]}
+                          >
                             {display.toUpperCase()}
                           </Link>
                         );
                         break;
+                      case "cik":
+                        display = display.padStart(10, "0");
                       case "date":
                       case "market_value":
                       default:
