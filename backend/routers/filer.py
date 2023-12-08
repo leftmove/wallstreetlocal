@@ -435,6 +435,7 @@ async def top():
         filers_sorted = sorted(
             filers, key=lambda c: c.get("market_value", float("inf")), reverse=True
         )
+        [delattr(f, "_id") for f in filers_sorted]
     except:
         raise HTTPException(detail="Error getting values.")
 
