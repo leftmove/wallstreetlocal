@@ -300,7 +300,7 @@ async def filer_info(cik: str):
         raise HTTPException(404, detail="Filer not found.")
 
     status = database.find_log(cik, {"status": 1, "_id": 0})
-    filer["status"] = status
+    filer["status"] = status["status"]
 
     return {"description": "Found filer.", "filer": filer}
 
