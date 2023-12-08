@@ -430,7 +430,11 @@ async def top():
         filer = database.find_filer(cik, project)
         if filer != None:
             filers.append(filer)
-    filers = filers.sort(key=lambda c: c["market_value"], reverse=True)
+
+    try:
+        filers = filers.sort(key=lambda c: c.get("market_value"), reverse=True)
+    except:
+        raise HTTPException(detail="Error getting values.")
 
     return {"filers": filers}
 

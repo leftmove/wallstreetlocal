@@ -51,7 +51,7 @@ const TopFilers = (props) => {
           </thead>
           <tbody>
             {props.filers.map((filer) => (
-              <tr>
+              <tr key={filer.cik}>
                 {headers.map((header) => (
                   <td>{filer[header.accessor]}</td>
                 ))}
@@ -70,7 +70,6 @@ export async function getServerSideProps() {
     .get(server + "/filers/top")
     .then((r) => r.data)
     .catch((e) => console.log(e));
-  console.log(data);
   const filers = data?.filers || [];
   return {
     props: {

@@ -390,11 +390,12 @@ def stock_filter(stocks):
 def create_json(cik, filename):
     file_path = f"./public/filers/{filename}"
     try:
-        with open(file_path, "r"):
-            pass
+        with open(file_path, "r") as f:
+            filer_json = json.load(f)
+            if (datetime.now().timestamp() - filer_json["updated"]) > 60 * 60 * 3:
+                raise ValueError
     except:
         filer = database.find_filer(cik, {"_id": 0, "stocks.global.timeseries": 0})
-        print(filer)
         with open(file_path, "w") as r:
             json.dump(filer, r, indent=6)
 

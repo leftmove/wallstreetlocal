@@ -204,7 +204,7 @@ const Select = (props) => {
         ].join(" ")}
         onClick={() => handleTable()}
       >
-        Table
+        <span className={font.className}>Table</span>
       </button>
       <button
         className={[styles["button"], styles["download"], font.className].join(
@@ -212,7 +212,7 @@ const Select = (props) => {
         )}
         onClick={() => handleDownload()}
       >
-        Download
+        <span className={font.className}>Download</span>
       </button>
     </div>
   );
