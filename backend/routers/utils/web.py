@@ -203,9 +203,8 @@ def sort_rows(row_one, row_two):
 def process_keys(tickers, name, cik):
     if tickers == []:
         try:
-            data = api.stock_request(name, cik)
-            stock_info = data["result"][0]
-        except (KeyError, IndexError) as e:
+            stock_info = api.stock_request(name, cik)
+        except (KeyError, IndexError, LookupError) as e:
             print(f"Failed to get Name Data {name}\n{e}\n")
             stock_info = {}
     else:
