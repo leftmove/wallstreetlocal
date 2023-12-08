@@ -9,7 +9,7 @@ const headers = [
   { display: "Name", accessor: "name" },
   { display: "CIK", accessor: "cik" },
   { display: "Market Value (Sorted)", accessor: "market_value" },
-  { display: "Last Updated", accessor: "updated" },
+  { display: "Last Updated", accessor: "date" },
 ];
 
 const TopFilers = (props) => {
@@ -53,7 +53,9 @@ const TopFilers = (props) => {
             {props.filers.map((filer) => (
               <tr key={filer.cik}>
                 {headers.map((header) => (
-                  <td>{filer[header.accessor]}</td>
+                  <td className={[styles["column"], font.className].join(" ")}>
+                    {filer[header.accessor]}
+                  </td>
                 ))}
               </tr>
             ))}

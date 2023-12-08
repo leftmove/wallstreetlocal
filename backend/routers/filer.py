@@ -436,7 +436,11 @@ async def top():
         filers_sorted = sorted(
             filers, key=lambda c: c.get("market_value", float("inf")), reverse=True
         )
-        [f.pop("_id", None) for f in filers_sorted]
+        for filer in filers_sorted:
+            filer["date"] = datetime.utcfromtimestamp(filer["updated"]).strftime(
+                "%Y-%m-%d"
+            )
+            filer.pop("_id", None)
     except:
         raise HTTPException(detail="Error getting values.", status_code=422)
 
@@ -457,18 +461,18 @@ def create_filer_try(filer_ciks):
             print("Error Occured")
 
 
-@cache(24)
-@router.get("/top/update", status_code=200, include_in_schema=False)
-async def update_top(password: str, background: BackgroundTasks):
-    if password != "whale":
-        return {}
+# @cache(24)
+# @router.get("/top/update", status_code=200, include_in_schema=False)
+# async def update_top(password: str, background: BackgroundTasks):
+#     if password != "whale":
+#         return {}
 
-    with open("./public/top.json") as t:
-        filer_ciks = json.load(t)
+#     with open("./public/top.json") as t:
+#         filer_ciks = json.load(t)
 
-    background.add_task(create_filer_try, filer_ciks)
+#     background.add_task(create_filer_try, filer_ciks)
 
-    return {"message": "Filers updating."}
+#     return {"message": "Filers updating."}
 
 
 @router.get("/hang", status_code=200, include_in_schema=False)

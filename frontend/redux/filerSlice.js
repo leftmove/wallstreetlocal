@@ -110,7 +110,7 @@ const initialState = {
     na: true,
     sold: false,
     reverse: true,
-    pagination: -1,
+    pagination: 100,
     count: 0,
     offset: 0,
   },
