@@ -408,11 +408,11 @@ export const selectStocks = (state) => {
 
   if (!next) return next;
 
-  if (sort.set) {
-    next = next.filter((obj, pos, arr) => {
-      return arr.map((mapObj) => mapObj.ticker).indexOf(obj.ticker) === pos;
-    });
-  }
+  // if (sort.set) {
+  //   next = next.filter((obj, pos, arr) => {
+  //     return arr.map((mapObj) => mapObj.ticker).indexOf(obj.ticker) === pos;
+  //   });
+  // }
 
   // if (sort.sold == false) {
   //   next = next.filter((s) => s.sold == false);
