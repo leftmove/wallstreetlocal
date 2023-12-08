@@ -3,7 +3,13 @@ import os
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 
+# from fastapi import HTTPException
+
 # from api_analytics.fastapi import Analytics
+
+# class HTTPError(HTTPException):
+#     def __init__(self, detail: str):
+#         super().__init__(status_code=400, detail=detail)
 
 
 ENVIRONMENT = os.environ["ENVIRONMENT"]

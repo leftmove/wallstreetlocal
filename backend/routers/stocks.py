@@ -80,12 +80,12 @@ async def stock_info(
                 {"$sort": {sort: 1 if reverse else -1, "_id": 1}},
                 {"$project": {"_id": 0}},
                 {"$skip": offset},
-                {"$limit": limit}
+                {"$limit": limit},
             ]
         )
         cursor = database.search_filers(pipeline)
     except Exception as e:
-        print(e)
+        print("Unable to print using search requirements.", e)
         raise HTTPException(detail="Invalid search requirements.", status_code=422)
 
     if cursor == None:

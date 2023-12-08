@@ -15,7 +15,6 @@ h11==0.14.0
 idna==3.4
 lxml==4.9.2
 meilisearch==0.28.2
-motor==3.1.2
 pydantic==1.10.7
 pymongo==4.3.3
 python-dotenv==1.0.0
