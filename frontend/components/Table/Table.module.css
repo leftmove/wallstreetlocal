@@ -1,4 +1,5 @@
 .table {
+  position: relative;
   background-color: var(--secondary);
   border-collapse: collapse;
 

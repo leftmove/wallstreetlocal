@@ -15,16 +15,31 @@ import Pagination from "./Pagination/Pagination";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setStocks,
+  setCount,
+  setPagination,
   selectCik,
   selectStocks,
-  selectPagination,
   selectSort,
 } from "@/redux/filerSlice";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
-const getFetcher = (url, cik, { offset, sold, unavailable }) =>
+const getFetcher = (
+  url,
+  cik,
+  { pagination, sort, offset, reverse, sold, na }
+) =>
   axios
-    .get(url, { params: { cik: cik } })
+    .get(url, {
+      params: {
+        cik,
+        limit: pagination,
+        sort,
+        offset,
+        reverse,
+        sold,
+        unavailable: na,
+      },
+    })
     .then((r) => {
       if (r.status == 201 || r.status == 429) {
         const error = new Error("Filer building.");
@@ -57,13 +72,16 @@ const Table = () => {
   );
   useEffect(() => {
     if (data) {
-      dispatch(setStocks(data.stocks));
+      const stocks = data.stocks;
+      const count = data.count;
+
+      dispatch(setStocks(stocks));
+      dispatch(setCount(count));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   if (error) return <Error statusCode={404} />;
-  if (loading) return <Loading />;
 
   return (
     <div className={styles["table-container"]}>
@@ -78,6 +96,7 @@ const Table = () => {
             <Row key={s.cusip} stock={s} />
           ))}
         </tbody>
+        {loading ? <Loading /> : null}
       </table>
       <Pagination />
     </div>

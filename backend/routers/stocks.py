@@ -66,14 +66,21 @@ async def stock_info(
             pipeline.append({"$match": {"sold": False}})
         if not unavailable:
             pipeline.append({"$match": {sort: {"$ne": "NA"}}})
+
+        pipeline.append({"$count": "c"})
+        cursor = database.search_filers(pipeline)
+        count = list(cursor)[0]["c"]
+        pipeline.pop(-1)
+
         pipeline.extend(
             [
                 {"$sort": {sort: 1 if reverse else -1, "_id": 1}},
                 {"$project": {"_id": 0}},
                 {"$skip": offset},
-                {"$limit": limit},
             ]
         )
+        if limit > 0:
+            pipeline.append({"$limit": limit})
         cursor = database.search_filers(pipeline)
     except Exception as e:
         print(e)
@@ -82,12 +89,11 @@ async def stock_info(
     if cursor == None:
         raise HTTPException(detail="Filer not found.", status_code=404)
     try:
-        # stock_list = [filer["stocks"]["global"] for filer in cursor]
-        stock_list = [{**result, "_id": 1} for result in cursor]
+        stock_list = [result for result in cursor]
     except KeyError:
         raise HTTPException(detail="Filer not found.", status_code=404)
 
-    return {"stocks": stock_list}
+    return {"stocks": stock_list, "count": count}
 
 
 @cache(4)

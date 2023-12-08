@@ -109,8 +109,9 @@ const initialState = {
     set: true,
     na: true,
     sold: false,
-    reverse: false,
-    pagination: 100,
+    reverse: true,
+    pagination: -1,
+    count: 0,
     offset: 0,
   },
   dates: [
@@ -366,6 +367,17 @@ export const filerSlice = createSlice({
       state.sort.pagination = action.payload;
       return state;
     },
+    setCount(state, action) {
+      const sort = state.sort;
+      const payload = action.payload;
+
+      if (sort.pagination < 0) {
+        state.sort.pagination = payload;
+      }
+
+      state.sort.count = payload;
+      return state;
+    },
     setOffset(state, action) {
       const payload = action.payload;
       if (payload >= 0) {
@@ -443,8 +455,7 @@ export const selectDates = (state) =>
   });
 export const selectPagination = (state) => {
   const sort = state.filer.sort;
-  const count = selectStocks(state).length;
-  return { limit: sort.pagination, offset: sort.offset, count };
+  return { limit: sort.pagination, offset: sort.offset, count: sort.count };
 };
 export const {
   setCik,
@@ -466,6 +477,7 @@ export const {
   updateDates,
   newDate,
   setPagination,
+  setCount,
   setOffset,
 } = filerSlice.actions;
 
