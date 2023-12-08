@@ -10,7 +10,7 @@ import axios from "axios";
 const headers = [
   { display: "Name", accessor: "name" },
   { display: "CIK", accessor: "cik" },
-  { display: "Market Value (Sorted)", accessor: "market_value" },
+  { display: "Assets Under Management", accessor: "market_value" },
   { display: "Last Updated", accessor: "date" },
 ];
 
@@ -65,7 +65,7 @@ const TopFilers = (props) => {
                             href={`/filers/${filer.cik}`}
                             className={styles["column-link"]}
                           >
-                            {display.toUpperCase()}
+                            {display}
                           </Link>
                         );
                         break;
