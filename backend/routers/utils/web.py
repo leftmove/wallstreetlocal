@@ -589,7 +589,7 @@ def query_stocks(found_stocks):
         last_updated = found_stock.get("updated")
 
         if last_updated != None:
-            if (time - last_updated) < 172800:
+            if (time - last_updated) < (60 * 60 * 24 * 3):
                 continue
 
         try:

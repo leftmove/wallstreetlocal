@@ -1,6 +1,7 @@
 from fastapi import HTTPException, APIRouter, BackgroundTasks
 from pydantic import BaseModel
 
+from .utils import web
 from .utils import database
 from .utils.cache import cache
 
@@ -25,7 +26,7 @@ async def query_stocks(stock: Tickers, background: BackgroundTasks):
     tickers = stock.tickers
 
     found_stocks = database.find_stocks("ticker", {"$in": tickers})
-    background.add_task(query_stocks, found_stocks)  # pyright: ignore
+    background.add_task(web.query_stocks, found_stocks)  # pyright: ignore
 
     return {"description": "Stocks started updating."}
 

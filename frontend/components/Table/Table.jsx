@@ -75,8 +75,8 @@ const Table = () => {
       const stocks = data.stocks;
       const count = data.count;
 
-      dispatch(setStocks(stocks));
       dispatch(setCount(count));
+      dispatch(setStocks(stocks));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
