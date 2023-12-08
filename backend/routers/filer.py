@@ -424,6 +424,7 @@ async def top():
         "tickers": 1,
         "market_value": 1,
         "updated": 1,
+        "_id": 0,
     }
 
     for cik in filer_ciks:
@@ -435,9 +436,9 @@ async def top():
         filers_sorted = sorted(
             filers, key=lambda c: c.get("market_value", float("inf")), reverse=True
         )
-        [delattr(f, "_id") for f in filers_sorted]
+        [f.pop("_id", None) for f in filers_sorted]
     except:
-        raise HTTPException(detail="Error getting values.")
+        raise HTTPException(detail="Error getting values.", status_code=422)
 
     return {"filers": filers_sorted}
 
