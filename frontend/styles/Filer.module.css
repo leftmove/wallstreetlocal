@@ -20,7 +20,7 @@
 }
 
 .main-header-text {
-  font-size: 4rem;
+  font-size: 3rem;
   color: var(--secondary);
 }
 
@@ -47,6 +47,11 @@
   margin-bottom: 0px;
 }
 
+.secondary-headers {
+  display: flex;
+  justify-content: space-between;
+}
+
 .secondary-header {
   display: flex;
   justify-content: flex-start;
@@ -55,7 +60,6 @@
 
 .secondary-header-desc {
   color: var(--secondary);
-  margin-right: 10px;
 }
 
 .header-desc {
