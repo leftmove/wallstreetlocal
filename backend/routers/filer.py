@@ -173,7 +173,6 @@ def update_filer(company):
     status_code=201,
 )
 async def query_filer(cik: str, background: BackgroundTasks):
-    cik = cik.lstrip("0") or "0"
     filer = database.find_filer(cik)
     if filer == None:
         try:
@@ -437,7 +436,6 @@ async def top():
             filers, key=lambda c: c.get("market_value", float("inf")), reverse=True
         )
         for filer in filers_sorted:
-            filer["cik"] = filer["cik"].zfill(10)
             filer["date"] = datetime.utcfromtimestamp(filer["updated"]).strftime(
                 "%Y-%m-%d"
             )

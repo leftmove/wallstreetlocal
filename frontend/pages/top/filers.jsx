@@ -1,6 +1,8 @@
 import styles from "@/styles/Top.module.css";
 
 import Head from "next/head";
+import Link from "next/link";
+
 import { font } from "@fonts";
 
 import axios from "axios";
@@ -50,15 +52,36 @@ const TopFilers = (props) => {
             </tr>
           </thead>
           <tbody>
-            {props.filers.map((filer) => (
-              <tr key={filer.cik}>
-                {headers.map((header) => (
-                  <td className={[styles["column"], font.className].join(" ")}>
-                    {filer[header.accessor]}
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {props.filers.map((filer) => {
+              return (
+                <tr key={filer.cik}>
+                  {headers.map((header) => {
+                    const accessor = header.accessor;
+                    let display = filer[accessor];
+                    switch (accessor) {
+                      case "name":
+                        display = (
+                          <Link href={`/filers/${filer.cik}`}>
+                            {display.toUpperCase()}
+                          </Link>
+                        );
+                        break;
+                      case "date":
+                      case "market_value":
+                      default:
+                        break;
+                    }
+                    return (
+                      <td
+                        className={[styles["column"], font.className].join(" ")}
+                      >
+                        {display}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
