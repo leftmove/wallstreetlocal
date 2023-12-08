@@ -3,12 +3,9 @@
   padding: 30px;
 }
 
-.resources-head {
-  max-width: 50vw;
-}
-
 .resources-header {
-  font-size: 2rem;
+  text-align: center;
+  font-size: 2.5rem;
 
   color: var(--secondary);
 }
@@ -38,17 +35,18 @@
 
   font-size: 1.1rem;
   padding: 8px;
+  border: solid 1px var(--white);
   border-radius: 5px;
   margin-right: 10px;
 
-  color: var(--primary);
-  background-color: var(--secondary-dark);
+  color: var(--white);
+  background-color: var(--secondary);
   transition: background-color 0.3s ease;
 }
 
 .resources-button:hover {
-  color: var(--white);
-  background-color: var(--primary-dark);
+  color: var(--secondary-dark);
+  background-color: var(--white);
 }
 
 .button-tooltip {

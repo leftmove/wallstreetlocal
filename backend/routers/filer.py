@@ -437,9 +437,11 @@ async def top():
             filers, key=lambda c: c.get("market_value", float("inf")), reverse=True
         )
         for filer in filers_sorted:
+            filer["cik"] = filer["cik"].zfill(10)
             filer["date"] = datetime.utcfromtimestamp(filer["updated"]).strftime(
                 "%Y-%m-%d"
             )
+            filer["market_value"] = f"${int(filer['market_value']):,}"
             filer.pop("_id", None)
     except:
         raise HTTPException(detail="Error getting values.", status_code=422)

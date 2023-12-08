@@ -82,9 +82,9 @@
   width: 100px;
   margin-top: 15px;
 
-  color: white;
+  color: var(--white);
   background-color: var(--secondary);
-  border: solid white 1px;
+  border: solid var(--white) 1px;
   border-radius: 5px;
   transition: color 0.3s ease, background-color 0.3s ease;
 }
@@ -92,7 +92,7 @@
 .button:hover,
 .remove-table {
   color: var(--secondary);
-  background-color: white;
+  background-color: var(--white);
 }
 
 /* .download,
