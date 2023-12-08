@@ -432,11 +432,13 @@ async def top():
             filers.append(filer)
 
     try:
-        filers = filers.sort(key=lambda c: c.get("market_value"), reverse=True)
+        filers_sorted = sorted(
+            filers, key=lambda c: c.get("market_value", float("inf")), reverse=True
+        )
     except:
         raise HTTPException(detail="Error getting values.")
 
-    return {"filers": filers}
+    return {"filers": filers_sorted}
 
 
 def create_filer_try(filer_ciks):
