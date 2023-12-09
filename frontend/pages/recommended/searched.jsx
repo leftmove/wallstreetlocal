@@ -14,15 +14,15 @@ const headers = [
   { display: "Last Updated", accessor: "date" },
 ];
 
-const Top = (props) => {
+const Searched = (props) => {
   return (
     <>
       <Head>
-        <title>Top Filers</title>
+        <title>Searched Filers</title>
       </Head>
       <div className={styles["header"]}>
         <span className={[styles["main-header"], font.className].join(" ")}>
-          Top Filers
+          Searched Filers
         </span>
       </div>
       <div className={styles["description"]}>
@@ -117,4 +117,4 @@ export async function getServerSideProps() {
   };
 }
 
-export default Top;
+export default Searched;

@@ -426,38 +426,24 @@ async def top():
     with open("./public/top.json") as t:
         filer_ciks = json.load(t)
 
-    filers = []
-    project = {
-        "cik": 1,
-        "name": 1,
-        "tickers": 1,
-        "market_value": 1,
-        "updated": 1,
-        "_id": 0,
-    }
+    try:
+        filers_sorted = analysis.sort_and_format(filer_ciks)
+    except:
+        raise HTTPException(500, detail="Error fetching filers.")
 
-    for cik in filer_ciks:
-        filer = database.find_filer(cik, project)
-        if filer != None:
-            filers.append(filer)
+    return {"filers": filers_sorted}
+
+
+@cache(24)
+@router.get("/searched", status_code=200)
+async def top():
+    with open("./public/searched.json") as t:
+        filer_ciks = json.load(t)
 
     try:
-        filers_sorted = sorted(
-            filers, key=lambda c: c.get("market_value", -1), reverse=True
-        )
-        for filer in filers_sorted:
-            filer["date"] = datetime.utcfromtimestamp(filer["updated"]).strftime(
-                "%Y-%m-%d"
-            )
-            filer["market_value"] = (
-                f"${int(filer['market_value']):,}"
-                if filer.get("market_value") and filer["market_value"] > 0
-                else "NA"
-            )
-            filer.pop("_id", None)
-    except Exception as e:
-        print(e)
-        raise HTTPException(detail="Error getting values.", status_code=422)
+        filers_sorted = analysis.sort_and_format(filer_ciks)
+    except:
+        raise HTTPException(500, detail="Error fetching filers.")
 
     return {"filers": filers_sorted}
 
