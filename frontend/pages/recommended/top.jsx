@@ -38,9 +38,8 @@ const Top = (props) => {
               the top investing firms
             </Link>
           </span>{" "}
-          in America, sorted by market value. Click on any filer to see
-          extensive info from the SEC. All filers may not have info readily
-          available, or be sorted correctly.
+          in America, sorted by market value. All filers may not have info
+          readily available, or be sorted correctly.
         </span>
       </div>
       <div className={styles["table-container"]}>
