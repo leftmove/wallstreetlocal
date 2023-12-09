@@ -17,6 +17,17 @@
   scale: 1.1;
 }
 
+.sort-tip {
+  color: var(--secondary-dark);
+  opacity: 0.8;
+
+  transition: color 0.3s ease;
+}
+
+.sort-tip:hover {
+  color: var(--primary-dark);
+}
+
 .expand-button {
   width: 20px;
 }

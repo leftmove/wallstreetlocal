@@ -5,6 +5,8 @@ import Filter from "./Filter/Filter";
 import Gain from "./Gain/Gain";
 import Record from "./Record/Record";
 import Tip from "@/components/Tip/Tip";
+
+import { fontLight } from "@fonts";
 import FunnelIcon from "@/public/static/filter.svg";
 
 const Sort = () => {
@@ -25,6 +27,12 @@ const Sort = () => {
           className={styles["sort-icon"]}
           onClick={() => setExpand(!expand)}
         />
+        {expand ? null : (
+          <span className={[styles["sort-tip"], fontLight.className].join(" ")}>
+            Click the filter icon to find additional analysis, manipulate the
+            table, and download any data you see.
+          </span>
+        )}
       </div>
       <div className={styles["sort-body"]}>
         <Filter />
