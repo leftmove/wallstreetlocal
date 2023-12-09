@@ -448,11 +448,12 @@ async def top():
             filer["date"] = datetime.utcfromtimestamp(filer["updated"]).strftime(
                 "%Y-%m-%d"
             )
-            filer["market_value"] = (
-                f"${int(filer['market_value']):,}"
-                if filer["market_value"] > 0
-                else "NA"
-            )
+            if filer.get("market_value"):
+                filer["market_value"] = (
+                    f"${int(filer['market_value']):,}"
+                    if filer["market_value"] > 0
+                    else "NA"
+                )
             filer.pop("_id", None)
     except Exception as e:
         print(e)
