@@ -104,6 +104,7 @@ def create_filer(sec_data, cik):
     except Exception as e:
         database.edit_status(cik, 0)
         print(e)
+        return
 
     try:
         analysis.analyze_newest(cik, local_stocks)

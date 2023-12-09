@@ -1,6 +1,5 @@
 .resources {
-  height: 100vh;
-  padding: 30px;
+  padding: 0px 30px;
 }
 
 .resources-header {
@@ -19,7 +18,6 @@
 .resources-body {
   display: flex;
   flex-direction: column;
-
   margin: 20px;
 }
 
@@ -41,7 +39,7 @@
 
   color: var(--white);
   background-color: var(--secondary);
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .resources-button:hover {
