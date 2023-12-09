@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { font } from "@fonts";
 
-import searchedFilers from "@/public/static/recommended.json";
+import searchedFilers from "@/public/static/searched.json";
 import topFilers from "@/public/static/top.json";
 
 const Recommended = (props) => {
@@ -39,11 +39,11 @@ const Recommended = (props) => {
       </span>
       <div className={[styles["recommended-lists"], font.className].join(" ")}>
         <div className={styles["recommended-list"]}>
-          <Link href="/top/filers">
-            <span className={styles["list-title"]}>Biggest</span>
+          <Link href="/recommended/top">
+            <span className={styles["list-title"]}>Most Assets</span>
           </Link>
           <ul>
-            {searchedFilers.map((filer) => (
+            {topFilers.map((filer) => (
               <li className={styles["recommended-item"]}>
                 <Link href={`/filers/${filer.cik}`}>
                   <span>{filer.title}</span>
@@ -53,7 +53,9 @@ const Recommended = (props) => {
           </ul>
         </div>
         <div className={styles["recommended-list"]}>
-          <span className={styles["list-title"]}>Most Searched</span>
+          <Link href="/recommended/searched">
+            <span className={styles["list-title"]}>Most Searched</span>
+          </Link>
           <ul>
             {searchedFilers.map((filer) => (
               <li className={styles["recommended-item"]}>

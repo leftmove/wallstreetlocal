@@ -16,6 +16,7 @@ import Table from "@/components/Table/Table";
 import Source from "@/components/Source/Source";
 import Building from "@/components/Progress/Building/Building";
 import Reccomended from "@/components/Recommended/Recommended";
+import Progress from "../Progress/Progress";
 
 const fetcher = (url, cik) =>
   axios
@@ -32,7 +33,7 @@ const Info = (props) => {
   }, [cik]);
 
   const [expand, setExpand] = useState(false);
-  const { data, isLoading: loading } = useSWR(
+  const { data } = useSWR(
     cik ? [server + "/filers/info", cik] : null,
     ([url, cik]) => fetcher(url, cik),
     {

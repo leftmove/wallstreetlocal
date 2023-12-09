@@ -29,7 +29,7 @@ const Top = (props) => {
         <span
           className={[styles["description-text"], font.className].join(" ")}
         >
-          The following contains links and information of{" "}
+          The following contains links and information for{" "}
           <span className={styles["description-link"]}>
             <Link
               href="https://en.wikipedia.org/wiki/List_of_asset_management_firms"
@@ -39,7 +39,7 @@ const Top = (props) => {
             </Link>
           </span>{" "}
           in America, sorted by market value. Click on any filer to see
-          extensive info from the SEC. All may not have filers have info readily
+          extensive info from the SEC. All filers may not have info readily
           available, or be sorted correctly.
         </span>
       </div>

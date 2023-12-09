@@ -13,21 +13,37 @@
 
 .header {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
 
-  width: 50%;
   font-size: 2rem;
   padding: 10px;
   border-radius: 5px;
 
-  color: var(--primary-dark);
-  background-color: var(--secondary);
+  color: var(--secondary-dark);
 }
 
-.header span {
-  margin-right: 20px;
+.main-header {
+  display: flex;
+  justify-content: center;
+
+  text-align: center;
+  width: 20vw;
+}
+
+.main-header span {
+  margin-right: 15px;
+}
+
+.sub-header {
+  display: flex;
+  justify-content: center;
+
+  margin-top: 5px;
+  width: 100%;
+  font-size: 0.8rem;
 }
 
 .logs {

@@ -29,17 +29,8 @@ const Searched = (props) => {
         <span
           className={[styles["description-text"], font.className].join(" ")}
         >
-          The following contains links and information of{" "}
-          <span className={styles["description-link"]}>
-            <Link
-              href="https://en.wikipedia.org/wiki/List_of_asset_management_firms"
-              target="_blank"
-            >
-              the top investing firms
-            </Link>
-          </span>{" "}
-          in America, sorted by market value. Click on any filer to see
-          extensive info from the SEC. All may not have filers have info readily
+          The following contains links and information for the most popular 13F
+          filers, sorted by market value. All filers may not have info readily
           available, or be sorted correctly.
         </span>
       </div>
@@ -106,7 +97,7 @@ const Searched = (props) => {
 const server = process.env.NEXT_PUBLIC_SERVER;
 export async function getServerSideProps() {
   const data = await axios
-    .get(server + "/filers/top")
+    .get(server + "/filers/searched")
     .then((r) => r.data)
     .catch((e) => console.log(e));
   const filers = data?.filers || [];

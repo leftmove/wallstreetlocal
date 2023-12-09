@@ -1,14 +1,12 @@
 import styles from "./Progress.module.css";
 import { useEffect, useReducer, useState } from "react";
 
-import { useRouter } from "next/navigation";
 import { font } from "@fonts";
 
 // import useSWRSubscription from "swr/subscription";
 import axios from "axios";
 import useSWR from "swr";
 
-import Loading from "@/components/Loading/Loading";
 import Redirect from "@/components/Filer/Redirect";
 import Source from "@/components/Source/Source";
 import Estimation from "./Estimation/Estimation";
@@ -66,6 +64,7 @@ const Progress = (props) => {
   //   }
   // );
   const cik = props.cik;
+  const name = props.name || null;
   const persist = props.persist || false;
   const [log, addLogs] = useReducer(
     (prev, next) => {
@@ -147,7 +146,13 @@ const Progress = (props) => {
       {/* {stop ? <Reload /> : null} */}
       <div className={[styles["progress"], font.className].join(" ")}>
         <div className={styles["header"]}>
-          <span>Building Filer</span> <Source cik={cik} color="light" />
+          <div className={styles["main-header"]}>
+            <span>Building Filer</span>
+            <Source cik={cik} />
+          </div>
+          <div className={styles["sub-header"]}>
+            {name ? <span>{name}</span> : null}
+          </div>
         </div>
         <Console loading={loading} logs={log.logs} />
       </div>
