@@ -8,11 +8,11 @@ import { font, fontLight, fontBold } from "@fonts";
 import Layout from "@/components/Layouts/Home";
 
 import Search from "@/components/Search/Homepage/Search";
-import Recommended from "@/components/Recommended/Recommended";
+// import Recommended from "@/components/Recommended/Recommended";
 
-import File from "@/public/static/file.svg";
-import Folder from "@/public/static/folder.svg";
-import Book from "@/public/static/book.svg";
+// import File from "@/public/static/file.svg";
+// import Folder from "@/public/static/folder.svg";
+// import Book from "@/public/static/book.svg";
 import Hero from "@/public/static/hero.jpg";
 
 export default function Home() {
@@ -20,7 +20,7 @@ export default function Home() {
     <>
       <Head>
         <title>
-          wallstreetlocal | advice from the world&apos;s biggest investors
+          wallstreetlocal | Advice from the world&apos;s biggest investors
         </title>
         <meta
           name="description"
