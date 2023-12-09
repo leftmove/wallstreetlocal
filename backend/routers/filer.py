@@ -88,18 +88,23 @@ def create_filer(sec_data, cik):
     database.edit_log(cik, stamp)
     database.edit_filer({"cik": cik}, {"$set": company})
 
-    local_stocks = web.process_latest_stocks(company)
-    company_update = {
-        "cik": cik,
-        "stocks": {
-            "local": local_stocks,
-            "global": [],
-        },
-    }
-    company.update(company_update)
+    try:
+        local_stocks = web.process_latest_stocks(company)
+        company_update = {
+            "cik": cik,
+            "stocks": {
+                "local": local_stocks,
+                "global": [],
+            },
+        }
+        company.update(company_update)
 
-    database.add_log(cik, "Filer Queried with Latest Stocks", company["name"], cik)
-    database.edit_filer({"cik": cik}, {"$set": company_update})
+        database.add_log(cik, "Filer Queried with Latest Stocks", company["name"], cik)
+        database.edit_filer({"cik": cik}, {"$set": company_update})
+    except Exception as e:
+        database.edit_status(cik, 0)
+        print(e)
+
     try:
         analysis.analyze_newest(cik, local_stocks)
     except Exception as e:
@@ -111,9 +116,13 @@ def create_filer(sec_data, cik):
     database.edit_log(cik, stamp)
     database.add_query_log(cik, "create-latest")
 
-    database.edit_status(cik, 2)
-    web.process_new_stocks(company)
-    database.add_log(cik, "Filer Queried with Historical Stocks", company_name, cik)
+    try:
+        database.edit_status(cik, 2)
+        web.process_new_stocks(company)
+        database.add_log(cik, "Filer Queried with Historical Stocks", company_name, cik)
+    except Exception as e:
+        database.edit_status(cik, 0)
+        print(e)
 
     try:
         analysis.analyze_historical(cik)

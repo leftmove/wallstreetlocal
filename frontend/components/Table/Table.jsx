@@ -5,6 +5,7 @@ import axios from "axios";
 import useSWR from "swr";
 
 import Error from "next/error";
+import Link from "next/link";
 
 import Loading from "@/components/Loading/Loading";
 import Header from "./Headers/Header";
@@ -12,11 +13,12 @@ import Row from "./Row/Row";
 import Sort from "./Sort/Sort";
 import Pagination from "./Pagination/Pagination";
 
+import { font } from "@fonts";
+
 import { useDispatch, useSelector } from "react-redux";
 import {
   setStocks,
   setCount,
-  setPagination,
   selectCik,
   selectStocks,
   selectSort,
@@ -70,6 +72,7 @@ const Table = () => {
       revalidateOnReconnect: false,
     }
   );
+
   useEffect(() => {
     if (data) {
       const stocks = data.stocks;
@@ -83,7 +86,7 @@ const Table = () => {
 
   if (error) return <Error statusCode={404} />;
 
-  return (
+  return stocks.length > 0 ? (
     <div className={styles["table-container"]}>
       <Sort />
       <Pagination />
@@ -99,6 +102,20 @@ const Table = () => {
         {loading ? <Loading /> : null}
       </table>
       <Pagination />
+    </div>
+  ) : (
+    <div className={[styles["table-error"], font.className].join(" ")}>
+      <span>Unable to get stock data. Try again later or </span>
+      <Link
+        href={
+          "https://www.sec.gov/cgi-bin/browse-edgar?" +
+          new URLSearchParams({ CIK: cik.padStart(10, 0) })
+        }
+        className={styles["table-link"]}
+        target="_blank"
+      >
+        visit the SEC directly.
+      </Link>
     </div>
   );
 };
