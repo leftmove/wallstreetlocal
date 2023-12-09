@@ -29,8 +29,8 @@ const Sort = () => {
         />
         {expand ? null : (
           <span className={[styles["sort-tip"], fontLight.className].join(" ")}>
-            Click the filter icon to find additional analysis, manipulate the
-            table, and download any data you see.
+            Click the filter icon on the left to find additional analysis,
+            manipulate the table, and download any data you see.
           </span>
         )}
       </div>
