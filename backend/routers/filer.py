@@ -443,7 +443,7 @@ async def top():
 
     try:
         filers_sorted = sorted(
-            filers, key=lambda c: c.get("market_value", float("inf")), reverse=True
+            filers, key=lambda c: c.get("market_value", -1), reverse=True
         )
         for filer in filers_sorted:
             filer["date"] = datetime.utcfromtimestamp(filer["updated"]).strftime(

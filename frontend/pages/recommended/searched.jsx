@@ -14,7 +14,7 @@ const headers = [
   { display: "Last Updated", accessor: "date" },
 ];
 
-const TopFilers = (props) => {
+const Top = (props) => {
   return (
     <>
       <Head>
@@ -117,4 +117,4 @@ export async function getServerSideProps() {
   };
 }
 
-export default TopFilers;
+export default Top;

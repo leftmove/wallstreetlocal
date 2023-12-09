@@ -32,7 +32,10 @@ const Navbar = (props) => {
       <div>
         <ul className={styles["about"]}>
           <li className={styles["item"] + " " + font.className}>
-            <Link href="/top/filers">Top Filers</Link>
+            <Link href="/recommended/top">Top Filers</Link>
+          </li>
+          <li className={styles["item"] + " " + font.className}>
+            <Link href="/recommended/searched">Popular Filers</Link>
           </li>
           {/* <li className={styles["item"] + " " + font.className}>
           <Link href="/">about</Link>
