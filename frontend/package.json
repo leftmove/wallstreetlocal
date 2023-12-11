@@ -32,6 +32,7 @@
     "@svgr/webpack": "^7.0.0",
     "@types/react": "18.0.28",
     "@vercel/analytics": "^1.1.1",
+    "@vercel/speed-insights": "^1.0.1",
     "css-loader": "^6.7.3",
     "http-proxy-middleware": "^2.0.6",
     "react-device-detect": "^2.2.3",
