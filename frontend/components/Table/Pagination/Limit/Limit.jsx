@@ -16,7 +16,7 @@ const Limit = () => {
   useEffect(() => {
     if (pagination.count <= 100) {
       setPaginationLimit(pagination.count);
-      setPagination(pagination.count);
+      dispatch(setPagination(pagination.count));
       setFocus(false);
     }
   }, []);

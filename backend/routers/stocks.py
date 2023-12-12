@@ -14,6 +14,7 @@ router = APIRouter(
 
 class Tickers(BaseModel):
     tickers: list
+    cik: str
 
 
 class Cusip(BaseModel):
@@ -22,11 +23,20 @@ class Cusip(BaseModel):
 
 @cache
 @router.post("/query", tags=["stocks"], status_code=200)
-async def query_stocks(stock: Tickers, background: BackgroundTasks):
-    tickers = stock.tickers
+async def query_stocks(body: Tickers, background: BackgroundTasks):
+    if body.cik:
+        filer = database.find_filer(body.cik, {"stocks.global.cusip": 1})
+        if not filer:
+            raise HTTPException(status_code=404, detail="Filer not found")
+        tickers = [stock["cusip"] for stock in filer["stocks"]["global"]]
+    else:
+        tickers = body.tickers
 
-    found_stocks = database.find_stocks("ticker", {"$in": tickers})
-    background.add_task(web.query_stocks, found_stocks)  # pyright: ignore
+    if tickers:
+        found_stocks = database.find_stocks("ticker", {"$in": tickers})
+        background.add_task(web.query_stocks, found_stocks)  # pyright: ignore
+    else:
+        raise HTTPException(status_code=422, detail="No tickers supplied.")
 
     return {"description": "Stocks started updating."}
 

@@ -1,5 +1,5 @@
 import styles from "./Table.module.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import axios from "axios";
 import useSWR from "swr";
@@ -72,6 +72,7 @@ const Table = () => {
       revalidateOnReconnect: false,
     }
   );
+  const [queryStocks, setQueryStocks] = useState(true);
 
   useEffect(() => {
     if (data) {
@@ -83,6 +84,17 @@ const Table = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
+
+  useEffect(() => {
+    if (queryStocks) {
+      axios
+        .post(server + "/stocks/query", {
+          tickers: stocks.map((s) => s.ticker),
+        })
+        .catch((e) => console.error(e));
+      setQueryStocks(false);
+    }
+  }, [stocks]);
 
   if (error) return <Error statusCode={404} />;
 

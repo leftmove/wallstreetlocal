@@ -29,7 +29,7 @@ parser = "lxml"
 #                 ticker = stock["ticker"]
 #                 name = stock["name"]
 #                 msg += f"Success, Added Stock"
-#             else:
+#             else:a
 #                 name = result["description"]
 #                 stock = {
 #                     "name": name,
@@ -136,7 +136,7 @@ def process_filings(data):
     data_filings = data["filings"]["recent"]
     filings = {}
     for i, form in enumerate(data_filings["form"]):
-        if form != "13F-HR":
+        if "13F-HR" not in form:
             continue
 
         access_number = data_filings["accessionNumber"][i]

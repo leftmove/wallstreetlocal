@@ -365,6 +365,7 @@ export const filerSlice = createSlice({
     },
     setPagination(state, action) {
       state.sort.pagination = action.payload;
+      state.sort.offset = 0;
       return state;
     },
     setCount(state, action) {
