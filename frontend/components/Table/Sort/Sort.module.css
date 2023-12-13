@@ -61,7 +61,7 @@
 }
 
 .sort-expanded {
-  background-color: var(--white);
+  background-color: var(--offwhite-dark);
   max-height: 800px;
 
   transition-property: max-height, background-color;

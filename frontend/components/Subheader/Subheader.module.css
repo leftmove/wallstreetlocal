@@ -1,0 +1,37 @@
+.sub-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  transition-duration: 0.3s;
+  max-height: 30px;
+  overflow-y: hidden;
+  margin-bottom: -10px;
+}
+
+.sub-header-expanded {
+  transition-property: max-height;
+  transition-duration: 0.5s;
+  transition-timing-function: cubic-bezier(1, 1, 1, 1);
+  max-height: 230px;
+  margin-bottom: 0px;
+}
+
+.secondary-headers {
+  display: flex;
+  justify-content: space-between;
+}
+
+.secondary-header {
+  display: flex;
+  justify-content: flex-start;
+  overflow-x: visible;
+}
+
+.secondary-header-desc {
+  color: var(--secondary);
+}
+
+.header-desc {
+  margin-top: 10px;
+}

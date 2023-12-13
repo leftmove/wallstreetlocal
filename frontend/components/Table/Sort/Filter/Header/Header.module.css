@@ -1,7 +1,7 @@
 .filter-text {
   text-align: center;
 
-  color: var(--secondary);
+  color: var(--white);
 
   transition: color 0.3s ease;
 }
@@ -18,7 +18,8 @@
   min-width: 70px;
   border: none;
 
-  background-color: var(--offwhite-dark);
+  background-color: var(--secondary);
+  border-radius: 3px;
 
   transition: background-color 0.3s ease, border-color 0.3s ease,
     opacity 0.3s ease;
@@ -29,14 +30,34 @@
   padding: 5px;
 }
 
-.filter-item:hover,
 .filter-clicked {
-  background-color: var(--primary);
+  color: var(--offwhite);
+  background-color: var(--primary-dark);
+}
+
+.filter-item:hover .filter-text {
+  color: var(--offwhite-dark);
+}
+
+.filter-clicked:hover .filter-text {
+  color: var(--secondary);
+}
+
+/* .filter-item:hover .filter-text {
+  color: var(--offwhite);
+}
+
+.filter-clicked {
+  background-color: var(--primary-dark);
+}
+
+.filter-clicked:hover .filter-text {
+  color: var(--secondary);
 }
 
 .filter-item:hover,
 .filter-clicked .filter-text {
-  color: black;
+  color: var(--secondary-dark);
 }
 
 .filter-dragging .filter-text {
@@ -46,4 +67,4 @@
 .filter-dragging {
   background-color: var(--secondary);
   transition: background-color 0.3s ease, color 0.3s ease;
-}
+} */

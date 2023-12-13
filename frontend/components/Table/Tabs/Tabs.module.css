@@ -1,0 +1,26 @@
+.tabs {
+  display: flex;
+  justify-content: center;
+
+  width: 100%;
+}
+
+.tab {
+  text-align: center;
+  cursor: pointer;
+
+  width: 10%;
+  margin: 10px;
+  padding: 5px 10px;
+  border-radius: 5px;
+
+  color: var(--secondary);
+  background-color: var(--offwhite-dark);
+  transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.tab:hover,
+.tab-clicked {
+  color: var(--offwhite);
+  background-color: var(--secondary);
+}

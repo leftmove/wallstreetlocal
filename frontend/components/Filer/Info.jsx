@@ -11,12 +11,9 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setCik } from "@/redux/filerSlice";
 
-import Expand from "@/components/Expand/Expand";
 import Table from "@/components/Table/Table";
-import Source from "@/components/Source/Source";
+import Subheader from "@/components/Subheader/Subheader";
 import Building from "@/components/Progress/Building/Building";
-import Reccomended from "@/components/Recommended/Recommended";
-import Progress from "../Progress/Progress";
 
 const fetcher = (url, cik) =>
   axios
@@ -51,6 +48,7 @@ const Info = (props) => {
       <Head>
         <title>Filers - {info?.name || "Loading"}</title>
       </Head>
+
       <div className={styles["header"]}>
         <div className={styles["main-header"]}>
           <span
@@ -61,41 +59,10 @@ const Info = (props) => {
           {info?.status > 0 ? <Building cik={cik} /> : null}
         </div>
 
-        <div
-          className={[
-            styles["sub-header"],
-            expand ? styles["sub-header-expanded"] : "",
-          ].join(" ")}
-        >
-          <div className={styles["secondary-headers"]}>
-            <div className={styles["secondary-header"]}>
-              <span
-                className={[
-                  styles["secondary-header-desc"],
-                  font.className,
-                ].join(" ")}
-              >
-                {info?.cik}{" "}
-                {info?.tickers.length ? `(${info?.tickers.join(", ")})` : ""}
-              </span>
-            </div>
-            <div className={styles["secondary-header"]}>
-              {info?.data.description ? (
-                <Expand
-                  onClick={() => setExpand(!expand)}
-                  expandState={expand}
-                />
-              ) : null}
-              <Source cik={cik} />
-            </div>
-          </div>
-          <span className={[styles["header-desc"], font.className].join(" ")}>
-            {info?.data?.description}
-          </span>
-        </div>
         {/* <span className={[styles["sub-desc"], font.className].join(" ")}>
         {info.data["Description"]}
       </span> */}
+        <Subheader info={info} />
       </div>
       <Table />
       <div className={styles["header"]}>

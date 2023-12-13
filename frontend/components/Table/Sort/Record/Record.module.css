@@ -13,14 +13,14 @@
 
   color: white;
   background-color: var(--secondary);
-  border: solid white 1px;
+  border: 0px solid;
   border-radius: 5px;
   transition: color 0.3s ease, background-color 0.3s ease;
 }
 
 .record-button:hover {
   color: var(--secondary);
-  background-color: var(--primary-dark);
+  background-color: var(--white);
 }
 
 .record-text {

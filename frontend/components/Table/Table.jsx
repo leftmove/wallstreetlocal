@@ -12,6 +12,7 @@ import Header from "./Headers/Header";
 import Row from "./Row/Row";
 import Sort from "./Sort/Sort";
 import Pagination from "./Pagination/Pagination";
+import Tabs from "./Tabs/Tabs";
 
 import { font } from "@fonts";
 
@@ -96,11 +97,18 @@ const Table = () => {
     }
   }, [stocks]);
 
+  // const [tab, setTab] = useState("historical");
+
   if (error) return <Error statusCode={404} />;
 
   return stocks.length > 0 ? (
     <div className={styles["table-container"]}>
       <Sort />
+      {/* <Tabs
+        tab={tab}
+        setHistorical={() => setTab("historical")}
+        setRecent={() => setTab("recent")}
+      /> */}
       <Pagination />
       <table className={styles["table"]}>
         <thead>

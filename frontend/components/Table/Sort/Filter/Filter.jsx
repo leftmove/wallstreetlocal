@@ -57,11 +57,8 @@ const Filter = () => {
   );
 
   const handleDragStart = (e) => {
-    const header = headers.find(
-      (header) => header.accessor === e.active.accessor
-    );
-
-    setEvent({ ...e, dragging: true, header: header });
+    const header = headers.find((h) => h.accessor === e.active.id);
+    setEvent({ ...e, dragging: true, header });
   };
   const handleDragEnd = (e) => {
     const active = e.active;
@@ -99,14 +96,18 @@ const Filter = () => {
             {headers.map((h, index) => (
               <Header
                 key={h.accessor}
+                id={h.accessor}
                 header={h}
                 index={index}
                 activate={() => dispatch(activateHeader(h.accessor))}
               />
             ))}
           </SortableContext>
+
           <DragOverlay>
-            {event.date ? <Header header={event.header} /> : null}
+            {event.header ? (
+              <Header id={event.header.accessor} header={event.header} />
+            ) : null}
           </DragOverlay>
         </div>
       </DndContext>

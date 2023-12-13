@@ -578,6 +578,10 @@ def process_latest_stocks(company):
     return scraped_stocks
 
 
+def process_recent(company):
+    cik = company["cik"]
+
+
 def query_stocks(found_stocks):
     for found_stock in found_stocks:
         if found_stock == None:
