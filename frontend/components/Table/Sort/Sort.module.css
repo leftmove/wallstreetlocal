@@ -13,7 +13,6 @@
 }
 
 .sort-icon:hover {
-  color: var(--primary);
   scale: 1.1;
 }
 
@@ -71,8 +70,4 @@
 
 .sort-icon {
   margin-right: 10px;
-}
-
-.sort-expanded .sort-icon {
-  color: black;
 }

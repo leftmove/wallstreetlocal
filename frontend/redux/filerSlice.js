@@ -404,7 +404,6 @@ export const selectNa = (state) => state.filer.sort.na;
 export const selectHeaders = (state) => state.filer.headers;
 export const selectStocks = (state) => {
   const filer = state.filer;
-  const sort = filer.sort;
   let next = filer.value.slice();
 
   if (!next) return next;

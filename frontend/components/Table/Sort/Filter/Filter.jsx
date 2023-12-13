@@ -112,18 +112,18 @@ const Filter = () => {
         </div>
       </DndContext>
       <div className={styles["filter-buttons"]}>
-        <Header
-          header={{ display: "Active", active: active }}
+        {/* <Header
+          header={{ display: "Updated", active }}
           activate={() => dispatch(sortActive())}
           fixed={true}
-        />
+        /> */}
         <Header
-          header={{ display: "Show Sold", active: sold }}
+          header={{ display: "Sold", active: sold }}
           activate={() => dispatch(sortSold())}
           fixed={true}
         />
         <Header
-          header={{ display: "Show Unavailable", active: na }}
+          header={{ display: "Unavailable", active: na }}
           activate={() => dispatch(sortNa())}
           fixed={true}
         />
