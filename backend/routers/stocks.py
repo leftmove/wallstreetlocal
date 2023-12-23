@@ -17,7 +17,7 @@ class Cusip(BaseModel):
 
 @cache
 @router.get("/query", tags=["stocks"], status_code=200)
-async def query_stocks(tickers: list, cik = None,  background: BackgroundTasks):
+async def query_stocks(tickers: list, cik: str,  background: BackgroundTasks):
     if cik:
         filer = database.find_filer(cik, {"stocks.global.cusip": 1})
         if not filer:
