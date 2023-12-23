@@ -61,7 +61,7 @@ export default function Resources() {
             <span
               className={[styles["button-tooltip"], font.className].join(" ")}
             >
-              (Bulk Data via the SEC)
+              (Bulk data via the SEC)
             </span>
           </div>
           <div className={styles["resources-item"]}>
@@ -80,7 +80,7 @@ export default function Resources() {
             <span
               className={[styles["button-tooltip"], font.className].join(" ")}
             >
-              (Bulk Data via the SEC)
+              (Bulk data via the SEC)
             </span>
           </div>
           <div className={styles["resources-item"]}>
@@ -99,7 +99,7 @@ export default function Resources() {
             <span
               className={[styles["button-tooltip"], font.className].join(" ")}
             >
-              (Bulk Data via the SEC)
+              (Bulk data via the SEC)
             </span>
           </div>
           <div className={styles["resources-item"]}>
@@ -118,15 +118,35 @@ export default function Resources() {
               (Explanations for Different Form Types)
             </span>
           </div>
+          <div className={styles["resources-item"]}>
+            <Link
+              href="https://drive.google.com/file/d/***REMOVED***/view"
+              target="_blank"
+            >
+              <button
+                className={[styles["resources-button"], font.className].join(
+                  " "
+                )}
+              >
+                Company Database
+              </button>
+            </Link>
+            <span
+              className={[styles["button-tooltip"], font.className].join(" ")}
+            >
+              (Search database for companies, created by wallstreetlocal,
+              formatted in BSON)
+            </span>
+          </div>
         </div>
         <span
           className={[styles["resources-description"], font.className].join(
             " "
           )}
         >
-          While data collected and formatted by wallstreetlocal is not available
-          by bulk because of data costs, you can download resources for
-          individual filers by visiting their respective pages.
+          While not all data collected and formatted by wallstreetlocal is
+          available by bulk because of data costs, you can download resources
+          for individual filers by visiting their respective pages.
         </span>
       </div>
     </>

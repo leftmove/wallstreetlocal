@@ -89,9 +89,7 @@ const Table = () => {
   useEffect(() => {
     if (queryStocks && stocks.length) {
       axios
-        .post(server + "/stocks/query", {
-          body: { cik, tickers: stocks.map((s) => s.ticker) },
-        })
+        .get(server + "/stocks/query", { params: { cik } })
         .catch((e) => console.error(e));
       setQueryStocks(false);
     }
