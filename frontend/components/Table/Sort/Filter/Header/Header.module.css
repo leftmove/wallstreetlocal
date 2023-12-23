@@ -30,19 +30,13 @@
   padding: 5px;
 }
 
-.filter-clicked {
+.filter-item:hover .filter-text {
   color: var(--offwhite);
+}
+
+.filter-clicked {
   background-color: var(--primary-dark);
 }
-
-.filter-item:hover .filter-text {
-  color: var(--offwhite-dark);
-}
-
-.filter-clicked:hover .filter-text {
-  color: var(--secondary);
-}
-
 /* .filter-item:hover .filter-text {
   color: var(--offwhite);
 }

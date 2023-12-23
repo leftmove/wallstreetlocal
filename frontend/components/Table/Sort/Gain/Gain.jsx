@@ -28,6 +28,7 @@ import {
 import Select from "./Select/Select";
 import Plus from "./Droppable/Plus";
 import Trash from "./Droppable/Trash";
+import Tip from "@/components/Tip/Tip";
 
 // const measuringConfig = {
 //   droppable: {
@@ -103,43 +104,50 @@ const Gain = () => {
   };
 
   return (
-    <div className={styles["gains-container"]}>
-      <DndContext
-        sensors={sensors}
-        autoScroll={false}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <div className={styles["dates-container"]}>
-          <SortableContext
-            items={dates.map((date) => date.accessor)}
-            strategy={horizontalListSortingStrategy}
-          >
-            {dates.map((date, index) => (
-              <Select
-                key={date.accessor}
-                id={date.accessor}
-                index={index}
-                date={date}
-              />
-            ))}
-          </SortableContext>
+    <div className={styles["gains"]}>
+      <div className={styles["gains-container"]}>
+        <DndContext
+          sensors={sensors}
+          autoScroll={false}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <div className={styles["dates-container"]}>
+            <SortableContext
+              items={dates.map((date) => date.accessor)}
+              strategy={horizontalListSortingStrategy}
+            >
+              {dates.map((date, index) => (
+                <Select
+                  key={date.accessor}
+                  id={date.accessor}
+                  index={index}
+                  date={date}
+                />
+              ))}
+            </SortableContext>
 
-          <DragOverlay>
-            {event.date ? (
-              <Select id={event.date.accessor} date={event.date} />
-            ) : null}
-          </DragOverlay>
-        </div>
+            <DragOverlay>
+              {event.date ? (
+                <Select id={event.date.accessor} date={event.date} />
+              ) : null}
+            </DragOverlay>
+          </div>
 
-        <div className={styles["drop-buttons"]}>
-          <Plus onClick={() => dispatch(newDate())} event={event} />
-          <Trash event={event} />
-        </div>
-      </DndContext>
+          <div className={styles["drop-buttons"]}>
+            <Plus onClick={() => dispatch(newDate())} event={event} />
+            <Trash event={event} />
+          </div>
+        </DndContext>
+      </div>
+      <Tip
+        className={styles["tip"]}
+        text="The blocks above are timeseries, you can change the date which they specify by clicking the calendar icon, and choosing the month/year. You can then add the prices for that date to the table, or download the prices directly."
+        top={20}
+      />
+      <Tip text="Add timeseries above by clicking the plus button on the right, and remove timeseries by dragging them to the trash button." />
     </div>
   );
 };
-
 export default Gain;

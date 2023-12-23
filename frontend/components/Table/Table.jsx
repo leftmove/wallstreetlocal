@@ -87,10 +87,10 @@ const Table = () => {
   }, [data]);
 
   useEffect(() => {
-    if (queryStocks) {
+    if (queryStocks && stocks.length) {
       axios
         .post(server + "/stocks/query", {
-          tickers: stocks.map((s) => s.ticker),
+          body: { cik, tickers: stocks.map((s) => s.ticker) },
         })
         .catch((e) => console.error(e));
       setQueryStocks(false);

@@ -1,3 +1,8 @@
+.gains {
+  display: flex;
+  flex-direction: column;
+}
+
 .gains-container {
   display: flex;
   justify-content: space-between;
@@ -50,12 +55,13 @@
   width: 20px;
   height: 20px;
   padding: 7px;
-  margin:  3px;
+  margin: 3px;
   border-radius: 5px;
 
   color: white;
   background-color: black;
-  transition: color 0.3s ease, background-color 0.3s ease, width 0.3s ease, height 0.3s ease;
+  transition: color 0.3s ease, background-color 0.3s ease, width 0.3s ease,
+    height 0.3s ease;
 }
 
 .drop-button:hover {
@@ -74,7 +80,6 @@
   color: black;
   background-color: white;
 }
-
 
 .drop-svg {
   width: 20px;

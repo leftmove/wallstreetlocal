@@ -1,4 +1,7 @@
 .tip {
   font-size: 0.8rem;
   opacity: 0.5;
+
+  flex-wrap: wrap;
+  white-space: normal;
 }

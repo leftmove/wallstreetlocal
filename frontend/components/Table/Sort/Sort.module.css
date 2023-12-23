@@ -23,9 +23,9 @@
   transition: color 0.3s ease;
 }
 
-.sort-tip:hover {
+/* .sort-tip:hover {
   color: var(--primary-dark);
-}
+} */
 
 .expand-button {
   width: 20px;
@@ -37,9 +37,6 @@
   overflow: hidden;
 
   padding: 10px;
-  margin: 30px;
-  margin-top: 0px;
-  margin-left: 0px;
   border-radius: 5px;
 
   max-height: 20px;
@@ -56,12 +53,11 @@
   display: flex;
 
   margin-top: 50px;
-  margin-bottom: 10px;
 }
 
 .sort-expanded {
   background-color: var(--offwhite-dark);
-  max-height: 800px;
+  max-height: 1000px;
 
   transition-property: max-height, background-color;
   transition-duration: 0.3s;
