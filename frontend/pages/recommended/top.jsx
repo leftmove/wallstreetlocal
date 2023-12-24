@@ -73,7 +73,9 @@ const Top = (props) => {
                             href={`/filers/${filer.cik}`}
                             className={styles["column-link"]}
                           >
-                            {display}
+                            {display.replace(/(^\w|\s\w)/g, (m) =>
+                              m.toUpperCase()
+                            )}
                           </Link>
                         );
                         break;
