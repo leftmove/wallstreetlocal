@@ -8,7 +8,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    env:
+      SECRETS_URL: ${{ secrets.SECRETS_URL }}
     steps:
       - name: Check Out Repository
         uses: actions/checkout@v2
@@ -20,10 +21,6 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          url: ${{ secrets.SECRETS_URL }}
           script: |
             cd server
-
-            curl "$url" > "./backend/.env.production"
-
             bash deploy.sh
