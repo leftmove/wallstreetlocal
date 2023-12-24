@@ -1,9 +1,12 @@
-from fastapi import BackgroundTasks, APIRouter
+from fastapi import BackgroundTasks, APIRouter, HTTPException
 from fastapi.responses import FileResponse
+
+import os
 
 from .utils.cache import cache
 from .utils.backup import backup_collections
 from .utils.analysis import end_dangling
+
 
 router = APIRouter(
     tags=["general"],
@@ -31,8 +34,8 @@ async def info_undefined():
 @cache
 @router.get("/backup", status_code=200)
 async def backup(password: str, background: BackgroundTasks):
-    if password != "whale":
-        return {}
+    if password != os.environ["ADMIN_PASSWORD"]:
+        raise HTTPException(detail="Unable to give access.", status_code=403)
 
     background.add_task(backup_collections)
     return {"message": "Backup started."}

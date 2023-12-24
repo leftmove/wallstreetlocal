@@ -4,6 +4,8 @@ from pydantic import BaseModel
 
 from datetime import datetime
 import json
+import asyncio
+import os
 
 from .utils import web
 from .utils import database
@@ -29,6 +31,7 @@ router = APIRouter(
         200: {"model": HTTPError, "description": "Success."},
         201: {"model": HTTPError, "description": "Successfully created object."},
         202: {"model": HTTPError, "description": "Accepted."},
+        403: {"model": HTTPError, "description": "Forbidden."},
         404: {"model": HTTPError, "description": "Not found."},
         409: {
             "model": HTTPError,
@@ -191,7 +194,7 @@ async def query_filer(cik: str, background: BackgroundTasks):
             raise HTTPException(404, detail="CIK not found.")
 
         background.add_task(create_filer, sec_data, cik)
-        background.add_task(web.estimate_time_newest, cik)
+        # background.add_task(web.estimate_time_newest, cik) # To be added back when it actually works
         res = {"description": "Filer creation started."}
     else:
         res = update_filer(filer)
@@ -448,18 +451,42 @@ async def top():
     return {"filers": filers_sorted}
 
 
-def create_filer_try(filer_ciks):
-    for cik in filer_ciks:
-        try:
-            found_filer = database.find_filer(cik)
-            if found_filer == None:
+def create_filer_try(cik):
+    try:
+        filer = database.find_filer(cik)
+        if filer == None:
+            try:
                 sec_data = sec_filer_search(cik)
-                create_filer(sec_data, cik)
-        except Exception as e:
-            stamp = str(datetime.now())
-            with open(f"./public/errors/error-{stamp}.log", "w+") as f:
-                f.write(str(e))
-            print("Error Occured")
+            except Exception:
+                raise HTTPException(404, detail="CIK not found.")
+
+            create_filer(sec_data, cik)
+        else:
+            raise HTTPException(detail="Filer already exists.", status_code=409)
+    except Exception as e:
+        stamp = str(datetime.now())
+        with open(f"./public/errors/error-{stamp}.log", "w+") as f:
+            f.write(str(e))
+        print("Error Occured\n", e)
+
+
+@cache(1)
+@router.get("/query/saved", status_code=200, include_in_schema=False)
+async def query_top(password: str, background: BackgroundTasks):
+    if password != os.environ["ADMIN_PASSWORD"]:
+        raise HTTPException(detail="Unable to give access.", status_code=403)
+
+    with open("./public/searched.json") as t:
+        filer_ciks = json.load(t)
+    with open("./public/top.json") as t:
+        filer_ciks.extend(json.load(t))
+
+    def cycle_filers(ciks):
+        for cik in ciks:
+            create_filer_try(cik)
+
+    background.add_task(cycle_filers, filer_ciks)
+    return {"description": "Started querying filers."}
 
 
 # @cache(24)

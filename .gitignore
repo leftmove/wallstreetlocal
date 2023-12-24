@@ -2,6 +2,7 @@ whale-project.code-workspace
 
 start.sh
 **/.env
+.env.*
 
 /.vscode
 
