@@ -23,10 +23,9 @@ const nextConfig = {
     fileLoaderRule.exclude = /\.svg$/i;
     return config;
   },
-  // env: {
-  //   NEXT_PUBLIC_SERVER:
-  //     "https://ominous-invention-j9xg5vxq4692x77-8000.app.github.dev",
-  // },
+  env: {
+    NEXT_PUBLIC_SERVER: "https://content.wallstreetlocal.com",
+  },
   output: "standalone",
 };
 
