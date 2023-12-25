@@ -10,6 +10,7 @@ import * as React from "react";
 
 const NextNProgress = ({
   color = "var(--primary-dark)",
+  displaySpinner = false,
   startPosition = 0.3,
   stopDelayMs = 200,
   height = 3,
@@ -89,7 +90,7 @@ const NextNProgress = ({
       transform: rotate(3deg) translate(0px, -4px);
     }
     #nprogress .spinner {
-      display: block;
+      display: ${displaySpinner ? "block" : "none"};
       position: fixed;
       z-index: 1031;
       top: 15px;

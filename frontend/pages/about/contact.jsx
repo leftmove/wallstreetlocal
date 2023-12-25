@@ -11,7 +11,7 @@ export default function Contact() {
   return (
     <>
       <Head>
-        <title>wallstreetlocal | contact</title>
+        <title>wallstreetlocal | Contact</title>
       </Head>
       <div className={[styles["contact"], font.className].join(" ")}>
         <h1 className={styles["contact-header"]}>Donation and Links</h1>

@@ -21,6 +21,22 @@ const fetcher = (url, cik) =>
     .then((r) => r.data)
     .catch((e) => console.error(e));
 
+const convertTitle = (d) => {
+  if (d) {
+    d = d.replace(
+      /(^\w|\s\w)(\S*)/g,
+      (_, m1, m2) => m1.toUpperCase() + m2.toLowerCase()
+    );
+    ["LLC", "LP", "L.P.", "LLP"].forEach((word) => {
+      d = d.replace(
+        word.at(0).toUpperCase() + word.toLowerCase().slice(1),
+        word
+      );
+    });
+  }
+  return d;
+};
+
 const server = process.env.NEXT_PUBLIC_SERVER;
 const Info = (props) => {
   const cik = props.cik || null;
@@ -42,6 +58,7 @@ const Info = (props) => {
     }
   );
   const info = data?.filer || null;
+  const name = convertTitle(info?.name);
 
   return (
     <>
@@ -54,7 +71,7 @@ const Info = (props) => {
           <span
             className={[styles["main-header-text"], font.className].join(" ")}
           >
-            {info?.name}
+            {name}
           </span>
           {info?.status > 0 ? <Building cik={cik} /> : null}
         </div>
@@ -74,4 +91,5 @@ const Info = (props) => {
   );
 };
 
+export { convertTitle };
 export default Info;

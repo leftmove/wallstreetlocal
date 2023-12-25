@@ -8,7 +8,7 @@ export default function Resources() {
   return (
     <>
       <Head>
-        <title>wallstreetlocal | resources</title>
+        <title>wallstreetlocal | Resources</title>
       </Head>{" "}
       <div className={styles["resources"]}>
         <div className={styles["resources-head"]}>

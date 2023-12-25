@@ -3,9 +3,10 @@ import styles from "@/styles/Top.module.css";
 import Head from "next/head";
 import Link from "next/link";
 
-import { font } from "@fonts";
-
 import axios from "axios";
+
+import { font } from "@fonts";
+import { convertTitle } from "@/components/Filer/Info";
 
 const headers = [
   { display: "Name", accessor: "name" },
@@ -60,14 +61,13 @@ const Searched = (props) => {
                     let display = filer[accessor];
                     switch (accessor) {
                       case "name":
+                        display = convertTitle(display);
                         display = (
                           <Link
                             href={`/filers/${filer.cik}`}
                             className={styles["column-link"]}
                           >
-                            {display.replace(/(^\w|\s\w)/g, (m) =>
-                              m.toUpperCase()
-                            )}
+                            {display}
                           </Link>
                         );
                         break;
