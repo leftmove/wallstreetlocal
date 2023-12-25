@@ -120,7 +120,7 @@ export default function Resources() {
           </div>
           <div className={styles["resources-item"]}>
             <Link
-              href="https://drive.google.com/file/d/***REMOVED***/view"
+              href="https://drive.google.com/file/d/1LT4xiFJkh6YlAPQDcov8YIKqcvevFlEE/view"
               target="_blank"
             >
               <button

@@ -41,7 +41,7 @@ def download_drive(file_id, destination):
 
 async def main():
     file_path = "./backend/public/backup/companies.bson"
-    download_drive("***REMOVED***", file_path)
+    download_drive("1LT4xiFJkh6YlAPQDcov8YIKqcvevFlEE", file_path)
 
     with open(file_path, "r") as f:
         for line in f:
