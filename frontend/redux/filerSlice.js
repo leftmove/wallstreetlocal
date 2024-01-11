@@ -67,7 +67,7 @@ const initialState = {
       active: false,
     },
     {
-      display: "Buy Date",
+      display: "First Reported Date",
       sort: "buy",
       accessor: "buy_str",
       active: false,
@@ -155,6 +155,7 @@ export const filerSlice = createSlice({
     },
     sortHeader(state, action) {
       const payload = action.payload;
+      console.log(payload);
       let type = "string";
       switch (payload.sort) {
         case "name":
@@ -176,7 +177,9 @@ export const filerSlice = createSlice({
         case "sold_time":
           type = "number";
           break;
-        case "date":
+        case "buy":
+        case "report":
+        case "sold_time":
           type = "date";
           break;
         default:

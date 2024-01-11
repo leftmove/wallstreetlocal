@@ -3,10 +3,12 @@
   flex-direction: column;
   justify-content: flex-start;
 
-  transition-duration: 0.3s;
-  max-height: 30px;
   overflow-y: hidden;
+  padding: 0px 25px;
+  max-height: 30px;
   margin-bottom: -10px;
+
+  transition-duration: 0.3s;
 }
 
 .sub-header-expanded {

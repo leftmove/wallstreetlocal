@@ -11,13 +11,14 @@ router = APIRouter(
     responses={},
 )
 
+
 class Cusip(BaseModel):
     cusip: list
 
 
 @cache
 @router.get("/query", tags=["stocks"], status_code=200)
-async def query_stocks(cik: str,  background: BackgroundTasks):
+async def query_stocks(cik: str, background: BackgroundTasks):
     if cik:
         filer = database.find_filer(cik, {"stocks.global.cusip": 1})
         if not filer:
@@ -71,6 +72,10 @@ async def stock_info(
 
         pipeline.append({"$count": "c"})
         cursor = database.search_filers(pipeline)
+
+        if cursor == None:
+            raise HTTPException(detail="Filer not found.", status_code=404)
+
         count = list(cursor)[0]["c"]
         pipeline.pop(-1)
 
@@ -89,6 +94,7 @@ async def stock_info(
 
     if cursor == None:
         raise HTTPException(detail="Filer not found.", status_code=404)
+
     try:
         stock_list = [result for result in cursor]
     except KeyError:

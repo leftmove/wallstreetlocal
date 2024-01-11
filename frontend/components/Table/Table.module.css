@@ -16,8 +16,9 @@
 
 .table-error {
   text-align: center;
+  white-space: wrap;
 
-  margin-top: 100px;
+  margin: 100px 30px;
   font-size: 1.5rem;
   width: 100%;
 }

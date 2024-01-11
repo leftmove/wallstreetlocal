@@ -19,6 +19,8 @@
 .sort-tip {
   color: var(--secondary-dark);
   opacity: 0.8;
+  flex-wrap: wrap;
+  white-space: wrap;
 
   transition: color 0.3s ease;
 }
@@ -39,7 +41,7 @@
   padding: 10px;
   border-radius: 5px;
 
-  max-height: 20px;
+  max-height: 40px;
   transition-property: max-height, background-color;
   transition-duration: 0.3s;
   transition-timing-function: cubic-bezier(1, 1, 1, 1);
@@ -53,6 +55,7 @@
   display: flex;
 
   margin-top: 50px;
+  margin-bottom: 20px;
 }
 
 .sort-expanded {
@@ -65,5 +68,7 @@
 }
 
 .sort-icon {
+  width: 20px;
+  height: 20px;
   margin-right: 10px;
 }

@@ -6,6 +6,14 @@ import { font } from "@fonts";
 import Search from "@/components/Search/Button/Search";
 import Bar from "@/components/Bar/Bar";
 
+const Item = ({ link, text, tab }) => (
+  <li className={styles["item"] + " " + font.className}>
+    <Link href={link} target={tab ? "_blank" : null}>
+      {text}
+    </Link>
+  </li>
+);
+
 const Navbar = (props) => {
   const variant = props.variant || null;
   return (
@@ -34,26 +42,19 @@ const Navbar = (props) => {
         </div>
         <div>
           <ul className={styles["about"]}>
-            <li className={styles["item"] + " " + font.className}>
-              <Link href="/recommended/top">Top Filers</Link>
-            </li>
-            <li className={styles["item"] + " " + font.className}>
-              <Link href="/recommended/searched">Popular Filers</Link>
-            </li>
-            {/* <li className={styles["item"] + " " + font.className}>
-          <Link href="/">about</Link>
-        </li> */}
-            <li className={styles["item"] + " " + font.className}>
-              <Link href="/about/resources">Resources</Link>
-            </li>
-            {/* <li className={styles["item"] + " " + font.className}>
-          <Link href="/">pricing</Link>
-        </li> */}
-            <li className={styles["item"] + " " + font.className}>
-              <Link href="https://github.com/bruhbruhroblox" target="_blank">
-                Contact
-              </Link>
-            </li>
+            <Item link="/recommended/top" text="Top Filers" />
+            <Item link="/recommended/searched" text="Popular Filers" />
+            <Item link="/about/resources" text="Resources" />
+            <Item
+              link="https://github.com/bruhbruhroblox"
+              text="Contact"
+              tab={true}
+            />
+            <Item
+              link="https://github.com/bruhbruhroblox/wallstreetlocal"
+              text="Source"
+              tab={true}
+            />
           </ul>
         </div>
       </nav>
