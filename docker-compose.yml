@@ -2,7 +2,6 @@ services:
   backend:
     container_name: backend
     build:
-      context: ./backend
       dockerfile: Dockerfile.prod
     restart: always
     networks:
@@ -12,11 +11,11 @@ services:
       - cache
       - search
     volumes:
-      - ./backend/public:/code/public
+      - ./public:/code/public
   cache:
     container_name: cache
     build:
-      context: ./backend/cache
+      context: ./cache
       dockerfile: Dockerfile
     restart: always
     networks:
@@ -24,20 +23,20 @@ services:
   database:
     container_name: database
     build:
-      context: ./backend/database
+      context: ./database
       dockerfile: Dockerfile
     volumes:
-      - ./backend/database/main_db:/data/db
+      - ./database/main_db:/data/db
     restart: always
     networks:
       - staging
   search:
     container_name: search
     build:
-      context: ./backend/search
+      context: ./search
       dockerfile: Dockerfile
     volumes:
-      - ./backend/search/search_db:/meili_data
+      - ./search/search_db:/meili_data
     restart: always
     networks:
       - staging

@@ -1,0 +1,12 @@
+{
+  "/_app": "pages/_app.js",
+  "/_error": "pages/_error.js",
+  "/_document": "pages/_document.js",
+  "/about/contact": "pages/about/contact.html",
+  "/about/resources": "pages/about/resources.html",
+  "/": "pages/index.html",
+  "/filers/[cik]": "pages/filers/[cik].js",
+  "/recommended/searched": "pages/recommended/searched.js",
+  "/recommended/top": "pages/recommended/top.js",
+  "/404": "pages/404.html"
+}

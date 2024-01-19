@@ -2,13 +2,12 @@ services:
   # backend:
   #   container_name: backend
   #   build:
-  #     context: ./backend
   #     dockerfile: Dockerfile.dev
   #   restart: always
   #   volumes:
-  #     - ./backend/routers:/code/routers
-  #     - ./backend/public:/code/public
-  #     - ./backend/main.py:/code/main.py
+  #     - ./routers:/code/routers
+  #     - ./public:/code/public
+  #     - ./main.py:/code/main.py
   #   networks:
   #     - staging
   #   ports:
@@ -20,7 +19,7 @@ services:
   cache:
     container_name: cache
     build:
-      context: ./backend/cache
+      context: ./cache
       dockerfile: Dockerfile
     restart: always
     networks:
@@ -28,14 +27,14 @@ services:
     ports:
       - 6379:6379
     # volumes:
-    #   - ./backend/cache/cache_db:/data
+    #   - ./cache/cache_db:/data
   database:
     container_name: database
     build:
-      context: ./backend/database
+      context: ./database
       dockerfile: Dockerfile
     volumes:
-      - ./backend/database/main_db:/data/db
+      - ./database/main_db:/data/db
     restart: always
     networks:
       - staging
@@ -44,10 +43,10 @@ services:
   search:
     container_name: search
     build:
-      context: ./backend/search
+      context: ./search
       dockerfile: Dockerfile
     volumes:
-      - ./backend/search/search_db:/meili_data
+      - ./search/search_db:/meili_data
     restart: always
     networks:
       - staging

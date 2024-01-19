@@ -6,38 +6,13 @@ start.sh
 
 /.vscode
 
-/frontend/node_modules
-/frontend/.pnp
-/frontend/.pnp.js
-
-/frontend/coverage
-
-/frontend/.next/
-/frontend/out/
-/frontend/next.config.js
-
-/frontend/build
-
-/frontend/.DS_Store
-/frontend/*.pem
-
-/frontend/npm-debug.log*
-/frontend/yarn-debug.log*
-/frontend/yarn-error.log*
-/frontend/.pnpm-debug.log*
-
-/frontend/.env*.local
-
-/frontend/.vercel
-/frontend/.prettierrc
-
-/backend/.venv
-/backend/development.test.py
+.venv
+development.test.py
 **/__pycache__/
-/backend/public/companies.bson
-/backend/public/companies.json
+/public/companies.bson
+/public/companies.json
 
-/backend/search/companies.json
+/search/companies.json
 
 /proxy/letsencrypt
 /proxy/data
