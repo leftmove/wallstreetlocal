@@ -18,6 +18,16 @@ load_dotenv(".env." + environment)
 os.environ["ENVIRONMENT"] = environment
 
 
+def download_file_from_google_drive(file_id, destination, chunk_size=32768):
+    url = "https://drive.usercontent.google.com/download"
+
+    session = requests.Session()
+    params = {"id": file_id, "confirm": 1, "export": "download"}
+    response = session.get(url, params=params, stream=True)
+
+    save_response_content(response, destination, chunk_size)
+
+
 def get_confirm_token(response):
     for key, value in response.cookies.items():
         if key.startswith("download_warning"):
@@ -26,33 +36,16 @@ def get_confirm_token(response):
     return None
 
 
-def save_response_content(response, destination):
-    chunk_size = 32 * 1024
+def save_response_content(response, destination, chunk_size):
     with open(destination, "wb") as f:
+        size = int(response.headers["Content-Length"]) / (10**6)
+        mb_chunk = chunk_size / (10**6)
+        progress = tqdm(total=size, desc="Downloading Database", unit="mb")
         for chunk in response.iter_content(chunk_size):
-            if chunk:  # filter out keep-alive new chunks
+            if chunk:
+                progress.update(mb_chunk)
                 f.write(chunk)
-
-
-def download_drive(file_id, destination):
-    try:
-        file = open(destination)
-        file.close()
-        return
-    except:
-        pass
-
-    url = f"https://drive.google.com/uc?export=download&id={file_id}&confirm=t "
-    session = requests.Session()
-
-    response = session.get(url, params={"id": file_id}, stream=True)
-    token = get_confirm_token(response)
-
-    if token:
-        params = {"id": file_id, "confirm": token}
-        response = session.get(url, params=params, stream=True)
-
-    save_response_content(response, destination)
+        progress.close()
 
 
 def main():
@@ -131,7 +124,7 @@ def main():
 
     if db_empty or search_empty:
         file_path = f"{backup_path}/companies.bson"
-        download_drive(MONGO_BACKUP_URL, file_path)
+        download_file_from_google_drive(MONGO_BACKUP_URL, file_path)
 
         batch = 4000
         database_documents = []
