@@ -8,8 +8,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      SECRETS_URL: ${{ secrets.SECRETS_URL }}
     steps:
       - name: Check Out Repository
         uses: actions/checkout@v2
