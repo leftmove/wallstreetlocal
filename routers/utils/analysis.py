@@ -519,7 +519,7 @@ def sort_and_format(filer_ciks):
 
     for cik in filer_ciks:
         filer = database.find_filer(cik, project)
-        if filer != None:
+        if filer:
             filers.append(filer)
 
     try:
@@ -527,8 +527,10 @@ def sort_and_format(filer_ciks):
             filers, key=lambda c: c.get("market_value", -1), reverse=True
         )
         for filer in filers_sorted:
-            filer["date"] = datetime.utcfromtimestamp(filer["updated"]).strftime(
-                "%Y-%m-%d"
+            filer["date"] = (
+                datetime.utcfromtimestamp(filer["updated"]).strftime("%Y-%m-%d")
+                if filer.get("updated")
+                else "NA"
             )
             filer["market_value"] = (
                 f"${int(filer['market_value']):,}"
