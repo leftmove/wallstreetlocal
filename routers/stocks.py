@@ -70,14 +70,14 @@ async def stock_info(
         if not unavailable:
             pipeline.append({"$match": {sort: {"$ne": "NA"}}})
 
-        pipeline.append({"$count": "c"})
         cursor = database.search_filers(pipeline)
 
-        if cursor == None:
+        if not cursor:
             raise HTTPException(detail="Filer not found.", status_code=404)
 
-        count = list(cursor)[0]["c"]
-        pipeline.pop(-1)
+        count = cursor.count()
+        if not count:
+            raise HTTPException(detail="No stocks found.", status_code=404)
 
         pipeline.extend(
             [

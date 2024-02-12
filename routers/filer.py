@@ -63,56 +63,47 @@ router = APIRouter(
 
 
 def create_filer(sec_data, cik):
-    company = {
-        "name": sec_data["name"],
-        "cik": cik,
-    }
-    start = datetime.now().timestamp()
-    stamp = {
-        **company,
-        "logs": [],
-        "status": 4,
-        "time": {
-            "remaining": 0,
-            "elapsed": 0,
-            "required": 0,
-        },
-        "start": start,
-    }
 
-    database.create_log(stamp)
-    database.add_filer(company)
-    company = web.process_filer(sec_data, cik)
-
+    # Initialize Filer
+    company, stamp, start = web.initalize_filer(cik, sec_data)
     company_name = company["name"]
-    stamp = {
-        "name": company_name,
-    }
-    database.edit_log(cik, stamp)
-    database.edit_filer({"cik": cik}, {"$set": company})
+    filer_query = {"cik": cik}
 
+    # Gather Newest Filing
     try:
-        local_stocks = web.process_latest_stocks(company)
-        company_update = {
-            "cik": cik,
-            "stocks": {
-                "local": local_stocks,
-                "global": [],
-            },
-        }
-        company.update(company_update)
+        filings = company["filings"][0]
+        new_filings = web.process_recent_filing(filings)
 
-        database.add_log(cik, "Filer Queried with Latest Stocks", company["name"], cik)
-        database.edit_filer({"cik": cik}, {"$set": company_update})
+        database.edit_filer(filer_query, {"$set": {"filings": new_filings}})
+        database.add_log(cik, "Queried Filer Recent Filing", company_name, cik)
     except Exception as e:
-        database.edit_status(cik, 0)
         print(e)
-        return
+        raise HTTPException(status_code=500, detail="Error getting newest filing.")
 
+    # Gather New Stocks
     try:
-        analysis.analyze_newest(cik, local_stocks)
+        recent_filing = new_filings[0]
+        new_stocks = web.process_recent_stocks(recent_filing)
+
+        database.edit_filer(filer_query, {"$set": {"cik": cik, "stocks": new_stocks}})
+        database.add_log(cik, "Queried Filer Recent Stocks", company_name, cik)
     except Exception as e:
-        database.edit_filer({"cik": cik}, {"$set": {"update": False}})
+        print(e)
+        raise HTTPException(status_code=500, detail="Error getting newest stocks.")
+
+    # Update Newest Stocks
+    try:
+        analyzed_stocks = update_recent_stocks(cik, new_stocks, new_filings)
+        analyze_recent_stocks(cik, analyzed_stocks)
+
+        database.add_log(cik, "Updated Filer Recent Stocks")
+        database.edit_status(cik, 2)
+        # Do actual analysis here, like market value
+    except Exception as e:
+        database.edit_filer(
+            {"cik": cik}, {"$set": {"market_value": "NA", "update": False}}
+        )
+        database.add_log(cik, "Failed to Update Filer Recent Stocks")
         database.edit_status(cik, 2)
         print(e)
 
@@ -120,19 +111,42 @@ def create_filer(sec_data, cik):
     database.edit_log(cik, stamp)
     database.add_query_log(cik, "create-latest")
 
+    # Gather All Filings
     try:
-        database.edit_status(cik, 2)
-        web.process_new_stocks(company)
-        database.add_log(cik, "Filer Queried with Historical Stocks", company_name, cik)
-    except Exception as e:
-        database.edit_status(cik, 0)
-        print(e)
+        recent_filing = filings[0]
+        new_filings = web.process_historical_filing(filings)
 
-    try:
-        analysis.analyze_historical(cik)
+        database.edit_filer(
+            filer_query, {"$set": {"filings": new_filings, "filings.0": recent_filing}}
+        )
+        database.add_log(cik, "Queried Filer Recent Filing", company_name, cik)
     except Exception as e:
-        database.edit_filer({"cik": cik}, {"$set": {"update": False}})
+        print(e)
+        database.add_log("Failed to Query Filer Historical Filings")
+
+    # Gather Historical Stocks
+    try:
+        new_stocks = web.process_historical_stocks(filings)
+
+        database.edit_filer(filer_query, {"$set": {"cik": cik, "stocks": new_stocks}})
+        database.add_log(cik, "Queried Filer Historical Stocks", company_name, cik)
+    except Exception as e:
+        print(e)
+        database.add_log(cik, "Failed to Query Filer Historical Stocks")
+
+    # Update Newest Stocks
+    try:
+        analyzed_stocks = update_historical_stocks(cik, new_stocks, new_filings)
+        analyze_historical_stocks(cik, analyzed_stocks)
+
+        database.add_log(cik, "Updated Filer Historical Stocks")
         database.edit_status(cik, 0)
+        # Do actual analysis here, like market value
+    except Exception as e:
+        database.edit_filer(
+            {"cik": cik}, {"$set": {"market_value": "NA", "update": False}}
+        )
+        database.add_log(cik, "Failed to Update Filer Recent Stocks")
         print(e)
 
     stamp = {"time.elapsed": datetime.now().timestamp() - start}
@@ -267,7 +281,7 @@ async def logs(cik: str, start: int = 0):
         raise HTTPException(404, detail="CIK not found.")
     except Exception as e:
         print(e)
-        raise HTTPException(404, detail="Error fetching logs.")
+        raise HTTPException(500, detail="Error fetching logs.")
 
 
 @router.get("/estimate", status_code=202)
@@ -301,7 +315,7 @@ async def estimate(cik: str):
         raise HTTPException(404, detail="CIK not found.")
     except Exception as e:
         print(e)
-        raise HTTPException(404, detail="Error fetching time estimation.")
+        raise HTTPException(500, detail="Error fetching time estimation.")
 
 
 @cache(1 / 6)

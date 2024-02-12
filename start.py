@@ -86,7 +86,7 @@ def main():
             companies_index = search.index("companies")
             companies_index.add_documents([{"cik": "TEST"}])
             retries -= 1
-        raise RuntimeError
+        raise RuntimeError  # @IgnoreException
     except:
         search = meilisearch.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)
         companies_index = search.index("companies")
