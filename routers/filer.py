@@ -73,9 +73,18 @@ def create_filer(sec_data, cik):
     try:
         filings = company["filings"]
         last_report = company["last_report"]
-        new_stocks = web.process_recent_stocks(cik, filings, last_report)
+        filing_stocks, new_stocks = web.process_recent_stocks(cik, filings, last_report)
 
-        database.edit_filer(filer_query, {"$set": {"cik": cik, "stocks": new_stocks}})
+        database.edit_filer(
+            filer_query,
+            {
+                "$set": {
+                    "cik": cik,
+                    f"filings.{last_report}.stocks": filing_stocks,
+                    "stocks": new_stocks,
+                }
+            },
+        )
         database.add_log(cik, "Queried Filer Recent Stocks", company_name, cik)
     except Exception as e:
         print(e)
@@ -83,16 +92,16 @@ def create_filer(sec_data, cik):
 
     # Update Newest Stocks
     try:
-        analyze_recent_stocks(cik, new_stocks, new_filings)
+        analysis.analyze_filer(cik, new_stocks, 5)
 
-        database.add_log(cik, "Updated Filer Recent Stocks")
+        database.add_log(cik, "Updated Filer Recent Stocks", company_name, cik)
         database.edit_status(cik, 2)
         # Do actual analysis here, like market value
     except Exception as e:
         database.edit_filer(
             {"cik": cik}, {"$set": {"market_value": "NA", "update": False}}
         )
-        database.add_log(cik, "Failed to Update Filer Recent Stocks")
+        database.add_log(cik, "Failed to Update Filer Recent Stocks", company_name, cik)
         database.edit_status(cik, 2)
         print(e)
 
@@ -100,35 +109,31 @@ def create_filer(sec_data, cik):
     database.edit_log(cik, stamp)
     database.add_query_log(cik, "create-latest")
 
-    # Gather All Filings
-    try:
-        recent_filing = filings[0]
-        new_filings = web.process_historical_filing(filings)
-
-        database.edit_filer(
-            filer_query, {"$set": {"filings": new_filings, "filings.0": recent_filing}}
-        )
-        database.add_log(cik, "Queried Filer Recent Filing", company_name, cik)
-    except Exception as e:
-        print(e)
-        database.add_log("Failed to Query Filer Historical Filings")
-
     # Gather Historical Stocks
     try:
-        new_stocks = web.process_historical_stocks(filings)
+        historical_stocks = new_stocks
+        for access_number, filing_stocks in web.process_historical_stocks(
+            cik, filings, last_report, new_stocks
+        ):
+            database.edit_filer(
+                filer_query, {"$set": {f"filings.{access_number}.stocks": new_stocks}}
+            )
+            historical_stocks.update(new_stocks)
 
         database.edit_filer(filer_query, {"$set": {"cik": cik, "stocks": new_stocks}})
         database.add_log(cik, "Queried Filer Historical Stocks", company_name, cik)
     except Exception as e:
         print(e)
-        database.add_log(cik, "Failed to Query Filer Historical Stocks")
+        database.add_log(
+            cik, "Failed to Query Filer Historical Stocks", company_name, cik
+        )
 
     # Update Historical Stocks
     try:
         analyzed_stocks = update_historical_stocks(cik, new_stocks, new_filings)
         analyze_historical_stocks(cik, analyzed_stocks)
 
-        database.add_log(cik, "Updated Filer Historical Stocks")
+        database.add_log(cik, "Updated Filer Historical Stocks", company_name, cik)
         database.edit_status(cik, 0)
         # Do actual analysis here, like market value
     except Exception as e:
