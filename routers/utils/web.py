@@ -219,6 +219,37 @@ def process_keys(tickers, name, cik):
     return name, stock_info  # type: ignore
 
 
+def initalize_filer(cik, sec_data):
+    company = {
+        "name": sec_data["name"],
+        "cik": cik,
+    }
+    start = datetime.now().timestamp()
+    stamp = {
+        **company,
+        "logs": [],
+        "status": 4,
+        "time": {
+            "remaining": 0,
+            "elapsed": 0,
+            "required": 0,
+        },
+        "start": start,
+    }
+
+    database.create_log(stamp)
+    database.add_filer(company)
+    company = process_filer(sec_data, cik)
+
+    stamp = {
+        "name": company["name"],
+    }
+    database.edit_log(cik, stamp)
+    database.edit_filer({"cik": cik}, {"$set": company})
+
+    return company, stamp, start
+
+
 def process_filer(data, cik):
     filings, last_report, first_report = process_filings(data)
     time = (datetime.now()).timestamp()
@@ -235,6 +266,7 @@ def process_filer(data, cik):
         "updated": time,
         "exchanges": data["exchanges"],
         "filings": filings,
+        "stocks": [],
         "first_report": first_report,
         "last_report": last_report,
         "data": extra_data,
@@ -308,14 +340,16 @@ def process_count_stocks(data, cik):
         # The most genius code ever written
         info_row = any(
             [
-                True
-                if any(
-                    [
-                        True if d in table_key and d and d != " " else False
-                        for d in [b.text.strip() for b in row]
-                    ]
+                (
+                    True
+                    if any(
+                        [
+                            True if d in table_key and d and d != " " else False
+                            for d in [b.text.strip() for b in row]
+                        ]
+                    )
+                    else False
                 )
-                else False
                 for table_key in info_table_key
             ]
         )
@@ -356,7 +390,7 @@ def process_count_stocks(data, cik):
     return stock_count
 
 
-def process_stocks(data, last_report, access_number, report_date, global_stocks, cik):
+def scrape_stocks(data, last_report, access_number, report_date, global_stocks, cik):
     index_soup = BeautifulSoup(data, parser)
     rows = index_soup.find_all("tr")
     directory = None
@@ -531,7 +565,7 @@ def process_new_stocks(company):
 
         data = api.sec_stock_search(cik=cik, access_number=access_number)
         try:
-            new_stocks = process_stocks(
+            new_stocks = scrape_stocks(
                 data=data,
                 last_report=last_report,
                 access_number=access_number,
@@ -560,7 +594,7 @@ def process_latest_stocks(company):
 
     data = api.sec_stock_search(cik=cik, access_number=access_number)
     try:
-        new_stocks = process_stocks(
+        new_stocks = scrape_stocks(
             data=data,
             last_report=last_report,
             access_number=access_number,
@@ -578,8 +612,32 @@ def process_latest_stocks(company):
     return scraped_stocks
 
 
-def process_recent(company):
-    cik = company["cik"]
+def process_recent_stocks(cik, filings, last_report):
+
+    recent_filing = filings[last_report]
+    access_number = recent_filing["access_number"]
+    document_report_date = recent_filing["report_date"]
+
+    data = api.sec_stock_search(cik=cik, access_number=access_number)
+    try:
+        new_stocks = scrape_stocks(
+            data=data,
+            last_report=last_report,
+            access_number=access_number,
+            report_date=document_report_date,
+            global_stocks={},
+            cik=cik,
+        )
+    except Exception as e:
+        database.add_log(
+            cik,
+            "Error Getting Filer Newest Stocks",
+            cik,
+        )
+        return filings, []
+
+    filings[last_report]["stocks"] = new_stocks
+    return filings, new_stocks
 
 
 def query_stocks(found_stocks):

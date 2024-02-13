@@ -69,21 +69,11 @@ def create_filer(sec_data, cik):
     company_name = company["name"]
     filer_query = {"cik": cik}
 
-    # Gather Newest Filing
-    try:
-        filings = company["filings"][0]
-        new_filings = web.process_recent_filing(filings)
-
-        database.edit_filer(filer_query, {"$set": {"filings": new_filings}})
-        database.add_log(cik, "Queried Filer Recent Filing", company_name, cik)
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail="Error getting newest filing.")
-
     # Gather New Stocks
     try:
-        recent_filing = new_filings[0]
-        new_stocks = web.process_recent_stocks(recent_filing)
+        filings = company["filings"]
+        last_report = company["last_report"]
+        new_stocks = web.process_recent_stocks(cik, filings, last_report)
 
         database.edit_filer(filer_query, {"$set": {"cik": cik, "stocks": new_stocks}})
         database.add_log(cik, "Queried Filer Recent Stocks", company_name, cik)
@@ -93,8 +83,7 @@ def create_filer(sec_data, cik):
 
     # Update Newest Stocks
     try:
-        analyzed_stocks = update_recent_stocks(cik, new_stocks, new_filings)
-        analyze_recent_stocks(cik, analyzed_stocks)
+        analyze_recent_stocks(cik, new_stocks, new_filings)
 
         database.add_log(cik, "Updated Filer Recent Stocks")
         database.edit_status(cik, 2)
@@ -134,7 +123,7 @@ def create_filer(sec_data, cik):
         print(e)
         database.add_log(cik, "Failed to Query Filer Historical Stocks")
 
-    # Update Newest Stocks
+    # Update Historical Stocks
     try:
         analyzed_stocks = update_historical_stocks(cik, new_stocks, new_filings)
         analyze_historical_stocks(cik, analyzed_stocks)
