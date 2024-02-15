@@ -92,11 +92,18 @@ def create_filer(sec_data, cik):
 
     # Update Newest Stocks
     try:
-        analysis.analyze_filer(cik, new_stocks, 5)
+        database.add_log(cik, "Creating Filer (Newest)", company_name, cik)
+
+        new_stocks = []
+        for updated_stock, log_item in analysis.analyze_stocks(
+            cik, new_stocks, filings
+        ):
+            new_stocks.append(updated_stock)
+            database.add_log(cik, log_item)
+        database.edit_filer(filer_query, {"$push": {"stocks": new_stocks}})
 
         database.add_log(cik, "Updated Filer Recent Stocks", company_name, cik)
         database.edit_status(cik, 2)
-        # Do actual analysis here, like market value
     except Exception as e:
         database.edit_filer(
             {"cik": cik}, {"$set": {"market_value": "NA", "update": False}}
@@ -118,9 +125,12 @@ def create_filer(sec_data, cik):
             database.edit_filer(
                 filer_query, {"$set": {f"filings.{access_number}.stocks": new_stocks}}
             )
-            historical_stocks.update(new_stocks)
+            historical_stocks.update(filing_stocks)
 
-        database.edit_filer(filer_query, {"$set": {"cik": cik, "stocks": new_stocks}})
+        historical_list = [historical_stocks[cusip] for cusip in historical_stocks]
+        database.edit_filer(
+            filer_query, {"$set": {"cik": cik, "stocks": historical_list}}
+        )
         database.add_log(cik, "Queried Filer Historical Stocks", company_name, cik)
     except Exception as e:
         print(e)
@@ -130,12 +140,11 @@ def create_filer(sec_data, cik):
 
     # Update Historical Stocks
     try:
-        analyzed_stocks = update_historical_stocks(cik, new_stocks, new_filings)
-        analyze_historical_stocks(cik, analyzed_stocks)
+        database.add_log(cik, "Creating Filer (Historical)", company_name, cik)
+        analysis.analyze_filer(cik, historical_list, 5)
 
         database.add_log(cik, "Updated Filer Historical Stocks", company_name, cik)
         database.edit_status(cik, 0)
-        # Do actual analysis here, like market value
     except Exception as e:
         database.edit_filer(
             {"cik": cik}, {"$set": {"market_value": "NA", "update": False}}

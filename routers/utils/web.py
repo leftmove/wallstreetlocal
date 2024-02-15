@@ -636,8 +636,31 @@ def process_recent_stocks(cik, filings, last_report):
         )
         return filings, []
 
-    filings[last_report]["stocks"] = new_stocks
-    return filings, new_stocks
+    list_stocks = [new_stocks[cusip] for cusip in new_stocks]
+    return new_stocks, list_stocks
+
+
+def process_historical_stocks(cik, filings, last_report, previous_stocks):
+    filings_list = sorted(
+        [filings[an] for an in filings], key=lambda d: d["report_date"]
+    )
+    for document in filings_list:
+        access_number = document["access_number"]
+        report_date = document["report_date"]
+        data = api.sec_stock_search(cik=cik, access_number=access_number)
+        try:
+            new_stocks = scrape_stocks(
+                data=data,
+                last_report=last_report,
+                access_number=access_number,
+                report_date=report_date,
+                global_stocks=previous_stocks,
+                cik=cik,
+            )
+            yield access_number, new_stocks
+        except Exception as e:
+            print(f"\nError Updating Stocks\n{e}\n--------------------------\n")
+            continue
 
 
 def query_stocks(found_stocks):
