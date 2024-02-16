@@ -1,6 +1,7 @@
 whale-project.code-workspace
 
 start.sh
+example.json
 **/.env
 .env.*
 

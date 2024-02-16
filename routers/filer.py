@@ -75,6 +75,7 @@ def create_filer(sec_data, cik):
         last_report = company["last_report"]
         filing_stocks, new_stocks = web.process_recent_stocks(cik, filings, last_report)
 
+        filings[last_report]["stocks"] = filing_stocks
         database.edit_filer(
             filer_query,
             {
@@ -93,15 +94,17 @@ def create_filer(sec_data, cik):
     try:
         database.add_log(cik, "Creating Filer (Newest)", company_name, cik)
 
+        recent_filing = filings[last_report]
         for (
             stock_query,
             filing_stock,
             updated_stock,
             log_item,
-        ) in analysis.analyze_stocks(cik, new_stocks, filings):
+        ) in analysis.analyze_filer(cik, {last_report: recent_filing}, new_stocks):
             database.edit_filer(filer_query, {"$set": {stock_query: filing_stock}})
             database.edit_filer(
-                {**filer_query, "cusip": updated_stock["cusip"]}, updated_stock
+                {**filer_query, "stocks.cusip": updated_stock["cusip"]},
+                {"$set": {"stocks.$": updated_stock}},
             )
             database.add_log(cik, log_item)
 
@@ -121,7 +124,7 @@ def create_filer(sec_data, cik):
 
     # Gather Historical Stocks
     try:
-        historical_stocks = new_stocks
+        historical_stocks = {}
         for access_number, filing_stocks in web.process_historical_stocks(
             cik, filings, last_report, new_stocks
         ):
@@ -145,10 +148,11 @@ def create_filer(sec_data, cik):
             filing_stock,
             updated_stock,
             log_item,
-        ) in analysis.analyze_stocks(cik, historical_stocks, filings):
+        ) in analysis.analyze_filer(cik, filings, historical_stocks):
             database.edit_filer(filer_query, {"$set": {stock_query: filing_stock}})
             database.edit_filer(
-                {**filer_query, "cusip": updated_stock["cusip"]}, updated_stock
+                {**filer_query, "stocks.cusip": updated_stock["cusip"]},
+                {"$set": {"stocks.$": updated_stock}},
             )
             database.add_log(cik, log_item)
 
