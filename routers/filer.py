@@ -81,7 +81,6 @@ def create_filer(sec_data, cik):
                 "$set": {
                     "cik": cik,
                     f"filings.{last_report}.stocks": filing_stocks,
-                    "stocks": new_stocks,
                 }
             },
         )
@@ -94,13 +93,17 @@ def create_filer(sec_data, cik):
     try:
         database.add_log(cik, "Creating Filer (Newest)", company_name, cik)
 
-        new_stocks = []
-        for updated_stock, log_item in analysis.analyze_stocks(
-            cik, new_stocks, filings
-        ):
-            new_stocks.append(updated_stock)
+        for (
+            stock_query,
+            filing_stock,
+            updated_stock,
+            log_item,
+        ) in analysis.analyze_stocks(cik, new_stocks, filings):
+            database.edit_filer(filer_query, {"$set": {stock_query: filing_stock}})
+            database.edit_filer(
+                {**filer_query, "cusip": updated_stock["cusip"]}, updated_stock
+            )
             database.add_log(cik, log_item)
-        database.edit_filer(filer_query, {"$push": {"stocks": new_stocks}})
 
         database.add_log(cik, "Updated Filer Recent Stocks", company_name, cik)
         database.edit_status(cik, 2)
@@ -127,10 +130,6 @@ def create_filer(sec_data, cik):
             )
             historical_stocks.update(filing_stocks)
 
-        historical_list = [historical_stocks[cusip] for cusip in historical_stocks]
-        database.edit_filer(
-            filer_query, {"$set": {"cik": cik, "stocks": historical_list}}
-        )
         database.add_log(cik, "Queried Filer Historical Stocks", company_name, cik)
     except Exception as e:
         print(e)
@@ -141,7 +140,17 @@ def create_filer(sec_data, cik):
     # Update Historical Stocks
     try:
         database.add_log(cik, "Creating Filer (Historical)", company_name, cik)
-        analysis.analyze_filer(cik, historical_list, 5)
+        for (
+            stock_query,
+            filing_stock,
+            updated_stock,
+            log_item,
+        ) in analysis.analyze_stocks(cik, historical_stocks, filings):
+            database.edit_filer(filer_query, {"$set": {stock_query: filing_stock}})
+            database.edit_filer(
+                {**filer_query, "cusip": updated_stock["cusip"]}, updated_stock
+            )
+            database.add_log(cik, log_item)
 
         database.add_log(cik, "Updated Filer Historical Stocks", company_name, cik)
         database.edit_status(cik, 0)

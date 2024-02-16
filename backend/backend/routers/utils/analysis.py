@@ -226,7 +226,7 @@ def analyze_report(local_stock, filings):
     buy_time = filings[first_report]["report_date"]
     sold_time = filings[last_report]["report_date"]
 
-    return first_report, last_report, buy_time, sold_time
+    return buy_time, sold_time
 
 
 def analyze_timeseries(cik, global_stock, buy_time, sold_time):
@@ -314,17 +314,16 @@ def analyze_stocks(cik, outdated_stocks, filings):
             # ultimate stock is already know
             # Perhaps integrate above with process historical?
 
-            if not outdated_stock["sold"]:
-                outdated_stock.update(
-                    {
-                        "portfolio": percent_portfolio,
-                        "ownership": percent_ownership,
-                        "prices": {
-                            "buy": buy_timeseries,
-                            "sold": sold_timeseries,
-                        },
-                    }
-                )
+            outdated_stock.update(
+                {
+                    "portfolio": percent_portfolio,
+                    "ownership": percent_ownership,
+                    "prices": {
+                        "buy": buy_timeseries,
+                        "sold": sold_timeseries,
+                    },
+                }
+            )
 
             outdated_stocks[cusip] = outdated_stock
             updated_stock = serialize_stock(outdated_stock, found_stock)
@@ -338,19 +337,67 @@ def analyze_stocks(cik, outdated_stocks, filings):
             continue
 
 
-def analyze_filings(filings, updated_stocks):
+def analyze_stocks(cik, filings, updated_stocks):
+    stock_cache = {}
     for access_number in filings:
         filing_stocks = filings[access_number]["stocks"]
+        total_value = analyze_total(cik, filing_stocks)
         for cusip in filing_stocks:
-            stock_query = f"filings.stocks.{cusip}"
+            stock_query = f"filings.{access_number}.stocks.{cusip}"
             updated_stock = next(
                 (s for s in updated_stocks if s["cusip"] == cusip), None
             )
 
             local_stock = filing_stocks[cusip]
-            local_stock.update({""})
+            cusip = local_stock["cusip"]
+            name = local_stock["name"]
 
-            yield stock_query, updated_stock
+            buy_time, sold_time = analyze_report(local_stock, filings)
+
+            found_stock = stock_cache.get(cusip)
+            found_stock = (
+                database.find_stock("cusip", cusip) if not found_stock else found_stock
+            )
+            if not found_stock:
+                continue
+
+            percent_portfolio, percent_ownership = analyze_value(
+                local_stock, found_stock, total_value
+            )
+            buy_timeseries, sold_timeseries = analyze_timeseries(
+                cik, found_stock, buy_time, sold_time
+            )
+
+            # Shit to do
+            # Finish up filings anal
+            # Make so filings anal happens before stock anal, and stock
+            # anal uses filing anal's already scraped data
+            # Functionality so that once filing anal is done, the
+            # ultimate stock is already know
+            # Perhaps integrate above with process historical?
+
+            if found_stock.get("buy_time", 0) > buy_time:
+                stock_cache[cusip] = {
+                    **found_stock,
+                    "buy_time": buy_time,
+                    "sold_time": sold_time,
+                }
+                filing_stock = {
+                    **local_stock,
+                    "portfolio": percent_portfolio,
+                    "ownership": percent_ownership,
+                    "prices": {
+                        "buy": buy_timeseries,
+                        "sold": sold_timeseries,
+                    },
+                }
+            else:
+                filing_stock = local_stock
+
+            updated_stock = serialize_stock(filing_stock, found_stock)
+            log_stock = {"name": name, "message": "Created Stock", "identifier": cusip}
+
+            yield stock_query, local_stock, updated_stock, log_stock
 
 
 def time_remaining(stock_count):
