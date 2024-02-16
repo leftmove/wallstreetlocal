@@ -78,10 +78,10 @@ def find_log(cik, project={"_id": 0}):
     return result
 
 
-def add_log(cik, message, name, identifier):
+def add_log(cik, message, name="", identifier=""):
     if type(message) == dict:
         log_string = (
-            f'{message["message"], ({message["name"]}) ({message["identifier"]})}'
+            f'{message["message"]}, ({message["name"]}) ({message["identifier"]})'
         )
         logs.update_one({"cik": cik}, {"$push": {"logs": log_string}})
     else:
