@@ -250,6 +250,9 @@ def initalize_filer(cik, sec_data):
     return company, stamp, start
 
 
+redundant_keys = ["name", "cik", "symbol"]
+
+
 def process_filer(data, cik):
     filings, last_report, first_report = process_filings(data)
     time = (datetime.now()).timestamp()
@@ -257,7 +260,10 @@ def process_filer(data, cik):
     name = data["name"]
     tickers = data["tickers"]
     name, info = process_keys(tickers, name, cik)
+
     extra_data = analysis.convert_underscore(info, {})
+    for rk in redundant_keys:
+        extra_data.pop(rk, None)
 
     company = {
         "name": name,
@@ -269,7 +275,7 @@ def process_filer(data, cik):
         "stocks": [],
         "first_report": first_report,
         "last_report": last_report,
-        "data": extra_data,
+        "financials": extra_data,
     }
 
     return company
@@ -304,12 +310,7 @@ def process_stock(ticker, cusip, name, cik):
         if field == None:
             stock_price[key] = "NA"
 
-    data = {}
-    for key in stock_info:
-        new_key = analysis.capital_pattern.sub(r"\1_\2", key)
-        new_key = analysis.underscore_pattern.sub(r"\1_\2", new_key).lower()
-        data[new_key] = stock_info[key]
-
+    financials = analysis.convert_underscore(stock_info)
     quote = {}
     for key in stock_price:
         new_key = key[4:].replace(" ", "_")
@@ -324,7 +325,7 @@ def process_stock(ticker, cusip, name, cik):
         "industry": stock_info.get("Industry", "NA"),
         "price": "NA" if price == None else float(price),
         "time": (datetime.now()).timestamp(),
-        "data": data,
+        "financials": financials,
         "quote": quote,
         "update": True,
     }
@@ -387,10 +388,8 @@ def process_count_stocks(data, cik):
             local_stocks.append(stock_cusip)
             stock_count += 1
 
-    return stock_count
 
-
-def scrape_stocks(data, last_report, access_number, report_date, global_stocks, cik):
+def scrape_stocks(data, last_report, access_number, report_date, cik):
     index_soup = BeautifulSoup(data, parser)
     rows = index_soup.find_all("tr")
     directory = None
@@ -420,7 +419,7 @@ def scrape_stocks(data, last_report, access_number, report_date, global_stocks, 
     ) = sort_rows(stock_fields[0], stock_fields[1])
 
     local_stocks = {}
-    # stock_count = 0
+    global_stocks = {}
     for row in stock_rows:
         columns = row.find_all("td")
 
@@ -450,23 +449,6 @@ def scrape_stocks(data, last_report, access_number, report_date, global_stocks, 
         local_stocks[stock_cusip] = new_stock
         # stock_count += 1
 
-    # aggregate_filers(
-    #     [
-    #         {"$match": {"cik": cik}},
-    #         {
-    #             "$set": {
-    #                 "log.time.required": {"$add": ["$log.time.required", stock_count]},
-    #                 "log.time.elapsed": {
-    #                     "$add": [datetime.now().timestamp(), "$log.start"]
-    #                 },
-    #                 "log.time.remaining": {
-    #                     "$subtract": ["$log.time.required", "$log.time.elapsed"]
-    #                 },
-    #             }
-    #         },
-    #     ]
-    # )
-
     update_list = []
     for key in local_stocks:
         local_stock = local_stocks[key]
@@ -486,7 +468,6 @@ def scrape_stocks(data, last_report, access_number, report_date, global_stocks, 
 
             if local_date >= global_date:
                 new_stock = global_stock
-                new_stock["date"] = local_date
                 new_stock["last_report"] = local_access_number
 
             else:
@@ -507,140 +488,14 @@ def scrape_stocks(data, last_report, access_number, report_date, global_stocks, 
         sold = False if access_number == last_report else True
 
         new_stock["sold"] = sold
-        new_stock["first_report"] = access_number
-        new_stock["last_report"] = access_number
         del new_stock["access_number"]
 
         global_stocks[stock_cusip] = new_stock
 
-    # Legacy Implementation
-    # for key in local_stocks:
-    #     local_stock = local_stocks[key]
-    #     global_stock = global_stocks.get(key)
-    #     stock_cusip = local_stock['cusip']
-    #     stock_name = local_stock['name']
-
-    #     if global_stock == None:
-    #         new_stock = local_stock
-    #         access_number = local_stock['access_number']
-    #         ticker, name = process_name(stock_cusip, stock_name)
-    #         sold = False if access_number == last_report else True
-
-    #         del new_stock['access_number']
-    #         new_stock["name"] = name
-    #         new_stock["ticker"] = ticker
-    #         new_stock['sold'] = sold
-    #         new_stock['first_report'] = access_number
-    #         new_stock['last_report'] = access_number
-    #     else:
-    #         local_date = local_stock['date']
-    #         local_access_number = local_stock['access_number']
-    #         global_date = global_stock['date']
-
-    #         if local_date > global_date:
-
-    #             new_stock = global_stock
-    #             new_stock['date'] = local_date
-    #             new_stock['sold'] = sold
-    #             new_stock['last_report'] = local_access_number
-
-    #         elif local_date < global_date:
-    #             new_stock = global_stock
-    #             new_stock['first_report'] = local_access_number
-
-    #     global_stocks[stock_cusip] = new_stock
-
     return global_stocks
 
 
-def process_new_stocks(company):
-    cik = company["cik"]
-    filings = company["filings"]
-    last_report = company["last_report"]
-
-    global_stocks = {}
-    for access_number in filings:
-        document = filings[access_number]
-        document_report_date = document["report_date"]
-
-        data = api.sec_stock_search(cik=cik, access_number=access_number)
-        try:
-            new_stocks = scrape_stocks(
-                data=data,
-                last_report=last_report,
-                access_number=access_number,
-                report_date=document_report_date,
-                global_stocks=global_stocks,
-                cik=cik,
-            )
-            global_stocks.update(new_stocks)
-            database.edit_filer({"cik": cik}, {"$set": {"stocks.local": global_stocks}})
-        except Exception as e:
-            print(f"\nError Updating Stocks\n{e}\n--------------------------\n")
-            continue
-
-    return global_stocks
-
-
-def process_latest_stocks(company):
-    cik = company["cik"]
-    filings = company["filings"]
-    last_report = company["last_report"]
-    previous_stocks = company["stocks"]["local"] if company.get("stocks") else {}
-
-    document = filings[last_report]
-    access_number = document["access_number"]
-    document_report_date = document["report_date"]
-
-    data = api.sec_stock_search(cik=cik, access_number=access_number)
-    try:
-        new_stocks = scrape_stocks(
-            data=data,
-            last_report=last_report,
-            access_number=access_number,
-            report_date=document_report_date,
-            global_stocks=previous_stocks,
-            cik=cik,
-        )
-    except Exception as e:
-        print(f"\nError Updating Stocks\n{e}\n--------------------------")
-        return previous_stocks
-
-    scraped_stocks = previous_stocks
-    scraped_stocks.update(new_stocks)
-
-    return scraped_stocks
-
-
-def process_recent_stocks(cik, filings, last_report):
-
-    recent_filing = filings[last_report]
-    access_number = recent_filing["access_number"]
-    document_report_date = recent_filing["report_date"]
-
-    data = api.sec_stock_search(cik=cik, access_number=access_number)
-    try:
-        new_stocks = scrape_stocks(
-            data=data,
-            last_report=last_report,
-            access_number=access_number,
-            report_date=document_report_date,
-            global_stocks={},
-            cik=cik,
-        )
-    except Exception as e:
-        database.add_log(
-            cik,
-            "Error Getting Filer Newest Stocks",
-            cik,
-        )
-        return filings, []
-
-    list_stocks = [new_stocks[cusip] for cusip in new_stocks]
-    return new_stocks, list_stocks
-
-
-def process_historical_stocks(cik, filings, last_report, previous_stocks):
+def process_stocks(cik, filings, last_report):
     filings_list = sorted(
         [filings[an] for an in filings], key=lambda d: d["report_date"]
     )
@@ -654,7 +509,6 @@ def process_historical_stocks(cik, filings, last_report, previous_stocks):
                 last_report=last_report,
                 access_number=access_number,
                 report_date=report_date,
-                global_stocks=previous_stocks,
                 cik=cik,
             )
             yield access_number, new_stocks

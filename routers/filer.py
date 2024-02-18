@@ -73,18 +73,17 @@ def create_filer(sec_data, cik):
     try:
         filings = company["filings"]
         last_report = company["last_report"]
-        filing_stocks, new_stocks = web.process_recent_stocks(cik, filings, last_report)
+        recent_filing = filings[last_report]
 
-        filings[last_report]["stocks"] = filing_stocks
-        database.edit_filer(
-            filer_query,
-            {
-                "$set": {
-                    "cik": cik,
-                    f"filings.{last_report}.stocks": filing_stocks,
-                }
-            },
-        )
+        for access_number, filing_stocks in web.process_stocks(
+            cik, {last_report: recent_filing}, last_report
+        ):
+            recent_filing["stocks"] = filing_stocks
+            database.edit_filer(
+                filer_query,
+                {"$set": {f"filings.{access_number}.stocks": filing_stocks}},
+            )
+
         database.add_log(cik, "Queried Filer Recent Stocks", company_name, cik)
     except Exception as e:
         print(e)
@@ -94,26 +93,21 @@ def create_filer(sec_data, cik):
     try:
         database.add_log(cik, "Creating Filer (Newest)", company_name, cik)
 
-        recent_filing = filings[last_report]
         for (
             stock_query,
             filing_stock,
         ) in analysis.analyze_filings(cik, {last_report: recent_filing}):
             database.edit_filer(filer_query, {"$set": {stock_query: filing_stock}})
 
-        filings = database.find_filer(cik)
+        filings = database.find_filer(cik, {"filings": 1})
         filings = filings["filings"]
         recent_market_value = filings[last_report].get("market_value", "NA")
         database.edit_filer(
             filer_query, {"$set": {"market_value": recent_market_value}}
         )
 
-        for updated_stock, log_item in analysis.analyze_stocks(cik, filings):
-            cusip = updated_stock["cusip"]
-            database.edit_filer(
-                {**filer_query, "stocks.cusip": cusip},
-                {"$set": {"stocks.$": updated_stock}},
-            )
+        for stock_query, log_item in analysis.analyze_stocks(cik, filings):
+            database.edit_filer(filer_query, stock_query)
             database.add_log(cik, log_item)
 
         database.add_log(cik, "Updated Filer Recent Stocks", company_name, cik)
@@ -132,14 +126,16 @@ def create_filer(sec_data, cik):
 
     # Gather Historical Stocks
     try:
-        historical_stocks = {}
-        for access_number, filing_stocks in web.process_historical_stocks(
-            cik, filings, last_report, historical_stocks
+        for access_number, filing_stocks in web.process_stocks(
+            cik, filings, last_report
         ):
             database.edit_filer(
-                filer_query, {"$set": {f"filings.{access_number}.stocks": new_stocks}}
+                filer_query,
+                {"$set": {f"filings.{access_number}.stocks": filing_stocks}},
             )
-            historical_stocks.update(filing_stocks)
+
+        filings = database.find_filer(cik, {"filings": 1})
+        filings = filings["filings"]
 
         database.add_log(cik, "Queried Filer Historical Stocks", company_name, cik)
     except Exception as e:
@@ -151,23 +147,24 @@ def create_filer(sec_data, cik):
     # Update Historical Stocks
     try:
         database.add_log(cik, "Creating Filer (Historical)", company_name, cik)
+
         for (
             stock_query,
             filing_stock,
-            updated_stock,
-            log_item,
-        ) in analysis.analyze_filer(cik, filings, historical_stocks):
+        ) in analysis.analyze_filings(cik, filings):
             database.edit_filer(filer_query, {"$set": {stock_query: filing_stock}})
-            database.edit_filer(
-                {**filer_query, "stocks.cusip": updated_stock["cusip"]},
-                {"$set": {"stocks.$": updated_stock}},
-            )
+
+        filings = database.find_filer(cik, {"filings": 1})
+        filings = filings["filings"]
+
+        for stock_query, log_item in analysis.analyze_stocks(cik, filings, {}):
+            database.edit_filer(filer_query, stock_query)
             database.add_log(cik, log_item)
 
         database.add_log(cik, "Updated Filer Historical Stocks", company_name, cik)
         database.edit_status(cik, 0)
     except Exception as e:
-        database.edit_filer({"cik": cik}, {"$set": {"update": False}})
+        database.edit_filer(filer_query, {"$set": {"update": False}})
         database.add_log(cik, "Failed to Update Filer Recent Stocks")
         print(e)
 

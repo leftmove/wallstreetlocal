@@ -166,9 +166,9 @@ def serialize_stock(local_stock, global_stock):
         "gain_value_str": gain_value_str,
         "gain_percent": gain_percent,
         "gain_str": gain_percent_str,
-        "buy": buy_float,
+        "buy_time": buy_float,
         "buy_str": buy_date_str,
-        "report": report_float,
+        "report_time": report_float,
         "report_str": report_date_str,
         "sold_time": sold_float,
         "sold_str": sold_date_str,
@@ -180,8 +180,7 @@ def analyze_total(cik, stocks, access_number):
     for key in stocks:
         stock = stocks[key]
         value = stock.get("market_value", 0)
-        if not stock.get("sold", True):
-            market_values.append(value)
+        market_values.append(value)
 
     total = sum(market_values)
     database.edit_filer(
@@ -216,27 +215,39 @@ def analyze_value(local_stock, global_stock, total):
 
 
 def analyze_report(local_stock, filings):
-    first_report = local_stock["first_report"]
-    last_report = local_stock["last_report"]
-    buy_time = filings[first_report]["report_date"]
-    sold_time = filings[last_report]["report_date"]
+    cusip = local_stock["cusip"]
+    first_appearance = "NA"
+    last_appearance = "NA"
 
-    return buy_time, sold_time
+    filings_sorted = sorted(
+        [filings[an] for an in filings], key=lambda d: d["report_date"]
+    )
+    for filing in filings_sorted:
+        filing_stocks = filing["stocks"]
+        if cusip in filing_stocks:
+            access_number = filing["access_number"]
+            first_appearance = (
+                access_number if first_appearance == "NA" else first_appearance
+            )
+            last_appearance = access_number
+
+    return first_appearance, last_appearance
 
 
-def analyze_timeseries(cik, global_stock, buy_time, sold_time):
-    timeseries_global = global_stock.get("timeseries")
+def analyze_timeseries(cik, local_stock, global_stock, filings):
+    timeseries_global = global_stock.get("timeseries", [])
     ticker = global_stock.get("ticker")
     cusip = global_stock.get("cusip")
+    update = global_stock.get("update")
 
-    if timeseries_global == None or not ticker:
+    if timeseries_global and ticker != "NA" and not update:
         update_timeseries = True
         try:
-            timeseries_info = api.ticker_request("TIME_SERIES_MONTHLY", ticker, cik)[
-                "Monthly Time Series"
-            ]
-        except KeyError:
-            timeseries_info = api.ticker_request("TIME_SERIES_MONTHLY", ticker, cik)
+            timeseries_response = api.ticker_request("TIME_SERIES_MONTHLY", ticker, cik)
+            timeseries_info = timeseries_response.get("Monthly Time Series")
+            timeseries_info = (
+                timeseries_response if not timeseries_info else timeseries_info
+            )
         except Exception as e:
             database.add_log(cik, f"Failed to Find Time Data \n{e}", cusip)
             raise LookupError
@@ -244,10 +255,10 @@ def analyze_timeseries(cik, global_stock, buy_time, sold_time):
         timeseries_global = []
         for time_key in timeseries_info:
             info = timeseries_info[time_key]
-            try:
-                date = convert_date(time_key)
-            except:
+            if time_key == "Error Message" or time_key == "Information":
                 continue
+
+            date = convert_date(time_key)
             price = {
                 "time": date,
                 "open": float(info["1. open"]),
@@ -261,12 +272,20 @@ def analyze_timeseries(cik, global_stock, buy_time, sold_time):
     else:
         update_timeseries = False
 
+    sold = local_stock["sold"]
+    first_appearance = local_stock["first_appearance"]
+    last_appearance = local_stock["last_appearance"]
+    buy_time = filings[first_appearance]["report_date"]
+    sold_time = local_stock[last_appearance]["report_date"] if sold else "NA"
+
     if timeseries_global != []:
         buy_timeseries = min(
             timeseries_global, key=lambda x: abs((x["time"]) - buy_time)
         )
-        sold_timeseries = min(
-            timeseries_global, key=lambda x: abs((x["time"]) - sold_time)
+        sold_timeseries = (
+            min(timeseries_global, key=lambda x: abs((x["time"]) - sold_time))
+            if sold
+            else "NA"
         )
     else:
         buy_timeseries = "NA"
@@ -293,7 +312,7 @@ def analyze_filings(cik, filings):
             local_stock = filing_stocks[cusip]
             cusip = local_stock["cusip"]
 
-            buy_time, sold_time = analyze_report(local_stock, filings)
+            first_appearance, last_appearance = analyze_report(local_stock, filings)
 
             found_stock = stock_cache.get(cusip)
             found_stock = (
@@ -306,37 +325,23 @@ def analyze_filings(cik, filings):
             percent_portfolio, percent_ownership = analyze_value(
                 local_stock, found_stock, total_value
             )
-            # buy_timeseries, sold_timeseries = analyze_timeseries(
-            #     cik, found_stock, buy_time, sold_time
-            # )
-
-            # Shit to do
-            # Finish up filings anal
-            # Make so filings anal happens before stock anal, and stock
-            # anal uses filing anal's already scraped data
-            # Functionality so that once filing anal is done, the
-            # ultimate stock is already know
-            # Perhaps integrate above with process historical?
 
             filing_stock = {
                 **local_stock,
+                "first_appearance": first_appearance,
+                "last_appearance": last_appearance,
                 "portfolio": percent_portfolio,
                 "ownership": percent_ownership,
-                "buy_time": buy_time,
-                "sold_time": sold_time,
             }
             if is_updated:
                 filing_stock.update(
                     {"name": found_stock["name"], "ticker": found_stock["ticker"]}
                 )
 
-            # updated_stock = serialize_stock(filing_stock, found_stock)
-            # log_stock = {"name": name, "message": "Created Stock", "identifier": cusip}
-
             yield stock_query, filing_stock
 
 
-def analyze_stocks(cik, filings):
+def analyze_stocks(cik, filings, historical_cache=None):
     stock_cache = {}
     for access_number in filings:
         filing_stocks = filings[access_number].get("stocks")
@@ -348,6 +353,18 @@ def analyze_stocks(cik, filings):
             cusip = filing_stock["cusip"]
             name = filing_stock["name"]
 
+            first_appearance = filing_stock["first_appearance"]
+            buy_time = filings[first_appearance]["report_date"]
+            if historical_cache != None:
+                historical_stock = historical_cache.get(cusip)
+                historical_buy = (
+                    historical_stock.get("buy_time", float("inf"))
+                    if historical_stock
+                    else float("inf")
+                )
+                if buy_time < historical_buy:
+                    continue
+
             found_stock = stock_cache.get(cusip)
             found_stock = (
                 database.find_stock("cusip", cusip) if not found_stock else found_stock
@@ -355,10 +372,8 @@ def analyze_stocks(cik, filings):
             if not found_stock:
                 continue
 
-            buy_time = filing_stock["buy_time"]
-            sold_time = filing_stock["sold_time"]
             buy_timeseries, sold_timeseries = analyze_timeseries(
-                cik, found_stock, buy_time, sold_time
+                cik, filing_stock, found_stock, filings
             )
             filing_stock["prices"] = {
                 "buy": buy_timeseries,
@@ -375,7 +390,40 @@ def analyze_stocks(cik, filings):
             updated_stock = serialize_stock(filing_stock, found_stock)
             log_stock = {"name": name, "message": "Created Stock", "identifier": cusip}
 
-            yield updated_stock, log_stock
+            if historical_cache != None:
+                historical_cache[cusip] = updated_stock
+
+            stock_query = [
+                {
+                    "$set": {
+                        "stocks": {
+                            "$cond": [
+                                {"$in": [cusip, "$stocks.cusip"]},
+                                {
+                                    "$map": {
+                                        "input": "$stocks",
+                                        "in": {
+                                            "$cond": [
+                                                {"$eq": ["$$this.cusip", cusip]},
+                                                {
+                                                    "cusip": "$$this.cusip",
+                                                    "quantity": {
+                                                        "$add": ["$$this.quantity", 1]
+                                                    },
+                                                },
+                                                "$$this",
+                                            ]
+                                        },
+                                    }
+                                },
+                                {"$concatArrays": ["$stocks", [updated_stock]]},
+                            ]
+                        }
+                    }
+                }
+            ]
+
+            yield stock_query, log_stock
 
 
 def time_remaining(stock_count):
