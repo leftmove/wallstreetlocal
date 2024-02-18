@@ -5,6 +5,7 @@ import re
 
 from . import database
 from . import api
+from . import cache
 
 print("[ Analysis Initializing ] ...")
 
@@ -399,35 +400,27 @@ def analyze_stocks(cik, filings, historical_cache=None):
             if historical_cache != None:
                 historical_cache[cusip] = updated_stock
 
-            stock_query = [
-                {
-                    "$set": {
-                        "stocks": {
-                            "$cond": [
-                                {"$in": [cusip, "$stocks.cusip"]},
-                                {
-                                    "$map": {
-                                        "input": "$stocks",
-                                        "in": {
-                                            "$cond": [
-                                                {"$eq": ["$$this.cusip", cusip]},
-                                                {
-                                                    "cusip": "$$this.cusip",
-                                                    "quantity": {
-                                                        "$add": ["$$this.quantity", 1]
-                                                    },
-                                                },
-                                                "$$this",
-                                            ]
-                                        },
-                                    }
-                                },
-                                {"$concatArrays": ["$stocks", [updated_stock]]},
-                            ]
-                        }
-                    }
-                }
-            ]
+            filer_stocks = database.find_filer(cik, {"stocks": 1})["stocks"]
+            insert = (
+                False
+                if next(filter(lambda s: s["cusip"] == cusip, filer_stocks), None)
+                else True
+            )
+
+            # Plain awful and inefficient but MongoDB updating is awful
+            if insert:
+                stock_query = {"$push": {"stocks": updated_stock}}
+            else:
+                stock_index = next(
+                    (
+                        i
+                        for i, item in enumerate(filer_stocks)
+                        if item["cusip"] == cusip
+                    ),
+                    -1,
+                )
+                filer_stocks[stock_index] = updated_stock
+                stock_query = {"$set": {"stocks": filer_stocks}}
 
             yield stock_query, log_stock
 
@@ -474,7 +467,7 @@ def create_json(cik, filename):
     return file_path
 
 
-header_format = [
+default_format = [
     {"display": "Ticker", "accessor": "ticker_str"},
     {"display": "Name", "accessor": "name"},
     {"display": "Class", "accessor": "class"},
@@ -493,42 +486,66 @@ header_format = [
 ]
 
 
-def create_dataframe(global_stocks):
-    headers = []
+def create_dataframe(global_stocks, headers=None):
+
+    top_row = []
+    if not headers:
+        header_format = default_format
+    else:
+        header_format = []
+        for h in headers:
+            if h["active"]:
+                header_format.append(
+                    {"display": h["display"], "accessor": h["accessor"]}
+                )
+
     for header in header_format:
         display = header["display"]
-        headers.append(display)
+        top_row.append(display)
 
-    csv_data = [headers]
-
+    csv_data = [top_row]
     for stock in global_stocks:
         stock_display = []
         for header in header_format:
             key = header["accessor"]
-            value = stock[key]
+            value = stock.get(key, "NA")
             stock_display.append(value)
-
         csv_data.append(stock_display)
 
     return csv_data
 
 
-def create_csv(cik, filename):
-    file_path = f"./public/filers/{filename}"
+def create_csv(cik, headers=None):
+
+    file_path = "./public/filers/"
+    if not headers:
+        file_name = f"wallstreetlocal-{cik}.csv"
+    else:
+        header_string = json.dumps(headers)
+        header_hash = hash(header_string)
+        file_name = f"wallstreetlocal-{cik}{header_hash}.csv"
+    file_path = file_path + file_name
+
     try:
-        with open(file_path, "r"):
-            pass
+        with open(file_path, "r") as c:
+            first_line = c.readline()
+            if "Recent Price" in first_line or "% Gain" in first_line:
+                value = cache.get_key(file_path)
+                if not value:
+                    expire_time = 60 * 60 * 24 * 3
+                    cache.set_key(file_path, expire_time, "bababooey")
+                    raise ValueError
     except:
-        filer = database.find_filer(cik, {"stocks.global": 1})
-        global_stocks = filer["stocks"]["global"]
-        stock_list = create_dataframe(global_stocks)
+        filer = database.find_filer(cik, {"stocks": 1})
+        global_stocks = filer["stocks"]
+        stock_list = create_dataframe(global_stocks, headers)
 
         with open(file_path, "w") as f:
             writer = csv.writer(f)
             for stock in stock_list:
                 writer.writerow(stock)
 
-    return file_path
+    return file_path, file_name
 
 
 def end_dangling():

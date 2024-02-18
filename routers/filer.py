@@ -36,6 +36,7 @@ router = APIRouter(
             "model": HTTPError,
             "description": "Conflict with server state.",
         },
+        422: {"model": HTTPError, "description": "Malformed content."},
     },
 )
 
@@ -406,13 +407,21 @@ async def record(cik: str):
 
 @cache(24)
 @router.get("/recordcsv", tags=["filers", "records"], status_code=200)
-async def record_csv(cik: str):
+async def record_csv(cik: str, headers: str = None):
     filer = database.find_filer(cik, {"_id": 1})
     if filer == None:
         raise HTTPException(404, detail="Filer not found.")
 
-    filename = f"wallstreetlocal-{cik}.csv"
-    file_path = analysis.create_csv(cik, filename)
+    if headers:
+        header_string = headers
+        try:
+            headers = json.loads(header_string)
+        except:
+            raise HTTPException(
+                status_code=422, detail="Malformed headers, unable to process request."
+            )
+
+    file_path, filename = analysis.create_csv(cik, headers)
 
     return FileResponse(
         file_path, media_type="application/octet-stream", filename=filename
@@ -577,9 +586,21 @@ async def query_top(password: str, background: BackgroundTasks):
 
 @router.get("/hang", status_code=200, include_in_schema=False)
 async def hang_dangling(password: str):
-    if password != "whale":
-        return {}
+
+    if password != os.environ["ADMIN_PASSWORD"]:
+        raise HTTPException(detail="Unable to give access.", status_code=403)
 
     results = analysis.end_dangling()
 
     return {"description": "Successfully ended dangling processes.", "ciks": results}
+
+
+@router.get("/filings", status_code=200)
+async def query_filings(cik: str):
+
+    filer = database.find_filer(cik, {"filings": 1})
+    if not filer:
+        raise HTTPException(detail="Filer not found.", status_code=404)
+    filings = filer["filings"]
+
+    return {"filings": filings}

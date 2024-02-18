@@ -52,6 +52,11 @@ def find_filer(cik, project={"_id": 0}):
     return result
 
 
+def find_document(cik, project={"_id": 0}):
+    result = main.find_one({"cik": cik}, project)
+    return result
+
+
 def search_filers(pipeline):
     cursor = main.aggregate(pipeline)
     return cursor

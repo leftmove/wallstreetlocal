@@ -12,6 +12,7 @@ print("[ Cache (Redis) Initializing ] ...")
 
 r = redis.Redis(host=REDIS_SERVER_URL, port=6379)
 
+
 def timing(f):
     @wraps(f)
     def wrap(*args, **kw):
@@ -22,6 +23,15 @@ def timing(f):
         return result
 
     return wrap
+
+
+def get_key(key):
+    result = r.get(key)
+    return result
+
+
+def set_key(key, value, expire_time):
+    r.setex(key, expire_time, value)
 
 
 # def cache_sync(func, hours=2):

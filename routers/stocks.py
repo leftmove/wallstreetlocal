@@ -57,27 +57,26 @@ async def stock_info(
     try:
         pipeline = [
             {"$match": {"cik": cik}},
-            {"$unwind": "$stocks.global"},
-            {"$addFields": {"stocks": {"$mergeObjects": [{}, "$stocks.global"]}}},
+            {"$unwind": "$stocks"},
             {"$replaceRoot": {"newRoot": "$stocks"}},
             {"$group": {"_id": "$cusip", "doc": {"$first": "$$ROOT"}}},
             {"$replaceRoot": {"newRoot": "$doc"}},
         ]
         if limit < 0:
-            raise LookupError
+            raise HTTPException(detail="Invalid search requirements.", status_code=422)
         if not sold:
             pipeline.append({"$match": {"sold": False}})
         if not unavailable:
             pipeline.append({"$match": {sort: {"$ne": "NA"}}})
 
         cursor = database.search_filers(pipeline)
-
         if not cursor:
             raise HTTPException(detail="Filer not found.", status_code=404)
 
-        count = cursor.count()
-        if not count:
+        results = [r for r in cursor]
+        if not results:
             raise HTTPException(detail="No stocks found.", status_code=404)
+        count = len(results)
 
         pipeline.extend(
             [
@@ -89,7 +88,6 @@ async def stock_info(
         )
         cursor = database.search_filers(pipeline)
     except Exception as e:
-        print("Unable to print using search requirements.", e)
         raise HTTPException(detail="Invalid search requirements.", status_code=422)
 
     if cursor == None:
@@ -191,3 +189,18 @@ async def stock_timeseries(cik: str, time: float):
         )
 
     return {"stocks": stock_list}
+
+
+@router.get("/filing", tags=["filers", "stocks"], status_code=200)
+async def query_filing(cik: str, access_number):
+
+    filer_query = f"filings.{access_number}.stocks"
+    filer = database.find_filer(cik, {filer_query: 1})
+    if not filer:
+        raise HTTPException(detail="Filer not found.", status_code=404)
+
+    filings = filer["filings"]
+    filing = filings[access_number]
+    stocks = filing["stocks"]
+
+    return {"stocks": stocks}
