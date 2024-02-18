@@ -307,38 +307,44 @@ def analyze_filings(cik, filings):
             continue
         total_value = analyze_total(cik, filing_stocks, access_number)
         for cusip in filing_stocks:
-            stock_query = f"filings.{access_number}.stocks.{cusip}"
+            try:
+                stock_query = f"filings.{access_number}.stocks.{cusip}"
 
-            local_stock = filing_stocks[cusip]
-            cusip = local_stock["cusip"]
+                local_stock = filing_stocks[cusip]
+                cusip = local_stock["cusip"]
 
-            first_appearance, last_appearance = analyze_report(local_stock, filings)
+                first_appearance, last_appearance = analyze_report(local_stock, filings)
 
-            found_stock = stock_cache.get(cusip)
-            found_stock = (
-                database.find_stock("cusip", cusip) if not found_stock else found_stock
-            )
-            if not found_stock:
-                continue
-            is_updated = found_stock.get("update", False)
+                found_stock = stock_cache.get(cusip)
+                found_stock = (
+                    database.find_stock("cusip", cusip)
+                    if not found_stock
+                    else found_stock
+                )
+                if not found_stock:
+                    continue
+                is_updated = found_stock.get("update", False)
 
-            percent_portfolio, percent_ownership = analyze_value(
-                local_stock, found_stock, total_value
-            )
-
-            filing_stock = {
-                **local_stock,
-                "first_appearance": first_appearance,
-                "last_appearance": last_appearance,
-                "portfolio": percent_portfolio,
-                "ownership": percent_ownership,
-            }
-            if is_updated:
-                filing_stock.update(
-                    {"name": found_stock["name"], "ticker": found_stock["ticker"]}
+                percent_portfolio, percent_ownership = analyze_value(
+                    local_stock, found_stock, total_value
                 )
 
-            yield stock_query, filing_stock
+                # First/last appearance repeatedly updated, could be more efficient
+                filing_stock = {
+                    **local_stock,
+                    "first_appearance": first_appearance,
+                    "last_appearance": last_appearance,
+                    "portfolio": percent_portfolio,
+                    "ownership": percent_ownership,
+                }
+                if is_updated:
+                    filing_stock.update(
+                        {"name": found_stock["name"], "ticker": found_stock["ticker"]}
+                    )
+
+                yield stock_query, filing_stock
+            except Exception as e:
+                database.add_log
 
 
 def analyze_stocks(cik, filings, historical_cache=None):

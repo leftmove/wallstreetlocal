@@ -4,7 +4,6 @@ from pydantic import BaseModel
 
 from datetime import datetime
 import json
-import asyncio
 import os
 
 from .utils import web
@@ -62,14 +61,10 @@ router = APIRouter(
 # Note: Once two is set, three MUST be cancelled.
 
 
-def create_filer(sec_data, cik):
-
-    # Initialize Filer
-    company, stamp, start = web.initalize_filer(cik, sec_data)
-    company_name = company["name"]
+def create_recent(cik, company, stamp):
     filer_query = {"cik": cik}
+    company_name = company["name"]
 
-    # Gather New Stocks
     try:
         filings = company["filings"]
         last_report = company["last_report"]
@@ -89,7 +84,6 @@ def create_filer(sec_data, cik):
         print(e)
         raise HTTPException(status_code=500, detail="Error getting newest stocks.")
 
-    # Update Newest Stocks
     try:
         database.add_log(cik, "Creating Filer (Newest)", company_name, cik)
 
@@ -120,12 +114,19 @@ def create_filer(sec_data, cik):
         database.edit_status(cik, 2)
         print(e)
 
+    start = stamp["start"]
     stamp = {"time.elapsed": datetime.now().timestamp() - start}
     database.edit_log(cik, stamp)
     database.add_query_log(cik, "create-latest")
 
-    # Gather Historical Stocks
+
+def create_historical(cik, company, stamp):
+    filer_query = {"cik": cik}
+    company_name = company["name"]
+    last_report = company["last_report"]
+
     try:
+        filings = company["filings"]
         for access_number, filing_stocks in web.process_stocks(
             cik, filings, last_report
         ):
@@ -144,7 +145,6 @@ def create_filer(sec_data, cik):
             cik, "Failed to Query Filer Historical Stocks", company_name, cik
         )
 
-    # Update Historical Stocks
     try:
         database.add_log(cik, "Creating Filer (Historical)", company_name, cik)
 
@@ -168,49 +168,89 @@ def create_filer(sec_data, cik):
         database.add_log(cik, "Failed to Update Filer Recent Stocks")
         print(e)
 
+    start = stamp["start"]
     stamp = {"time.elapsed": datetime.now().timestamp() - start}
     database.edit_log(cik, stamp)
     database.add_query_log(cik, "create-historical")
 
 
-def update_filer(company):
+def create_filer(sec_data, cik):
+    company, stamp = web.initalize_filer(cik, sec_data)
+    create_recent(cik, company, stamp)
+    create_historical(cik, company, stamp)
+
+
+def update_filer(company, background):
     cik = company["cik"]
     time = datetime.now().timestamp()
 
     operation = database.find_log(cik)
     if operation == None:
         raise HTTPException(404, detail="CIK not found.")
-    if operation["status"] > 2:
+    if operation["status"] > 0:
         raise HTTPException(409, detail="Filer still building.")
 
     # if (time - company["updated"]) < 3600:
     #     raise HTTPException(detail="Filer queried too recently.", status_code=429)
 
-    update = web.check_new(cik=cik, last_updated=company["updated"])
-    if update:
-        database.edit_status(cik, 1)
-        filings, latest_report = web.process_filer_newest(company)
-        scraped_stocks = web.process_latest_stocks(company)
-        database.edit_filer(
-            {"cik": cik},
-            {
-                "$set": {
-                    "updated": time,
-                    "filings": filings,
-                    "latest_report": latest_report,
-                    "stocks.local": scraped_stocks,
-                }
-            },
-        )
-        try:
-            analysis.analyze_newest(cik, scraped_stocks)
-        except Exception as e:
-            database.edit_filer({"cik": cik}, {"$set": {"update": False}})
-            database.edit_status(cik, 1)
-            print(e)
-        return {"description": "Updated filer."}
-    else:
+    update, last_report = web.check_new(cik)
+    if not update:
         raise HTTPException(200, detail="Filer already up to date.")
+
+    database.edit_status(cik, 1)
+    database.edit_filer({"cik": cik}, {"$set": {"last_report": last_report}})
+
+    stamp = {"name": company["name"], "start": time}
+    background.add_task(create_historical, cik, company, stamp)
+
+    return {"description": "Filer update started."}
+
+
+@router.get("/rollback", tags=["filers"], status_code=201, include_in_schema=False)
+async def rollback_filer(cik: str, password: str, background: BackgroundTasks):
+
+    filer = database.find_filer(cik)
+    if not filer:
+        raise HTTPException(404, detail="CIK not found")
+    if password != os.environ["ADMIN_PASSWORD"]:
+        raise HTTPException(detail="Unable to give access.", status_code=403)
+
+    filings = filer["filings"]
+    last_report = filer["last_report"]
+    filings.pop(last_report, None)
+
+    for access_number in filings:
+        filing = filings[access_number]
+        filing_stocks = filing["stocks"]
+        for cusip in filing_stocks:
+            filing_stock = filing_stocks[cusip]
+            first_appearance, last_appearance = analysis.analyze_report(
+                filing_stock, filings
+            )
+
+            filings[access_number]["stocks"][cusip][
+                "first_appearance"
+            ] = first_appearance
+            filings[access_number]["stocks"][cusip]["last_appearance"] = last_appearance
+
+    filings_sorted = sorted(
+        [filings[an] for an in filings], key=lambda d: d["report_date"]
+    )
+    for access_number in filings:
+        filing_stocks = filings[access_number]
+        database.edit_filer(
+            {"cik": cik}, {"$set": {f"filings.{access_number}.stocks": filing_stocks}}
+        )
+
+    filer["filings"] = filings
+    last_report = filings_sorted[-1]["access_number"]
+    database.edit_filer({"cik": cik}, {"$set": {"last_report": last_report}})
+
+    start = datetime.now().timestamp()
+    stamp = {"name": filer["name"], "start": start}
+    background.add_task(create_historical, cik, filer, stamp)
+
+    return {"description": "Filer rollback started."}
 
 
 @router.get(
@@ -227,10 +267,9 @@ async def query_filer(cik: str, background: BackgroundTasks):
             raise HTTPException(404, detail="CIK not found.")
 
         background.add_task(create_filer, sec_data, cik)
-        # background.add_task(web.estimate_time_newest, cik) # To be added back when it actually works
         res = {"description": "Filer creation started."}
     else:
-        res = update_filer(filer)
+        res = update_filer(filer, background)
 
     return res
 

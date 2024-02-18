@@ -165,14 +165,34 @@ def process_filings(data):
 info_table_key = ["INFORMATION TABLE"]
 
 
-def check_new(cik, last_updated):
+def check_new(cik):
     data = api.sec_filer_search(cik)
-    new_date = analysis.convert_date(data["filings"]["recent"]["filingDate"][-1])
+    recent_filings = data["filings"]["recent"]
 
-    if new_date > last_updated:
-        return True
+    document_reports = []
+    for i, form in enumerate(recent_filings["form"]):
+        if "13F-HR" == form:
+            report = recent_filings["reportDate"][i]
+            report = analysis.convert_date(report)
+            access = recent_filings["accessionNumber"][i]
+            document_reports.append({"report": report, "access": access})
+    document_reports = sorted(document_reports, key=lambda d: d["report"])
+
+    latest_report = document_reports[-1]
+    latest_date = latest_report["report"]
+
+    filer = database.find_filer(
+        cik, {"filings": 1, "last_report": 1}
+    )  # Inefficient because I cannot figure out how to retrieve only the report date attribute, even though it seems like a simple operation
+    filings = filer["filings"]
+    last_report = filer["last_report"]
+    queried_report = filings[last_report]["report_date"]
+
+    if latest_date > queried_report:
+        latest_access = latest_report["access"]
+        return True, latest_access
     else:
-        return False
+        return False, None
 
 
 def sort_rows(row_one, row_two):
@@ -241,13 +261,11 @@ def initalize_filer(cik, sec_data):
     database.add_filer(company)
     company = process_filer(sec_data, cik)
 
-    stamp = {
-        "name": company["name"],
-    }
+    stamp = {"name": company["name"], "start": start}
     database.edit_log(cik, stamp)
     database.edit_filer({"cik": cik}, {"$set": company})
 
-    return company, stamp, start
+    return company, stamp
 
 
 redundant_keys = ["name", "cik", "symbol"]
