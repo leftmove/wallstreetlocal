@@ -11,96 +11,127 @@ const initialState = {
       sort: "ticker",
       accessor: "ticker_str",
       active: true,
+      tooltip:
+        "The ticker symbol of the stock, which is a unique series of letters assigned to a security for trading purposes",
     },
     {
       display: "Name",
       sort: "name",
       accessor: "name",
       active: false,
+      tooltip: "The name of the stock.",
     },
     {
       display: "Class",
       sort: "class",
       accessor: "class",
       active: false,
+      tooltip:
+        "The class of the stock, which represents the stockholder's rights, including voting and dividends.",
     },
     {
       display: "Sector",
       sort: "sector",
       accessor: "sector",
       active: false,
+      tooltip:
+        "The sector of the stock, which represents the broader industry category to which the stock belongs.",
     },
     {
       display: "CUSIP",
       sort: "cusip",
       accessor: "cusip",
       active: false,
+      tooltip:
+        "The CUSIP number of the stock, which is a unique identifier assigned to each registered security in the United States and Canada.",
     },
     {
-      display: "Shares Held (Or Principal Amount)",
+      display: "Shares Held",
       sort: "shares_held",
       accessor: "shares_held_str",
       active: false,
+      tooltip:
+        "The number of shares held, or the principal amount of the stock.",
     },
     {
       display: "Market Value",
       sort: "market_value",
       accessor: "market_value_str",
       active: true,
+      tooltip:
+        "The market value of the stock, which represents the total value of all the shares this filer owns.",
     },
     {
-      display: "% of Portfolio",
+      display: "% Portfolio",
       sort: "portfolio_percent",
       accessor: "portfolio_str",
       active: true,
+      tooltip:
+        "The value of this stock's shares divided by the total value of the portfolio, expressed in percent. ( Value of Shares / Value of Portfolio )",
     },
     {
       display: "% Ownership",
       sort: "ownership_percent",
       accessor: "ownership_str",
       active: false,
+      tooltip:
+        "The number of outstanding shares this filer owns, divided by the current total of outstanding shares that exist, expressed in percent. Note that because outstanding shares of every company are not logged over time, this value is only accurate recently. ( Amount of Shares Owned / Amount of Shares Existing )",
     },
     {
       display: "Sold Date",
       sort: "sold_time",
       accessor: "sold_str",
       active: false,
+      tooltip:
+        "The date the stock was sold, taken by retrieving the report date of the last SEC filing said stock showed up on. Note that this is only accurate up to the quarter.",
     },
     {
-      display: "First Reported Date",
+      display: "Buy Date",
       sort: "buy",
       accessor: "buy_str",
       active: false,
+      tooltip:
+        "The date the stock was bought, taken by retrieving the report date of the first SEC filing said stock showed up on. Note that this is only accurate up to the quarter, and this only the most recent date is shown if the filer bought the stock more than once.",
     },
     {
       display: "Price Paid",
       sort: "buy_price",
       accessor: "buy_price_str",
       active: true,
+      tooltip:
+        "The price paid for the stock, estimated by taking a close price most near the quarter which the stock was first reported.",
     },
     {
       display: "Recent Price",
       sort: "recent_price",
       accessor: "recent_price_str",
       active: true,
+      tooltip:
+        "The recent price of the stock. Note that this may be a couple days delayed.",
     },
     {
       display: "% Gain",
       sort: "gain_percent",
       accessor: "gain_str",
       active: true,
+      tooltip:
+        "The price paid for the stock subtracted from recent price, and then divided by price paid, expressed in percent. ( Recent Price - Price Paid) / Price Paid )",
     },
     {
       display: "Industry",
       sort: "industry",
       accessor: "industry",
       active: false,
+      tooltip:
+        "The industry of the stock, representing the specific sector or category of the economy in which the company operates.",
     },
     {
       display: "Report Date",
       sort: "report",
       accessor: "report_str",
       active: false,
+      tooltip:
+        "The report date of the stock, indicating the date listed on the SEC filing this stock was taken from.",
     },
   ],
   sort: {

@@ -8,6 +8,7 @@ import Error from "next/error";
 import Link from "next/link";
 
 import Loading from "@/components/Loading/Loading";
+import Unavailable from "@/components/Unavailable/Unavailable";
 import Header from "./Headers/Header";
 import Row from "./Row/Row";
 import Sort from "./Sort/Sort";
@@ -98,8 +99,10 @@ const Table = () => {
   // const [tab, setTab] = useState("historical");
 
   if (error) return <Error statusCode={404} />;
+  if (loading) return <Unavailable type="loading" />;
+  if (stocks.length <= 0) return <Unavailable type="stocks" cik={cik} />;
 
-  return stocks.length > 0 ? (
+  return (
     <div className={styles["table-container"]}>
       <Sort />
       {/* <Tabs
@@ -120,20 +123,6 @@ const Table = () => {
         {loading ? <Loading /> : null}
       </table>
       <Pagination />
-    </div>
-  ) : (
-    <div className={[styles["table-error"], font.className].join(" ")}>
-      <span>Unable to get stock data. Try again later or </span>
-      <Link
-        href={
-          "https://www.sec.gov/cgi-bin/browse-edgar?" +
-          new URLSearchParams({ CIK: cik.padStart(10, 0) })
-        }
-        className={styles["table-link"]}
-        target="_blank"
-      >
-        visit the SEC directly.
-      </Link>
     </div>
   );
 };

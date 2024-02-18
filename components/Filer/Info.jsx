@@ -45,8 +45,7 @@ const Info = (props) => {
     dispatch(setCik(cik));
   }, [cik]);
 
-  const [expand, setExpand] = useState(false);
-  const { data } = useSWR(
+  const { data, isLoading: loading } = useSWR(
     cik ? [server + "/filers/info", cik] : null,
     ([url, cik]) => fetcher(url, cik),
     {
@@ -58,12 +57,12 @@ const Info = (props) => {
     }
   );
   const info = data?.filer || null;
-  const name = convertTitle(info?.name);
+  const name = info?.name ? convertTitle(info.name) : "";
 
   return (
     <>
       <Head>
-        <title>Filers - {info?.name || "Loading"}</title>
+        <title>Filers - {name}</title>
       </Head>
 
       <div className={styles["header"]}>

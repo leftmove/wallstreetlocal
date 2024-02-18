@@ -9,6 +9,7 @@ const Header = (props) => {
   const header = props.header;
   const activate = props.activate;
   const fixed = props.fixed || false;
+  const count = props.count;
 
   const {
     attributes,
@@ -35,7 +36,7 @@ const Header = (props) => {
         !fixed && isDragging ? styles["filter-dragging"] : "",
       ].join(" ")}
       onClick={() => activate()}
-      style={style}
+      style={{ ...style, width: `calc(100% / ${count})` }}
       {...listeners}
       {...attributes}
       ref={setNodeRef}

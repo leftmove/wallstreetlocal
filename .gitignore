@@ -4,42 +4,29 @@ start.sh
 **/.env
 .env.*
 
-/.vscode
+.vscode
 
-/frontend/node_modules
-/frontend/.pnp
-/frontend/.pnp.js
+node_modules
+.pnp
+.pnp.js
 
-/frontend/coverage
+coverage
 
-/frontend/.next/
-/frontend/out/
-/frontend/next.config.js
+.next/
+out/
+next.config.js
 
-/frontend/build
+build
 
-/frontend/.DS_Store
-/frontend/*.pem
+.DS_Store
+*.pem
 
-/frontend/npm-debug.log*
-/frontend/yarn-debug.log*
-/frontend/yarn-error.log*
-/frontend/.pnpm-debug.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 
-/frontend/.env*.local
-
-/frontend/.vercel
-/frontend/.prettierrc
-
-/backend/.venv
-/backend/development.test.py
-**/__pycache__/
-/backend/public/companies.bson
-/backend/public/companies.json
-
-/backend/search/companies.json
-
-/proxy/letsencrypt
-/proxy/data
+.vercel
+.prettierrc
 
 docker-proj.zip

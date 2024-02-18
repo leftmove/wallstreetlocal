@@ -1,0 +1,17 @@
+.error-container {
+  text-align: center;
+  white-space: wrap;
+
+  margin: 100px 30px;
+  font-size: 1.5rem;
+  width: 100%;
+}
+
+.error-link {
+  color: var(--primary-dark);
+  transition: color 0.3s ease;
+}
+
+.error-link:hover {
+  color: var(--primary);
+}

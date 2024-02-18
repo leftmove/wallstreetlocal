@@ -1,33 +1,24 @@
-.filter-text {
-  text-align: center;
-
-  color: var(--white);
-
-  transition: color 0.3s ease;
-}
-
 .filter-item {
   all: unset;
   cursor: pointer;
   user-select: none;
   text-align: center;
+  overflow-x: hidden;
 
+  padding: 3px;
   opacity: 1 !important;
-  padding: 5px;
-  max-width: fit-content;
-  min-width: 70px;
-  border: none;
 
   background-color: var(--secondary);
-  border-radius: 3px;
 
   transition: background-color 0.3s ease, border-color 0.3s ease,
     opacity 0.3s ease;
 }
 
-.filter-item:nth-child(1) {
-  margin-left: 0px;
-  padding: 5px;
+.filter-text {
+  text-align: center;
+  color: var(--white);
+
+  transition: color 0.3s ease;
 }
 
 .filter-item:hover .filter-text {
@@ -37,28 +28,3 @@
 .filter-clicked {
   background-color: var(--primary-dark);
 }
-/* .filter-item:hover .filter-text {
-  color: var(--offwhite);
-}
-
-.filter-clicked {
-  background-color: var(--primary-dark);
-}
-
-.filter-clicked:hover .filter-text {
-  color: var(--secondary);
-}
-
-.filter-item:hover,
-.filter-clicked .filter-text {
-  color: var(--secondary-dark);
-}
-
-.filter-dragging .filter-text {
-  color: white;
-}
-
-.filter-dragging {
-  background-color: var(--secondary);
-  transition: background-color 0.3s ease, color 0.3s ease;
-} */

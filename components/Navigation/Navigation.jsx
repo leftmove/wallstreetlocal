@@ -1,4 +1,4 @@
-import styles from "./Navbar.module.css";
+import styles from "./Navigation.module.css";
 
 import Link from "next/link";
 import { font } from "@fonts";
@@ -14,7 +14,7 @@ const Item = ({ link, text, tab }) => (
   </li>
 );
 
-const Navbar = (props) => {
+const Navigation = (props) => {
   const variant = props.variant || null;
   return (
     <>
@@ -62,4 +62,4 @@ const Navbar = (props) => {
   );
 };
 
-export default Navbar;
+export default Navigation;

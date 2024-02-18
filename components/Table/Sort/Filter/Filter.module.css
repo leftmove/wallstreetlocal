@@ -4,20 +4,18 @@
   flex-wrap: wrap;
 
   margin-bottom: 0px;
-  width: 100%;
 
   border-radius: 5px;
 }
 
 .filter-headers {
   display: flex;
-  flex-wrap: wrap;
-
   width: 100%;
 }
 
 .filter-buttons {
   display: flex;
+
   margin-top: 20px;
   margin-bottom: 20px;
 }

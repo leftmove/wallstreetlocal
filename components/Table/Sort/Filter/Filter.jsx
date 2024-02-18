@@ -34,7 +34,6 @@ import Tip from "@/components/Tip/Tip";
 
 const Filter = () => {
   const headers = useSelector(selectHeaders);
-  const active = useSelector(selectActive);
   const sold = useSelector(selectSold);
   const na = useSelector(selectNa);
   const dispatch = useDispatch();
@@ -56,6 +55,7 @@ const Filter = () => {
     })
   );
 
+  const count = headers.length;
   const handleDragStart = (e) => {
     const header = headers.find((h) => h.accessor === e.active.id);
     setEvent({ ...e, dragging: true, header });
@@ -79,6 +79,8 @@ const Filter = () => {
     dispatch(setHeaders(updatedHeaders));
   };
 
+  console.log(count);
+
   return (
     <div className={styles["filter-body"]}>
       <DndContext
@@ -99,6 +101,7 @@ const Filter = () => {
                 id={h.accessor}
                 header={h}
                 index={index}
+                count={count}
                 activate={() => dispatch(activateHeader(h.accessor))}
               />
             ))}
@@ -120,11 +123,13 @@ const Filter = () => {
         <Header
           header={{ display: "Sold", active: sold }}
           activate={() => dispatch(sortSold())}
+          count={2}
           fixed={true}
         />
         <Header
           header={{ display: "Unavailable", active: na }}
           activate={() => dispatch(sortNa())}
+          count={2}
           fixed={true}
         />
       </div>

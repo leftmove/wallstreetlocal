@@ -14,24 +14,6 @@
   white-space: nowrap;
 }
 
-.table-error {
-  text-align: center;
-  white-space: wrap;
-
-  margin: 100px 30px;
-  font-size: 1.5rem;
-  width: 100%;
-}
-
-.table-link {
-  color: var(--primary-dark);
-  transition: color 0.3s ease;
-}
-
-.table-link:hover {
-  color: var(--primary);
-}
-
 .header-column {
   text-align: left;
   vertical-align: middle;
