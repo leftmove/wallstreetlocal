@@ -98,13 +98,13 @@ def serialize_stock(local_stock, global_stock):
 
     shares_held = local_stock["shares_held"]
     market_value = local_stock["market_value"]
-    portfolio_percentage = local_stock.get("portfolio")
+    portfolio_percentage = local_stock.get("portfolio_percent")
     portfolio_percentage = (
         portfolio_percentage * 100
         if portfolio_percentage and portfolio_percentage != "NA"
         else "NA"
     )
-    ownership_percentage = local_stock.get("ownership")
+    ownership_percentage = local_stock.get("ownership_percent")
     ownership_percentage = (
         ownership_percentage * 100
         if ownership_percentage and ownership_percentage != "NA"
