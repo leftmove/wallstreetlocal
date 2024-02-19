@@ -1,11 +1,11 @@
 {
   "name": "whale-project",
-  "version": "5.7",
+  "version": "8.7",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start -p 443",
+    "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
