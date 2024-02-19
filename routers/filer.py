@@ -546,28 +546,9 @@ def create_filer_try(cik):
             raise HTTPException(detail="Filer already exists.", status_code=409)
     except Exception as e:
         stamp = str(datetime.now())
-        with open(f"./public/errors/error-{stamp}.log", "w+") as f:
+        with open(f"./public/errors/error-{stamp}.log", "w") as f:
             f.write(str(e))
         print("Error Occured\n", e)
-
-
-@cache(1)
-@router.get("/query/saved", status_code=200, include_in_schema=False)
-async def query_top(password: str, background: BackgroundTasks):
-    if password != os.environ["ADMIN_PASSWORD"]:
-        raise HTTPException(detail="Unable to give access.", status_code=403)
-
-    with open("./public/searched.json") as t:
-        filer_ciks = json.load(t)
-    with open("./public/top.json") as t:
-        filer_ciks.extend(json.load(t))
-
-    def cycle_filers(ciks):
-        for cik in ciks:
-            create_filer_try(cik)
-
-    background.add_task(cycle_filers, filer_ciks)
-    return {"description": "Started querying filers."}
 
 
 # @cache(24)

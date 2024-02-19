@@ -52,6 +52,11 @@ def find_filer(cik, project={"_id": 0}):
     return result
 
 
+def find_filers(query, project={"_id": 0}):
+    results = main.find(query, project)
+    return results
+
+
 def find_document(cik, project={"_id": 0}):
     result = main.find_one({"cik": cik}, project)
     return result
@@ -68,6 +73,12 @@ def add_filer(company):
 
 def edit_filer(query, value):
     main.update_one(query, value)
+
+
+def delete_filer(cik):
+    filer_query = {"cik": cik}
+    main.delete_one(filer_query)
+    logs.delete_one(filer_query)
 
 
 def delete_filers(query):
