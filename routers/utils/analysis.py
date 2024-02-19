@@ -75,8 +75,10 @@ def serialize_stock(local_stock, global_stock):
         else "NA"
     )
 
-    report_float = local_stock["date"] if timeseries else "NA"
-    report_date = datetime.fromtimestamp(local_stock["date"]) if timeseries else "NA"
+    report_float = local_stock["report_time"] if timeseries else "NA"
+    report_date = (
+        datetime.fromtimestamp(local_stock["report_time"]) if timeseries else "NA"
+    )
     report_date_str = (
         f"Q{(report_date.month-1)//3+1} {report_date.year}" if timeseries else "NA"
     )
@@ -176,6 +178,71 @@ def serialize_stock(local_stock, global_stock):
     }
 
 
+def serialize_local(
+    local_stock,
+    first_appearance,
+    last_appearance,
+    filings,
+    portfolio_percentage,
+    ownership_percentage,
+):
+    name = local_stock["name"]
+    cusip = local_stock["cusip"]
+    update = local_stock["update"]
+    sold = local_stock["sold"]
+
+    ticker = local_stock["ticker"]
+    ticker_str = f"{ticker} (Sold)" if sold and update else ticker
+    class_str = local_stock["class"]
+
+    market_value = local_stock["market_value"]
+    shares_held = local_stock["shares_held"]
+    shares_held_str = f"{int(shares_held):,}"
+    market_value_str = f"${int(market_value):,}"
+
+    report_float = filings[first_appearance]["report_date"]
+    report_date = datetime.fromtimestamp(report_float)
+    report_date_str = f"Q{(report_date.month-1)//3+1} {report_date.year}"
+    sold_float = filings[last_appearance]["report_date"]
+    sold_date = datetime.fromtimestamp(sold_float)
+    sold_date_str = f"Q{(sold_date.month-1)//3+1} {sold_date.year}"
+
+    portfolio_percentage_str = (
+        "{:.2f}".format(round(portfolio_percentage, 2))
+        if portfolio_percentage != "NA"
+        else "NA"
+    )
+    ownership_percentage_str = (
+        "{:.2f}".format(round(ownership_percentage, 2))
+        if ownership_percentage != "NA"
+        else "NA"
+    )
+
+    return {
+        "name": name,
+        "cusip": cusip,
+        "ticker": ticker,
+        "ticker_str": ticker_str,
+        "class": class_str,
+        "shares_held": shares_held,
+        "shares_held_str": shares_held_str,
+        "market_value": market_value,
+        "market_value_str": market_value_str,
+        "portfolio_percent": portfolio_percentage,
+        "portfolio_str": portfolio_percentage_str,
+        "ownership_percent": ownership_percentage,
+        "ownership_str": ownership_percentage_str,
+        "first_appearance": first_appearance,
+        "last_appearance": last_appearance,
+        "report_time": report_float,
+        "report_str": report_date_str,
+        "sold_time": sold_float,
+        "sold_str": sold_date_str,
+        "sold": sold,
+        "update": update,
+    }
+
+
 def analyze_total(cik, stocks, access_number):
     market_values = []
     for key in stocks:
@@ -198,21 +265,21 @@ def analyze_total(cik, stocks, access_number):
 
 def analyze_value(local_stock, global_stock, total):
     market_value = local_stock["market_value"]
-    percent_portfolio = market_value / total
+    portfolio_percentage = market_value / total
 
     global_data = global_stock.get("data")
     if global_data:
         shares_outstanding = float(global_data.get("shares_outstanding"))
         shares_held = local_stock.get("shares_held")
-        percent_ownership = (
+        ownership_percentage = (
             shares_held / shares_outstanding
             if shares_held and shares_outstanding
             else "NA"
         )
     else:
-        percent_ownership = "NA"
+        ownership_percentage = "NA"
 
-    return percent_portfolio, percent_ownership
+    return portfolio_percentage, ownership_percentage
 
 
 def analyze_report(local_stock, filings):
@@ -326,18 +393,19 @@ def analyze_filings(cik, filings):
                     continue
                 is_updated = found_stock.get("update", False)
 
-                percent_portfolio, percent_ownership = analyze_value(
+                portfolio_percentage, ownership_percentage = analyze_value(
                     local_stock, found_stock, total_value
                 )
 
                 # First/last appearance repeatedly updated, could be more efficient
-                filing_stock = {
-                    **local_stock,
-                    "first_appearance": first_appearance,
-                    "last_appearance": last_appearance,
-                    "portfolio": percent_portfolio,
-                    "ownership": percent_ownership,
-                }
+                filing_stock = serialize_local(
+                    local_stock,
+                    first_appearance,
+                    last_appearance,
+                    filings,
+                    portfolio_percentage,
+                    ownership_percentage,
+                )
                 if is_updated:
                     filing_stock.update(
                         {"name": found_stock["name"], "ticker": found_stock["ticker"]}
@@ -345,7 +413,10 @@ def analyze_filings(cik, filings):
 
                 yield stock_query, filing_stock
             except Exception as e:
-                database.add_log
+                print(e)
+                database.add_log(
+                    cik, "Error Querying Stock for Filings", cusip, access_number
+                )
 
 
 def analyze_stocks(cik, filings, historical_cache=None):
@@ -356,73 +427,85 @@ def analyze_stocks(cik, filings, historical_cache=None):
             continue
         for cusip in filing_stocks:
 
-            filing_stock = filing_stocks[cusip]
-            cusip = filing_stock["cusip"]
-            name = filing_stock["name"]
+            try:
+                filing_stock = filing_stocks[cusip]
+                cusip = filing_stock["cusip"]
+                name = filing_stock["name"]
 
-            first_appearance = filing_stock["first_appearance"]
-            buy_time = filings[first_appearance]["report_date"]
-            if historical_cache != None:
-                historical_stock = historical_cache.get(cusip)
-                historical_buy = (
-                    historical_stock.get("buy_time", float("inf"))
-                    if historical_stock
-                    else float("inf")
+                first_appearance = filing_stock["first_appearance"]
+                buy_time = filings[first_appearance]["report_date"]
+                if historical_cache != None:
+                    historical_stock = historical_cache.get(cusip)
+                    historical_buy = (
+                        historical_stock.get("buy_time", float("inf"))
+                        if historical_stock
+                        else float("inf")
+                    )
+                    if buy_time < historical_buy:
+                        continue
+
+                found_stock = stock_cache.get(cusip)
+                found_stock = (
+                    database.find_stock("cusip", cusip)
+                    if not found_stock
+                    else found_stock
                 )
-                if buy_time < historical_buy:
+                if not found_stock:
                     continue
 
-            found_stock = stock_cache.get(cusip)
-            found_stock = (
-                database.find_stock("cusip", cusip) if not found_stock else found_stock
-            )
-            if not found_stock:
-                continue
-
-            buy_timeseries, sold_timeseries = analyze_timeseries(
-                cik, filing_stock, found_stock, filings
-            )
-            filing_stock["prices"] = {
-                "buy": buy_timeseries,
-                "sold": sold_timeseries,
-            }
-
-            cached_stock = stock_cache.get(cusip)
-            if cached_stock and cached_stock <= buy_time:
-                continue
-
-            if cached_stock:
-                stock_cache[cusip] = buy_time
-
-            updated_stock = serialize_stock(filing_stock, found_stock)
-            log_stock = {"name": name, "message": "Created Stock", "identifier": cusip}
-
-            if historical_cache != None:
-                historical_cache[cusip] = updated_stock
-
-            filer_stocks = database.find_filer(cik, {"stocks": 1})["stocks"]
-            insert = (
-                False
-                if next(filter(lambda s: s["cusip"] == cusip, filer_stocks), None)
-                else True
-            )
-
-            # Plain awful and inefficient but MongoDB updating is awful
-            if insert:
-                stock_query = {"$push": {"stocks": updated_stock}}
-            else:
-                stock_index = next(
-                    (
-                        i
-                        for i, item in enumerate(filer_stocks)
-                        if item["cusip"] == cusip
-                    ),
-                    -1,
+                buy_timeseries, sold_timeseries = analyze_timeseries(
+                    cik, filing_stock, found_stock, filings
                 )
-                filer_stocks[stock_index] = updated_stock
-                stock_query = {"$set": {"stocks": filer_stocks}}
+                filing_stock["prices"] = {
+                    "buy": buy_timeseries,
+                    "sold": sold_timeseries,
+                }
 
-            yield stock_query, log_stock
+                cached_stock = stock_cache.get(cusip)
+                if cached_stock and cached_stock <= buy_time:
+                    continue
+
+                if cached_stock:
+                    stock_cache[cusip] = buy_time
+
+                updated_stock = serialize_stock(filing_stock, found_stock)
+                log_stock = {
+                    "name": name,
+                    "message": "Created Stock",
+                    "identifier": cusip,
+                }
+
+                if historical_cache != None:
+                    historical_cache[cusip] = updated_stock
+
+                filer_stocks = database.find_filer(cik, {"stocks": 1})["stocks"]
+                insert = (
+                    False
+                    if next(filter(lambda s: s["cusip"] == cusip, filer_stocks), None)
+                    else True
+                )
+
+                # Plain awful and inefficient but MongoDB updating is awful
+                if insert:
+                    stock_query = {"$push": {"stocks": updated_stock}}
+                else:
+                    stock_index = next(
+                        (
+                            i
+                            for i, item in enumerate(filer_stocks)
+                            if item["cusip"] == cusip
+                        ),
+                        -1,
+                    )
+                    filer_stocks[stock_index] = updated_stock
+                    stock_query = {"$set": {"stocks": filer_stocks}}
+
+                yield stock_query, log_stock
+            except Exception as e:
+                print(e)
+                database.add_log(
+                    cik, "Error Analyzing Stock for Filings", cusip, access_number
+                )
 
 
 def time_remaining(stock_count):

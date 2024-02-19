@@ -192,7 +192,7 @@ async def stock_timeseries(cik: str, time: float):
 
 
 @router.get("/filing", tags=["filers", "stocks"], status_code=200)
-async def query_filing(cik: str, access_number):
+async def query_filing(cik: str, access_number: str):
 
     filer_query = f"filings.{access_number}.stocks"
     filer = database.find_filer(cik, {filer_query: 1})
