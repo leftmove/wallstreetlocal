@@ -43,13 +43,13 @@ const server = process.env.NEXT_PUBLIC_SERVER;
 const Info = (props) => {
   const cik = props.cik || null;
   const dispatch = useDispatch();
-  // const [tab, setTab] = useState("recent");
+  const [tab, setTab] = useState("recent");
 
   useEffect(() => {
     dispatch(setCik(cik));
   }, [cik]);
 
-  const { data, isLoading: loading } = useSWR(
+  const { data } = useSWR(
     cik ? [server + "/filers/info", cik] : null,
     ([url, cik]) => fetcher(url, cik),
     {
@@ -88,8 +88,8 @@ const Info = (props) => {
         tab={tab}
         setHistorical={() => setTab("historical")}
         setRecent={() => setTab("recent")}
-      />
-      {tab == "recent" ? <Table /> : null} */}
+      /> */}
+      {tab == "recent" ? <Table /> : null}
       <div className={styles["header"]}>
         {/* <span className={[styles["main-header"], font.className].join(" ")}>
           Info

@@ -95,7 +95,7 @@ const Table = () => {
   if (error) return <Error statusCode={404} />;
   if (loading) return <Unavailable type="loading" />;
   if (stocks.length <= 0) return <Unavailable type="stocks" cik={cik} />;
-
+  console.log(stocks);
   return (
     <div className={styles["table-container"]}>
       <Sort />

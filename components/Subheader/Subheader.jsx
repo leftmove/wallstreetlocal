@@ -31,7 +31,7 @@ const Subheader = (props) => {
           </span>
         </div>
         <div className={styles["secondary-header"]}>
-          {info?.data.description ? (
+          {info?.financials?.description ? (
             <Expand onClick={() => setExpand(!expand)} expandState={expand} />
           ) : null}
           <Source cik={cik} />
