@@ -5,7 +5,6 @@ import axios from "axios";
 import useSWR from "swr";
 
 import Error from "next/error";
-import Link from "next/link";
 
 import Loading from "@/components/Loading/Loading";
 import Unavailable from "@/components/Unavailable/Unavailable";
@@ -13,9 +12,6 @@ import Header from "./Headers/Header";
 import Row from "./Row/Row";
 import Sort from "./Sort/Sort";
 import Pagination from "./Pagination/Pagination";
-import Tabs from "./Tabs/Tabs";
-
-import { font } from "@fonts";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -96,8 +92,6 @@ const Table = () => {
     }
   }, [stocks]);
 
-  // const [tab, setTab] = useState("historical");
-
   if (error) return <Error statusCode={404} />;
   if (loading) return <Unavailable type="loading" />;
   if (stocks.length <= 0) return <Unavailable type="stocks" cik={cik} />;
@@ -105,11 +99,6 @@ const Table = () => {
   return (
     <div className={styles["table-container"]}>
       <Sort />
-      {/* <Tabs
-        tab={tab}
-        setHistorical={() => setTab("historical")}
-        setRecent={() => setTab("recent")}
-      /> */}
       <Pagination />
       <table className={styles["table"]}>
         <thead>

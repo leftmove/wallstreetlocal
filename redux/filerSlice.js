@@ -12,7 +12,7 @@ const initialState = {
       accessor: "ticker_str",
       active: true,
       tooltip:
-        "The ticker symbol of the stock, which is a unique series of letters assigned to a security for trading purposes",
+        "This is a unique series of letters assigned to a security for trading purposes",
     },
     {
       display: "Name",
@@ -27,15 +27,14 @@ const initialState = {
       accessor: "class",
       active: false,
       tooltip:
-        "The class of the stock, which represents the stockholder's rights, including voting and dividends.",
+        "This refers to the rights of a stockholder, including things like voting and dividends.",
     },
     {
       display: "Sector",
       sort: "sector",
       accessor: "sector",
       active: false,
-      tooltip:
-        "The sector of the stock, which represents the broader industry category to which the stock belongs.",
+      tooltip: "The broader industry category to which the stock belongs.",
     },
     {
       display: "CUSIP",
@@ -43,7 +42,7 @@ const initialState = {
       accessor: "cusip",
       active: false,
       tooltip:
-        "The CUSIP number of the stock, which is a unique identifier assigned to each registered security in the United States and Canada.",
+        "A unique identifier assigned to each registered security in the United States and Canada.",
     },
     {
       display: "Shares Held",
@@ -58,8 +57,7 @@ const initialState = {
       sort: "market_value",
       accessor: "market_value_str",
       active: true,
-      tooltip:
-        "The market value of the stock, which represents the total value of all the shares this filer owns.",
+      tooltip: "The value for the shares of the stock the filer owns.",
     },
     {
       display: "% Portfolio",
@@ -75,7 +73,7 @@ const initialState = {
       accessor: "ownership_str",
       active: false,
       tooltip:
-        "The number of outstanding shares this filer owns, divided by the current total of outstanding shares that exist, expressed in percent. Note that because outstanding shares of every company are not logged over time, this value is only accurate recently. ( Amount of Shares Owned / Amount of Shares Existing )",
+        "The number of shares owned, divided by the current total of shares that exist, expressed in percent. This value is only accurate recently. ( Shares Owned / Shares Existing )",
     },
     {
       display: "Sold Date",
@@ -83,7 +81,7 @@ const initialState = {
       accessor: "sold_str",
       active: false,
       tooltip:
-        "The date the stock was sold, taken by retrieving the report date of the last SEC filing said stock showed up on. Note that this is only accurate up to the quarter.",
+        "The date the stock was sold, taken by retrieving the report date of the last SEC filing said stock showed up on. This is only accurate up to the quarter.",
     },
     {
       display: "Buy Date",
@@ -91,7 +89,7 @@ const initialState = {
       accessor: "buy_str",
       active: false,
       tooltip:
-        "The date the stock was bought, taken by retrieving the report date of the first SEC filing said stock showed up on. Note that this is only accurate up to the quarter, and this only the most recent date is shown if the filer bought the stock more than once.",
+        "The date the stock was bought, according to the report date of the first SEC filing it appeared on. This is only accurate up to the quarter, and only the most recent bought date is shown.",
     },
     {
       display: "Price Paid",
@@ -99,7 +97,7 @@ const initialState = {
       accessor: "buy_price_str",
       active: true,
       tooltip:
-        "The price paid for the stock, estimated by taking a close price most near the quarter which the stock was first reported.",
+        "The price paid for the stock, estimated by taking a close price most near the quarter from which the stock was first reported.",
     },
     {
       display: "Recent Price",
@@ -107,7 +105,7 @@ const initialState = {
       accessor: "recent_price_str",
       active: true,
       tooltip:
-        "The recent price of the stock. Note that this may be a couple days delayed.",
+        "The recent price of the stock. This may be a couple days delayed.",
     },
     {
       display: "% Gain",
@@ -123,7 +121,7 @@ const initialState = {
       accessor: "industry",
       active: false,
       tooltip:
-        "The industry of the stock, representing the specific sector or category of the economy in which the company operates.",
+        "The specific sector or category of the economy in which the stock's company operates.",
     },
     {
       display: "Report Date",
@@ -131,14 +129,14 @@ const initialState = {
       accessor: "report_str",
       active: false,
       tooltip:
-        "The report date of the stock, indicating the date listed on the SEC filing this stock was taken from.",
+        "The report date listed on the SEC filing this stock was taken from.",
     },
   ],
   sort: {
     sort: "ticker",
     type: "string",
     set: true,
-    na: true,
+    na: false,
     sold: false,
     reverse: true,
     pagination: 100,
@@ -232,9 +230,7 @@ export const filerSlice = createSlice({
       const headers = state.headers;
 
       headers.push({
-        display: payload.display,
-        sort: payload.sort,
-        accessor: payload.accessor,
+        ...payload,
         active: true,
       });
 
@@ -246,6 +242,13 @@ export const filerSlice = createSlice({
       const headers = state.headers.map((h) =>
         h.accessor === payload.accessor ? { ...h, display: payload.display } : h
       );
+
+      state.headers = headers;
+      return state;
+    },
+    removeHeader(state, action) {
+      const payload = action.payload;
+      const headers = state.headers.filter((h) => h.accessor !== payload);
 
       state.headers = headers;
       return state;
@@ -506,6 +509,7 @@ export const {
   sortStocks,
   addDate,
   setHeaders,
+  removeHeader,
   removeDate,
   editDate,
   openDate,

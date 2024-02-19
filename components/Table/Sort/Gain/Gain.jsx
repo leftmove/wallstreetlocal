@@ -142,11 +142,11 @@ const Gain = () => {
         </DndContext>
       </div>
       <Tip
-        className={styles["tip"]}
-        text="The blocks above are timeseries, you can change the date which they specify by clicking the calendar icon, and choosing the month/year. You can then add the prices for that date to the table, or download the prices directly."
+        text="The blocks above are timeseries, you can change the date which they specify by clicking the calendar icon, and choosing the month/year."
         top={20}
       />
-      <Tip text="Add timeseries above by clicking the plus button on the right, and remove timeseries by dragging them to the trash button." />
+      <Tip text="Add stock prices for a specific date to the table by clicking the table button, or download the prices directly with the download button." />
+      <Tip text="Add timeseries by clicking the plus button on the right, and remove them by dragging to the trash button." />
     </div>
   );
 };

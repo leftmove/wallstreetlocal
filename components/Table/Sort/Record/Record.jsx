@@ -1,9 +1,11 @@
 import styles from "./Record.module.css";
 
-import { font } from "@fonts";
-
 import { useSelector } from "react-redux";
-import { selectCik } from "@/redux/filerSlice";
+import { selectCik, selectHeaders } from "@/redux/filerSlice";
+
+import Link from "next/link";
+
+import { font } from "@fonts";
 
 import DataIcon from "@/public/static/data.svg";
 import TableIcon from "@/public/static/csv.svg";
@@ -11,17 +13,19 @@ import TableIcon from "@/public/static/csv.svg";
 const server = process.env.NEXT_PUBLIC_SERVER;
 const Record = (props) => {
   const cik = useSelector(selectCik);
-  const variant = props.variant || "json";
+  const headers = useSelector(selectHeaders);
+  const variant = props.variant === "csv" ? "csv" : "";
+
+  const headerString = JSON.stringify(headers);
+  const url = new URL("/filers/record" + variant, server);
+  url.searchParams.append("cik", cik);
+  url.searchParams.append("headers", headerString);
+
   return (
-    <a
-      href={`${server}/filers/record${
-        variant === "csv" ? "csv" : ""
-      }?cik=${cik}`}
-      target="_blank"
-    >
+    <Link href={url} target="_blank">
       <button className={styles["record-button"]}>
         <span className={[styles["record-text"], font.className].join(" ")}>
-          {variant === "csv" ? "Table" : "Raw"}
+          {variant === "csv" ? "Table" : "Data"}
         </span>
         {variant === "csv" ? (
           <TableIcon className={styles["record-icon"]} />
@@ -29,7 +33,7 @@ const Record = (props) => {
           <DataIcon className={styles["record-icon"]} />
         )}
       </button>
-    </a>
+    </Link>
   );
 };
 

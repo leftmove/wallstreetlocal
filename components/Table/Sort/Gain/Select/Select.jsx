@@ -10,7 +10,7 @@ import {
   updateStocks,
   selectCik,
   selectHeaders,
-  activateHeader,
+  removeHeader,
   editHeader,
 } from "@/redux/filerSlice";
 
@@ -132,23 +132,22 @@ const Select = (props) => {
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const [active, setActive] = useState(true);
+  const active = headers.find((h) => h.accessor == accessor) ? false : true;
   const handleTable = () => {
     const header = headers.find((h) => h.accessor == accessor);
-    if (header) {
-      setActive(header.active);
-    } else {
-      setActive(false);
-    }
 
-    const display = `Price (${date.month + 1}/${date.day}/${date.year})`;
+    const display = `${date.month + 1}/${date.day}/${date.year}`;
+    const tooltip = `The prices of the stocks at ${date.month + 1}/${
+      date.day
+    }/${date.year}.`;
     if (header) {
-      dispatch(activateHeader(accessor));
+      dispatch(removeHeader(accessor));
     } else {
       dispatch(
         addHeader({
-          display: display,
+          display,
           sort: accessor,
+          tooltip,
           accessor: accessor,
           active: true,
         })
@@ -156,7 +155,6 @@ const Select = (props) => {
     }
   };
 
-  // const [download, setDownload] = useState("");
   const handleDownload = () => {
     window.open(
       server +

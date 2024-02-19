@@ -1,3 +1,21 @@
+.filter-description {
+  display: flex;
+  flex-direction: column;
+
+  height: fit-content;
+  width: 100%;
+  margin: 0px auto 20px auto;
+
+  text-align: center;
+
+  transition: height 0.3s ease;
+}
+
+.filter-text {
+  font-size: 0.8rem;
+  text-wrap: wrap;
+}
+
 .filter-body {
   display: flex;
   flex-direction: column;
@@ -16,6 +34,7 @@
 .filter-buttons {
   display: flex;
 
+  width: 100%;
   margin-top: 20px;
   margin-bottom: 20px;
 }

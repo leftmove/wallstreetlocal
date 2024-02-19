@@ -1,5 +1,5 @@
 import styles from "./Filter.module.css";
-import { useReducer } from "react";
+import { useReducer, useState } from "react";
 
 import {
   DndContext,
@@ -29,6 +29,8 @@ import {
   setHeaders,
 } from "@/redux/filerSlice";
 
+import { font, fontLight } from "@fonts";
+
 import Header from "./Header/Header";
 import Tip from "@/components/Tip/Tip";
 
@@ -55,7 +57,10 @@ const Filter = () => {
     })
   );
 
+  const [delayHandler, setDelayHandler] = useState(null);
+  const [description, setDescription] = useState({ title: "", text: "" });
   const count = headers.length;
+
   const handleDragStart = (e) => {
     const header = headers.find((h) => h.accessor === e.active.id);
     setEvent({ ...e, dragging: true, header });
@@ -79,10 +84,29 @@ const Filter = () => {
     dispatch(setHeaders(updatedHeaders));
   };
 
-  console.log(count);
+  const handleMouseEnter = (event, title, text) => {
+    setDelayHandler(
+      setTimeout(() => {
+        setDescription({ title, text });
+      }, 300)
+    );
+  };
+  const handleMouseLeave = () => {
+    clearTimeout(delayHandler);
+  };
 
   return (
     <div className={styles["filter-body"]}>
+      <div className={styles["filter-description"]}>
+        <span className={[styles["filter-display"], font.className].join(" ")}>
+          {description?.title}
+        </span>
+        <span
+          className={[styles["filter-text"], fontLight.className].join(" ")}
+        >
+          {description?.text}
+        </span>
+      </div>
       <DndContext
         sensors={sensors}
         autoScroll={false}
@@ -103,6 +127,10 @@ const Filter = () => {
                 index={index}
                 count={count}
                 activate={() => dispatch(activateHeader(h.accessor))}
+                onMouseEnter={(event) =>
+                  handleMouseEnter(event, h.display, h.tooltip)
+                }
+                onMouseLeave={(event) => handleMouseLeave(event)}
               />
             ))}
           </SortableContext>
@@ -123,14 +151,28 @@ const Filter = () => {
         <Header
           header={{ display: "Sold", active: sold }}
           activate={() => dispatch(sortSold())}
-          count={2}
           fixed={true}
+          onMouseEnter={(event) =>
+            handleMouseEnter(
+              event,
+              "Sold",
+              "Filter or include stocks which have been sold."
+            )
+          }
+          onMouseLeave={(event) => handleMouseLeave(event)}
         />
         <Header
           header={{ display: "Unavailable", active: na }}
           activate={() => dispatch(sortNa())}
-          count={2}
           fixed={true}
+          onMouseEnter={(event) =>
+            handleMouseEnter(
+              event,
+              "Unavailable",
+              "Filter or include stocks with incomplete data on the current sorted property."
+            )
+          }
+          onMouseLeave={(event) => handleMouseLeave(event)}
         />
       </div>
       <Tip text="Click any of the buttons above to show/hide headers on the table below. You can also drag the top headers to rearrange the columns." />

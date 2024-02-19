@@ -27,21 +27,27 @@ const Sort = () => {
           className={styles["sort-icon"]}
           onClick={() => setExpand(!expand)}
         />
-        {expand ? null : (
-          <span className={[styles["sort-tip"], fontLight.className].join(" ")}>
-            Click the filter icon on the left to find additional analysis,
-            manipulate the table, and download any data you see.
-          </span>
-        )}
+        <span
+          className={[
+            styles["sort-tip"],
+            expand ? styles["tip-expanded"] : "",
+            fontLight.className,
+          ].join(" ")}
+        >
+          Click the filter icon on the left to find additional analysis,
+          manipulate the table, and download any data you see.
+        </span>
       </div>
       <div className={styles["sort-body"]}>
         <Filter />
         <Gain />
-        <div className={styles["sort-downloads"]}>
-          <Record variant="json" />
-          <Record variant="csv" />
+        <div className={styles["sort-records"]}>
+          <div className={styles["sort-downloads"]}>
+            <Record variant="json" />
+            <Record variant="csv" />
+          </div>
+          <Tip text="Downloads for bulk data." />
         </div>
-        <Tip text="Downloads for bulk data." />
       </div>
     </div>
   );

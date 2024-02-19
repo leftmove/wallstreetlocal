@@ -22,7 +22,11 @@
   flex-wrap: wrap;
   white-space: wrap;
 
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, opacity 0.3s ease;
+}
+
+.tip-expanded {
+  opacity: 0;
 }
 
 /* .sort-tip:hover {
@@ -51,8 +55,14 @@
   margin: 30px;
 }
 
+.sort-records {
+  display: flex;
+  flex-direction: column;
+}
+
 .sort-downloads {
   display: flex;
+  justify-content: center;
 
   margin-top: 50px;
   margin-bottom: 20px;

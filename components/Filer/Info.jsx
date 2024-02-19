@@ -11,7 +11,9 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setCik } from "@/redux/filerSlice";
 
+import Tabs from "@/components/Tabs/Tabs";
 import Table from "@/components/Table/Table";
+import Explorer from "@/components/Explorer/Explorer";
 import Subheader from "@/components/Subheader/Subheader";
 import Building from "@/components/Progress/Building/Building";
 
@@ -41,6 +43,8 @@ const server = process.env.NEXT_PUBLIC_SERVER;
 const Info = (props) => {
   const cik = props.cik || null;
   const dispatch = useDispatch();
+  // const [tab, setTab] = useState("recent");
+
   useEffect(() => {
     dispatch(setCik(cik));
   }, [cik]);
@@ -80,7 +84,12 @@ const Info = (props) => {
       </span> */}
         <Subheader info={info} />
       </div>
-      <Table />
+      {/* <Tabs
+        tab={tab}
+        setHistorical={() => setTab("historical")}
+        setRecent={() => setTab("recent")}
+      />
+      {tab == "recent" ? <Table /> : null} */}
       <div className={styles["header"]}>
         {/* <span className={[styles["main-header"], font.className].join(" ")}>
           Info
