@@ -12,9 +12,8 @@ node_modules
 
 coverage
 
-.next/
-out/
-next.config.js
+.next
+out
 
 build
 
@@ -25,8 +24,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
-
-.vercel
-.prettierrc
 
 docker-proj.zip
