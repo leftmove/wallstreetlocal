@@ -598,9 +598,17 @@ async def hang_dangling(password: str):
 @router.get("/filings", status_code=200)
 async def query_filings(cik: str):
 
-    filer = database.find_filer(cik, {"filings": 1})
-    if not filer:
+    pipeline = [
+        {"$match": {"cik": cik}},
+        {"$project": {"filings": {"$objectToArray": "$filings"}}},
+        {"$project": {"filings": "$filings.v"}},
+        {"$unwind": "$filings"},
+        {"$replaceRoot": {"newRoot": "$filings"}},
+        {"$project": {"stocks": 0}},
+    ]
+    cursor = database.search_filers(pipeline)
+    if not cursor:
         raise HTTPException(detail="Filer not found.", status_code=404)
-    filings = filer["filings"]
+    filings = [result for result in cursor]
 
     return {"filings": filings}
