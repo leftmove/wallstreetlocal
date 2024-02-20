@@ -20,7 +20,7 @@ class Cusip(BaseModel):
 @router.get("/query", tags=["stocks"], status_code=200)
 async def query_stocks(cik: str, background: BackgroundTasks):
     if cik:
-        filer = database.find_filer(cik, {"stocks.global.cusip": 1})
+        filer = database.search_filer(cik, {"stocks.cusip": 1})
         if not filer:
             raise HTTPException(status_code=404, detail="Filer not found")
         tickers = [stock["cusip"] for stock in filer["stocks"]]
@@ -104,7 +104,7 @@ async def stock_info(
 @cache(4)
 @router.get("/timeseries", tags=["stocks", "filers"], status_code=200)
 async def stock_timeseries(cik: str, time: float):
-    filer = database.find_filer(cik, {"stocks.global.cusip": 1})
+    filer = database.search_filer(cik, {"stocks.cusip": 1})
     if filer == None:
         raise HTTPException(detail="Filer not found.", status_code=404)
     filer_stocks = filer["stocks"]

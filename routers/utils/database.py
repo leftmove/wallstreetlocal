@@ -67,6 +67,15 @@ def search_filers(pipeline):
     return cursor
 
 
+def search_filer(cik, project={"_id": 0}):
+    cursor = main.aggregate(pipeline=[{"$match": {"cik": cik}}, {"$project": project}])
+    try:
+        result = cursor.next()
+        return result
+    except:
+        return None
+
+
 def add_filer(company):
     main.insert_one(company)
 
@@ -91,6 +100,11 @@ def create_log(value):
 
 def find_log(cik, project={"_id": 0}):
     result = logs.find_one({"cik": cik}, project)
+    return result
+
+
+def find_specific_log(query):
+    result = logs.find_one(query)
     return result
 
 
@@ -120,6 +134,10 @@ def add_logs(cik, formatted_logs):
 
 def edit_log(cik, stamp):
     logs.update_one({"cik": cik}, {"$set": stamp})
+
+
+def edit_specific_log(query, value):
+    logs.update_one(query, value)
 
 
 def delete_logs(query):

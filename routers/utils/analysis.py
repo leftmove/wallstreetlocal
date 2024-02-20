@@ -543,7 +543,7 @@ def create_json(cik, filename):
             if (datetime.now().timestamp() - filer_json["updated"]) > 60 * 60 * 3:
                 raise ValueError
     except:
-        filer = database.find_filer(cik, {"_id": 0, "stocks.global.timeseries": 0})
+        filer = database.search_filer(cik, {"_id": 0, "stocks.timeseries": 0})
         with open(file_path, "w") as r:
             json.dump(filer, r, indent=6)
 
