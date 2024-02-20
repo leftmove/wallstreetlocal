@@ -79,6 +79,7 @@ async def progressive_restore(password: str, background: BackgroundTasks):
             create_filer_try(cik)
 
     background.add_task(cycle_filers, all_ciks)
+
     return {"description": "Started progressive restore of filers."}
 
 

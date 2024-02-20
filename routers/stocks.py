@@ -23,7 +23,7 @@ async def query_stocks(cik: str, background: BackgroundTasks):
         filer = database.find_filer(cik, {"stocks.global.cusip": 1})
         if not filer:
             raise HTTPException(status_code=404, detail="Filer not found")
-        tickers = [stock["cusip"] for stock in filer["stocks"]["global"]]
+        tickers = [stock["cusip"] for stock in filer["stocks"]]
 
         found_stocks = database.find_stocks("ticker", {"$in": tickers})
         background.add_task(web.query_stocks, found_stocks)  # pyright: ignore
@@ -107,7 +107,7 @@ async def stock_timeseries(cik: str, time: float):
     filer = database.find_filer(cik, {"stocks.global.cusip": 1})
     if filer == None:
         raise HTTPException(detail="Filer not found.", status_code=404)
-    filer_stocks = filer["stocks"]["global"]
+    filer_stocks = filer["stocks"]
 
     stock_list = []
     cusip_list = list(map(lambda x: x["cusip"], filer_stocks))
