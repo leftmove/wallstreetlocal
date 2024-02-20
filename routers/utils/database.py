@@ -77,8 +77,8 @@ def edit_filer(query, value):
 
 def delete_filer(cik):
     filer_query = {"cik": cik}
-    main.delete_one(filer_query)
     logs.delete_one(filer_query)
+    main.delete_one(filer_query)
 
 
 def delete_filers(query):
