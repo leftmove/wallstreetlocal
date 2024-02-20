@@ -641,6 +641,11 @@ def end_dangling():
     database.delete_filers(query)
     database.delete_logs(query)
 
+    query = {"type": "restore", "status": "running"}
+    database.delete_logs(query)
+    query = {"type": "query", "status": "running"}
+    database.delete_logs(query)
+
     return ciks
 
 

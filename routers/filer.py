@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from datetime import datetime
 import json
 import os
+from traceback import format_exc
 
 from .utils import web
 from .utils import database
@@ -539,15 +540,15 @@ def create_filer_try(cik):
             try:
                 sec_data = sec_filer_search(cik)
             except Exception:
-                raise HTTPException(404, detail="CIK not found.")
-
+                raise HTTPException(status_code=404, detail="CIK not found.")
             create_filer(sec_data, cik)
         else:
             raise HTTPException(detail="Filer already exists.", status_code=409)
     except Exception as e:
         stamp = str(datetime.now())
         with open(f"./public/errors/error-{stamp}.log", "w") as f:
-            f.write(str(e))
+            error_string = f"Failed to Query Filer {cik}\n{repr(e)}\n{format_exc()}"
+            f.write(error_string)
         print("Error Occured\n", e)
 
 
