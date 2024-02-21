@@ -673,12 +673,9 @@ def sort_and_format(filer_ciks):
             filer["date"] = datetime.utcfromtimestamp(filer["updated"]).strftime(
                 "%Y-%m-%d"
             )
+            market_value = filer.get("market_value", 0)
             filer["market_value"] = (
-                f"${int(filer['market_value']):,}"
-                if filer.get("market_value")
-                and filer["market_value"] != "NA"
-                and filer["market_value"] > 0
-                else "NA"
+                f"${int(filer['market_value']):,}" if market_value > 0 else "NA"
             )
             filer.pop("_id", None)
         return filers_sorted
