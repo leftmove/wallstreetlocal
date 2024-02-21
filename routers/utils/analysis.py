@@ -668,7 +668,11 @@ def sort_and_format(filer_ciks):
 
     try:
         filers_sorted = sorted(
-            filers, key=lambda c: c.get("market_value", 0), reverse=True
+            filers,
+            key=lambda c: (
+                c.get("market_value", 0) if c.get("market_value") != "NA" else 0
+            ),
+            reverse=True,
         )
         for filer in filers_sorted:
             filer["date"] = datetime.utcfromtimestamp(filer["updated"]).strftime(
@@ -681,8 +685,7 @@ def sort_and_format(filer_ciks):
             filer.pop("_id", None)
         return filers_sorted
     except Exception as e:
-        traceback = format_exc()
-        print(e, traceback)
+        print(e)
         raise KeyError
 
 

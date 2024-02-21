@@ -42,6 +42,9 @@ async def stock_info(
     reverse: bool,
     unavailable: bool,
 ):
+    filer = database.find_filer(cik, {"_id": 1})
+    if not filer:
+        raise HTTPException(detail="Filer not found.", status_code=404)
     try:
         pipeline = [
             {"$match": {"cik": cik}},
