@@ -1,10 +1,13 @@
 import styles from "./Tabs.module.css";
 
+import { useDispatch, useSelector } from "react-redux";
+import { selectTab, setTab } from "@/redux/filerSlice";
+
 import { font, fontLight } from "@fonts";
 
-const Tabs = (props) => {
-  const tab = props.tab;
-
+const Tabs = () => {
+  const dispatch = useDispatch();
+  const tab = useSelector(selectTab);
   return (
     <div className={styles["tabs"]}>
       <div className={styles["tab-container"]}>
@@ -14,7 +17,7 @@ const Tabs = (props) => {
             tab === "recent" ? styles["tab-clicked"] : "",
             font.className,
           ].join(" ")}
-          onClick={() => props.setRecent()}
+          onClick={() => dispatch(setTab("recent"))}
         >
           Recent
         </div>
@@ -29,7 +32,7 @@ const Tabs = (props) => {
             tab === "historical" ? styles["tab-clicked"] : "",
             font.className,
           ].join(" ")}
-          onClick={() => props.setHistorical()}
+          onClick={() => dispatch(setTab("historical"))}
         >
           Historical
         </div>

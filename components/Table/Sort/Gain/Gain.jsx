@@ -30,28 +30,9 @@ import Plus from "./Droppable/Plus";
 import Trash from "./Droppable/Trash";
 import Tip from "@/components/Tip/Tip";
 
-// const measuringConfig = {
-//   droppable: {
-//     strategy: MeasuringStrategy.Always,
-//   },
-// };
-
 const Gain = () => {
   const dates = useSelector(selectDates);
   const dispatch = useDispatch();
-
-  // const { isOver, setTrashRef } = useDroppable({
-  //   id: "trash",
-  // });
-  // const [drag, setDrag] = useState(false);
-
-  // const handleDragStart = () => {
-  //   setDrag(true)
-  // }
-  // const handleDragMove = (event) => {}
-  // const handleDragOver = (event) => {
-  //   setDrag(false)
-  // }
 
   const [event, setEvent] = useReducer((prev, next) => {
     return { ...prev, ...next };

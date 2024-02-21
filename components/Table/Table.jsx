@@ -20,6 +20,7 @@ import {
   selectCik,
   selectStocks,
   selectSort,
+  selectTab,
 } from "@/redux/filerSlice";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
@@ -55,6 +56,7 @@ const getFetcher = (
 const Table = () => {
   const dispatch = useDispatch();
   const cik = useSelector(selectCik);
+  const tab = useSelector(selectTab);
   const stocks = useSelector(selectStocks);
   const sort = useSelector(selectSort);
 
@@ -92,10 +94,10 @@ const Table = () => {
     }
   }, [stocks]);
 
+  if (tab != "recent") return null;
   if (error) return <Error statusCode={404} />;
-  if (loading) return <Unavailable type="loading" />;
   if (stocks.length <= 0) return <Unavailable type="stocks" cik={cik} />;
-  console.log(stocks);
+
   return (
     <div className={styles["table-container"]}>
       <Sort />

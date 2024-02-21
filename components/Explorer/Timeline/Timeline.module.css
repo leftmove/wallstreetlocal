@@ -1,0 +1,12 @@
+.timeline-select {
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+
+  padding: 3px;
+  border-radius: 5px;
+  width: fit-content;
+
+  background-color: var(--offwhite-dark);
+  transition: width 0.3s ease;
+}

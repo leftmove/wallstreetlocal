@@ -1,3 +1,35 @@
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  font-size: 3rem;
+  margin-top: 50px;
+}
+
+.header {
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 10px;
+}
+
+.main-header-text {
+  font-size: 3rem;
+  color: var(--secondary);
+}
+
+.loading {
+  height: 100vh;
+}
+
 .sub-header {
   display: flex;
   flex-direction: column;
@@ -35,5 +67,6 @@
 }
 
 .header-desc {
+  text-indent: 20px;
   margin-top: 10px;
 }

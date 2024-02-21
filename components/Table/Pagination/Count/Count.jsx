@@ -17,7 +17,7 @@ const Count = () => {
 
   useEffect(() => {
     setPageCount(realPageCount);
-  }, realPageCount);
+  }, [realPageCount]);
 
   const handleBlur = () => {
     if (pageCount >= 1 && pageCount <= totalPageCount) {

@@ -1,4 +1,4 @@
-import { createSlice, current } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { HYDRATE } from "next-redux-wrapper";
 
 const initialDate = new Date();
@@ -132,6 +132,7 @@ const initialState = {
         "The report date listed on the SEC filing this stock was taken from.",
     },
   ],
+  tab: "recent",
   sort: {
     sort: "ticker",
     type: "string",
@@ -142,6 +143,11 @@ const initialState = {
     pagination: 100,
     count: 0,
     offset: 0,
+  },
+  filings: [],
+  timeline: {
+    access: "",
+    open: false,
   },
   dates: [
     {
@@ -154,15 +160,6 @@ const initialState = {
     },
   ],
 };
-const convertUnknown = (a, b) => {
-  if (a === undefined || a === "NA") {
-    return -1;
-  } else if (b === undefined || b === "NA") {
-    return 1;
-  } else {
-    return null;
-  }
-};
 
 export const filerSlice = createSlice({
   name: "filer",
@@ -170,6 +167,12 @@ export const filerSlice = createSlice({
   reducers: {
     setCik(state, action) {
       state.cik = action.payload;
+
+      return state;
+    },
+    setTab(state, action) {
+      const payload = action.payload;
+      state.tab = payload;
 
       return state;
     },
@@ -402,7 +405,6 @@ export const filerSlice = createSlice({
     },
     setPagination(state, action) {
       state.sort.pagination = action.payload;
-      state.sort.offset = 0;
       return state;
     },
     setCount(state, action) {
@@ -424,6 +426,24 @@ export const filerSlice = createSlice({
       }
       return state;
     },
+    setFilings(state, action) {
+      const payload = action.payload;
+
+      state.filings = payload;
+      return state;
+    },
+    setAccess(state, action) {
+      const payload = action.payload;
+
+      state.timeline.access = payload;
+      return state;
+    },
+    setOpen(state) {
+      const open = state.timeline.open;
+
+      state.timeline.open = !open;
+      return state;
+    },
     [HYDRATE]: (state, action) => {
       return {
         ...state,
@@ -434,6 +454,7 @@ export const filerSlice = createSlice({
 });
 
 export const selectCik = (state) => state.filer.cik;
+export const selectTab = (state) => state.filer.tab;
 export const selectSort = (state) => state.filer.sort;
 export const selectActive = (state) => state.filer.sort.set;
 export const selectSold = (state) => state.filer.sort.sold;
@@ -445,46 +466,6 @@ export const selectStocks = (state) => {
 
   if (!next) return next;
 
-  // if (sort.set) {
-  //   next = next.filter((obj, pos, arr) => {
-  //     return arr.map((mapObj) => mapObj.ticker).indexOf(obj.ticker) === pos;
-  //   });
-  // }
-
-  // if (sort.sold == false) {
-  //   next = next.filter((s) => s.sold == false);
-  // }
-
-  // if (sort.na == false) {
-  //   next = next.filter((s) => s[accessor] != "NA");
-  // }
-
-  // if (sort.type == "string") {
-  //   next = next.sort((a, b) => {
-  //     a = a[accessor];
-  //     b = b[accessor];
-  //     const unknown = convertUnknown(a, b);
-  //     if (unknown === null) {
-  //       return a.localeCompare(b);
-  //     } else return unknown;
-  //   });
-  // }
-
-  // if (sort.type == "number") {
-  //   next = next.sort((a, b) => {
-  //     a = a[accessor];
-  //     b = b[accessor];
-  //     const unknown = convertUnknown(a, b);
-  //     if (unknown === null) {
-  //       return a - b;
-  //     } else return unknown;
-  //   });
-  // }
-
-  // if (sort.reverse) {
-  //   next = next.reverse();
-  // }
-
   return next;
 };
 export const selectDates = (state) =>
@@ -495,8 +476,11 @@ export const selectPagination = (state) => {
   const sort = state.filer.sort;
   return { limit: sort.pagination, offset: sort.offset, count: sort.count };
 };
+export const selectTimeline = (state) => state.filer.timeline;
+
 export const {
   setCik,
+  setTab,
   activateHeader,
   addHeader,
   editHeader,
@@ -518,6 +502,9 @@ export const {
   setPagination,
   setCount,
   setOffset,
+  setAccess,
+  setFilings,
+  setOpen,
 } = filerSlice.actions;
 
 export default filerSlice.reducer;

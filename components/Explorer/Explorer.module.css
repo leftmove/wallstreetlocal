@@ -1,0 +1,41 @@
+.explorer-container {
+  margin: 20px;
+}
+
+.explorer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  border-radius: 5px;
+  max-height: 30px;
+
+  transition: background-color 0.3s ease;
+}
+
+.explorer-expanded {
+  max-height: 1000px;
+  background-color: var(--offwhite-dark);
+}
+
+.explorer-button {
+  cursor: pointer;
+  background: none;
+  outline: none;
+  border: none;
+
+  height: 20px;
+  color: var(--secondary-dark);
+  transition: color 0.3s ease;
+}
+
+.explorer-button:hover {
+  color: var(--primary-dark);
+}
+
+.explorer-icon {
+  width: 100%;
+  height: 100%;
+
+  color: inherit;
+}
