@@ -667,11 +667,21 @@ def sort_and_format(filer_ciks):
             filers.append(filer)
 
     try:
+        filers_sorted = [
+            {
+                **filer,
+                "market_value": (
+                    0
+                    if filer.get("market_value") == "NA"
+                    or not filer.get("market_value")
+                    else filer.get("market_value")
+                ),
+            }
+            for filer in filers
+        ]
         filers_sorted = sorted(
-            filers,
-            key=lambda c: (
-                c.get("market_value", 0) if c.get("market_value") != "NA" else 0
-            ),
+            filers_sorted,
+            key=lambda c: c["market_value"],
             reverse=True,
         )
         for filer in filers_sorted:
@@ -680,7 +690,7 @@ def sort_and_format(filer_ciks):
             )
             market_value = filer.get("market_value", 0)
             filer["market_value"] = (
-                f"${int(filer['market_value']):,}" if market_value > 0 else "NA"
+                f"${int(market_value):,}" if market_value > 0 else "NA"
             )
             filer.pop("_id", None)
         return filers_sorted
