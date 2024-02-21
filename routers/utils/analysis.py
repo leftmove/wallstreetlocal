@@ -2,6 +2,7 @@ from datetime import datetime
 import csv
 import json
 import re
+from traceback import format_exc
 
 from . import database
 from . import api
@@ -680,7 +681,8 @@ def sort_and_format(filer_ciks):
             filer.pop("_id", None)
         return filers_sorted
     except Exception as e:
-        print(e)
+        traceback = format_exc()
+        print(e, traceback)
         raise KeyError
 
 

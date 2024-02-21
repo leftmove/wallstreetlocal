@@ -31,18 +31,6 @@ async def query_stocks(cik: str, background: BackgroundTasks):
     return {"description": "Stocks started updating."}
 
 
-# @router.post("/info", tags=["stocks"], status_code=200)
-# async def stock_info(stock: Cusip):
-
-#     cusip_list = stock.cusip
-#     results = {}
-
-#     cursor = database.find_stocks('cusip', {'$in': cusip_list})
-#     async for document in cursor:
-#         cusip = document['cusip']
-#         results[cusip] = document
-
-
 @cache
 @router.get("/info", tags=["stocks", "filers"], status_code=200)
 async def stock_info(
