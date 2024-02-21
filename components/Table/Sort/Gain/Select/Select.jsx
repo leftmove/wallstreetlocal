@@ -86,37 +86,6 @@ const Select = (props) => {
       dispatch(editHeader({ accessor: accessor, display: display }));
     }
   }, [open, data, accessor, dispatch, date]);
-  // useEffect(() => {
-  //   if (open) return;
-
-  //   axios
-  //     .get(server + "/stocks/timeseries", { params: { cik: cik, time: time } })
-  //     // .then((r) => r.data)
-  //     .then((r) => {
-  //       const url = axios.getUri({
-  //         url: "api/stocks/timeseries",
-  //         params: { cik: cik, time: time },
-  //       });
-  //       console.log(url);
-  //       return r.data;
-  //     })
-  //     .then((data) => {
-  //       const timeseries = {};
-  //       data.stocks.forEach((price) => {
-  //         const close = price.close_str;
-  //         const cusip = price.cusip;
-  //         timeseries[cusip] = close;
-  //       });
-
-  //       dispatch(
-  //         updateStocks({
-  //           field: accessor,
-  //           values: timeseries,
-  //         })
-  //       );
-  //     })
-  //     .catch((e) => console.error(e));
-  // }, [date, open, cik, time, dispatch, accessor]);
 
   const {
     attributes,
@@ -162,11 +131,6 @@ const Select = (props) => {
         new URLSearchParams({ cik, time }),
       "_blank"
     );
-    // setDownload("loading");
-    // axios
-    //   .get(server + "/filer/record", { params: { cik: cik } })
-    //   .then(() => setDownload(""))
-    //   .catch((e) => console.error(e));
   };
 
   if (error) {
@@ -182,17 +146,6 @@ const Select = (props) => {
       {...attributes}
     >
       {loading ? <Loading /> : null}
-      {/* <div className={styles["plus-minus"]}>
-          <button
-            className={styles["date-button"]}
-            onClick={() => handleRemove()}
-          >
-            <Minus />
-          </button>
-          <button className={styles["date-button"]} onClick={() => handleAdd()}>
-            <Plus />
-          </button>
-        </div> */}
       <Picker date={date} index={index} />
       <button
         className={[

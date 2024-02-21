@@ -33,10 +33,10 @@ const Header = (props) => {
     <button
       key={header.display}
       className={[
-        styles["filter-item"],
-        header.active ? styles["filter-clicked"] : "",
-        fixed ? styles["filter-fixed"] : "",
-        !fixed && isDragging ? styles["filter-dragging"] : "",
+        styles["header-item"],
+        header.active ? styles["header-clicked"] : "",
+        fixed ? styles["header-fixed"] : "",
+        !fixed && isDragging ? styles["header-dragging"] : "",
       ].join(" ")}
       onClick={() => activate()}
       style={count ? { ...style, width: `calc(100% / ${count})` } : style}
@@ -46,7 +46,7 @@ const Header = (props) => {
       {...attributes}
       ref={setNodeRef}
     >
-      <span className={[font.className, styles["filter-text"]].join(" ")}>
+      <span className={[font.className, styles["header-text"]].join(" ")}>
         {header.display}
       </span>
     </button>

@@ -1,4 +1,4 @@
-.filter-item {
+.header-item {
   all: unset;
   cursor: pointer;
   user-select: none;
@@ -14,7 +14,7 @@
     opacity 0.2s ease;
 }
 
-.filter-text {
+.header-text {
   text-align: center;
   font-size: 0.8rem;
   color: var(--white);
@@ -22,14 +22,14 @@
   transition: color 0.2s ease;
 }
 
-.filter-item:hover .filter-text {
+.header-item:hover .header-text {
   color: var(--offwhite);
 }
 
-.filter-clicked {
+.header-clicked {
   background-color: var(--primary-dark);
 }
 
-.filter-fixed {
+.header-fixed {
   width: 50%;
 }

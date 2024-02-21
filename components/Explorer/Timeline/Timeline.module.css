@@ -1,3 +1,27 @@
+.timeline-container {
+  border-radius: 5px;
+  max-height: 30px;
+  padding: 20px;
+  overflow-y: hidden;
+
+  transition-property: max-height, background-color;
+  transition-duration: 0.3s;
+  transition-timing-function: cubic-bezier(1, 1, 1, 1);
+}
+
+.timeline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 20px;
+}
+
+.timeline-expanded {
+  max-height: 400px;
+  background-color: var(--offwhite-dark);
+}
+
 .timeline-select {
   display: flex;
   justify-content: center;
@@ -5,8 +29,39 @@
 
   padding: 3px;
   border-radius: 5px;
+  margin-bottom: 10px;
   width: fit-content;
 
   background-color: var(--offwhite-dark);
-  transition: width 0.3s ease;
+  transition: background-color 0.3s ease;
+}
+
+.timeline-button {
+  cursor: pointer;
+  background: none;
+  outline: none;
+  border: none;
+
+  height: 20px;
+  color: var(--secondary-dark);
+  transition: color 0.3s ease;
+}
+
+.timeline-button:hover {
+  color: var(--primary-dark);
+}
+
+.timeline-icon {
+  width: 100%;
+  height: 100%;
+
+  color: inherit;
+}
+
+.timeline-selects {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: 100%;
 }

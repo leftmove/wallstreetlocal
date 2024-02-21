@@ -1,5 +1,5 @@
 import styles from "./Header.module.css";
-import tableStyles from "../Table.module.css";
+import tableStyles from "@/components/Table/Table.module.css";
 
 import { useDispatch, useSelector } from "react-redux";
 import { selectHeaders, selectSort, sortHeader } from "@/redux/filerSlice";

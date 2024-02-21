@@ -5,17 +5,16 @@ import axios from "axios";
 import useSWR from "swr";
 
 import { useDispatch, useSelector } from "react-redux";
-import { selectCik } from "@/redux/filerSlice";
-
 import {
+  selectCik,
   selectTab,
-  selectTimeline,
+  selectPrimary,
   setFilings,
-  setAccess,
+  selectTimeline,
+  setPrimary,
+  setSecondary,
+  selectSecondary,
 } from "@/redux/filerSlice";
-
-import LeftIcon from "@/public/static/right.svg";
-import RightIcon from "@/public/static/left.svg";
 
 import Timeline from "./Timeline/Timeline";
 
@@ -35,8 +34,10 @@ const Explorer = () => {
   const cik = useSelector(selectCik);
   const tab = useSelector(selectTab);
   const timeline = useSelector(selectTimeline);
+  const primary = useSelector(selectPrimary);
 
   const open = timeline.open;
+  const access = primary.access;
 
   const {
     data,
@@ -55,10 +56,13 @@ const Explorer = () => {
     if (data) {
       const filings = data.filings;
       dispatch(setFilings(filings));
-      if (timeline.access == "") {
+      if (access == "") {
         const firstFiling = filings[0];
-        const accessNumber = firstFiling.access_number;
-        dispatch(setAccess(accessNumber));
+        const secondFiling = filings[1];
+        const firstAccess = firstFiling.access_number;
+        const secondAccess = secondFiling.access_number;
+        dispatch(setPrimary({ access: firstAccess }));
+        dispatch(setSecondary({ access: secondAccess }));
       }
     }
   }, [data]);
@@ -67,20 +71,7 @@ const Explorer = () => {
 
   return (
     <div className={styles["explorer-container"]}>
-      <div
-        className={[
-          styles["explorer"],
-          open ? styles["explorer-expanded"] : "",
-        ].join(" ")}
-      >
-        <button className={styles["explorer-button"]}>
-          <LeftIcon className={styles["explorer-icon"]} />
-        </button>
-        <Timeline />
-        <button className={styles["explorer-button"]}>
-          <RightIcon className={styles["explorer-icon"]} />
-        </button>
-      </div>
+      <Timeline />
     </div>
   );
 };

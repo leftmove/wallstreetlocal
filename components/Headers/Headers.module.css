@@ -1,0 +1,34 @@
+.headers-description {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+
+  height: fit-content;
+  text-align: center;
+
+  transition: height 0.3s ease;
+}
+
+.headers-text {
+  font-size: 0.8rem;
+  text-wrap: wrap;
+}
+
+.headers-body {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+
+  margin-bottom: 0px;
+  border-radius: 5px;
+}
+
+.headers-container {
+  display: flex;
+  width: 100%;
+}
+
+.headers-buttons {
+  display: flex;
+  width: 100%;
+}
