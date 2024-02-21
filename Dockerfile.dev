@@ -8,7 +8,6 @@ COPY main.py ./main.py
 COPY start.py ./start.py
 
 COPY routers ./routers
-COPY public ./public
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 # ENTRYPOINT ["sh", "-c", "source ./entrypoint.sh", "-s"]
