@@ -319,8 +319,20 @@ async def logs(cik: str, start: int = 0):
         for raw_log in log["logs"]:
             logs.extend(raw_log.split("\n"))
 
+        if calculate_skip:
+            cursor = database.search_logs(
+                [
+                    {"$match": {"cik": cik}},
+                    {"$project": {"count": {"$size": ["$logs"]}}},
+                ]
+            )
+            result = next(cursor)
+            start = result["count"]
+
         if filer_status == 2:
-            return JSONResponse(status_code=200, content={"logs": logs, "time": time})
+            return JSONResponse(
+                status_code=200, content={"logs": logs, "time": time, "skip": start}
+            )
 
         count = len(logs)
         log["count"] = count
@@ -333,13 +345,6 @@ async def logs(cik: str, start: int = 0):
         elapsed = datetime.now().timestamp() - log["start"]
         remaining = required - elapsed if filer_status <= 3 else 0
 
-        if calculate_skip:
-            cursor = database.search_filers(
-                [{"$match": {"cik": cik}}, {"$project": {"count": {"$size": "$logs"}}}]
-            )
-            result = next(cursor)
-            start = result["count"]
-
         log["time"]["elapsed"] = elapsed
         log["time"]["remaining"] = remaining
 
@@ -348,7 +353,7 @@ async def logs(cik: str, start: int = 0):
         return {
             "logs": logs,
             "time": time,
-            "skipped": start,
+            "skip": start,
             "status": filer_status,
         }
 

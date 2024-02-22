@@ -140,6 +140,11 @@ def edit_specific_log(query, value):
     logs.update_one(query, value)
 
 
+def search_logs(pipeline):
+    cursor = logs.aggregate(pipeline)
+    return cursor
+
+
 def delete_logs(query):
     logs.delete_many(query)
 
@@ -156,11 +161,6 @@ def find_logs(project={"_id": 0}):
 
 def watch_logs(pipeline):
     cursor = main.watch(pipeline)
-    return cursor
-
-
-def aggregate_filers(pipeline):
-    cursor = main.aggregate(pipeline)
     return cursor
 
 
