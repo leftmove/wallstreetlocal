@@ -17,5 +17,6 @@ development.test.py
 
 /proxy/letsencrypt
 /proxy/data
+common
 
 docker-proj.zip

@@ -419,7 +419,8 @@ async def record(cik: str):
         raise HTTPException(404, detail="Filer not found.")
 
     filename = f"wallstreetlocal-{cik}.json"
-    file_path = analysis.create_json(cik, filename)
+    filer = database.search_filer(cik, {"_id": 0, "stocks.timeseries": 0})
+    file_path = analysis.create_json(filer, filename)
 
     return FileResponse(
         file_path, media_type="application/octet-stream", filename=filename
@@ -434,15 +435,21 @@ async def record_csv(cik: str, headers: str = None):
         raise HTTPException(404, detail="Filer not found.")
 
     if headers:
-        header_string = headers
         try:
-            headers = json.loads(header_string)
+            headers_string = headers
+            headers = json.loads(headers)
+            header_hash = hash(headers_string)
+            file_name = f"wallstreetlocal-{cik}{header_hash}.csv"
         except:
             raise HTTPException(
                 status_code=422, detail="Malformed headers, unable to process request."
             )
+    else:
+        file_name = f"wallstreetlocal-{cik}.csv"
 
-    file_path, filename = analysis.create_csv(cik, headers)
+    filer = database.find_filer(cik, {"stocks": 1})
+    stock_list = filer["stocks"]
+    file_path, filename = analysis.create_csv(stock_list, file_name, headers)
 
     return FileResponse(
         file_path, media_type="application/octet-stream", filename=filename
@@ -526,6 +533,55 @@ async def partial_record(cik: str, time: float):
 
 
 @cache(24)
+@router.get("/record/filing", tags=["filers", "records"], status_code=200)
+async def record_filing(cik: str, access_number):
+    filer = database.find_filer(cik, {"_id": 1})
+    if filer == None:
+        raise HTTPException(404, detail="Filer not found.")
+
+    filer_query = f"filings.{access_number}"
+    filer = database.find_filer(cik, {filer_query: 1})
+    filing = filer["filings"][access_number]
+
+    filename = f"wallstreetlocal-{cik}-{access_number}.json"
+    file_path = analysis.create_json(filing, filename)
+
+    return FileResponse(
+        file_path, media_type="application/octet-stream", filename=filename
+    )
+
+
+@cache(24)
+@router.get("/record/filingcsv", tags=["filers", "records"], status_code=200)
+async def record_filing_csv(cik: str, access_number: str, headers: str = None):
+    filer = database.find_filer(cik, {"_id": 1})
+    if filer == None:
+        raise HTTPException(404, detail="Filer not found.")
+
+    if headers:
+        try:
+            headers_string = f"{headers}-{access_number}"
+            headers = json.loads(headers)
+            header_hash = hash(headers_string)
+            file_name = f"wallstreetlocal-{cik}{header_hash}.csv"
+        except:
+            raise HTTPException(
+                status_code=422, detail="Malformed headers, unable to process request."
+            )
+    else:
+        file_name = f"wallstreetlocal-{cik}-{access_number}.csv"
+
+    filer_query = f"filings.{access_number}"
+    filer = database.find_filer(cik, {filer_query: 1})
+    stock_list = filer["filings"][access_number]["stocks"]
+
+    file_path, filename = analysis.create_csv(stock_list, file_name, headers)
+    return FileResponse(
+        file_path, media_type="application/octet-stream", filename=filename
+    )
+
+
+@cache(24)
 @router.get("/top", status_code=200)
 async def top():
     with open("./public/top.json") as t:
@@ -570,20 +626,6 @@ def create_filer_try(cik):
             error_string = f"Failed to Query Filer {cik}\n{repr(e)}\n{format_exc()}"
             f.write(error_string)
         print("Error Occured\n", e)
-
-
-# @cache(24)
-# @router.get("/top/update", status_code=200, include_in_schema=False)
-# async def update_top(password: str, background: BackgroundTasks):
-#     if password != "whale":
-#         return {}
-
-#     with open("./public/top.json") as t:
-#         filer_ciks = json.load(t)
-
-#     background.add_task(create_filer_try, filer_ciks)
-
-#     return {"message": "Filers updating."}
 
 
 @router.get("/hang", status_code=200, include_in_schema=False)

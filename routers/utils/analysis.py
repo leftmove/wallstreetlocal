@@ -536,17 +536,16 @@ def stock_filter(stocks):
         stock_list.append(stock)
 
 
-def create_json(cik, filename):
+def create_json(content, filename):
     file_path = f"./public/filers/{filename}"
     try:
-        with open(file_path, "r") as f:
+        with open(file_path, "r") as f:  # @IgnoreException
             filer_json = json.load(f)
             if (datetime.now().timestamp() - filer_json["updated"]) > 60 * 60 * 3:
                 raise ValueError
     except:
-        filer = database.search_filer(cik, {"_id": 0, "stocks.timeseries": 0})
         with open(file_path, "w") as r:
-            json.dump(filer, r, indent=6)
+            json.dump(content, r, indent=6)
 
     return file_path
 
@@ -599,31 +598,20 @@ def create_dataframe(global_stocks, headers=None):
     return csv_data
 
 
-def create_csv(cik, headers=None):
+def create_csv(content, file_name, headers=None):
 
-    file_path = "./public/filers/"
-    if not headers:
-        file_name = f"wallstreetlocal-{cik}.csv"
-    else:
-        header_string = json.dumps(headers)
-        header_hash = hash(header_string)
-        file_name = f"wallstreetlocal-{cik}{header_hash}.csv"
-    file_path = file_path + file_name
-
+    file_path = f"./public/filers/{file_name}"
     try:
-        with open(file_path, "r") as c:
+        with open(file_path, "r") as c:  # @IgnoreException
             first_line = c.readline()
             if "Recent Price" in first_line or "% Gain" in first_line:
                 value = cache.get_key(file_path)
                 if not value:
                     expire_time = 60 * 60 * 24 * 3
-                    cache.set_key(file_path, expire_time, "bababooey")
+                    cache.set_key(file_path, "bababooey", expire_time)
                     raise ValueError
     except:
-        filer = database.find_filer(cik, {"stocks": 1})
-        global_stocks = filer["stocks"]
-        stock_list = create_dataframe(global_stocks, headers)
-
+        stock_list = create_dataframe(content, headers)
         with open(file_path, "w") as f:
             writer = csv.writer(f)
             for stock in stock_list:

@@ -4,14 +4,14 @@ services:
     build:
       dockerfile: Dockerfile.prod
     restart: always
-    networks:
-      - staging
     depends_on:
       - database
       - cache
       - search
     volumes:
       - ./public:/code/public
+    networks:
+      - staging
   cache:
     container_name: cache
     build:
@@ -25,11 +25,11 @@ services:
     build:
       context: ./database
       dockerfile: Dockerfile
+    networks:
+      - staging
     volumes:
       - ./database/main_db:/data/db
     restart: always
-    networks:
-      - staging
   search:
     container_name: search
     build:
@@ -37,10 +37,9 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./search/search_db:/meili_data
-    restart: always
     networks:
       - staging
-
+    restart: always
   proxy:
     container_name: proxy
     image: jc21/nginx-proxy-manager:2.9.21
