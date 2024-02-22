@@ -292,6 +292,13 @@ async def search_filers(q: str, limit: int = 4):
 @router.get("/logs", status_code=202)
 async def logs(cik: str, start: int = 0):
     try:
+
+        if start == 0:
+            calculate_skip = True
+            start = -10
+        else:
+            calculate_skip = False
+
         log = database.find_log(
             cik,
             {
@@ -326,6 +333,13 @@ async def logs(cik: str, start: int = 0):
         elapsed = datetime.now().timestamp() - log["start"]
         remaining = required - elapsed if filer_status <= 3 else 0
 
+        if calculate_skip:
+            cursor = database.search_filers(
+                [{"$match": {"cik": cik}}, {"$project": {"count": {"$size": "$logs"}}}]
+            )
+            result = next(cursor)
+            start = result["count"]
+
         log["time"]["elapsed"] = elapsed
         log["time"]["remaining"] = remaining
 
@@ -334,6 +348,7 @@ async def logs(cik: str, start: int = 0):
         return {
             "logs": logs,
             "time": time,
+            "skipped": start,
             "status": filer_status,
         }
 
