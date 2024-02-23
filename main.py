@@ -9,12 +9,15 @@ from opentelemetry.sdk.resources import SERVICE_NAME, Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
+import os
 from dotenv import load_dotenv
 
+load_dotenv(".env")
+
 environment = os.environ["ENVIRONMENT"]
+attributes = os.environ["OTEL_RESOURCE_ATTRIBUTES"]
 endpoint = os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"]
 
-load_dotenv(".env")
 
 from routers import general
 from routers import filer
@@ -33,7 +36,8 @@ app.include_router(stocks.router)
 if environment == "production":
     FastAPIInstrumentor.instrument_app(app)
     resource = Resource(attributes={
-        SERVICE_NAME: "fastapi"
+        "service.name": attributes,
+        "instance_id": os.getpid()
     })
     provider = TracerProvider(resource=resource)
     processor = BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint))
