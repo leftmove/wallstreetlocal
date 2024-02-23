@@ -5,13 +5,14 @@ import os
 import json
 
 from .utils import database
-from .utils.cache import cache
-from .utils.backup import backup_collections
-from .utils.analysis import end_dangling
+from .utils import cache as cm
+from .utils import backup
+from .utils import analysis
+from .utils import start
 
 from .filer import create_filer_try
 
-
+cache = cm.cache
 router = APIRouter(
     tags=["general"],
 )
@@ -19,7 +20,21 @@ router = APIRouter(
 
 @router.on_event("startup")
 async def startup():
-    end_dangling()
+
+    startup_key = "startup-process"
+    value = cm.get_key(startup_key)
+    if value == "running":
+        return
+    else:
+        if value == "stopped":
+            return
+
+    cm.set_key_no_expiration(startup_key, "running")
+
+    analysis.end_dangling()
+    start.initialize()
+
+    cm.set_key_no_expiration(startup_key, "stopped")
 
 
 @cache(24)
@@ -36,11 +51,11 @@ async def info_undefined():
 
 @cache
 @router.get("/backup", status_code=200)
-async def backup(password: str, background: BackgroundTasks):
+async def backup_database(password: str, background: BackgroundTasks):
     if password != os.environ["ADMIN_PASSWORD"]:
         raise HTTPException(detail="Unable to give access.", status_code=403)
 
-    background.add_task(backup_collections)
+    background.add_task(backup.backup_collections)
     return {"message": "Backup started."}
 
 
