@@ -54,7 +54,8 @@ services:
     networks:
       - staging
       - telemetry
-      - host
+    extra_hosts:
+      - host.docker.internal:host-gateway
     depends_on:
       - backend
 
