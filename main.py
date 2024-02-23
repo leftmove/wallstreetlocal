@@ -12,7 +12,8 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from dotenv import load_dotenv
 
 environment = os.environ["ENVIRONMENT"]
-endpoint = os.environ["TEL_EXPORTER_OTLP_ENDPOINT"]
+endpoint = os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"]
+
 load_dotenv(".env")
 
 from routers import general
