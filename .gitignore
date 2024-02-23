@@ -18,6 +18,5 @@ development.test.py
 /proxy/letsencrypt
 /proxy/data
 
-!/telemetry/*
 
 docker-proj.zip
