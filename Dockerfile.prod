@@ -11,6 +11,10 @@ COPY ./routers /code/routers
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 RUN opentelemetry-bootstrap --action=install
 
+ENV OTEL_RESOURCE_ATTRIBUTES "service.name=fastapi"
+ENV OTEL_EXPORTER_OTLP_ENDPOINT "http://otel-collector:4317"
+ENV OTEL_EXPORTER_OTLP_PROTOCOL "grpc"
+
 EXPOSE 8000
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--forwarded-allow-ips", "*"]
