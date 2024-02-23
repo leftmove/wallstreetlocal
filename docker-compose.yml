@@ -12,6 +12,7 @@ services:
       - ./public:/code/public
     networks:
       - staging
+      - telemetry
   cache:
     container_name: cache
     build:
@@ -58,3 +59,6 @@ services:
 networks:
   staging:
     driver: bridge
+  telemetry:
+    external: true
+    name: clickhouse-setup_default
