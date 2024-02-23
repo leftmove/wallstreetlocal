@@ -53,6 +53,7 @@ services:
       - ./proxy/letsencrypt:/etc/letsencrypt
     networks:
       - staging
+      - telemetry
     depends_on:
       - backend
 

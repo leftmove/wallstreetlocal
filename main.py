@@ -2,12 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 
-# from opentelemetry import trace
-# from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-# from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-# from opentelemetry.sdk.resources import SERVICE_NAME, Resource
-# from opentelemetry.sdk.trace import TracerProvider
-# from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 
 from dotenv import load_dotenv
 
@@ -27,11 +22,4 @@ app.include_router(general.router)
 app.include_router(filer.router)
 app.include_router(stocks.router)
 
-# FastAPIInstrumentor.instrument_app(app)
-# resource = Resource(attributes={
-#     SERVICE_NAME: "fastapi"
-#   })
-# provider = TracerProvider(resource=resource)
-# processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://host.docker.internal:4317"))
-# provider.add_span_processor(processor)
-# trace.set_tracer_provider(provider)
+FastAPIInstrumentor.instrument_app(app)
