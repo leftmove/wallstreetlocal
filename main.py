@@ -34,7 +34,7 @@ app.include_router(filer.router)
 app.include_router(stocks.router)
 
 if environment == "production":
-    FastAPIInstrumentor.instrument_app(app)
+    FastAPIInstrumentor().instrument_app(app)
     resource = Resource(attributes={
         "service.name": attributes,
         "instance_id": os.getpid()
