@@ -1,14 +1,16 @@
-from datetime import datetime
 import csv
 import json
 import re
+import logging
+
 from traceback import format_exc
+from datetime import datetime
 
 from . import database
 from . import api
 from . import cache
 
-print("[ Analysis Initializing ] ...")
+logging.info("[ Analysis Initializing ] ...")
 
 
 def convert_date(date_str):
@@ -414,7 +416,7 @@ def analyze_filings(cik, filings):
 
                 yield stock_query, filing_stock
             except Exception as e:
-                print(e)
+                logging.error(e)
                 database.add_log(
                     cik, "Error Querying Stock for Filings", cusip, access_number
                 )
@@ -503,7 +505,7 @@ def analyze_stocks(cik, filings, historical_cache=None):
 
                 yield stock_query, log_stock
             except Exception as e:
-                print(e)
+                logging.error(e)
                 database.add_log(
                     cik, "Error Analyzing Stock for Filings", cusip, access_number
                 )
@@ -683,8 +685,8 @@ def sort_and_format(filer_ciks):
             filer.pop("_id", None)
         return filers_sorted
     except Exception as e:
-        print(e)
+        logging.error(e)
         raise KeyError
 
 
-print("[ Analysis Initialized ]")
+logging.info("[ Analysis Initialized ]")

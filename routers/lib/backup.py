@@ -1,11 +1,14 @@
 import bson
 import requests
+import os
 
 from pymongo import MongoClient
-from .database import MONGO_SERVER_URL
+
+MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
 
 
 def backup_collections():
+
     backup_client = MongoClient(MONGO_SERVER_URL)
     collections = ["companies", "filers"]
 

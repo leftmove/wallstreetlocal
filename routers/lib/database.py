@@ -2,11 +2,14 @@ from pymongo import MongoClient
 from opentelemetry.instrumentation.pymongo import PymongoInstrumentor
 
 import os
+import logging
+
 from datetime import datetime
+
 
 ENVIRONMENT = os.environ["ENVIRONMENT"]
 MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
-print("[ Database (MongoDB) Initializing ] ...")
+logging.info("[ Database (MongoDB) Initializing ] ...")
 
 if ENVIRONMENT == "production":
     PymongoInstrumentor().instrument()
@@ -181,7 +184,7 @@ def add_query_log(cik, query):
             }
             statistics.insert_one(query_log)
     except Exception as e:
-        print(e)
+        logging.error(e)
 
 
 # def search_sec(pipeline):
@@ -189,4 +192,4 @@ def add_query_log(cik, query):
 #     return cursor
 
 
-print("[ Database (MongoDB) Initialized ]")
+logging.info("[ Database (MongoDB) Initialized ]")

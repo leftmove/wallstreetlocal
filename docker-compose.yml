@@ -1,10 +1,26 @@
+x-logging: &default-logging
+  driver: loki 
+  options:
+    loki-url: 'http://localhost:3100/api/prom/push'
+    loki-pipeline-stages: |
+      - multiline:
+          firstline: '^\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2}'
+          max_wait_time: 3s
+      - regex:
+          expression: '^(?P<time>\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2},d{3}) (?P<message>(?s:.*))$$'
+
+version: "3.4"
+
 services:
+
+  # Main Services
   backend:
     container_name: backend
     build:
       dockerfile: Dockerfile.prod
     restart: always
     depends_on:
+      - aggregation
       - database
       - cache
       - search
@@ -12,7 +28,10 @@ services:
       - ./public:/code/public
     networks:
       - staging
-      - telemetry
+    logging: *default-logging
+    ports:
+      - 8000:8000
+
   cache:
     container_name: cache
     build:
@@ -21,6 +40,7 @@ services:
     restart: always
     networks:
       - staging
+
   database:
     container_name: database
     build:
@@ -31,6 +51,7 @@ services:
     volumes:
       - ./database/main_db:/data/db
     restart: always
+
   search:
     container_name: search
     build:
@@ -41,6 +62,9 @@ services:
     networks:
       - staging
     restart: always
+
+
+  # Reverse Proxy
   proxy:
     container_name: proxy
     image: jc21/nginx-proxy-manager:2.9.21
@@ -53,15 +77,64 @@ services:
       - ./proxy/letsencrypt:/etc/letsencrypt
     networks:
       - staging
-      - telemetry
     extra_hosts:
       - host.docker.internal:host-gateway
     depends_on:
       - backend
 
+
+  # Telemetry
+  aggregation:
+    container_name: aggregation
+    image: grafana/loki:2.9.3
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - 3100:3100
+    networks:
+      - staging
+  metrics:
+    container_name: metrics
+    image: prom/prometheus:v2.48.1
+    ports:
+      - 9090:9090
+    volumes:
+      - ./telemetry/etc/prometheus:/workspace
+    command:
+      - --config.file=/workspace/prometheus.yml
+      - --enable-feature=exemplar-storage
+    networks:
+      - staging
+    depends_on:
+      - aggregation
+    logging: *default-logging
+  trace:
+    container_name: trace
+    image: grafana/tempo:2.3.1
+    command: [ "--target=all", "--storage.trace.backend=local", "--storage.trace.local.path=/var/tempo", "--auth.enabled=false" ]
+    ports:
+      - 4317:4317
+      - 4318:4318
+    networks:
+      - staging
+    depends_on:
+      - aggregation
+    logging: *default-logging
+  visualization:
+    container_name: visualization
+    image: grafana/grafana:10.2.3
+    ports:
+      - 3000:3000
+    networks:
+      - staging
+    volumes:
+      - ./telemetry/etc/grafana/:/etc/grafana/provisioning/datasources
+      - ./telemetry/etc/dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml
+      - ./telemetry/etc/dashboards:/etc/grafana/dashboards
+    depends_on:
+      - aggregation
+      - metrics
+    logging: *default-logging
+
 networks:
   staging:
     driver: bridge
-  telemetry:
-    external: true
-    name: clickhouse-setup_default

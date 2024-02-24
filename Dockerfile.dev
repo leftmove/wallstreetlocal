@@ -1,17 +1,15 @@
-FROM python:3.9-alpine
+FROM python:3.9
 
-WORKDIR /code
+WORKDIR /app
 
-COPY .env.development ./.env.development
-COPY requirements.txt ./requirements.txt
-COPY main.py ./main.py
-COPY start.py ./start.py
+COPY ./.env.production /app/.env
+COPY ./requirements.txt /app/requirements.txt
+COPY ./main.py /app/main.py
 
-COPY routers ./routers
+COPY ./routers /app/routers
 
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
-# ENTRYPOINT ["sh", "-c", "source ./entrypoint.sh", "-s"]
+RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 
 EXPOSE 8000
 
-CMD ["python", "start.py", "development"]
+CMD ["python", "main.py"]

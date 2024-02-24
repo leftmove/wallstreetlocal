@@ -1,16 +1,17 @@
-import redis
 from opentelemetry.instrumentation.redis import RedisInstrumentor
+import redis
+
+import json
+import os
+import logging
 
 from functools import wraps
-import json
-
 from time import time
 from inspect import iscoroutinefunction
-import os
 
 REDIS_SERVER_URL = os.environ["REDIS_SERVER_URL"]
 ENVIRONMENT = os.environ["ENVIRONMENT"]
-print("[ Cache (Redis) Initializing ] ...")
+logging.info("[ Cache (Redis) Initializing ] ...")
 
 if ENVIRONMENT == "production":
     RedisInstrumentor().instrument()
@@ -24,7 +25,9 @@ def timing(f):
         ts = time()
         result = f(*args, **kw)
         te = time()
-        print("func:%r args:[%r, %r] took: %2.4f sec" % (f.__name__, args, kw, te - ts))
+        logging.info(
+            "func:%r args:[%r, %r] took: %2.4f sec" % (f.__name__, args, kw, te - ts)
+        )
         return result
 
     return wrap
@@ -117,4 +120,4 @@ def cache(_, hours=2):
     return wrapper
 
 
-print("[ Cache (Redis) Initialized ]")
+logging.info("[ Cache (Redis) Initialized ]")

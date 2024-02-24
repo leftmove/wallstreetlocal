@@ -1,14 +1,16 @@
 from bs4 import BeautifulSoup
 from datetime import datetime
+
 import lxml
 import cchardet
+import logging
 
 from . import database
 from . import api
 from . import analysis
 
 
-print("[ Data Initializing ] ...")
+logging.info("[ Data Initializing ] ...")
 
 parser = "lxml"
 
@@ -225,7 +227,7 @@ def process_keys(tickers, name, cik):
         try:
             stock_info = api.stock_request(name, cik)
         except (KeyError, IndexError, LookupError) as e:
-            print(f"Failed to get Name Data {name}\n{e}\n")
+            logging.info(f"Failed to get Name Data {name}\n{e}\n")
             stock_info = {}
     else:
         for ticker in tickers:
@@ -235,7 +237,7 @@ def process_keys(tickers, name, cik):
                 break
             except Exception as e:
                 stock_info = {}
-                print(e)
+                logging.error(e)
     return name, stock_info  # type: ignore
 
 
@@ -312,7 +314,7 @@ def process_stock(ticker, cusip, name, cik):
         stock_info = api.ticker_request("OVERVIEW", ticker, cik)
         stock_price = (api.ticker_request("GLOBAL_QUOTE", ticker, cik))["Global Quote"]
     except Exception as e:
-        print(e)
+        logging.error(e)
         return None
 
     if stock_info == {} and stock_price == {}:
@@ -531,7 +533,7 @@ def process_stocks(cik, filings, last_report):
             )
             yield access_number, new_stocks
         except Exception as e:
-            print(f"\nError Updating Stocks\n{e}\n--------------------------\n")
+            logging.info(f"\nError Updating Stocks\n{e}\n--------------------------\n")
             continue
 
 
@@ -553,7 +555,7 @@ def query_stocks(found_stocks):
             global_quote = price_info["Global Quote"]
             price = global_quote["05. price"]
         except Exception as e:
-            print(e)
+            logging.error(e)
             continue
 
         database.edit_stock(
@@ -570,7 +572,7 @@ def estimate_time(filings, cik):
             new_count = process_count_stocks(data, cik)
             stock_count += new_count  # type: ignore
         except Exception as e:
-            print(f"\nError Counting Stocks\n{e}\n--------------------------\n")
+            logging.info(f"\nError Counting Stocks\n{e}\n--------------------------\n")
             continue
 
     remaining = analysis.time_remaining(stock_count)
@@ -587,7 +589,7 @@ def estimate_time_newest(cik):
         data = api.sec_stock_search(cik=cik, access_number=last_report)
         stock_count = process_count_stocks(data, cik)
     except Exception as e:
-        print(f"\nError Counting Stocks\n{e}\n--------------------------\n")
+        logging.info(f"\nError Counting Stocks\n{e}\n--------------------------\n")
         raise
 
     log = database.find_log(cik, {"status": 1})
@@ -601,4 +603,4 @@ def estimate_time_newest(cik):
     return remaining
 
 
-print("[ Data Initialized ]")
+logging.info("[ Data Initialized ]")

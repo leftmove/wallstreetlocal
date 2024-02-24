@@ -4,11 +4,10 @@ from fastapi.responses import FileResponse
 import os
 import json
 
-from .utils import database
-from .utils import cache as cm
-from .utils import backup
-from .utils import analysis
-from .utils import start
+from .lib import database
+from .lib import cache as cm
+from .lib import backup
+from .lib import analysis
 
 from .filer import create_filer_try
 
@@ -28,11 +27,10 @@ async def startup():
     else:
         if value == "stopped":
             return
-
     cm.set_key_no_expiration(startup_key, "running")
 
+    # Run any startup code here.
     analysis.end_dangling()
-    start.initialize()
 
     cm.set_key_no_expiration(startup_key, "stopped")
 

@@ -2,18 +2,19 @@ from fastapi import BackgroundTasks, HTTPException, APIRouter
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
-from datetime import datetime
 import json
 import os
+import logging
 from traceback import format_exc
+from datetime import datetime
 
-from .utils import web
-from .utils import database
-from .utils import analysis
+from .lib import web
+from .lib import database
+from .lib import analysis
 
-from .utils.search import search_companies
-from .utils.api import sec_filer_search
-from .utils.cache import cache
+from .lib.search import search_companies
+from .lib.api import sec_filer_search
+from .lib.cache import cache
 
 
 class Filer(BaseModel):
@@ -83,7 +84,7 @@ def create_recent(cik, company, stamp):
 
         database.add_log(cik, "Queried Filer Recent Stocks", company_name, cik)
     except Exception as e:
-        print(e)
+        logging.error(e)
         raise HTTPException(status_code=500, detail="Error getting newest stocks.")
 
     try:
@@ -114,7 +115,7 @@ def create_recent(cik, company, stamp):
         )
         database.add_log(cik, "Failed to Update Filer Recent Stocks", company_name, cik)
         database.edit_status(cik, 2)
-        print(e)
+        logging.error(e)
 
     start = stamp["start"]
     stamp = {"time.elapsed": datetime.now().timestamp() - start}
@@ -142,7 +143,7 @@ def create_historical(cik, company, stamp):
 
         database.add_log(cik, "Queried Filer Historical Stocks", company_name, cik)
     except Exception as e:
-        print(e)
+        logging.error(e)
         database.add_log(
             cik, "Failed to Query Filer Historical Stocks", company_name, cik
         )
@@ -168,7 +169,7 @@ def create_historical(cik, company, stamp):
     except Exception as e:
         database.edit_filer(filer_query, {"$set": {"update": False}})
         database.add_log(cik, "Failed to Update Filer Recent Stocks")
-        print(e)
+        logging.error(e)
 
     start = stamp["start"]
     stamp = {"time.elapsed": datetime.now().timestamp() - start}
@@ -360,7 +361,7 @@ async def logs(cik: str, start: int = 0):
     except (IndexError, TypeError):
         raise HTTPException(404, detail="CIK not found.")
     except Exception as e:
-        print(e)
+        logging.error(e)
         raise HTTPException(500, detail="Error fetching logs.")
 
 
@@ -394,7 +395,7 @@ async def estimate(cik: str):
     except (IndexError, TypeError):
         raise HTTPException(404, detail="CIK not found.")
     except Exception as e:
-        print(e)
+        logging.error(e)
         raise HTTPException(500, detail="Error fetching time estimation.")
 
 
@@ -625,7 +626,7 @@ def create_filer_try(cik):
         with open(f"./public/errors/error-{stamp}.log", "w") as f:
             error_string = f"Failed to Query Filer {cik}\n{repr(e)}\n{format_exc()}"
             f.write(error_string)
-        print("Error Occured\n", e)
+        logging.info("Error Occured\n", e)
 
 
 @router.get("/hang", status_code=200, include_in_schema=False)

@@ -1,9 +1,9 @@
 from fastapi import HTTPException, APIRouter, BackgroundTasks
 from pydantic import BaseModel
 
-from .utils import web
-from .utils import database
-from .utils.cache import cache
+from .lib import web
+from .lib import database
+from .lib.cache import cache
 
 router = APIRouter(
     prefix="/stocks",

@@ -1,13 +1,11 @@
 import os
 import time
-
 import requests
-
+import logging
 
 from . import database
 
-
-print("[ APIs Initializing ] ...")
+logging.info("[ APIs Initializing ] ...")
 
 # Requests
 session = requests.Session()
@@ -63,7 +61,7 @@ def get_request(url, cik=None, params={}, custom_headers=headers, custom_wait=60
 
             return res
         except Exception as e:
-            print(e)
+            logging.error(e)
             retries -= 1
             continue
     raise LookupError
@@ -82,7 +80,7 @@ def post_request(url, cik, payload={}, custom_headers=headers, custom_wait=60):
 
             return res
         except Exception as e:
-            print(e)
+            logging.error(e)
             retries -= 1
             continue
     raise LookupError
@@ -212,4 +210,4 @@ def stock_request(value, cik, backup=None):
     raise LookupError
 
 
-print("[ APIs Initialized ]")
+logging.info("[ APIs Initialized ]")

@@ -2,44 +2,71 @@ from fastapi import FastAPI
 from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 
-from opentelemetry import trace
-from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-from opentelemetry.sdk.resources import SERVICE_NAME, Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-
+import uvicorn
 import os
+import logging
+import os
+
 from dotenv import load_dotenv
 
 load_dotenv(".env")
 
-environment = os.environ["ENVIRONMENT"]
-attributes = os.environ["OTEL_RESOURCE_ATTRIBUTES"]
-endpoint = os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"]
-
-
 from routers import general
 from routers import filer
 from routers import stocks
+from routers.utils import (
+    PrometheusMiddleware,
+    metrics,
+    EndpointFilter,
+    setting_otlp,
+    initialize,
+)
+
+APP_NAME = os.environ.get("APP_NAME", "backend")
+ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
+EXPOSE_PORT = int(os.environ.get("EXPOSE_PORT", 8000))
+FORWARDED_ALLOW_IPS = os.environ.get("FORWARDED_ALLOW_IPS", "*")
+WORKERS = int(os.environ.get("WORKERS", "9" if ENVIRONMENT == "production" else "1"))
+OTLP_GRPC_ENDPOINT = os.environ.get("OTLP_GRPC_ENDPOINT", "http://trace:4317")
 
 middleware = [
+    Middleware(PrometheusMiddleware, app_name=APP_NAME),
     Middleware(
         CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
     ),
 ]
+
 app = FastAPI(middleware=middleware)
 app.include_router(general.router)
 app.include_router(filer.router)
 app.include_router(stocks.router)
+app.add_route("/metrics", metrics)
 
-if environment == "production":
-    FastAPIInstrumentor().instrument_app(app)
-    resource = Resource(attributes={
-        "service.name": attributes,
-        "instance_id": os.getpid()
-    })
-    provider = TracerProvider(resource=resource)
-    processor = BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint))
-    provider.add_span_processor(processor)
-    trace.set_tracer_provider(provider)
+logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
+
+if __name__ == "__main__":
+    initialize()
+    log_config = uvicorn.config.LOGGING_CONFIG
+    log_config["formatters"]["access"][
+        "fmt"
+    ] = "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] [trace_id=%(otelTraceID)s span_id=%(otelSpanID)s resource.service.name=%(otelServiceName)s] - %(message)s"
+
+    if ENVIRONMENT == "production":
+        setting_otlp(app, APP_NAME, OTLP_GRPC_ENDPOINT)
+        uvicorn.run(
+            app,
+            host="0.0.0.0",
+            port=EXPOSE_PORT,
+            log_config=log_config,
+            forwarded_allow_ips=FORWARDED_ALLOW_IPS,
+            # workers=WORKERS,
+        )
+    else:
+        uvicorn.run(
+            app,
+            host="0.0.0.0",
+            port=EXPOSE_PORT,
+            log_config=log_config,
+            forwarded_allow_ips=FORWARDED_ALLOW_IPS,
+            reload=True,
+        )
