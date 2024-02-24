@@ -18,7 +18,4 @@ development.test.py
 /proxy/letsencrypt
 /proxy/data
 
-docker-compose.yml
-docker-compose.dev.yml
-
 docker-proj.zip
