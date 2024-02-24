@@ -1,5 +1,6 @@
 from fastapi import BackgroundTasks, APIRouter, HTTPException
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 import os
 import json
@@ -17,6 +18,12 @@ router = APIRouter(
 )
 
 
+@cache(24)
+@router.get("/", status_code=200)
+async def info():
+    return {"message": "Hello World!"}
+
+
 @router.on_event("startup")
 async def startup():
 
@@ -28,17 +35,8 @@ async def startup():
         if value == "stopped":
             return
     cm.set_key_no_expiration(startup_key, "running")
-
-    # Run any startup code here.
     analysis.end_dangling()
-
     cm.set_key_no_expiration(startup_key, "stopped")
-
-
-@cache(24)
-@router.get("/", status_code=200)
-async def info():
-    return {"message": "Hello World!"}
 
 
 @cache

@@ -3,7 +3,6 @@ from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 
 import uvicorn
-import os
 import logging
 import os
 
@@ -41,17 +40,21 @@ app = FastAPI(middleware=middleware)
 app.include_router(general.router)
 app.include_router(filer.router)
 app.include_router(stocks.router)
-app.add_route("/metrics", metrics)
+if production_environment:
+    app.add_route("/metrics", metrics)
 
-logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
+l = logging.getLogger("uvicorn.access")
+if production_environment:
+    l.addFilter(EndpointFilter())
+log_config = uvicorn.config.LOGGING_CONFIG
+log_config["formatters"]["access"]["fmt"] = (
+    "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] [trace_id=%(otelTraceID)s span_id=%(otelSpanID)s resource.service.name=%(otelServiceName)s] - %(message)s"
+    if production_environment
+    else "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] - %(message)s"
+)
 
 if __name__ == "__main__":
     initialize()
-    log_config = uvicorn.config.LOGGING_CONFIG
-    log_config["formatters"]["access"][
-        "fmt"
-    ] = "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] [trace_id=%(otelTraceID)s span_id=%(otelSpanID)s resource.service.name=%(otelServiceName)s] - %(message)s"
-
     if production_environment:
         setting_otlp(app, APP_NAME, OTLP_GRPC_ENDPOINT)
         uvicorn.run(
@@ -60,11 +63,11 @@ if __name__ == "__main__":
             port=EXPOSE_PORT,
             log_config=log_config,
             forwarded_allow_ips=FORWARDED_ALLOW_IPS,
-            # workers=WORKERS,
+            workers=WORKERS,
         )
     else:
         uvicorn.run(
-            app,
+            "main:app",
             host=HOST,
             port=EXPOSE_PORT,
             log_config=log_config,
