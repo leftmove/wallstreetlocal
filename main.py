@@ -31,6 +31,10 @@ middleware = [
         CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
     ),
 ]
+if production_environment:
+    middleware.append(
+        Middleware(PrometheusMiddleware, app_name=APP_NAME),
+    )
 
 l = logging.getLogger("uvicorn.access")
 log_config = uvicorn.config.LOGGING_CONFIG
@@ -39,18 +43,17 @@ log_config["formatters"]["access"]["fmt"] = (
     if production_environment
     else "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] - %(message)s"
 )
+if production_environment:
+    l.addFilter(EndpointFilter())
 
 app = FastAPI(middleware=middleware)
 app.include_router(general.router)
 app.include_router(filer.router)
 app.include_router(stocks.router)
+if production_environment:
+    app.add_route("/metrics", metrics)
 
 if production_environment:
-    middleware.append(
-        Middleware(PrometheusMiddleware, app_name=APP_NAME),
-    )
-    app.add_route("/metrics", metrics)
-    l.addFilter(EndpointFilter())
     setting_otlp(app, APP_NAME, OTLP_GRPC_ENDPOINT)
 
 if __name__ == "__main__":
