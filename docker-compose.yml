@@ -29,8 +29,6 @@ services:
     networks:
       - staging
     logging: *default-logging
-    ports:
-      - 8000:8000
 
   cache:
     container_name: cache
@@ -77,8 +75,6 @@ services:
       - ./proxy/letsencrypt:/etc/letsencrypt
     networks:
       - staging
-    extra_hosts:
-      - host.docker.internal:host-gateway
     depends_on:
       - backend
 
@@ -88,15 +84,11 @@ services:
     container_name: aggregation
     image: grafana/loki:2.9.3
     command: -config.file=/etc/loki/local-config.yaml
-    ports:
-      - 3100:3100
     networks:
       - staging
   metrics:
     container_name: metrics
     image: prom/prometheus:v2.48.1
-    ports:
-      - 9090:9090
     volumes:
       - ./telemetry/etc/prometheus:/workspace
     command:
@@ -111,9 +103,6 @@ services:
     container_name: trace
     image: grafana/tempo:2.3.1
     command: [ "--target=all", "--storage.trace.backend=local", "--storage.trace.local.path=/var/tempo", "--auth.enabled=false" ]
-    ports:
-      - 4317:4317
-      - 4318:4318
     networks:
       - staging
     depends_on:
@@ -122,8 +111,6 @@ services:
   visualization:
     container_name: visualization
     image: grafana/grafana:10.2.3
-    ports:
-      - 3000:3000
     networks:
       - staging
     volumes:
