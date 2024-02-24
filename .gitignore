@@ -17,6 +17,7 @@ development.test.py
 
 /proxy/letsencrypt
 /proxy/data
+/loki
 
 
 docker-proj.zip
