@@ -17,7 +17,8 @@ development.test.py
 
 /proxy/letsencrypt
 /proxy/data
-/loki
 
+docker-compose.yml
+docker-compose.dev.yml
 
 docker-proj.zip
