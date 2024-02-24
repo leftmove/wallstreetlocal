@@ -31,21 +31,8 @@ middleware = [
         CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
     ),
 ]
-if production_environment:
-    middleware.append(
-        Middleware(PrometheusMiddleware, app_name=APP_NAME),
-    )
-
-app = FastAPI(middleware=middleware)
-app.include_router(general.router)
-app.include_router(filer.router)
-app.include_router(stocks.router)
-if production_environment:
-    app.add_route("/metrics", metrics)
 
 l = logging.getLogger("uvicorn.access")
-if production_environment:
-    l.addFilter(EndpointFilter())
 log_config = uvicorn.config.LOGGING_CONFIG
 log_config["formatters"]["access"]["fmt"] = (
     "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] [trace_id=%(otelTraceID)s span_id=%(otelSpanID)s resource.service.name=%(otelServiceName)s] - %(message)s"
@@ -53,12 +40,24 @@ log_config["formatters"]["access"]["fmt"] = (
     else "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] - %(message)s"
 )
 
+app = FastAPI(middleware=middleware)
+app.include_router(general.router)
+app.include_router(filer.router)
+app.include_router(stocks.router)
+
+if production_environment:
+    middleware.append(
+        Middleware(PrometheusMiddleware, app_name=APP_NAME),
+    )
+    app.add_route("/metrics", metrics)
+    l.addFilter(EndpointFilter())
+    setting_otlp(app, APP_NAME, OTLP_GRPC_ENDPOINT)
+
 if __name__ == "__main__":
     initialize()
     if production_environment:
-        setting_otlp(app, APP_NAME, OTLP_GRPC_ENDPOINT)
         uvicorn.run(
-            app,
+            "main:app",
             host=HOST,
             port=EXPOSE_PORT,
             log_config=log_config,
