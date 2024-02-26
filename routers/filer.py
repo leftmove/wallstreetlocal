@@ -582,10 +582,14 @@ async def record_filing_csv(cik: str, access_number: str, headers: str = None):
     )
 
 
+cwd = os.getcwd()
+
+
 @cache(24)
 @router.get("/top", status_code=200)
 async def top():
-    with open("./public/top.json") as t:
+    top_path = f"{cwd}/public/top.json"
+    with open(top_path, "r") as t:
         filer_ciks = json.load(t)
 
     try:
@@ -599,7 +603,8 @@ async def top():
 @cache(24)
 @router.get("/searched", status_code=200)
 async def top():
-    with open("./public/searched.json") as t:
+    searched_path = f"{cwd}/public/searched.json"
+    with open(searched_path, "r") as t:
         filer_ciks = json.load(t)
 
     try:
