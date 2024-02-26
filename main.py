@@ -53,12 +53,10 @@ app.include_router(stocks.router)
 if production_environment:
     app.add_route("/metrics", metrics)
 
-if production_environment:
-    setting_otlp(app, APP_NAME, OTLP_GRPC_ENDPOINT)
-
 if __name__ == "__main__":
     initialize()
     if production_environment:
+        setting_otlp(app, APP_NAME, OTLP_GRPC_ENDPOINT)
         uvicorn.run(
             "main:app",
             host=HOST,
