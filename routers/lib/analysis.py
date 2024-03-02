@@ -126,12 +126,12 @@ def serialize_stock(local_stock, global_stock):
     shares_held_str = f"{int(shares_held):,}"
     market_value_str = f"${int(market_value):,}"
     portfolio_percentage_str = (
-        "{:.2f}".format(round(portfolio_percentage, 2))
+        "{:.2f}".format(round(portfolio_percentage, 4))
         if portfolio_percentage != "NA"
         else "NA"
     )
     ownership_percentage_str = (
-        "{:.2f}".format(round(ownership_percentage, 2))
+        "{:.2f}".format(round(ownership_percentage, 4))
         if ownership_percentage != "NA"
         else "NA"
     )
@@ -211,12 +211,12 @@ def serialize_local(
     sold_date_str = f"Q{(sold_date.month-1)//3+1} {sold_date.year}"
 
     portfolio_percentage_str = (
-        "{:.2f}".format(round(portfolio_percentage, 2))
+        "{:.2f}".format(round(portfolio_percentage, 4))
         if portfolio_percentage != "NA"
         else "NA"
     )
     ownership_percentage_str = (
-        "{:.2f}".format(round(ownership_percentage, 2))
+        "{:.2f}".format(round(ownership_percentage, 4))
         if ownership_percentage != "NA"
         else "NA"
     )
@@ -512,8 +512,11 @@ def analyze_stocks(cik, filings, historical_cache=None):
 
 
 def time_remaining(stock_count):
-    time_required = stock_count
-    return time_required / 5
+    if stock_count:
+        time_required = stock_count / 5
+    else:
+        time_required = 0
+    return time_required
 
 
 capital_pattern = re.compile(r"(.)([A-Z][a-z]+)")

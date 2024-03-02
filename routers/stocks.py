@@ -96,17 +96,15 @@ async def stock_info(
 @router.get("/timeseries", tags=["stocks", "filers"], status_code=200)
 async def stock_timeseries(cik: str, time: float):
     filer = database.search_filer(cik, {"stocks.cusip": 1})
-    if filer == None:
+    if not filer:
         raise HTTPException(detail="Filer not found.", status_code=404)
+    
     filer_stocks = filer["stocks"]
-
     stock_list = []
     cusip_list = list(map(lambda x: x["cusip"], filer_stocks))
 
-    batch = []
-    batch_limit = 100
     pipeline = [
-        {"$match": {"cusip": {"$in": batch}}},
+        {"$match": {"cusip": {"$in": cusip_list}}},
         {
             "$project": {
                 "_id": 0,
@@ -142,27 +140,6 @@ async def stock_timeseries(cik: str, time: float):
             }
         },
     ]
-
-    for batch_cusip in cusip_list:
-        if len(batch) < batch_limit:
-            batch.append(batch_cusip)
-            continue
-        else:
-            cursor = database.search_stocks(pipeline)
-            for document in cursor:
-                cusip = document["cusip"]
-                close = document["timeseries"]["close"]
-                close_str = f"${close}"
-                close_time = document["timeseries"]["time"]
-                stock_list.append(
-                    {
-                        "cusip": cusip,
-                        "close": close,
-                        "close_str": close_str,
-                        "time": close_time,
-                    }
-                )
-            batch = []
 
     cursor = database.search_stocks(pipeline)
     for document in cursor:
