@@ -59,7 +59,10 @@
 .secondary-header {
   display: flex;
   justify-content: flex-start;
+  align-items: center;
   overflow-x: visible;
+
+  max-width: 50%;
 }
 
 .secondary-header-desc {

@@ -1,0 +1,25 @@
+.record {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 10px;
+  border-radius: 5px;
+  width: 45%;
+
+  color: var(--white);
+  background-color: var(--secondary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.record:hover {
+  color: var(--secondary-dark);
+  background-color: var(--white);
+}
+
+.record-icon {
+  width: 20px;
+  margin-left: 50px;
+}

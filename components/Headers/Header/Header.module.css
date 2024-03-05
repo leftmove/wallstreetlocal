@@ -4,6 +4,7 @@
   user-select: none;
   text-align: center;
   overflow-x: hidden;
+  text-wrap: nowrap;
 
   padding: 3px;
   opacity: 1 !important;

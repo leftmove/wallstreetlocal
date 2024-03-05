@@ -1,17 +1,34 @@
 import styles from "./Recommended.module.css";
 import { useEffect, useState } from "react";
 
+import axios from "axios";
+
 import Link from "next/link";
 
 import { font } from "@fonts";
 
-import searchedFilers from "@/public/static/searched.json";
-import topFilers from "@/public/static/top.json";
+import { convertTitle } from "@/components/Filer/Info";
 
+const server = process.env.NEXT_PUBLIC_SERVER;
 const Recommended = (props) => {
   const variant = props.variant || "default";
   const [show, setShow] = useState(false);
+  const [topFilers, setTopFilers] = useState([]);
+  const [searchedFilers, setSearchedFilers] = useState([]);
   useEffect(() => {
+    topFilers == []
+      ? null
+      : axios
+          .get(server + "/filers/top")
+          .then((r) => r.data)
+          .then((data) => setTopFilers(data.filers || null));
+    searchedFilers == []
+      ? null
+      : axios
+          .get(server + "/filers/searched")
+          .then((r) => r.data)
+          .then((data) => setSearchedFilers(data.filers || null));
+
     window.addEventListener(
       "scroll",
       () => {
@@ -43,13 +60,18 @@ const Recommended = (props) => {
             <span className={styles["list-title"]}>Most Assets</span>
           </Link>
           <ul>
-            {topFilers.map((filer) => (
-              <li className={styles["recommended-item"]}>
-                <Link href={`/filers/${filer.cik}`}>
-                  <span>{filer.title}</span>
-                </Link>
-              </li>
-            ))}
+            {topFilers
+              .slice(0, 5)
+              .map((f) => {
+                return { ...f, title: convertTitle(f.name) };
+              })
+              .map((filer) => (
+                <li className={styles["recommended-item"]}>
+                  <Link href={`/filers/${filer.cik}`}>
+                    <span>{convertTitle(filer.title)}</span>
+                  </Link>
+                </li>
+              ))}
           </ul>
         </div>
         <div className={styles["recommended-list"]}>
@@ -57,13 +79,18 @@ const Recommended = (props) => {
             <span className={styles["list-title"]}>Most Searched</span>
           </Link>
           <ul>
-            {searchedFilers.map((filer) => (
-              <li className={styles["recommended-item"]}>
-                <Link href={`/filers/${filer.cik}`}>
-                  <span>{filer.title}</span>
-                </Link>
-              </li>
-            ))}
+            {searchedFilers
+              .slice(0, 5)
+              .map((f) => {
+                return { ...f, title: convertTitle(f.name) };
+              })
+              .map((filer) => (
+                <li className={styles["recommended-item"]} key={filer.cik}>
+                  <Link href={`/filers/${filer.cik}`}>
+                    <span>{filer.title}</span>
+                  </Link>
+                </li>
+              ))}
           </ul>
         </div>
       </div>

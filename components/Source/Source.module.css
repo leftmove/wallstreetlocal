@@ -1,11 +1,10 @@
 .source-button {
   all: unset;
-  cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
+  cursor: pointer;
 
-  width: 30px;
   transition: color 0.3s ease, scale 0.3s ease;
 
   color: black;
@@ -24,5 +23,6 @@
 }
 
 .source-svg {
-  width: 100%;
+  width: 90%;
+  height: 90%;
 }

@@ -148,8 +148,32 @@ const initialState = {
   filings: [],
   timeline: {
     comparisons: [
-      { access: "", headers: initialHeaders, sort: initialSort },
-      { access: "", headers: initialHeaders, sort: initialSort },
+      {
+        type: "primary",
+        access: "",
+        filing: {
+          time: 0,
+          date: "",
+        },
+        report: {
+          time: 0,
+          date: "",
+        },
+        headers: initialHeaders,
+        sort: initialSort,
+        stocks: [],
+      },
+      {
+        type: "secondary",
+        access: "",
+        filingTime: 0,
+        reportTime: 0,
+        filingDate: "",
+        reportDate: "",
+        headers: initialHeaders,
+        sort: initialSort,
+        stocks: [],
+      },
     ],
     open: false,
   },
@@ -454,6 +478,85 @@ export const filerSlice = createSlice({
 
       return state;
     },
+    setFilingStocks(state, action) {
+      const payload = action.payload;
+      const type = payload.type;
+
+      const stocks = payload.stocks.map((prev) => {
+        const properties = Object.keys(prev);
+        const next = {};
+        properties.forEach((p) =>
+          prev[p] == null ? (next[p] = "NA") : (next[p] = prev[p])
+        );
+        return next;
+      });
+
+      const comparisons = state.timeline.comparisons.map((c) =>
+        c.type === type ? { ...c, stocks } : c
+      );
+
+      state.timeline.comparisons = comparisons;
+
+      return state;
+    },
+    setFilingCount(state, action) {
+      const payload = action.payload;
+      const count = payload.count;
+      const type = payload.type;
+
+      const comparison = state.timeline.comparisons.find(
+        (c) => c.type === type
+      );
+
+      const sort = comparison.sort;
+      const pagination = sort.pagination;
+
+      if (pagination < 0) {
+        comparison.sort.pagination = count > 100 ? 100 : count;
+      }
+
+      const comparisons = state.timeline.comparisons.map((c) =>
+        c.type === type ? comparison : c
+      );
+      state.timeline.comparisons = comparisons;
+      return state;
+    },
+    setComparison(state, action) {
+      const payload = action.payload;
+      const type = payload.type;
+      const access = payload.access;
+
+      const filing = state.filings.find((f) => f.access_number == access);
+      const filingDate = new Date(filing.filing_date);
+      const reportDate = new Date(filing.report_date);
+      const filingTime = filingDate.getTime() / 1000;
+      const reportTime = reportDate.getTime();
+      const filingStr = filingDate.toLocaleDateString();
+      const reportStr = reportDate.toLocaleDateString();
+      const marketValue = new Intl.NumberFormat().format(filing.market_value);
+      const filingStocks = filing.stocks;
+
+      const comparisonIndex = state.timeline.comparisons.findIndex(
+        (c) => c.type == type
+      );
+      const comparison = state.timeline.comparisons[comparisonIndex];
+
+      state.timeline.comparisons[comparisonIndex] = {
+        ...comparison,
+        access,
+        filing: {
+          time: filingTime,
+          date: filingStr,
+        },
+        report: {
+          time: reportTime,
+          date: reportStr,
+        },
+        stocks: filingStocks,
+        value: marketValue,
+      };
+      return state;
+    },
     setOpen(state) {
       const open = state.timeline.open;
 
@@ -473,6 +576,44 @@ export const filerSlice = createSlice({
 
       state.timeline.comparisons = comparisons;
       return state;
+    },
+    filingIncrement(state) {
+      const access = state.timeline.comparisons.find(
+        (c) => c.type == "primary"
+      ).access;
+      const filings = state.filings;
+      const filingIndex = filings.findIndex((f) => f.access_number == access);
+
+      if (filingIndex >= filings.length + 1) {
+        return;
+      }
+
+      const newIndex = filingIndex + 1;
+      const newFiling = filings[newIndex];
+      const newAccess = newFiling.access_number;
+
+      filerSlice.actions.setComparison({ type: "primary", access: newAccess });
+    },
+    filingDecrement(state) {
+      const access = state.timeline.comparisons.find(
+        (c) => c.type == "primary"
+      ).access;
+      const filings = state.filings;
+      const filingIndex = filings.findIndex((f) => f.access_number == access);
+
+      if (filingIndex <= 0) {
+        return;
+      }
+
+      const newIndex = filingIndex - 1;
+      const newFiling = filings[newIndex];
+      const newAccess = newFiling.access_number;
+      console.log(access, newAccess);
+
+      filerSlice.actions.setComparison({
+        type: "secondary",
+        access: newAccess,
+      });
     },
     [HYDRATE]: (state, action) => {
       return {
@@ -507,6 +648,7 @@ export const selectPagination = (state) => {
   return { limit: sort.pagination, offset: sort.offset, count: sort.count };
 };
 export const selectTimeline = (state) => state.filer.timeline;
+export const selectFilings = (state) => state.filer.filings;
 export const selectPrimary = (state) => state.filer.timeline.comparisons[0];
 export const selectSecondary = (state) => state.filer.timeline.comparisons[1];
 
@@ -538,7 +680,10 @@ export const {
   setSecondary,
   setFilings,
   editComparison,
+  setComparison,
   setOpen,
+  setFilingStocks,
+  setFilingCount,
 } = filerSlice.actions;
 
 export default filerSlice.reducer;

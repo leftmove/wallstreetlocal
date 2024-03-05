@@ -1,3 +1,9 @@
 .explorer-container {
   margin: 20px;
 }
+
+.table-container {
+  margin: 20px;
+
+  overflow-x: auto;
+}

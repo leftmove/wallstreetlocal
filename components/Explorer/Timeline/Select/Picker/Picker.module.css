@@ -1,0 +1,97 @@
+.picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+
+  background-color: var(--white);
+}
+
+.picker-present {
+  animation: slide-down 0.3s;
+  z-index: 10;
+}
+
+.picker-dissappear {
+  animation: slide-up 0.4s forwards;
+}
+
+@keyframes slide-up {
+  to {
+    opacity: 0;
+    transform: translateY(-200px);
+    z-index: -5;
+  }
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(-200px);
+    opacity: 0;
+  }
+}
+
+.picker-picking {
+  position: absolute;
+}
+
+.select-picking {
+  background-color: var(--white);
+  animation: slide-down 0.3s;
+}
+
+.picker-filings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  overflow-y: scroll;
+  scrollbar-width: none;
+
+  height: 100%;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.picker-filing {
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+
+  width: 95%;
+  border-radius: 5px;
+
+  color: var(--secondary-dark);
+  transition: background-color 0.1s ease;
+}
+
+.picker-filing:hover {
+  background-color: var(--offwhite);
+}
+
+.filing-attribute {
+  text-align: center;
+  width: 20%;
+
+  border-radius: 5px;
+}
+
+.picker-attributes {
+  width: 80%;
+}
+
+.attribute-picking {
+  color: var(--secondary-dark);
+}
+
+.attribute-text {
+  color: var(--secondary-dark);
+}
+
+.attribute-hint {
+  color: var(--secondary-dark);
+}

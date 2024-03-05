@@ -3,7 +3,7 @@
 import Head from "next/head";
 
 import Tabs from "@/components/Tabs/Tabs";
-import Table from "@/components/Table/Table";
+import Index from "@/components/Index/Index";
 import Explorer from "@/components/Explorer/Explorer";
 import Header from "@/components/Header/Header";
 
@@ -25,16 +25,18 @@ const convertTitle = (d) => {
 
 const Info = (props) => {
   const cik = props.cik || null;
+  const tab = props.tab || "recent";
+  const titleText = `Filers - ${cik}`;
 
   return (
     <>
       <Head>
-        <title>Filers - {cik}</title>
+        <title>{titleText}</title>
       </Head>
-      <Header cik={cik} />
+      <Header cik={cik} tab={tab} />
       <Tabs />
-      <Explorer />
-      <Table />
+      {tab == "historical" ? <Explorer /> : null}
+      {tab == "recent" ? <Index /> : null}
     </>
   );
 };

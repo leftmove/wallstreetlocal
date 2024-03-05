@@ -1,28 +1,16 @@
 import styles from "./Header.module.css";
-import tableStyles from "@/components/Table/Table.module.css";
-
-import { useDispatch, useSelector } from "react-redux";
-import { selectHeaders, selectSort, sortHeader } from "@/redux/filerSlice";
+import tableStyles from "../Table.module.css";
 
 import { font } from "@fonts";
 
 import Sort from "./sort.svg";
 
-const Header = () => {
-  const dispatch = useDispatch();
-
-  const headers = useSelector(selectHeaders);
-  const select = useSelector(selectSort);
-  const sort = select.sort;
-  const reverse = select.reverse;
-
-  const activateHeader = (accessor) =>
-    dispatch(
-      sortHeader({
-        sort: accessor,
-        reverse: !reverse,
-      })
-    );
+const Header = (props) => {
+  const headers = props.headers;
+  const sort = props.sort;
+  const reverse = props.reverse;
+  const activateHeader = (accessor, direction) =>
+    props.activate(accessor, direction);
 
   return (
     <tr>
@@ -42,7 +30,7 @@ const Header = () => {
               ].join(" ")}
             >
               <button
-                onClick={() => activateHeader(h.sort)}
+                onClick={() => activateHeader(h.sort, !reverse)}
                 className={styles["column-button"]}
               >
                 {h.display}

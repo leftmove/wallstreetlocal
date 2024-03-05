@@ -7,13 +7,6 @@
   overflow: hidden;
 }
 
-.table-container {
-  margin: 20px;
-
-  overflow-x: auto;
-  white-space: nowrap;
-}
-
 .header-column {
   text-align: left;
   vertical-align: middle;

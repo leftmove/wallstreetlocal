@@ -7,7 +7,7 @@ import axios from "axios";
 import Head from "next/head";
 
 import { useDispatch } from "react-redux";
-import { setCik } from "@/redux/filerSlice";
+import { setCik, setTab } from "@/redux/filerSlice";
 
 import { font } from "@fonts";
 
@@ -24,6 +24,7 @@ const fetcher = (url, cik) =>
 
 const Header = (props) => {
   const cik = props.cik;
+  const tab = props.tab;
   const dispatch = useDispatch();
 
   const { data } = useSWR(
@@ -41,6 +42,7 @@ const Header = (props) => {
 
   useEffect(() => {
     dispatch(setCik(cik));
+    dispatch(setTab(tab));
   }, [cik]);
 
   const info = data?.filer || null;
@@ -89,7 +91,13 @@ const Header = (props) => {
                   expandState={expand}
                 />
               ) : null}
-              <Source cik={cik} />
+              <Source
+                link={
+                  "https://www.sec.gov/cgi-bin/browse-edgar?" +
+                  new URLSearchParams({ CIK: cik.padStart(10, 0) })
+                }
+                marginLeft={5}
+              />
             </div>
           </div>
           <span className={[styles["header-desc"], font.className].join(" ")}>

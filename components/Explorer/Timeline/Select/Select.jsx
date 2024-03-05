@@ -8,11 +8,13 @@ import {
   editComparison,
 } from "@/redux/filerSlice";
 
-import { font } from "@fonts";
+import { font, fontLight } from "@/components/fonts";
 
 import Headers from "@/components/Headers/Headers";
+import Record from "./Record/Record";
+import Picker from "./Picker/Picker";
+import Source from "@/components/Source/Source";
 
-const server = process.env.NEXT_PUBLIC_SERVER;
 const Select = (props) => {
   const dispatch = useDispatch();
   const type = props.type || "primary";
@@ -22,15 +24,9 @@ const Select = (props) => {
       : useSelector(selectPrimary);
   const headers = selected.headers;
 
-  const initialHeader = headers[0];
-  const [description, setDescription] = useState({
-    title: initialHeader.display,
-    text: initialHeader.tooltip,
-  });
-
   const updateHeaders = (h) =>
     dispatch(editComparison({ key: selected.access, headers: h }));
-  const updateDescription = (d) => setDescription(d);
+  const updateDescription = (d) => props.setDescription(d);
   const updateActivation = (a) =>
     dispatch(
       editComparison({
@@ -55,33 +51,72 @@ const Select = (props) => {
       })
     );
 
-  const handleDownload = () => {
-    window.open(
-      server +
-        "/filers/record/timeseries/?" +
-        new URLSearchParams({ cik, time }),
-      "_blank"
-    );
-  };
+  const [picking, setPicking] = useState(false);
+  const attributes = [
+    { text: selected.access, hint: "Access Number" },
+    { text: selected?.report?.date, hint: "Report Date" },
+    { text: selected?.filing?.date, hint: "Filing Date" },
+    { text: selected.value, hint: "Market Value" },
+  ];
 
   return (
-    <div className={styles["select"]}>
-      <Headers
-        headers={headers}
-        sold={selected.sort.sold}
-        na={selected.sort.na}
-        updateDescription={updateDescription}
-        updateActivation={updateActivation}
-        updateHeaders={updateHeaders}
-        updateSold={updateSold}
-        updateNa={updateNa}
+    <div className={styles["select-container"]}>
+      <Picker
+        selected={selected}
+        attributes={attributes}
+        setPicking={setPicking}
+        picking={picking}
       />
-      <button
-        className={[styles["select-download"], font.className].join(" ")}
-        onClick={() => handleDownload()}
-      >
-        <span className={font.className}>Download</span>
-      </button>
+      <div className={styles["select"]}>
+        <div className={styles["select-headers"]}>
+          <Headers
+            headers={headers}
+            sold={selected.sort.sold}
+            na={selected.sort.na}
+            updateDescription={updateDescription}
+            updateActivation={updateActivation}
+            updateHeaders={updateHeaders}
+            updateSold={updateSold}
+            updateNa={updateNa}
+          />
+        </div>
+        <div className={styles["select-records"]}>
+          <Record variant="json" />
+          <Record variant="csv" headers={headers} />
+          <Source color="light" width={"40px"} />
+        </div>
+        <div className={styles["picker-attributes"]}>
+          {attributes.map((a) => (
+            <div className={styles["picker-attribute"]}>
+              <button
+                className={styles["attribute-button"]}
+                onClick={() => setPicking(!picking)}
+              >
+                <span
+                  className={[styles["attribute-text"], font.className].join(
+                    " "
+                  )}
+                >
+                  {a.text}
+                </span>
+              </button>
+              <span
+                className={[styles["attribute-hint"], fontLight.className].join(
+                  " "
+                )}
+              >
+                {a.hint}
+              </span>
+            </div>
+          ))}
+        </div>
+        {/* <Picker
+          variant="stable"
+          selected={selected}
+          setPicking={(pickingState) => setPicking(pickingState)}
+          picking={picking}
+        /> */}
+      </div>
     </div>
   );
 };

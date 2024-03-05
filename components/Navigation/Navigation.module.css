@@ -52,6 +52,8 @@
 
 .item {
   font-size: 1.3rem;
+  text-align: center;
+
   margin-left: 10px;
   padding: 5px;
   border-radius: 5px;
