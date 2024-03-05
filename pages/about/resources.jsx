@@ -42,7 +42,7 @@ export default function Resources() {
               className={[styles["button-tooltip"], font.className].join(" ")}
             >
               (Add 13F to the filing category field to find companies that have
-              filed 13F filings.)
+              filed 13F filings)
             </span>
           </div>
           <div className={styles["resources-item"]}>
@@ -55,7 +55,7 @@ export default function Resources() {
                   " "
                 )}
               >
-                Ticker Archive
+                Ticker archive
               </button>
             </Link>
             <span
@@ -74,7 +74,7 @@ export default function Resources() {
                   " "
                 )}
               >
-                Submissions Archive
+                Submissions archive
               </button>
             </Link>
             <span
@@ -93,7 +93,7 @@ export default function Resources() {
                   " "
                 )}
               >
-                Company Facts Archive
+                Company facts archive
               </button>
             </Link>
             <span
@@ -109,13 +109,13 @@ export default function Resources() {
                   " "
                 )}
               >
-                Form Data
+                Form data
               </button>
             </Link>
             <span
               className={[styles["button-tooltip"], font.className].join(" ")}
             >
-              (Explanations for Different Form Types)
+              (Explanations for different form types)
             </span>
           </div>
           <div className={styles["resources-item"]}>
@@ -128,7 +128,7 @@ export default function Resources() {
                   " "
                 )}
               >
-                Company Database
+                Company database
               </button>
             </Link>
             <span
