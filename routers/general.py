@@ -12,6 +12,8 @@ from .lib import analysis
 
 from .filer import create_filer_try
 
+environment = os.environ["ENVIRONMENT"]
+
 cache = cm.cache
 router = APIRouter(
     tags=["general"],
@@ -35,7 +37,12 @@ async def startup():
         if value == "stopped":
             return
     cm.set_key_no_expiration(startup_key, "running")
+
+    if environment == "development":
+        debug_cik = os.environ["DEBUG_CIK"]
+        database.delete_filer(debug_cik)
     analysis.end_dangling()
+
     cm.set_key_no_expiration(startup_key, "stopped")
 
 

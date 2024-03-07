@@ -63,36 +63,43 @@ def serialize_stock(local_stock, global_stock):
 
     timeseries = True if global_stock.get("timeseries") else False
     prices = local_stock.get("prices")
-    buy_timeseries = prices.get("buy")
-    sold_timeseries = prices.get("sold")
+
+    buy_stamp = prices.get("buy")
+    sold_stamp = prices.get("sold")
+    buy_timeseries = buy_stamp.get("series")
+    sold_timeseries = sold_stamp.get("series")
     price_recent = global_stock["price"] if update else "NA"
     price_bought = buy_timeseries["close"] if buy_timeseries != "NA" else "NA"
     price_recent_str = f"${price_recent}" if update else "NA"
     price_bought_str = f"${price_bought}" if buy_timeseries != "NA" else "NA"
 
-    buy_float = buy_timeseries["time"] if buy_timeseries != "NA" else "NA"
-    buy_date = datetime.fromtimestamp(buy_float) if buy_timeseries != "NA" else "NA"
+    buy_float = buy_stamp.get("time")
+    buy_date = datetime.fromtimestamp(buy_float) if buy_stamp else "NA"
     buy_date_str = (
         f"Q{(buy_date.month-1)//3+1} {buy_date.year}"
         if buy_timeseries != "NA"
         else "NA"
     )
 
-    report_float = local_stock["report_time"] if timeseries else "NA"
+    report_float = local_stock.get("report_time", "NA")
     report_date = (
-        datetime.fromtimestamp(local_stock["report_time"]) if timeseries else "NA"
+        datetime.fromtimestamp(local_stock["report_time"])
+        if report_float != "NA"
+        else "NA"
     )
     report_date_str = (
-        f"Q{(report_date.month-1)//3+1} {report_date.year}" if timeseries else "NA"
+        f"Q{(report_date.month-1)//3+1} {report_date.year}"
+        if report_float != "NA"
+        else "NA"
     )
 
-    sold_float = sold_timeseries["time"] if sold and sold_timeseries != "NA" else "NA"
+    sold_float = sold_stamp.get("time", "NA") if sold else "NA"
     sold_date = (
-        datetime.fromtimestamp(sold_float) if sold and sold_timeseries != "NA" else "NA"
+        datetime.fromtimestamp(sold_float) if sold and sold_float != "NA" else "NA"
     )
     sold_date_str = (
         f"Q{(sold_date.month-1)//3+1} {sold_date.year}"
-        if sold and sold_timeseries != "NA"
+        if sold and sold_float != "NA"
         else "NA"
     )
 
@@ -107,11 +114,9 @@ def serialize_stock(local_stock, global_stock):
         if portfolio_percentage and portfolio_percentage != "NA"
         else "NA"
     )
-    ownership_percentage = local_stock.get("ownership_percent")
+    ownership_percentage = local_stock.get("ownership_percent", "NA")
     ownership_percentage = (
-        ownership_percentage * 100
-        if ownership_percentage and ownership_percentage != "NA"
-        else "NA"
+        ownership_percentage * 100 if ownership_percentage != "NA" else "NA"
     )
     gain_value = (
         float(price_recent - price_bought)
@@ -270,7 +275,7 @@ def analyze_value(local_stock, global_stock, total):
     market_value = local_stock["market_value"]
     portfolio_percentage = market_value / total
 
-    global_data = global_stock.get("data")
+    global_data = global_stock.get("financials")
     if global_data:
         shares_outstanding = float(global_data.get("shares_outstanding"))
         shares_held = local_stock.get("shares_held")
@@ -309,7 +314,6 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
     timeseries_global = global_stock.get("timeseries", [])
     ticker = global_stock.get("ticker")
     cusip = global_stock.get("cusip")
-    update = global_stock.get("update")
 
     if not timeseries_global and ticker != "NA":
         update_timeseries = True
@@ -348,25 +352,28 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
     buy_time = filings[first_appearance]["report_date"]
     sold_time = local_stock[last_appearance]["report_date"] if sold else "NA"
 
+    buy_stamp = {"time": buy_time, "series": "NA"}
+    sold_stamp = {"time": sold_time, "series": "NA"}
+
     if timeseries_global != []:
         buy_timeseries = min(
             timeseries_global, key=lambda x: abs((x["time"]) - buy_time)
         )
+        buy_stamp["series"] = buy_timeseries
+
         sold_timeseries = (
             min(timeseries_global, key=lambda x: abs((x["time"]) - sold_time))
             if sold
             else "NA"
         )
-    else:
-        buy_timeseries = "NA"
-        sold_timeseries = "NA"
+        sold_stamp["series"] = sold_timeseries
 
     if update_timeseries:
         database.edit_stock(
             {"ticker": ticker}, {"$set": {"timeseries": timeseries_global}}
         )
 
-    return buy_timeseries, sold_timeseries
+    return buy_stamp, sold_stamp
 
 
 def analyze_filings(cik, filings):
@@ -455,12 +462,12 @@ def analyze_stocks(cik, filings, historical_cache=None):
                 if not found_stock:
                     continue
 
-                buy_timeseries, sold_timeseries = analyze_timeseries(
+                buy_stamp, sold_stamp = analyze_timeseries(
                     cik, filing_stock, found_stock, filings
                 )
                 filing_stock["prices"] = {
-                    "buy": buy_timeseries,
-                    "sold": sold_timeseries,
+                    "buy": buy_stamp,
+                    "sold": sold_stamp,
                 }
 
                 cached_stock = stock_cache.get(cusip)
@@ -602,6 +609,7 @@ def sort_pipeline(
                 sort_stage,
                 {"$set": {sort: "$sort_saved"}},
                 {"$unset": "sort_saved"},
+                {"$match": {sort: {"$ne": "NA"}}},
             ]
         )
 
@@ -767,6 +775,13 @@ def sort_and_format(filer_ciks):
     except Exception as e:
         logging.error(e)
         raise KeyError
+
+
+def debug_output(content):
+    now = datetime.now().timestamp()
+    file_path = f"{cwd}/public/filers/debug-{now}.json"
+    with open(file_path, "w") as r:
+        json.dump(content, r, indent=6)
 
 
 logging.info("[ Analysis Initialized ]")

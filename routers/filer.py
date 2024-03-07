@@ -130,6 +130,7 @@ def create_historical(cik, company, stamp):
 
     try:
         filings = company["filings"]
+
         for access_number, filing_stocks in web.process_stocks(
             cik, filings, last_report
         ):
