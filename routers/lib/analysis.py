@@ -594,6 +594,7 @@ def sort_pipeline(
     results = [result for result in cursor]
     if not cursor or not results:
         raise LookupError
+    count = len(results)
 
     pipeline.append(
         {"$sort": {sort: 1 if reverse else -1, "_id": 1}},
@@ -629,7 +630,8 @@ def sort_pipeline(
             {"$limit": limit},
         ]
     )
-    return pipeline
+
+    return pipeline, count
 
 
 cwd = os.getcwd()

@@ -48,8 +48,9 @@ async def stock_info(
     filer = database.find_filer(cik, {"_id": 1})
     if not filer:
         raise HTTPException(detail="Filer not found.", status_code=404)
+
     try:
-        pipeline = analysis.sort_pipeline(
+        pipeline, count = analysis.sort_pipeline(
             cik, limit, offset, sort, sold, reverse, unavailable
         )
         cursor = database.search_filers(pipeline)
@@ -59,7 +60,6 @@ async def stock_info(
 
     try:
         stock_list = [result for result in cursor]
-        count = len(stock_list)
     except KeyError:
         raise HTTPException(detail="Error while searching.", status_code=500)
 
@@ -161,15 +161,17 @@ async def query_filing(
     ]
 
     try:
-        pipeline = analysis.sort_pipeline(
+        pipeline, count = analysis.sort_pipeline(
             cik, limit, offset, sort, sold, reverse, unavailable, additonal
         )
         cursor = database.search_filers(pipeline)
-
-        stock_list = [result for result in cursor]
-        count = len(stock_list)
     except Exception as e:
         logging.error(e)
+        raise HTTPException(detail="Invalid search requirements.", status_code=422)
+
+    try:
+        stock_list = [result for result in cursor]
+    except KeyError:
         raise HTTPException(detail="Error while searching.", status_code=500)
 
     return {"stocks": stock_list, "count": count}
