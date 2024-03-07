@@ -632,6 +632,15 @@ def create_filer_try(cik):
             f.write(error_string)
         logging.info("Error Occured\n", e)
 
+@router.get("/delete", status_code=200, include_in_schema=False)
+async def delete_filer(cik: str, password: str):
+
+    if password != os.environ["ADMIN_PASSWORD"]:
+        raise HTTPException(detail="Unable to give access.", status_code=403)
+
+    database.delete_filer(cik)
+
+    return {"description": "Successfully deleted filer."}
 
 @router.get("/hang", status_code=200, include_in_schema=False)
 async def hang_dangling(password: str):
