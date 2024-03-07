@@ -61,17 +61,20 @@ def serialize_stock(local_stock, global_stock):
     sector = global_stock["sector"] if update else "NA"
     industry = global_stock["industry"] if update else "NA"
 
-    timeseries = True if global_stock.get("timeseries") else False
     prices = local_stock.get("prices")
 
     buy_stamp = prices.get("buy")
-    sold_stamp = prices.get("sold")
     buy_timeseries = buy_stamp.get("series")
-    sold_timeseries = sold_stamp.get("series")
-    price_recent = global_stock["price"] if update else "NA"
     price_bought = buy_timeseries["close"] if buy_timeseries != "NA" else "NA"
-    price_recent_str = f"${price_recent}" if update else "NA"
     price_bought_str = f"${price_bought}" if buy_timeseries != "NA" else "NA"
+
+    price_recent = global_stock["price"] if update else "NA"
+    price_recent_str = f"${price_recent}" if update else "NA"
+
+    sold_stamp = prices.get("sold")
+    sold_timeseries = sold_stamp.get("series")
+    price_sold = sold_timeseries["close"] if sold_timeseries != "NA" else "NA"
+    price_sold_str = f"${price_sold}" if sold_timeseries != "NA" else "NA"
 
     buy_float = buy_stamp.get("time")
     buy_date = datetime.fromtimestamp(buy_float) if buy_stamp else "NA"
@@ -165,6 +168,8 @@ def serialize_stock(local_stock, global_stock):
         "recent_price_str": price_recent_str,
         "buy_price": price_bought,
         "buy_price_str": price_bought_str,
+        "sold_price": price_sold,
+        "sold_price_str": price_sold_str,
         "shares_held": shares_held,
         "shares_held_str": shares_held_str,
         "market_value": market_value,
@@ -188,6 +193,7 @@ def serialize_stock(local_stock, global_stock):
 
 def serialize_local(
     local_stock,
+    sold,
     first_appearance,
     last_appearance,
     filings,
@@ -197,7 +203,6 @@ def serialize_local(
     name = local_stock["name"]
     cusip = local_stock["cusip"]
     update = local_stock["update"]
-    sold = local_stock["sold"]
 
     ticker = local_stock["ticker"]
     ticker_str = f"{ticker} (Sold)" if sold and update else ticker
@@ -211,9 +216,9 @@ def serialize_local(
     report_float = filings[first_appearance]["report_date"]
     report_date = datetime.fromtimestamp(report_float)
     report_date_str = f"Q{(report_date.month-1)//3+1} {report_date.year}"
-    sold_float = filings[last_appearance]["report_date"]
-    sold_date = datetime.fromtimestamp(sold_float)
-    sold_date_str = f"Q{(sold_date.month-1)//3+1} {sold_date.year}"
+    sold_float = filings[last_appearance]["report_date"] if sold else "NA"
+    sold_date = datetime.fromtimestamp(sold_float) if sold else "NA"
+    sold_date_str = f"Q{(sold_date.month-1)//3+1} {sold_date.year}" if sold else "NA"
 
     portfolio_percentage_str = (
         "{:.2f}".format(round(portfolio_percentage, 4))
@@ -350,7 +355,7 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
     first_appearance = local_stock["first_appearance"]
     last_appearance = local_stock["last_appearance"]
     buy_time = filings[first_appearance]["report_date"]
-    sold_time = local_stock[last_appearance]["report_date"] if sold else "NA"
+    sold_time = filings[last_appearance]["report_date"] if sold else "NA"
 
     buy_stamp = {"time": buy_time, "series": "NA"}
     sold_stamp = {"time": sold_time, "series": "NA"}
@@ -376,7 +381,7 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
     return buy_stamp, sold_stamp
 
 
-def analyze_filings(cik, filings):
+def analyze_filings(cik, filings, last_report):
     stock_cache = {}
     for access_number in filings:
         filing_stocks = filings[access_number].get("stocks")
@@ -391,6 +396,7 @@ def analyze_filings(cik, filings):
                 cusip = local_stock["cusip"]
 
                 first_appearance, last_appearance = analyze_report(local_stock, filings)
+                sold = False if last_appearance == last_report else False
 
                 found_stock = stock_cache.get(cusip)
                 found_stock = (
@@ -409,18 +415,21 @@ def analyze_filings(cik, filings):
                 # First/last appearance repeatedly updated, could be more efficient
                 filing_stock = serialize_local(
                     local_stock,
+                    sold,
                     first_appearance,
                     last_appearance,
                     filings,
                     portfolio_percentage,
                     ownership_percentage,
                 )
+
                 if is_updated:
                     filing_stock.update(
                         {"name": found_stock["name"], "ticker": found_stock["ticker"]}
                     )
 
                 yield stock_query, filing_stock
+
             except Exception as e:
                 logging.error(e)
                 database.add_log(
@@ -435,7 +444,6 @@ def analyze_stocks(cik, filings, historical_cache=None):
         if not filing_stocks:
             continue
         for cusip in filing_stocks:
-
             try:
                 filing_stock = filing_stocks[cusip]
                 cusip = filing_stock["cusip"]
@@ -506,8 +514,9 @@ def analyze_stocks(cik, filings, historical_cache=None):
                         ),
                         -1,
                     )
-                    filer_stocks[stock_index] = updated_stock
-                    stock_query = {"$set": {"stocks": filer_stocks}}
+                    stock_query = {
+                        "$set": {"stocks." + str(stock_index): updated_stock}
+                    }
 
                 yield stock_query, log_stock
             except Exception as e:

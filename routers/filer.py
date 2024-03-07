@@ -93,7 +93,7 @@ def create_recent(cik, company, stamp):
         for (
             stock_query,
             filing_stock,
-        ) in analysis.analyze_filings(cik, {last_report: recent_filing}):
+        ) in analysis.analyze_filings(cik, {last_report: recent_filing}, last_report):
             database.edit_filer(filer_query, {"$set": {stock_query: filing_stock}})
 
         filings = database.find_filer(cik, {"filings": 1})
@@ -130,7 +130,6 @@ def create_historical(cik, company, stamp):
 
     try:
         filings = company["filings"]
-
         for access_number, filing_stocks in web.process_stocks(
             cik, filings, last_report
         ):
@@ -155,13 +154,13 @@ def create_historical(cik, company, stamp):
         for (
             stock_query,
             filing_stock,
-        ) in analysis.analyze_filings(cik, filings):
+        ) in analysis.analyze_filings(cik, filings, last_report):
             database.edit_filer(filer_query, {"$set": {stock_query: filing_stock}})
 
         filings = database.find_filer(cik, {"filings": 1})
         filings = filings["filings"]
 
-        for stock_query, log_item in analysis.analyze_stocks(cik, filings, {}):
+        for stock_query, log_item in analysis.analyze_stocks(cik, filings):
             database.edit_filer(filer_query, stock_query)
             database.add_log(cik, log_item)
 
