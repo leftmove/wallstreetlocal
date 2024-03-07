@@ -35,8 +35,8 @@ const Info = (props) => {
       </Head>
       <Header cik={cik} tab={tab} />
       {/* <Tabs /> */}
-      {tab == "historical" ? <Explorer /> : null}
-      {/* {tab == "recent" ? <Index /> : null} */}
+      {/* {tab == "historical" ? <Explorer /> : null} */}
+      {tab == "recent" ? <Index /> : null}
     </>
   );
 };
