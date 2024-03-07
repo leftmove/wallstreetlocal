@@ -311,7 +311,7 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
     cusip = global_stock.get("cusip")
     update = global_stock.get("update")
 
-    if timeseries_global and ticker != "NA" and not update:
+    if not timeseries_global and ticker != "NA":
         update_timeseries = True
         try:
             timeseries_response = api.ticker_request("TIME_SERIES_MONTHLY", ticker, cik)
@@ -319,27 +319,26 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
             timeseries_info = (
                 timeseries_response if not timeseries_info else timeseries_info
             )
+
+            timeseries_global = []
+            for time_key in timeseries_info:
+                info = timeseries_info[time_key]
+                if time_key == "Error Message" or time_key == "Information":
+                    continue
+
+                date = convert_date(time_key)
+                price = {
+                    "time": date,
+                    "open": float(info["1. open"]),
+                    "close": float(info["4. close"]),
+                    "high": float(info["2. high"]),
+                    "low": float(info["3. low"]),
+                    "volume": float(info["5. volume"]),
+                }
+                timeseries_global.append(price)
+
         except Exception as e:
             database.add_log(cik, f"Failed to Find Time Data \n{e}", cusip)
-            raise LookupError
-
-        timeseries_global = []
-        for time_key in timeseries_info:
-            info = timeseries_info[time_key]
-            if time_key == "Error Message" or time_key == "Information":
-                continue
-
-            date = convert_date(time_key)
-            price = {
-                "time": date,
-                "open": float(info["1. open"]),
-                "close": float(info["4. close"]),
-                "high": float(info["2. high"]),
-                "low": float(info["3. low"]),
-                "volume": float(info["5. volume"]),
-            }
-            # timeseries_local[key] = price
-            timeseries_global.append(price)
     else:
         update_timeseries = False
 
@@ -539,6 +538,81 @@ def stock_filter(stocks):
     stock_list = []
     for stock in stocks:
         stock_list.append(stock)
+
+
+def sort_pipeline(
+    cik: str,
+    limit: int,
+    offset: int,
+    sort: str,
+    sold: bool,
+    reverse: bool,
+    unavailable: bool,
+    additonal: list = [],
+):
+
+    if limit < 0:
+        raise ValueError
+
+    pipeline = [
+        {"$match": {"cik": cik}},
+    ]
+    if additonal:
+        pipeline.extend(additonal)
+
+    pipeline.extend(
+        [
+            {"$unwind": "$stocks"},
+            {"$replaceRoot": {"newRoot": "$stocks"}},
+            {"$group": {"_id": "$cusip", "doc": {"$first": "$$ROOT"}}},
+            {"$replaceRoot": {"newRoot": "$doc"}},
+        ]
+    )
+
+    if sold == False:
+        pipeline.append({"$match": {"sold": False}})
+    if unavailable == False:
+        sort_query = f"${sort}"
+
+    cursor = database.search_filers(pipeline)
+    results = [result for result in cursor]
+    if not cursor or not results:
+        raise LookupError
+
+    pipeline.append(
+        {"$sort": {sort: 1 if reverse else -1, "_id": 1}},
+    )
+
+    if unavailable == False:
+        sort_stage = pipeline.pop(-1)
+        pipeline.extend(
+            [
+                {
+                    "$set": {
+                        "sort_saved": sort_query,
+                        sort: {
+                            "$cond": {
+                                "if": {"$eq": [sort_query, "NA"]},
+                                "then": 0,
+                                "else": sort_query,
+                            }
+                        },
+                    }
+                },
+                sort_stage,
+                {"$set": {sort: "$sort_saved"}},
+                {"$unset": "sort_saved"},
+            ]
+        )
+
+    pipeline.extend(
+        [
+            {"$project": {"_id": 0}},
+            {"$skip": offset},
+            {"$limit": limit},
+        ]
+    )
+    return pipeline
 
 
 cwd = os.getcwd()

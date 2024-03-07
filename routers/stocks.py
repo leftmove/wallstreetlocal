@@ -1,8 +1,11 @@
 from fastapi import HTTPException, APIRouter, BackgroundTasks
 from pydantic import BaseModel
 
+import logging
+
 from .lib import web
 from .lib import database
+from .lib import analysis
 from .lib.cache import cache
 
 router = APIRouter(
@@ -46,48 +49,19 @@ async def stock_info(
     if not filer:
         raise HTTPException(detail="Filer not found.", status_code=404)
     try:
-        pipeline = [
-            {"$match": {"cik": cik}},
-            {"$unwind": "$stocks"},
-            {"$replaceRoot": {"newRoot": "$stocks"}},
-            {"$group": {"_id": "$cusip", "doc": {"$first": "$$ROOT"}}},
-            {"$replaceRoot": {"newRoot": "$doc"}},
-        ]
-        if limit < 0:
-            raise HTTPException(detail="Invalid search requirements.", status_code=422)
-        if not sold:
-            pipeline.append({"$match": {"sold": False}})
-        if not unavailable:
-            pipeline.append({"$match": {sort: {"$ne": "NA"}}})
-
-        cursor = database.search_filers(pipeline)
-        if not cursor:
-            raise HTTPException(detail="Filer not found.", status_code=404)
-
-        results = [r for r in cursor]
-        if not results:
-            raise HTTPException(detail="No stocks found.", status_code=404)
-        count = len(results)
-
-        pipeline.extend(
-            [
-                {"$sort": {sort: 1 if reverse else -1, "_id": 1}},
-                {"$project": {"_id": 0}},
-                {"$skip": offset},
-                {"$limit": limit},
-            ]
+        pipeline = analysis.sort_pipeline(
+            cik, limit, offset, sort, sold, reverse, unavailable
         )
         cursor = database.search_filers(pipeline)
     except Exception as e:
+        logging.error(e)
         raise HTTPException(detail="Invalid search requirements.", status_code=422)
-
-    if cursor == None:
-        raise HTTPException(detail="Filer not found.", status_code=404)
 
     try:
         stock_list = [result for result in cursor]
+        count = len(stock_list)
     except KeyError:
-        raise HTTPException(detail="Filer not found.", status_code=404)
+        raise HTTPException(detail="Error while searching.", status_code=500)
 
     return {"stocks": stock_list, "count": count}
 
@@ -98,7 +72,7 @@ async def stock_timeseries(cik: str, time: float):
     filer = database.search_filer(cik, {"stocks.cusip": 1})
     if not filer:
         raise HTTPException(detail="Filer not found.", status_code=404)
-    
+
     filer_stocks = filer["stocks"]
     stock_list = []
     cusip_list = list(map(lambda x: x["cusip"], filer_stocks))
@@ -160,15 +134,42 @@ async def stock_timeseries(cik: str, time: float):
 
 
 @router.get("/filing", tags=["filers", "stocks"], status_code=200)
-async def query_filing(cik: str, access_number: str):
+async def query_filing(
+    cik: str,
+    access_number: str,
+    limit: int,
+    offset: int,
+    sort: str,
+    sold: bool,
+    reverse: bool,
+    unavailable: bool,
+):
 
-    filer_query = f"filings.{access_number}.stocks"
-    filer = database.find_filer(cik, {filer_query: 1})
-    if not filer:
-        raise HTTPException(detail="Filer not found.", status_code=404)
+    filer_query = f"$filings.{access_number}.stocks"
+    additonal = [
+        {
+            "$set": {
+                "stocks": {
+                    "$map": {
+                        "input": {"$objectToArray": filer_query},
+                        "as": "stock",
+                        "in": "$$stock.v",
+                    }
+                }
+            }
+        },
+    ]
 
-    filings = filer["filings"]
-    filing = filings[access_number]
-    stocks = filing["stocks"]
+    try:
+        pipeline = analysis.sort_pipeline(
+            cik, limit, offset, sort, sold, reverse, unavailable, additonal
+        )
+        cursor = database.search_filers(pipeline)
 
-    return {"stocks": stocks}
+        stock_list = [result for result in cursor]
+        count = len(stock_list)
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(detail="Error while searching.", status_code=500)
+
+    return {"stocks": stock_list, "count": count}

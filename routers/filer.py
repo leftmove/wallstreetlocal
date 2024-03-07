@@ -461,13 +461,13 @@ async def record_csv(cik: str, headers: str = None):
 @cache(24)
 @router.get("/record/timeseries", tags=["filers", "records"], status_code=200)
 async def partial_record(cik: str, time: float):
-    filer = database.find_filer(cik, {"stocks.local": 1, "tickers": 1, "name": 1})
-    if filer == None:
+    filer = database.find_filer(cik, {"stocks": 1, "tickers": 1, "name": 1})
+    if not filer:
         raise HTTPException(detail="Filer not found.", status_code=404)
-    filer_stocks = filer["stocks"]["local"]
+    filer_stocks = filer["stocks"]
 
     stock_list = []
-    cusip_list = list(map(lambda x: x, filer_stocks))
+    cusip_list = list(map(lambda x: x["cusip"], filer_stocks))
     cursor = database.search_stocks(
         [
             {"$match": {"cusip": {"$in": cusip_list}}},
@@ -523,11 +523,8 @@ async def partial_record(cik: str, time: float):
         "time": time,
         "stocks": stock_list,
     }
-
     filename = f"wallstreetlocal-{cik}-{int(time)}.json"
-    file_path = f"./public/filers/{filename}"
-    with open(file_path, "w") as r:
-        json.dump(filer, r, indent=6)
+    file_path = analysis.create_json(filer, filename)
 
     return FileResponse(
         file_path, media_type="application/octet-stream", filename=filename
