@@ -81,7 +81,7 @@ const initialHeaders = [
   },
   {
     display: "Buy Date",
-    sort: "buy",
+    sort: "buy_time",
     accessor: "buy_str",
     active: false,
     tooltip:
