@@ -431,7 +431,7 @@ async def record(cik: str):
 
 @cache(24)
 @router.get("/recordcsv", tags=["filers", "records"], status_code=200)
-async def record_csv(cik: str, headers: str = None):
+async def record_csv(cik: str, headers: dict = None):
     filer = database.find_filer(cik, {"_id": 1})
     if filer == None:
         raise HTTPException(404, detail="Filer not found.")
