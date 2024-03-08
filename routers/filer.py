@@ -431,15 +431,14 @@ async def record(cik: str):
 
 @cache(24)
 @router.get("/recordcsv", tags=["filers", "records"], status_code=200)
-async def record_csv(cik: str, headers: dict = None):
+async def record_csv(cik: str, headers: list = None):
     filer = database.find_filer(cik, {"_id": 1})
     if filer == None:
         raise HTTPException(404, detail="Filer not found.")
 
     if headers:
         try:
-            headers_string = headers
-            headers = json.loads(headers)
+            headers_string = json.loads(headers)
             header_hash = hash(headers_string)
             file_name = f"wallstreetlocal-{cik}{header_hash}.csv"
         except:
