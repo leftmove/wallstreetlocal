@@ -576,8 +576,9 @@ async def record_filing_csv(cik: str, access_number: str, headers: str = None):
 
     if headers:
         try:
-            headers_string = parse.unquote(headers) + f"-{access_number}"
+            headers_string = parse.unquote(headers)
             headers = json.loads(headers_string)
+            headers_string = headers_string + f"-{access_number}"
             header_hash = hash(headers_string)
             file_name = f"wallstreetlocal-{cik}{header_hash}.csv"
         except:
@@ -589,7 +590,8 @@ async def record_filing_csv(cik: str, access_number: str, headers: str = None):
 
     filer_query = f"filings.{access_number}"
     filer = database.find_filer(cik, {filer_query: 1})
-    stock_list = filer["filings"][access_number]["stocks"]
+    stock_dict = filer["filings"][access_number]["stocks"]
+    stock_list = [stock_dict[cusip] for cusip in stock_dict]
 
     file_path, filename = analysis.create_csv(stock_list, file_name, headers)
     return FileResponse(
