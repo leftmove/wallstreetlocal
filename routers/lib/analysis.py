@@ -599,7 +599,6 @@ def sort_pipeline(
     pipeline.append(
         {"$sort": {sort: 1 if reverse else -1, "_id": 1}},
     )
-
     if unavailable == False:
         sort_stage = pipeline.pop(-1)
         pipeline.extend(
