@@ -1,11 +1,23 @@
-# wallstreetlocal
-A website that allows you to view thousands of holdings, from the world's largest investors.
+<p align="center">
+  <a href="https://wallstreetlocal.com" target="_blank">
+    <picture>
+      <img alt="wallstreetlocal" src="https://raw.githubusercontent.com/tailwindlabs/tailwindcss/HEAD/public/static/logo.png" width="350" height="70" style="max-width: 100%;">
+    </picture>
+  </a>
+</p>
+
+<p align="center">
+  A website that allows you to view the investments of America's largest investors.
+</p>
+
+<!-- ![wallstreetlocal logo](./public//static/logo.png) -->
+
 
 This repository holds the front-end code for wallstreetlocal, for the back-end, see [here](https://github.com/bruhbruhroblox/pinestreetlocal).
 
 
 ### SEC Filings
-The Securities and Exchange Commission (SEC) keeps record of every company in the United States. Companies whose holdings surpass $100 million though, are required to file a special type of form: the 13F form. This form, filed quarterly, discloses the filer's holdings, providing transparency into their investment activities and allowing the public and other market participants to monitor large institutional investors.
+The Securities and Exchange Commission (SEC) keeps record of every company in the United States. Companies whose holdings surpass $100 million though, are required to file a special type of form: the 13F form. This form, filed quarterly, discloses the filer's holdings, providing transparency into their investment activities and allowing the public and other market participants to monitor them.
 
 The problem though, is that these holdings are often cumbersome to access, and valuable analysis is often hidden behind a paywall. Through **wallstreetlocal**, the SEC's 13F filers become more accessible and open.
 

@@ -40,7 +40,13 @@ export default function Home() {
         </div>
         <div className={styles["search-header"]}>
           <Search />
+
           <div className={styles["header"]}>
+            <span className={[styles["search-hint"], font.className].join(" ")}>
+              Nothing to search? See filers sorted by popularity and value in the top right
+              corner.
+            </span>
+
             <span
               className={[styles["main-header"], fontBold.className].join(" ")}
             >

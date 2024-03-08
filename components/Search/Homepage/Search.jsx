@@ -67,6 +67,7 @@ const Search = () => {
           input.focus && input.search.length ? styles["results-expand"] : "",
         ].join(" ")}
       >
+
         {
           <ul className={styles["result-list"]}>
             {input.results.map((result) => {
@@ -91,6 +92,7 @@ const Search = () => {
           </ul>
         }
       </div>
+
     </div>
   );
 };

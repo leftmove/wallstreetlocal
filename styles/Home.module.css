@@ -54,6 +54,14 @@
   margin-top: 30px;
 }
 
+.search-hint {
+  font-size: 0.8rem;
+  color: var(--white);
+  opacity: 0.3;
+  margin-top: -5px;
+  margin-bottom: 10px;
+}
+
 .main-header {
   font-size: 3rem;
   color: #04df16;
