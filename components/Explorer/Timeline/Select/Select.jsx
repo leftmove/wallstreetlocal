@@ -82,7 +82,14 @@ const Select = (props) => {
         <div className={styles["select-records"]}>
           <Record selected={selected} variant="json" />
           <Record selected={selected} variant="csv" headers={headers} />
-          <Source color="light" width={"40px"} />
+          <Source
+            link={`https://www.sec.gov/Archives/edgar/data/${cik}/${selected?.access.replace(
+              "-",
+              ""
+            )}/${selected?.access}-index.htm`}
+            color="light"
+            width={"40px"}
+          />
         </div>
         <div className={styles["picker-attributes"]}>
           {attributes.map((a) => (

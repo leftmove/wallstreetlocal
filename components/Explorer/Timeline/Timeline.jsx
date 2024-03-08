@@ -64,7 +64,7 @@ const Timeline = () => {
               ].join(" ")}
             >
               Click the folder icon on the left to find additional filings,
-              manipulate the table, and download any data you see.
+              manipulate the table(s), and download any data you see.
             </span>
           </div>
         </div>
