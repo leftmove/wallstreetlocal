@@ -1,5 +1,6 @@
 .footer {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
 
@@ -19,4 +20,9 @@
 
 #market {
   color: var(--secondary);
+}
+
+.donation {
+  font-size: 0.8rem;
+  opacity: 0.8;
 }

@@ -1,7 +1,7 @@
 import styles from "./Footer.module.css";
 
 import Link from "next/link";
-import { font } from "@fonts";
+import { font, fontLight } from "@fonts";
 
 const Footer = () => {
   return (
@@ -23,6 +23,15 @@ const Footer = () => {
           </span>
         </Link>
       </div>
+      <Link
+        href="https://ko-fi.com/wallstreetlocal"
+        target="_blank"
+        className={[styles["donation"], fontLight.className].join(" ")}
+      >
+        <span>
+          wallstreetlocal is free and open-source, please consider donating.
+        </span>
+      </Link>
     </div>
   );
 };
