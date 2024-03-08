@@ -1,5 +1,7 @@
 import styles from "./Record.module.css";
 
+import qs from "qs";
+
 import { useSelector } from "react-redux";
 import { selectCik } from "@/redux/filerSlice";
 
@@ -12,12 +14,14 @@ const server = process.env.NEXT_PUBLIC_SERVER;
 const Record = (props) => {
   const cik = useSelector(selectCik);
   const variant = props.variant || "json";
+  const selected = props.selected;
   const headers = variant == "csv" ? props.headers : null;
+
   const handleJSONDownload = () => {
     window.open(
       server +
         "/filers/record/filing?" +
-        new URLSearchParams({ cik, access_number: selected.access }),
+        new URLSearchParams({ cik, access_number: selected.access }).toString(),
       "_blank"
     );
   };
@@ -25,7 +29,11 @@ const Record = (props) => {
     window.open(
       server +
         "/filers/record/filingcsv?" +
-        new URLSearchParams({ cik, access_number: selected.access, headers }),
+        new URLSearchParams({
+          cik,
+          access_number: selected.access,
+          headers: JSON.stringify(headers.map(({ tooltip, ...rest }) => rest)),
+        }),
       "_blank"
     );
   };

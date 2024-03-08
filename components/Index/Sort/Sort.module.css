@@ -17,6 +17,7 @@
 }
 
 .sort-tip {
+  cursor: pointer;
   color: var(--secondary-dark);
   opacity: 0.8;
   flex-wrap: wrap;

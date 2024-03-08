@@ -80,8 +80,8 @@ const Select = (props) => {
           />
         </div>
         <div className={styles["select-records"]}>
-          <Record variant="json" />
-          <Record variant="csv" headers={headers} />
+          <Record selected={selected} variant="json" />
+          <Record selected={selected} variant="csv" headers={headers} />
           <Source color="light" width={"40px"} />
         </div>
         <div className={styles["picker-attributes"]}>

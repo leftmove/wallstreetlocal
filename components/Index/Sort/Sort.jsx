@@ -19,14 +19,11 @@ const Sort = () => {
         expand ? styles["sort-expanded"] : "",
       ].join(" ")}
     >
-      <div className={styles["sort-header"]}>
+      <div className={styles["sort-header"]} onClick={() => setExpand(!expand)}>
         {/* <span className={[styles["filter-text"], font.className].join(" ")}>
             FILTER
           </span> */}
-        <FunnelIcon
-          className={styles["sort-icon"]}
-          onClick={() => setExpand(!expand)}
-        />
+        <FunnelIcon className={styles["sort-icon"]} />
         <span
           className={[
             styles["sort-tip"],

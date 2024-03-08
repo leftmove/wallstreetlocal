@@ -4,9 +4,9 @@
   align-items: center;
 
   border-radius: 5px;
-  max-height: 5px;
+  max-height: 0px;
   padding: 30px;
-  margin: 10px;
+  margin: 20px;
   overflow-y: hidden;
 
   transition-property: max-height, background-color;
@@ -55,7 +55,7 @@
   display: flex;
   align-items: center;
 
-  margin-top: -38px;
+  margin-top: -40px;
   margin-left: -28px;
 
   /* Dirty CSS to match one icon to the other, fix later with an overarching container. */
