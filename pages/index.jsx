@@ -3,6 +3,8 @@ import styles from "@/styles/Home.module.css";
 import Head from "next/head";
 
 import Image from "next/image";
+import Link from "next/link";
+
 import { font, fontLight, fontBold } from "@fonts";
 
 import Layout from "@/components/Layouts/Home";
@@ -43,10 +45,9 @@ export default function Home() {
 
           <div className={styles["header"]}>
             <span className={[styles["search-hint"], font.className].join(" ")}>
-              Nothing to search? See filers sorted by popularity and value in the top right
-              corner.
+              Nothing to search? See filers sorted by popularity and value in
+              the top right corner.
             </span>
-
             <span
               className={[styles["main-header"], fontBold.className].join(" ")}
             >
@@ -55,6 +56,15 @@ export default function Home() {
             <span className={[styles["sub-header"], font.className].join(" ")}>
               Wall Street&apos;s stock portfolio, for free.
             </span>
+            <Link
+              href="https://ko-fi.com/wallstreetlocal"
+              className={[styles["donate-hint"], font.className].join(" ")}
+              target="_blank"
+            >
+              <span>
+                If you are enjoying this website, please consider donating.
+              </span>
+            </Link>
           </div>
         </div>
         {/* <Recommended variant="homepage" /> */}

@@ -62,6 +62,15 @@
   margin-bottom: 10px;
 }
 
+.donate-hint {
+  font-size: 0.8rem;
+  margin-top: 20px;
+  margin-bottom: -20px;
+  text-align: center;
+  color: var(--white);
+  opacity: 0.3;
+}
+
 .main-header {
   font-size: 3rem;
   color: #04df16;
