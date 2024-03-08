@@ -42,7 +42,7 @@ The problem though, is that these holdings are often cumbersome to access, and v
 
 ## Getting Started
 
-View wallstreetlocal at `http://wallstreetlocal.com`, or self-host using the following instructions.
+View wallstreetlocal at [`wallstreetlocal.com`](https://wallstreetlocal.com), or self-host using the following instructions.
 
 1. Install dependencies.
    
@@ -60,7 +60,7 @@ View wallstreetlocal at `http://wallstreetlocal.com`, or self-host using the fol
    npm run build && npm run start
    ```
 
-The back-end for wallstreetlocal is already configured to `https://content.wallstreetlocal.com`, but if you want to self-host that too, you can find the back-end repository [here](https://github.com/bruhbruhroblox/pinestreetlocal).
+The back-end for this installation is already configured to [`content.wallstreetlocal.com`](https://content.wallstreetlocal.com), but if you want to self-host that too, you can find the back-end repository [here](https://github.com/bruhbruhroblox/pinestreetlocal).
 
 
 For more information on configuration, see the respective docs for wallstreetlocal's development stack.
