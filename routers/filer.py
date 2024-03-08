@@ -5,8 +5,10 @@ from pydantic import BaseModel
 import json
 import os
 import logging
+from urllib import parse
 from traceback import format_exc
 from datetime import datetime
+
 
 from .lib import web
 from .lib import database
@@ -419,6 +421,9 @@ async def record(cik: str):
     filer = database.find_filer(cik, {"_id": 1})
     if filer == None:
         raise HTTPException(404, detail="Filer not found.")
+    filer_log = database.find_log(cik, {"status": 1})
+    if filer_log.get("status", 100) > 0:
+        raise HTTPException(409, detail="Filer still building.")
 
     filename = f"wallstreetlocal-{cik}.json"
     filer = database.search_filer(cik, {"_id": 0, "stocks.timeseries": 0})
@@ -435,13 +440,16 @@ async def record_csv(cik: str, headers: str = None):
     filer = database.find_filer(cik, {"_id": 1})
     if filer == None:
         raise HTTPException(404, detail="Filer not found.")
+    filer_log = database.find_log(cik, {"status": 1})
+    if filer_log.get("status", 100) > 0:
+        raise HTTPException(409, detail="Filer still building.")
 
     if headers:
         try:
-            headers_string = headers
-            headers = json.loads(headers)
+            headers_string = parse.unquote(headers)
+            headers = json.loads(headers_string)
             header_hash = hash(headers_string)
-            file_name = f"wallstreetlocal-{cik}{header_hash}.csv"
+            file_name = f"wallstreetlocal-{cik}-{header_hash}.csv"
         except:
             raise HTTPException(
                 status_code=422, detail="Malformed headers, unable to process request."
@@ -464,8 +472,11 @@ async def partial_record(cik: str, time: float):
     filer = database.find_filer(cik, {"stocks": 1, "tickers": 1, "name": 1})
     if not filer:
         raise HTTPException(detail="Filer not found.", status_code=404)
-    filer_stocks = filer["stocks"]
+    filer_log = database.find_log(cik, {"status": 1})
+    if filer_log.get("status", 100) > 0:
+        raise HTTPException(409, detail="Filer still building.")
 
+    filer_stocks = filer["stocks"]
     stock_list = []
     cusip_list = list(map(lambda x: x["cusip"], filer_stocks))
     cursor = database.search_stocks(
@@ -537,6 +548,9 @@ async def record_filing(cik: str, access_number):
     filer = database.find_filer(cik, {"_id": 1})
     if filer == None:
         raise HTTPException(404, detail="Filer not found.")
+    filer_log = database.find_log(cik, {"status": 1})
+    if filer_log.get("status", 100) > 0:
+        raise HTTPException(409, detail="Filer still building.")
 
     filer_query = f"filings.{access_number}"
     filer = database.find_filer(cik, {filer_query: 1})
@@ -556,11 +570,14 @@ async def record_filing_csv(cik: str, access_number: str, headers: str = None):
     filer = database.find_filer(cik, {"_id": 1})
     if filer == None:
         raise HTTPException(404, detail="Filer not found.")
+    filer_log = database.find_log(cik, {"status": 1})
+    if filer_log.get("status", 100) > 0:
+        raise HTTPException(409, detail="Filer still building.")
 
     if headers:
         try:
-            headers_string = f"{headers}-{access_number}"
-            headers = json.loads(headers)
+            headers_string = parse.unquote(headers) + f"-{access_number}"
+            headers = json.loads(headers_string)
             header_hash = hash(headers_string)
             file_name = f"wallstreetlocal-{cik}{header_hash}.csv"
         except:
