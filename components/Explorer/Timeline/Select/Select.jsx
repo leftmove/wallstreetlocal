@@ -17,20 +17,19 @@ import Source from "@/components/Source/Source";
 
 const Select = (props) => {
   const dispatch = useDispatch();
-  const type = props.type || "primary";
+  const type = props.type;
   const selected =
-    type == "secondary"
+    type === "secondary"
       ? useSelector(selectSecondary)
       : useSelector(selectPrimary);
   const headers = selected.headers;
 
-  const updateHeaders = (h) =>
-    dispatch(editComparison({ key: selected.access, headers: h }));
+  const updateHeaders = (h) => dispatch(editComparison({ type, headers: h }));
   const updateDescription = (d) => props.setDescription(d);
   const updateActivation = (a) =>
     dispatch(
       editComparison({
-        key: selected.access,
+        type,
         headers: headers.map((h) =>
           h.accessor === a ? { ...h, active: !h.active } : h
         ),
@@ -39,14 +38,14 @@ const Select = (props) => {
   const updateSold = () =>
     dispatch(
       editComparison({
-        key: selected.access,
+        type,
         sort: { ...selected.sort, sold: !selected.sort.sold },
       })
     );
   const updateNa = () =>
     dispatch(
       editComparison({
-        key: selected.access,
+        type,
         sort: { ...selected.sort, na: !selected.sort.na },
       })
     );

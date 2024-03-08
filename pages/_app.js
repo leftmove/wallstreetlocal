@@ -5,7 +5,7 @@ import MobileLayout from "@/components/Layouts/Mobile";
 
 import { isMobile } from "react-device-detect";
 
-// function App({ Component, pageProps, ...rest }) {
+// function App({ ComponenpageProps, ...rest }) {
 //   const customLayout = Component.getLayout
 //     ? () => Component.getLayout(<Component {...pageProps} />)
 //     : null;

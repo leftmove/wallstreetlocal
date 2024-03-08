@@ -23,11 +23,13 @@
 }
 
 .logo-title {
-  min-width: 375px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
 }
 
 .logo-text {
-  font-size: 3rem;
+  font-size: 2.5vw;
 }
 
 #whale {
@@ -51,7 +53,7 @@
 }
 
 .item {
-  font-size: 1.3rem;
+  font-size: 1.25vw;
   text-align: center;
 
   margin-left: 10px;

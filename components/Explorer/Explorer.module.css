@@ -1,9 +1,15 @@
 .explorer-container {
-  margin: 20px;
+  width: 100%;
+}
+
+.explorer-tables {
+  display: flex;
+  justify-content: space-between;
 }
 
 .table-container {
-  margin: 20px;
+  margin: 10px;
+  width: 100%;
 
   overflow-x: auto;
 }

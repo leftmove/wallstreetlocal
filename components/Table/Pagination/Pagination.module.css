@@ -1,5 +1,6 @@
 .pagination {
   display: flex;
+  align-items: center;
   justify-content: space-between;
 
   width: 100%;
@@ -31,8 +32,6 @@
 .pagination-display {
   display: flex;
   justify-content: space-between;
-
-  max-width: 10%;
 }
 
 .pagination-text {

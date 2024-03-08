@@ -128,6 +128,18 @@ const initialHeaders = [
       "The report date listed on the SEC filing this stock was taken from.",
   },
 ];
+const initialComparisons = initialHeaders.map((h) => {
+  switch (h.sort) {
+    case "buy_price":
+      return { ...h, active: false };
+    case "recent_price":
+      return { ...h, active: false };
+    case "gain_percent":
+      return { ...h, active: false };
+    default:
+      return h;
+  }
+});
 const initialSort = {
   sort: "ticker",
   type: "string",
@@ -136,6 +148,7 @@ const initialSort = {
   sold: false,
   reverse: true,
   pagination: 100,
+  limit: 100,
   count: 0,
   offset: 0,
 };
@@ -159,7 +172,7 @@ const initialState = {
           time: 0,
           date: "",
         },
-        headers: initialHeaders,
+        headers: initialComparisons,
         sort: initialSort,
         stocks: [],
       },
@@ -170,12 +183,17 @@ const initialState = {
         reportTime: 0,
         filingDate: "",
         reportDate: "",
-        headers: initialHeaders,
+        headers: initialComparisons,
         sort: initialSort,
         stocks: [],
       },
     ],
     open: false,
+  },
+  difference: {
+    headers: initialComparisons,
+    sort: initialSort,
+    stocks: [],
   },
   dates: [
     {
@@ -215,7 +233,6 @@ export const filerSlice = createSlice({
     },
     sortHeader(state, action) {
       const payload = action.payload;
-      console.log(payload);
       let type = "string";
       switch (payload.sort) {
         case "name":
@@ -305,14 +322,7 @@ export const filerSlice = createSlice({
       return state;
     },
     setStocks(state, action) {
-      const stocks = action.payload.map((prev) => {
-        const properties = Object.keys(prev);
-        const next = {};
-        properties.forEach((p) =>
-          prev[p] == null ? (next[p] = "NA") : (next[p] = prev[p])
-        );
-        return next;
-      });
+      const stocks = action.payload;
       state.value = stocks;
       return state;
     },
@@ -447,6 +457,23 @@ export const filerSlice = createSlice({
       state.sort.count = payload;
       return state;
     },
+    setFilingCount(state, action) {
+      const payload = action.payload;
+      const type = payload.type;
+      const count = payload.count;
+
+      const comparisons = state.timeline.comparisons.map((c) =>
+        c.type === type
+          ? {
+              ...c,
+              sort: { ...c.sort, pagination: count > 100 ? 100 : count, count },
+            }
+          : c
+      );
+
+      state.timeline.comparisons = comparisons;
+      return state;
+    },
     setOffset(state, action) {
       const payload = action.payload;
       if (payload >= 0) {
@@ -478,57 +505,14 @@ export const filerSlice = createSlice({
 
       return state;
     },
-    setFilingStocks(state, action) {
-      const payload = action.payload;
-      const type = payload.type;
-
-      const stocks = payload.stocks.map((prev) => {
-        const properties = Object.keys(prev);
-        const next = {};
-        properties.forEach((p) =>
-          prev[p] == null ? (next[p] = "NA") : (next[p] = prev[p])
-        );
-        return next;
-      });
-
-      const comparisons = state.timeline.comparisons.map((c) =>
-        c.type === type ? { ...c, stocks } : c
-      );
-
-      state.timeline.comparisons = comparisons;
-
-      return state;
-    },
-    setFilingCount(state, action) {
-      const payload = action.payload;
-      const count = payload.count;
-      const type = payload.type;
-
-      const comparison = state.timeline.comparisons.find(
-        (c) => c.type === type
-      );
-
-      const sort = comparison.sort;
-      const pagination = sort.pagination;
-
-      if (pagination < 0) {
-        comparison.sort.pagination = count > 100 ? 100 : count;
-      }
-
-      const comparisons = state.timeline.comparisons.map((c) =>
-        c.type === type ? comparison : c
-      );
-      state.timeline.comparisons = comparisons;
-      return state;
-    },
     setComparison(state, action) {
       const payload = action.payload;
       const type = payload.type;
       const access = payload.access;
 
       const filing = state.filings.find((f) => f.access_number == access);
-      const filingDate = new Date(filing.filing_date);
-      const reportDate = new Date(filing.report_date);
+      const filingDate = new Date(filing.filing_date * 1000);
+      const reportDate = new Date(filing.report_date * 1000);
       const filingTime = filingDate.getTime() / 1000;
       const reportTime = reportDate.getTime();
       const filingStr = filingDate.toLocaleDateString();
@@ -565,56 +549,36 @@ export const filerSlice = createSlice({
     },
     editComparison(state, action) {
       const payload = action.payload;
-      const key = payload.key;
+      const type = payload.type;
 
       const comparison = payload;
-      delete comparison.key;
-
       const comparisons = state.timeline.comparisons.map((c) => {
-        return c.access == key ? { ...c, ...comparison } : c;
+        return c.type == type ? { ...c, ...comparison } : c;
       });
 
       state.timeline.comparisons = comparisons;
       return state;
     },
-    filingIncrement(state) {
-      const access = state.timeline.comparisons.find(
-        (c) => c.type == "primary"
-      ).access;
-      const filings = state.filings;
-      const filingIndex = filings.findIndex((f) => f.access_number == access);
+    editSort(state, action) {
+      const payload = action.payload;
+      const type = payload.type;
+      delete payload.type;
 
-      if (filingIndex >= filings.length + 1) {
-        return;
-      }
-
-      const newIndex = filingIndex + 1;
-      const newFiling = filings[newIndex];
-      const newAccess = newFiling.access_number;
-
-      filerSlice.actions.setComparison({ type: "primary", access: newAccess });
-    },
-    filingDecrement(state) {
-      const access = state.timeline.comparisons.find(
-        (c) => c.type == "primary"
-      ).access;
-      const filings = state.filings;
-      const filingIndex = filings.findIndex((f) => f.access_number == access);
-
-      if (filingIndex <= 0) {
-        return;
-      }
-
-      const newIndex = filingIndex - 1;
-      const newFiling = filings[newIndex];
-      const newAccess = newFiling.access_number;
-      console.log(access, newAccess);
-
-      filerSlice.actions.setComparison({
-        type: "secondary",
-        access: newAccess,
+      const comparisons = state.timeline.comparisons.map((c) => {
+        return c.type == type ? { ...c, sort: { ...c.sort, ...payload } } : c;
       });
+
+      state.timeline.comparisons = comparisons;
+      return state;
     },
+    editDifference(state, action) {
+      const payload = action.payload;
+      const difference = state.difference;
+
+      state.difference = { ...difference, ...payload };
+      return state;
+    },
+
     [HYDRATE]: (state, action) => {
       return {
         ...state,
@@ -651,6 +615,7 @@ export const selectTimeline = (state) => state.filer.timeline;
 export const selectFilings = (state) => state.filer.filings;
 export const selectPrimary = (state) => state.filer.timeline.comparisons[0];
 export const selectSecondary = (state) => state.filer.timeline.comparisons[1];
+export const selectDifference = (state) => state.filer.difference;
 
 export const {
   setCik,
@@ -675,15 +640,16 @@ export const {
   newDate,
   setPagination,
   setCount,
+  setFilingCount,
   setOffset,
   setPrimary,
   setSecondary,
   setFilings,
   editComparison,
+  editSort,
   setComparison,
   setOpen,
-  setFilingStocks,
-  setFilingCount,
+  editDifference,
 } = filerSlice.actions;
 
 export default filerSlice.reducer;

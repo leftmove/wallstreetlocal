@@ -9,6 +9,7 @@ import useEllipsis from "@/components/Hooks/useEllipsis";
 const Unavailable = (props) => {
   const type = props.type || "stocks";
   const cik = type == "stocks" ? props.cik : null;
+  const text = props.text || null;
 
   const interval = 300;
   const pause = type == "loading" ? false : true;
@@ -16,19 +17,23 @@ const Unavailable = (props) => {
   return (
     <div className={[styles["error-container"], font.className].join(" ")}>
       {type == "stocks" ? (
-        <div>
-          <span>Unable to get stock data. Try again later or </span>
-          <Link
-            href={
-              "https://www.sec.gov/cgi-bin/browse-edgar?" +
-              new URLSearchParams({ CIK: cik.padStart(10, 0) })
-            }
-            className={styles["error-link"]}
-            target="_blank"
-          >
-            visit the SEC directly.
-          </Link>
-        </div>
+        text ? (
+          <span>{text}</span>
+        ) : (
+          <div>
+            <span>Unable to get stock data. Try again later or </span>
+            <Link
+              href={
+                "https://www.sec.gov/cgi-bin/browse-edgar?" +
+                new URLSearchParams({ CIK: cik.padStart(10, 0) })
+              }
+              className={styles["error-link"]}
+              target="_blank"
+            >
+              visit the SEC directly.
+            </Link>
+          </div>
+        )
       ) : null}
       {type == "loading" ? (
         <div>

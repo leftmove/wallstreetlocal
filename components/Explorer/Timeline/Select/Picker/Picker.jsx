@@ -35,8 +35,12 @@ const Picker = (props) => {
       <div className={styles["picker-filings"]}>
         {filings.map((filing) => {
           const accessNumber = filing.access_number;
-          const reportDate = new Date(filing.report_date).toLocaleDateString();
-          const filingDate = new Date(filing.filing_date).toLocaleDateString();
+          const reportDate = new Date(
+            filing.report_date * 1000
+          ).toLocaleDateString();
+          const filingDate = new Date(
+            filing.filing_date * 1000
+          ).toLocaleDateString();
           const marketValue = filing.market_value
             ? new Intl.NumberFormat("en-US").format(filing.market_value)
             : "-";

@@ -137,18 +137,15 @@ const Progress = (props) => {
     }
   }
 
-  if (stop) {
-    return <Redirect cik={cik} delay={0} />;
-  }
-
   return (
     <>
       {/* {stop ? <Reload /> : null} */}
+      {stop ? <Redirect cik={cik} delay={0} /> : null}
       <div className={[styles["progress"], font.className].join(" ")}>
         <div className={styles["header"]}>
           <div className={styles["main-header"]}>
             <span>Building Filer</span>
-            <Source cik={cik} />
+            <Source cik={cik} width="30px" />
           </div>
           <div className={styles["sub-header"]}>
             {name ? <span>{name}</span> : null}

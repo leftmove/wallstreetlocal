@@ -1,17 +1,16 @@
 import styles from "./Pagination.module.css";
 
-import { setOffset, selectPagination } from "@/redux/filerSlice";
-import { useDispatch, useSelector } from "react-redux";
-
 import LeftIcon from "@/public/static/right.svg";
 import RightIcon from "@/public/static/left.svg";
 
 import Count from "./Count/Count";
 import Limit from "./Limit/Limit";
 
-const Pagination = () => {
-  const dispatch = useDispatch();
-  const pagination = useSelector(selectPagination);
+const Pagination = (props) => {
+  const pagination = props.pagination;
+
+  const paginate = (p) => props.paginate(p);
+  const skip = (o) => props.skip(o);
 
   const leftOffset = Number(pagination.offset - pagination.limit);
   const rightOffset = Number(pagination.offset + pagination.limit);
@@ -20,20 +19,16 @@ const Pagination = () => {
     <div className={styles["pagination"]}>
       <button
         className={styles["pagination-button"]}
-        onClick={() =>
-          leftOffset >= 0 ? dispatch(setOffset(leftOffset)) : null
-        }
+        onClick={() => (leftOffset >= 0 ? skip(leftOffset) : null)}
       >
         <LeftIcon className={styles["pagination-icon"]} />
       </button>
-      <Count />
-      <Limit />
+      <Count pagination={pagination} skip={skip} />
+      <Limit pagination={pagination} paginate={paginate} />
       <button
         className={styles["pagination-button"]}
         onClick={() =>
-          rightOffset < pagination.count
-            ? dispatch(setOffset(rightOffset))
-            : null
+          rightOffset < pagination.count ? skip(rightOffset) : null
         }
       >
         <RightIcon className={styles["pagination-icon"]} />

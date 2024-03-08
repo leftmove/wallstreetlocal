@@ -1,5 +1,4 @@
 import styles from "./Explorer.module.css";
-import { useEffect } from "react";
 
 import Error from "next/error";
 
@@ -13,45 +12,18 @@ import {
   setFilings,
   setComparison,
   selectSecondary,
-  setFilingStocks,
+  editComparison,
+  editSort,
   setFilingCount,
 } from "@/redux/filerSlice";
 
+import useFilingStocks from "@/components/Hooks/useFilingStocks";
+import Loading from "@/components/Loading/Loading";
 import Table from "@/components/Table/Table";
 import Unavailable from "@/components/Unavailable/Unavailable";
 import Timeline from "./Timeline/Timeline";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
-const filingFetcher = (url, cik) =>
-  axios
-    .get(url, {
-      params: {
-        cik,
-      },
-    })
-    .then((r) => r.data)
-    .catch((e) => console.error(e));
-const stockFetcher = (
-  url,
-  cik,
-  access,
-  { pagination, sort, offset, reverse, sold, na }
-) =>
-  axios
-    .get(url, {
-      params: {
-        cik,
-        access_number: access,
-        limit: pagination,
-        sort,
-        offset,
-        reverse,
-        sold,
-        unavailable: na,
-      },
-    })
-    .then((r) => r.data)
-    .catch((e) => console.error(e));
 
 // Most janky code I've ever written. Really, just the worst.
 // I made some mistakes in the infastructure making the stocks table,
@@ -64,13 +36,45 @@ const stockFetcher = (
 const Explorer = () => {
   const dispatch = useDispatch();
   const cik = useSelector(selectCik);
-
   const primary = useSelector(selectPrimary);
   const secondary = useSelector(selectSecondary);
-  const primaryAccess = primary.access;
-  const secondaryAccess = secondary.access;
 
-  const { data, error } = useSWR(
+  const filingFetcher = (url, cik) =>
+    axios
+      .get(url, {
+        params: {
+          cik,
+        },
+      })
+      .then((r) => r.data)
+      .then((data) => {
+        if (data) {
+          const filings = data.filings;
+
+          dispatch(setFilings(filings));
+          if (primary.access == "") {
+            dispatch(
+              setComparison({
+                type: "primary",
+                access: filings[0].access_number,
+              })
+            );
+          }
+          if (secondary.access == "") {
+            dispatch(
+              setComparison({
+                type: "secondary",
+                access: filings[1].access_number,
+              })
+            );
+          }
+        } else {
+          const error = new Error("No filings to retrieve.");
+          throw error;
+        }
+      })
+      .catch((e) => console.error(e));
+  const { isLoading: loading, error } = useSWR(
     cik ? [server + "/filers/filings", cik] : null,
     ([url, cik]) => filingFetcher(url, cik),
     {
@@ -78,85 +82,97 @@ const Explorer = () => {
       revalidateOnReconnect: false,
     }
   );
-  useEffect(() => {
-    if (data) {
-      const filings = data.filings;
-      dispatch(setFilings(filings));
-      if (primaryAccess == "") {
-        dispatch(
-          setComparison({ type: "primary", access: filings[0].access_number })
-        );
-      }
-      if (secondaryAccess == "") {
-        dispatch(
-          setComparison({ type: "secondary", access: filings[1].access_number })
-        );
-      }
-    }
-  }, [data]);
 
-  const { primaryData, isLoading: primaryLoading } = useSWR(
-    cik && primaryAccess
-      ? [server + "/stocks/filing", cik, primaryAccess, sort]
-      : null,
-    ([url, cik, primaryAccess, sort]) =>
-      stockFetcher(url, cik, primaryAccess, sort),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
-  );
-  const { secondaryData, isLoading: secondaryLoading } = useSWR(
-    cik && secondaryAccess
-      ? [server + "/stocks/filing", cik, secondaryAccess, sort]
-      : null,
-    ([url, cik, secondaryAccess, sort]) =>
-      stockFetcher(url, cik, secondaryAccess, sort),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
+  const {
+    items: primaryItems,
+    loading: primaryLoading,
+    error: primaryError,
+    headers: primaryHeaders,
+    pagination: primaryPagination,
+    select: primarySelect,
+    reverse: primaryReverse,
+    activate: primaryActivate,
+    skip: primarySkip,
+    paginate: primaryPaginate,
+  } = useFilingStocks(
+    cik,
+    primary,
+    (count) => dispatch(setFilingCount({ type: "primary", count })),
+    (stocks) => dispatch(editComparison({ type: "primary", stocks })),
+    (accessor, direction) =>
+      dispatch(
+        editSort({
+          type: "primary",
+          accessor,
+          reverse: direction,
+        })
+      ),
+    (offset) => dispatch(editSort({ type: "primary", offset })),
+    (pagination) => dispatch(editSort({ type: "primary", pagination }))
   );
 
-  useEffect(() => {
-    if (primaryData) {
-      const type = "primary";
-      const stocks = primaryData.stocks;
-      const count = primaryData.count;
-      dispatch(setFilingCount({ type, count }));
-      dispatch(setFilingStocks({ type, stocks }));
-    }
-  }, [primaryData]);
-  useEffect(() => {
-    if (secondaryData) {
-      const type = "secondary";
-      const stocks = secondaryData.stocks;
-      const count = secondaryData.count;
-      dispatch(setFilingCount({ type, count }));
-      dispatch(setFilingStocks({ type, stocks }));
-    }
-  }, [secondaryData]);
+  const {
+    items: secondaryItems,
+    loading: secondaryLoading,
+    error: secondaryError,
+    headers: secondaryHeaders,
+    pagination: secondaryPagination,
+    select: secondarySelect,
+    reverse: secondaryReverse,
+    activate: secondaryActivate,
+    skip: secondarySkip,
+    paginate: secondaryPaginate,
+  } = useFilingStocks(
+    cik,
+    secondary,
+    (count) => dispatch(setFilingCount({ type: "secondary", count })),
+    (stocks) => dispatch(editComparison({ type: "secondary", stocks })),
+    (accessor, direction) =>
+      dispatch(
+        editSort({
+          type: "secondary",
+          accessor,
+          reverse: direction,
+        })
+      ),
+    (offset) => dispatch(editSort({ type: "secondary", offset })),
+    (pagination) => dispatch(editSort({ type: "secondary", pagination }))
+  );
 
-  const primaryStocks = primary?.stocks;
-  const secondaryStocks = secondary?.stocks;
-
-  if (error) return <Error statusCode={404} />;
-  if (!primaryStocks?.length && !secondaryStocks?.length)
-    return <Unavailable type="stocks" cik={cik} />;
-
-  const primaryItems = primary.stocks.map((s) => {
-    return { ...s, id: s.cusip };
-  });
-  const secondaryItems = secondary.stocks.map((s) => {
-    return { ...s, id: s.cusip };
-  });
+  if (error) return <Unavailable />;
 
   return (
     <div className={styles["explorer-container"]}>
+      {loading ? <Loading /> : null}
       <Timeline />
       <div className={styles["explorer-tables"]}>
         <div className={styles["table-container"]}>
-          <Table items={primaryItems} headers={primary.headers} />
+          {primaryError ? <Error statusCode={404} /> : null}
+          <Table
+            items={primaryItems}
+            loading={primaryLoading}
+            headers={primaryHeaders}
+            reverse={primaryReverse}
+            skip={primarySkip}
+            sort={primarySelect}
+            activate={primaryActivate}
+            paginate={primaryPaginate}
+            pagination={primaryPagination}
+          />
+        </div>
+        <div className={styles["table-container"]}>
+          {secondaryError ? <Error statusCode={404} /> : null}
+          <Table
+            items={secondaryItems}
+            loading={secondaryLoading}
+            headers={secondaryHeaders}
+            reverse={secondaryReverse}
+            skip={secondarySkip}
+            sort={secondarySelect}
+            activate={secondaryActivate}
+            paginate={secondaryPaginate}
+            pagination={secondaryPagination}
+          />
         </div>
       </div>
     </div>

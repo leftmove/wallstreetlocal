@@ -14,14 +14,17 @@ const Redirect = (props) => {
   const { ellipsis } = useEllipsis();
   useEffect(() => {
     setTimeout(() => {
-      router.push("/filers/" + cik);
+      router.replace("/filers/" + cik);
     }, props.delay || wait);
-  }, []);
+  }, [cik]);
 
   return (
     <div className={styles["reload"]}>
       <span className={[styles["reload-text"], fontLight.className].join(" ")}>
         Redirecting {ellipsis}
+      </span>
+      <span className={[styles["reload-hint"], fontLight.className].join(" ")}>
+        Reload this page manually if redirecting takes too long.
       </span>
     </div>
   );

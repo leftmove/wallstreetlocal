@@ -4,8 +4,9 @@
   align-items: center;
 
   border-radius: 5px;
-  max-height: 20px;
-  padding: 20px;
+  max-height: 5px;
+  padding: 30px;
+  margin: 10px;
   overflow-y: hidden;
 
   transition-property: max-height, background-color;
@@ -41,28 +42,37 @@
 
 .timeline-select {
   display: flex;
-  justify-content: center;
+  align-items: center;
   cursor: pointer;
 
-  padding: 3px;
+  width: 100%;
+  margin-top: 10px;
   border-radius: 5px;
-  width: 50%;
-  margin: 0px auto;
-
-  background-color: var(--offwhite-dark);
-  transition: background-color 0.3s ease;
+  background: none;
 }
 
 .timeline-info {
   display: flex;
-  justify-content: space-around;
+  align-items: center;
 
-  width: 100%;
+  margin-top: -38px;
+  margin-left: -28px;
+
+  /* Dirty CSS to match one icon to the other, fix later with an overarching container. */
 }
 
-.switch-icon {
-  width: 15px;
-  margin: 0px 20px;
+.sort-icon {
+  width: 20px;
+  margin: 0px 10px;
+}
+
+.sort-tip {
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.sort-hidden {
+  opacity: 0;
 }
 
 .timeline-button {

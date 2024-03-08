@@ -1,14 +1,11 @@
 import styles from "../Pagination.module.css";
 import { useEffect, useState } from "react";
 
-import { setPagination, selectPagination } from "@/redux/filerSlice";
-import { useDispatch, useSelector } from "react-redux";
-
 import { font } from "@fonts";
 
-const Limit = () => {
-  const dispatch = useDispatch();
-  const pagination = useSelector(selectPagination);
+const Limit = (props) => {
+  const pagination = props.pagination;
+  const setPagination = (p) => props.paginate(p);
 
   const [focus, setFocus] = useState(false);
   const [paginationLimit, setPaginationLimit] = useState(100);
@@ -16,14 +13,14 @@ const Limit = () => {
   useEffect(() => {
     if (pagination.count <= 100) {
       setPaginationLimit(pagination.count);
-      dispatch(setPagination(pagination.count));
+      setPagination(pagination.count);
       setFocus(false);
     }
   }, []);
 
   const handleBlur = () => {
     if (paginationLimit > 0) {
-      dispatch(setPagination(paginationLimit));
+      setPagination(paginationLimit);
     }
     setFocus(false);
   };

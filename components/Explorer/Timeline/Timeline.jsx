@@ -7,8 +7,6 @@ import {
   selectSecondary,
   selectTimeline,
   setOpen,
-  filingIncrement,
-  filingDecrement,
 } from "@/redux/filerSlice";
 
 import { font, fontLight } from "@fonts";
@@ -16,9 +14,11 @@ import { font, fontLight } from "@fonts";
 import LeftIcon from "@/public/static/right.svg";
 import RightIcon from "@/public/static/left.svg";
 import SwitchIcon from "@/public/static/switch.svg";
+import FolderIcon from "@/public/static/folder.svg";
 
-import Select from "./Select/Select";
 import Tip from "@/components/Tip/Tip";
+import Difference from "./Difference/Difference";
+import Select from "./Select/Select";
 
 const Timeline = () => {
   const dispatch = useDispatch();
@@ -26,10 +26,7 @@ const Timeline = () => {
   const primary = useSelector(selectPrimary);
   const secondary = useSelector(selectSecondary);
 
-  const primaryAccess = primary.access;
-  const secondaryAccess = secondary.access;
   const open = timeline.open;
-
   const [description, setDescription] = useState({
     title: "",
     text: "",
@@ -58,9 +55,17 @@ const Timeline = () => {
           onClick={() => dispatch(setOpen(!open))}
         >
           <div className={styles["timeline-info"]}>
-            <span>{primaryAccess}</span>
-            <SwitchIcon className={styles["switch-icon"]} />
-            <span>{secondaryAccess}</span>
+            <FolderIcon className={styles["sort-icon"]} />
+            <span
+              className={[
+                styles["sort-tip"],
+                open ? styles["sort-hidden"] : "",
+                fontLight.className,
+              ].join(" ")}
+            >
+              Click the folder icon on the left to find additional filings,
+              manipulate the table, and download any data you see.
+            </span>
           </div>
         </div>
         {/* <button
@@ -88,6 +93,7 @@ const Timeline = () => {
           type="primary"
           setDescription={(desc) => setDescription(desc)}
         />
+        {/* <Difference setDescription={(desc) => setDescription(desc)} /> */}
         <Select
           type="secondary"
           setDescription={(desc) => setDescription(desc)}

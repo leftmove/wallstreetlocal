@@ -1,6 +1,12 @@
+.record-link {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
 .record-button {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   text-align: center;
   cursor: pointer;
@@ -8,7 +14,7 @@
 
   font-size: 0.85rem;
   padding: 10px 20px;
-  width: 150px;
+  width: 97%;
   margin-right: 5px;
 
   color: white;
@@ -25,8 +31,10 @@
 
 .record-text {
   font-size: 1.5rem;
+  margin-right: 10px;
 }
 
 .record-icon {
   width: 20px;
+  margin-left: 10px;
 }
