@@ -1,7 +1,7 @@
 <p align="center">
   <a href="https://wallstreetlocal.com" target="_blank">
     <picture>
-      <img alt="wallstreetlocal" src="https://raw.githubusercontent.com/tailwindlabs/tailwindcss/HEAD/public/static/logo.png" width="350" height="70" style="max-width: 100%;">
+      <img alt="wallstreetlocal" src="https://raw.githubusercontent.com/bruhbruhroblox/wallstreetlocal/main/public/static/logo.png" style="max-width: 100%;">
     </picture>
   </a>
 </p>
@@ -9,11 +9,14 @@
 <p align="center">
   A website that allows you to view the investments of America's largest investors.
 </p>
+<p align="center">
+  This repository holds the front-end code for wallstreetlocal, for the back-end, see <a href="https://github.com/bruhbruhroblox/pinestreetlocal" target="_blank" >here</a>
+</p>
 
 <!-- ![wallstreetlocal logo](./public//static/logo.png) -->
 
 
-This repository holds the front-end code for wallstreetlocal, for the back-end, see [here](https://github.com/bruhbruhroblox/pinestreetlocal).
+
 
 
 ### SEC Filings
