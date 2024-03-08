@@ -12,10 +12,36 @@ This project uses Docker, to deploy run the following command.
 docker compose up -f docker-compose.yaml up
 ```
 
+#### Third Party APIs
+
+To run both the development and production builds, you will need to have environment variables for third party APIs. Most of the environment variables in the provided compose files you can keep as is, but for the API keys you will need to visit the following services.
+
+* [Alpha Vantage](https://www.alphavantage.co/)
+* [OpenFIGI](https://www.openfigi.com/)
+* [Finnhub](https://finnhub.io/)
+
+These three different services allow for the most up-to-date and accurate data, while also avoiding rate-limiting.
+
 #### Development
 
-Example `docker-compose.yaml`. This doesn't run the main application, just the microservices.
+The development build is mainly made for testing, so it may not be ideal.
 
+To run the full app, you need the microservices running through Docker, and the main application running seperately.
+
+1. Run the microservices by calling the development `docker-compose.yaml`.
+
+```bash
+docker compose -f docker-compose.yaml up
+```
+
+2. Run the main application.
+
+```bash
+python main.py
+```
+
+
+`docker-compose.yaml` (Development) 
 ```yaml
 services:
 
@@ -61,21 +87,23 @@ networks:
 
 #### Production
 
-Note that many environment variables are required. Most of these you can keep as is, but for the API keys you will need to visit the following services.
+The production build is made for running at scale, so you may want to do the following things:
+- Either run Grafana or remove telemetry altogether (reccomended for self-hosting).
+- Run on only one worker
+- Map all docker ports to `localhost`
 
-* [Alpha Vantage](https://www.alphavantage.co/)
-* [OpenFIGI](https://www.openfigi.com/)
-* [Finnhub](https://finnhub.io/)
+To run the full application with all required microservices, you need just one command.
 
-The three different services allow the most up-to-date and accurate data, while also avoiding rate-limiting.
+```bash
+docker compose -f docker-compose.yaml up
+```
 
-Example `docker-compose.yaml`.
+`docker-compose.yaml` (Production)
 ```yaml
 version: "3.4"
 
 services:
 
-  # Main Services
   backend:
     container_name: backend
     build:
@@ -146,8 +174,6 @@ networks:
   proxy-network:
     name: proxy-network
 ```
-
-For the telemetry services, either run Grafana with all microservices, or remove the code accessing telemetry.
 
 
 ### License
