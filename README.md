@@ -13,12 +13,17 @@
   This repository holds the front-end code for wallstreetlocal, for the back-end, see <a href="https://github.com/bruhbruhroblox/pinestreetlocal" target="_blank" >here</a>.
 </p>
 
+
 <!-- ![wallstreetlocal logo](./public//static/logo.png) -->
 
 <h1 align="center" color="red">
   The site may be down currently due to excessive traffic.
 </h1>
 
+
+<p align="center">
+  Creating a website is time consuming, and hosting is expensive. If you can, please consider <a href="https://ko-fi.com/wallstreetlocal" target="_blank" >donating</a>.
+</p>
 
 ### Introduction
 The Securities and Exchange Commission (SEC) keeps record of every company in the United States. Companies whose holdings surpass $100 million though, are required to file a special type of form: the 13F form. This form, filed quarterly, discloses the filer's holdings, providing transparency into their investment activities and allowing the public and other market participants to monitor them.
