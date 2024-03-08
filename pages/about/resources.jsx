@@ -55,7 +55,7 @@ export default function Resources() {
                   " "
                 )}
               >
-                Ticker archive
+                Ticker Archive
               </button>
             </Link>
             <span
@@ -74,7 +74,7 @@ export default function Resources() {
                   " "
                 )}
               >
-                Submissions archive
+                Submissions Archive
               </button>
             </Link>
             <span
@@ -93,7 +93,7 @@ export default function Resources() {
                   " "
                 )}
               >
-                Company facts archive
+                Company Facts Archive
               </button>
             </Link>
             <span
@@ -109,7 +109,7 @@ export default function Resources() {
                   " "
                 )}
               >
-                Form data
+                Form Data
               </button>
             </Link>
             <span
@@ -128,7 +128,7 @@ export default function Resources() {
                   " "
                 )}
               >
-                Company database
+                Company Database
               </button>
             </Link>
             <span
