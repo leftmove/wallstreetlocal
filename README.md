@@ -10,7 +10,7 @@
   A website that allows you to view the investments of America's largest investors.
 </p>
 <p align="center">
-  This repository holds the front-end code for wallstreetlocal, for the back-end, see <a href="https://github.com/bruhbruhroblox/pinestreetlocal" target="_blank" >here</a>
+  This repository holds the front-end code for wallstreetlocal, for the back-end, see <a href="https://github.com/bruhbruhroblox/pinestreetlocal" target="_blank" >here</a>.
 </p>
 
 <!-- ![wallstreetlocal logo](./public//static/logo.png) -->
@@ -19,7 +19,7 @@
 
 
 
-### SEC Filings
+### Introduction
 The Securities and Exchange Commission (SEC) keeps record of every company in the United States. Companies whose holdings surpass $100 million though, are required to file a special type of form: the 13F form. This form, filed quarterly, discloses the filer's holdings, providing transparency into their investment activities and allowing the public and other market participants to monitor them.
 
 The problem though, is that these holdings are often cumbersome to access, and valuable analysis is often hidden behind a paywall. Through **wallstreetlocal**, the SEC's 13F filers become more accessible and open.
@@ -27,6 +27,10 @@ The problem though, is that these holdings are often cumbersome to access, and v
 * **Large:** With over 850,000 companies archived, any company registered with the SEC can be queried. Download the database [here](https://drive.google.com/file/d/1LT4xiFJkh6YlAPQDcov8YIKqcvevFlEE/view).
 * **Recent Data:** View stocks in aggregation as the back-end collects and organizes holdings from individual filers. With thousands of cached stocks in our database, accurate and recent data is available for any evaluations.
 * **Historical Data:** View individual filings and their holdings in the explorer, or visit the SEC directly.
+
+<p align="center">
+  <a href="https://wallstreetlocal.com" target="_blank">Visit</a>
+</p>
 
 ## Features
  
