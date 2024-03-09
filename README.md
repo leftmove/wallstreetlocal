@@ -85,6 +85,7 @@ If you feel you can contribute to this project, create an issue or a pull reques
 
 This project is soley mantained so it is prone to bugs and anti-patterns, please call them out where you see them. All contributions are highly appreciated!
 
-### License
+## License
+[MIT License](./LICENSE)
 
-wallstreetlocal is [MIT licensed](./LICENSE).
+[Community Code of Conduct](./CODE_OF_CONDUCT.MD)
