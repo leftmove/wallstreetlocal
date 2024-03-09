@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
+  selectCik,
   selectPrimary,
   selectSecondary,
   editComparison,
@@ -18,6 +19,7 @@ import Source from "@/components/Source/Source";
 const Select = (props) => {
   const dispatch = useDispatch();
   const type = props.type;
+  const cik = useSelector(selectCik);
   const selected =
     type === "secondary"
       ? useSelector(selectSecondary)
@@ -93,7 +95,7 @@ const Select = (props) => {
         </div>
         <div className={styles["picker-attributes"]}>
           {attributes.map((a) => (
-            <div className={styles["picker-attribute"]}>
+            <div className={styles["picker-attribute"]} key={a.text}>
               <button
                 className={styles["attribute-button"]}
                 onClick={() => setPicking(!picking)}
