@@ -1,8 +1,27 @@
-# wallstreetlocal
+<p align="center">
+  <a href="https://wallstreetlocal.com" target="_blank">
+    <picture>
+      <img alt="wallstreetlocal" src="https://raw.githubusercontent.com/bruhbruhroblox/wallstreetlocal/main/public/logo.png" style="max-width: 100%;">
+    </picture>
+  </a>
+</p>
 
-Thousands of filings from the world's biggest investors.
+<p align="center">
+  A website that allows you to view the investments of America's largest investors.
+</p>
+<p align="center">
+  This repository holds the front-end code for wallstreetlocal, for the front-end, see <a href="https://github.com/bruhbruhroblox/walltreetlocal" target="_blank" >here</a>.
+</p>
 
-This reposority is only the back-end, for the front-end (and main repository) of wallstreetlocal, see [here](https://github.com/bruhbruhroblox/wallstreetlocal).
+
+<h1 align="center" color="red">
+  The site may be down currently due to excessive traffic.
+</h1>
+
+
+<p align="center">
+  Creating a website is time consuming, and hosting is expensive. If you can, please consider <a href="https://ko-fi.com/wallstreetlocal" target="_blank" >donating</a>.
+</p>
 
 ### Getting Started
 
@@ -24,7 +43,7 @@ These three different services allow for the most up-to-date and accurate data, 
 
 #### Development
 
-The development build is mainly made for testing, so it may not be ideal.
+The development build is mainly made for testing, so it is ideal for self-hosting.
 
 To run the full app, you need the microservices running through Docker, and the main application running seperately.
 
@@ -34,7 +53,7 @@ To run the full app, you need the microservices running through Docker, and the 
 docker compose -f docker-compose.yaml up
 ```
 
-2. Run the main application.
+2. Run the main application (with configured environment variables).
 
 ```bash
 python main.py
