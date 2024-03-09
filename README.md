@@ -25,7 +25,7 @@
 
 ### Getting Started
 
-This project uses Docker, to deploy run the following command.
+This project uses Docker, to deploy, run the following command.
 
 ```bash
 docker compose up -f docker-compose.yaml up
@@ -194,6 +194,7 @@ networks:
     name: proxy-network
 ```
 
+## License
+[MIT License](./LICENSE)
 
-### License
-wallstreetlocal is [MIT Licensed](./LICENSE.MD)
+[Community Code of Conduct](./CODE_OF_CONDUCT.MD)
