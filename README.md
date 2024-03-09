@@ -10,7 +10,7 @@
   A website that allows you to view the investments of America's largest investors.
 </p>
 <p align="center">
-  This repository holds the front-end code for wallstreetlocal, for the front-end, see <a href="https://github.com/bruhbruhroblox/walltreetlocal" target="_blank" >here</a>.
+  This repository holds the back-end code for wallstreetlocal, for the front-end, see <a href="https://github.com/bruhbruhroblox/walltreetlocal" target="_blank" >here</a>.
 </p>
 
 
