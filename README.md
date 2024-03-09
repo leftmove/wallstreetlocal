@@ -30,8 +30,8 @@ The Securities and Exchange Commission (SEC) keeps record of every company in th
 
 The problem though, is that these holdings are often cumbersome to access, and valuable analysis is often hidden behind a paywall. Through **wallstreetlocal**, the SEC's 13F filers become more accessible and open.
 
-* **Large:** With over 850,000 companies archived, any company registered with the SEC can be queried. Download the database [here](https://drive.google.com/file/d/1LT4xiFJkh6YlAPQDcov8YIKqcvevFlEE/view).
-* **Recent Data:** View stocks in aggregation as the back-end collects and organizes holdings from individual filers. With thousands of cached stocks in our database, accurate and recent data is available for any evaluations.
+* **Large:** With over 850,000 companies archived, any filer registered with the SEC can be queried. Download the database [here](https://drive.google.com/file/d/1LT4xiFJkh6YlAPQDcov8YIKqcvevFlEE/view).
+* **Recent Data:** View stocks in aggregation as the back-end collects and organizes holdings from individual filers. With thousands of cached stocks in our database, accurate and recent data is available for any evaluation.
 * **Historical Data:** View individual filings and their holdings in the explorer, or visit the SEC directly.
 
 <p align="center">

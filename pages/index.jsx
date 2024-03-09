@@ -56,15 +56,6 @@ export default function Home() {
             <span className={[styles["sub-header"], font.className].join(" ")}>
               Wall Street&apos;s stock portfolio, for free.
             </span>
-            <Link
-              href="https://ko-fi.com/wallstreetlocal"
-              className={[styles["donate-hint"], font.className].join(" ")}
-              target="_blank"
-            >
-              <span>
-                If you are enjoying this website, please consider donating.
-              </span>
-            </Link>
           </div>
         </div>
         {/* <Recommended variant="homepage" /> */}

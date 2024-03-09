@@ -57,7 +57,7 @@
 .search-hint {
   font-size: 0.8rem;
   color: var(--white);
-  opacity: 0.3;
+  opacity: 0.2;
   margin-top: -5px;
   margin-bottom: 10px;
 }

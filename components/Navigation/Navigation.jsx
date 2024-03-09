@@ -51,6 +51,11 @@ const Navigation = (props) => {
               tab={true}
             />
             <Item
+              link="https://ko-fi.com/wallstreetlocal"
+              text="Donate"
+              tab={true}
+            />
+            <Item
               link="https://github.com/bruhbruhroblox/wallstreetlocal"
               text="Source"
               tab={true}

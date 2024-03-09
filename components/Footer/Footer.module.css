@@ -25,4 +25,9 @@
 .donation {
   font-size: 0.8rem;
   opacity: 0.8;
+  transition: color 0.2s ease;
+}
+
+.donation:hover {
+  color: var(--primary-dark);
 }
