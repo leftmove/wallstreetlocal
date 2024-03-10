@@ -11,15 +11,17 @@ import Building from "@/components/Filer/Building";
 const Filer = (props) => {
   const query = props.query;
   const cik = props.cik;
+
+  const continuous = props.continuous;
   const persist = props.persist;
   const tab = props.tab;
 
-  if (query.building || persist) {
-    return <Building cik={cik} persist={persist} />;
+  if (query.ok || continuous) {
+    return <Info cik={cik} tab={tab} />;
   }
 
-  if (query.ok) {
-    return <Info cik={cik} tab={tab} />;
+  if (query.building || persist) {
+    return <Building cik={cik} persist={persist} />;
   }
 
   if (query.error) {
@@ -31,6 +33,7 @@ export async function getServerSideProps(context) {
   const cik = context.query.cik || null;
   const persist = context.query.persist;
   const tab = context.query.tab;
+  const continuous = context.query.continuous;
   const server = process.env.NEXT_PUBLIC_SERVER;
 
   const query = {
@@ -69,6 +72,7 @@ export async function getServerSideProps(context) {
       cik,
       tab: tab || "recent",
       persist: persist || null,
+      continuous: continuous || null,
     },
   };
 }

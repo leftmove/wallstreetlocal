@@ -13,6 +13,7 @@ import { font } from "@fonts";
 
 import Expand from "@/components/Expand/Expand";
 import Source from "@/components/Source/Source";
+import Building from "@/components/Progress/Building/Building";
 import { convertTitle } from "@/components/Filer/Info";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
