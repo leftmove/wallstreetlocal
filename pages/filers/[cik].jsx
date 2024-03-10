@@ -29,12 +29,12 @@ const Filer = (props) => {
   }
 };
 
+const server = process.env.NEXT_PUBLIC_SERVER;
 export async function getServerSideProps(context) {
   const cik = context.query.cik || null;
   const persist = context.query.persist;
   const tab = context.query.tab;
   const continuous = context.query.continuous;
-  const server = process.env.NEXT_PUBLIC_SERVER;
 
   const query = {
     ok: false,
