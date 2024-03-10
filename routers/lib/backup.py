@@ -7,10 +7,10 @@ from pymongo import MongoClient
 MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
 
 
-def backup_collections():
+def save_collections():
 
     backup_client = MongoClient(MONGO_SERVER_URL)
-    collections = ["companies", "filers"]
+    collections = ["companies", "filers", "stocks", "statistics"]
 
     for coll in collections:
         with open(f"./public/backup/{coll}.bson", "wb+") as f:

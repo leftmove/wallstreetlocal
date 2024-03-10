@@ -1,14 +1,14 @@
 from fastapi import BackgroundTasks, APIRouter, HTTPException
 from fastapi.responses import FileResponse
-from fastapi.staticfiles import StaticFiles
 
 import os
-import json
 
 from .lib import database
 from .lib import cache as cm
-from .lib import backup
 from .lib import analysis
+
+from .lib.api import popular_ciks_request, top_ciks_request
+from .lib.backup import save_collections
 
 from .filer import create_filer_try
 
@@ -52,16 +52,6 @@ async def info_undefined():
     return {"message": "Hello World!"}
 
 
-@cache
-@router.get("/backup", status_code=200)
-async def backup_database(password: str, background: BackgroundTasks):
-    if password != os.environ["ADMIN_PASSWORD"]:
-        raise HTTPException(detail="Unable to give access.", status_code=403)
-
-    background.add_task(backup.backup_collections)
-    return {"message": "Backup started."}
-
-
 @cache(1)
 @router.get("/query", status_code=200, include_in_schema=False)
 async def query_top(password: str, background: BackgroundTasks):
@@ -79,10 +69,8 @@ async def query_top(password: str, background: BackgroundTasks):
     else:
         database.create_log({**type_query, "status": "running"})
 
-    with open("./public/searched.json") as t:
-        filer_ciks = json.load(t)
-    with open("./public/top.json") as t:
-        filer_ciks.extend(json.load(t))
+    filer_ciks = top_ciks_request()
+    filer_ciks.extend(popular_ciks_request())
 
     def cycle_filers(ciks):
         for cik in ciks:
@@ -123,6 +111,16 @@ async def progressive_restore(password: str, background: BackgroundTasks):
     background.add_task(cycle_filers, all_ciks)
 
     return {"description": "Started progressive restore of filers."}
+
+
+@router.get("/backup", status_code=201)
+async def backup(password: str, background: BackgroundTasks):
+
+    if password != os.environ["ADMIN_PASSWORD"]:
+        raise HTTPException(detail="Unable to give access.", status_code=403)
+
+    background.add_task(save_collections)
+    return {"description": "Started backing up collections."}
 
 
 @cache
