@@ -13,6 +13,7 @@ from datetime import datetime
 from .lib import web
 from .lib import database
 from .lib import analysis
+from .lib import api
 
 from .lib.search import search_companies
 from .lib.api import sec_filer_search
@@ -604,11 +605,9 @@ cwd = os.getcwd()
 
 @cache(24)
 @router.get("/top", status_code=200)
-async def top():
-    top_path = f"{cwd}/public/top.json"
-    with open(top_path, "r") as t:
-        filer_ciks = json.load(t)
+async def top_ciks():
 
+    filer_ciks = api.top_ciks_request()
     try:
         filers_sorted = analysis.sort_and_format(filer_ciks)
     except:
@@ -619,11 +618,9 @@ async def top():
 
 @cache(24)
 @router.get("/searched", status_code=200)
-async def top():
-    searched_path = f"{cwd}/public/searched.json"
-    with open(searched_path, "r") as t:
-        filer_ciks = json.load(t)
-
+async def popular_ciks():
+    
+    filer_ciks = api.popular_ciks_request()
     try:
         filers_sorted = analysis.sort_and_format(filer_ciks)
     except:
