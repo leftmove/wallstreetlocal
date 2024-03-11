@@ -138,6 +138,46 @@ export default function Resources() {
               formatted in BSON)
             </span>
           </div>
+          <div className={styles["resources-item"]}>
+            <Link
+              href="https://gist.github.com/bruhbruhroblox/daca5d470c869e9d6f14c298af809f9f"
+              target="_blank"
+            >
+              <button
+                className={[styles["resources-button"], font.className].join(
+                  " "
+                )}
+              >
+                Popular Filers
+              </button>
+            </Link>
+            <span
+              className={[styles["button-tooltip"], font.className].join(" ")}
+            >
+              (Gist listing popular filers, taken from various sources. This is
+              where the popular filers page gets its list from.)
+            </span>
+          </div>
+          <div className={styles["resources-item"]}>
+            <Link
+              href="https://gist.github.com/bruhbruhroblox/1e96a95bad8e590a440e37f07d305d2a"
+              target="_blank"
+            >
+              <button
+                className={[styles["resources-button"], font.className].join(
+                  " "
+                )}
+              >
+                Top Filers
+              </button>
+            </Link>
+            <span
+              className={[styles["button-tooltip"], font.className].join(" ")}
+            >
+              (Gist listing top filers, taken from various sources. This is
+              where the top filers page gets its list from.)
+            </span>
+          </div>
         </div>
         <span
           className={[styles["resources-description"], font.className].join(
