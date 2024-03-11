@@ -38,11 +38,11 @@ The problem though, is that these holdings are often cumbersome to access, and v
 
 ## Features
  
-- Query 13F filers from the SEC
-- Update filers with up-to-date stock info
-- View filer stocks in an accessible format
+- Query any 13F filer from the SEC throughly
+- Update filers with up-to-date and extensive stock info
+- View historical stocks aggregated from all possible sources
+s- Sort and analyze data using versatile tools
 - Download any data in either JSON or CSV
-- View filer historical filings and compare them
 
 ## Getting Started
 
@@ -83,6 +83,10 @@ For more information on configuration, see the respective docs for wallstreetloc
 If you feel you can contribute to this project, create an issue or a pull request.
 
 This project is soley mantained so it is prone to bugs and anti-patterns, please call them out where you see them. All contributions are highly appreciated!
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=bruhbruhroblox/wallstreetlocal,bruhbruhroblox/pinestreetlocal&type=Date)](https://star-history.com/#bruhbruhroblox/wallstreetlocal&bruhbruhroblox/pinestreetlocal&Date)
 
 ## License
 [MIT License](./LICENSE)
