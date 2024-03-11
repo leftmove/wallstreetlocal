@@ -14,11 +14,9 @@
 </p>
 
 
-<!-- ![wallstreetlocal logo](./public//static/logo.png) -->
-
-<h1 align="center" color="red">
+<!-- <h1 align="center" color="red">
   The site may be down currently due to excessive traffic.
-</h1>
+</h1> -->
 
 
 <p align="center">
@@ -75,6 +73,7 @@ For more information on configuration, see the respective docs for wallstreetloc
 * [NextJS](https://nextjs.org/) for the front-end.
 * [Docker](https://docs.docker.com/) for all the different microservices.
 * [MongoDB](https://www.mongodb.com/docs/) for the database.
+* [Redis](https://redis.io/) for caching.
 * [Meilisearch](https://www.meilisearch.com/docs) for the search database.
 * [NGINX Proxy Manager](https://nginxproxymanager.com/) for the reverse-proxy.
 * [Grafana](https://grafana.com/) for telemetry, using Prometheus, Tempo, Loki, and OpenTelemetry.

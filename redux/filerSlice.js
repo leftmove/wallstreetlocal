@@ -212,6 +212,7 @@ export const filerSlice = createSlice({
   initialState,
   reducers: {
     setCik(state, action) {
+      Object.keys(initialState).map((k) => (state[k] = initialState[k]));
       state.cik = action.payload;
 
       return state;
