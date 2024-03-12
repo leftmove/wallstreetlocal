@@ -1,7 +1,7 @@
 <p align="center">
   <a href="https://wallstreetlocal.com" target="_blank">
     <picture>
-      <img alt="wallstreetlocal" src="https://raw.githubusercontent.com/bruhbruhroblox/wallstreetlocal/main/public/static/logo.png" style="max-width: 100%;">
+      <img alt="wallstreetlocal" src="https://raw.githubusercontent.com/leftmove/wallstreetlocal/main/public/static/logo.png" style="max-width: 100%;">
     </picture>
   </a>
 </p>
@@ -10,7 +10,7 @@
   A website that allows you to view the investments of America's largest investors.
 </p>
 <p align="center">
-  This repository holds the front-end code for wallstreetlocal, for the back-end, see <a href="https://github.com/bruhbruhroblox/pinestreetlocal" target="_blank" >here</a>.
+  This repository holds the front-end code for wallstreetlocal, for the back-end, see <a href="https://github.com/leftmove/pinestreetlocal" target="_blank" >here</a>.
 </p>
 
 
@@ -64,7 +64,7 @@ View wallstreetlocal at [`wallstreetlocal.com`](https://wallstreetlocal.com), or
    npm run build && npm run start
    ```
 
-The back-end for this installation is already configured to [`content.wallstreetlocal.com`](https://content.wallstreetlocal.com), but if you want to self-host that too, you can find the back-end repository [here](https://github.com/bruhbruhroblox/pinestreetlocal).
+The back-end for this installation is already configured to [`content.wallstreetlocal.com`](https://content.wallstreetlocal.com), but if you want to self-host that too, you can find the back-end repository [here](https://github.com/leftmove/pinestreetlocal).
 
 
 For more information on configuration, see the respective docs for wallstreetlocal's development stack.
@@ -86,7 +86,7 @@ This project is soley mantained so it is prone to bugs and anti-patterns, please
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=bruhbruhroblox/wallstreetlocal,bruhbruhroblox/pinestreetlocal&type=Date)](https://star-history.com/#bruhbruhroblox/wallstreetlocal&bruhbruhroblox/pinestreetlocal&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=leftmove/wallstreetlocal,leftmove/pinestreetlocal&type=Date)](https://star-history.com/#leftmove/wallstreetlocal&leftmove/pinestreetlocal&Date)
 
 ## License
 [MIT License](./LICENSE)

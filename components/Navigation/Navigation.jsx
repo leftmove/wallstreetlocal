@@ -46,7 +46,7 @@ const Navigation = (props) => {
             <Item link="/recommended/searched" text="Popular Filers" />
             <Item link="/about/resources" text="Resources" />
             <Item
-              link="https://github.com/bruhbruhroblox"
+              link="https://github.com/leftmove"
               text="Contact"
               tab={true}
             />
@@ -56,7 +56,7 @@ const Navigation = (props) => {
               tab={true}
             />
             <Item
-              link="https://github.com/bruhbruhroblox/wallstreetlocal"
+              link="https://github.com/leftmove/wallstreetlocal"
               text="Source"
               tab={true}
             />

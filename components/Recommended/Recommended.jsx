@@ -52,7 +52,7 @@ const Recommended = (props) => {
       ].join(" ")}
     >
       <span className={[styles["recommended-title"], font.className].join(" ")}>
-        Popular Filers
+        Recommended Filers
       </span>
       <div className={[styles["recommended-lists"], font.className].join(" ")}>
         <div className={styles["recommended-list"]}>
@@ -94,48 +94,6 @@ const Recommended = (props) => {
           </ul>
         </div>
       </div>
-
-      {/* 
-      <div className={styles["recommended-list"]}>
-        {filers.map((filer) => {
-          const description =
-            filer.description.length > maxLength
-              ? filer.description.slice(0, maxLength) + "..."
-              : filer.description;
-          return (
-            <div className={styles["suggestion"]}>
-              <Link href={`/filers/${filer.cik}`}>
-                <span
-                  className={[styles["suggestion-title"], font.className].join(
-                    " "
-                  )}
-                >
-                  {filer.title}
-                </span>
-              </Link>
-              <div
-                className={[
-                  styles["suggestion-ids"],
-                  fontLight.className,
-                ].join(" ")}
-              >
-                {filer.cik}{" "}
-                {filer.tickers.length === 0
-                  ? ""
-                  : `(${filer.tickers.join(",   ")})`}
-              </div>
-              <span
-                className={[
-                  styles["suggestion-description"],
-                  fontLight.className,
-                ].join(" ")}
-              >
-                {description}
-              </span>
-            </div>
-          );
-        })}
-      </div> */}
     </div>
   );
 };

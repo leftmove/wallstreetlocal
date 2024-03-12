@@ -140,7 +140,7 @@ export default function Resources() {
           </div>
           <div className={styles["resources-item"]}>
             <Link
-              href="https://gist.github.com/bruhbruhroblox/daca5d470c869e9d6f14c298af809f9f"
+              href="https://gist.github.com/leftmove/daca5d470c869e9d6f14c298af809f9f"
               target="_blank"
             >
               <button
@@ -160,7 +160,7 @@ export default function Resources() {
           </div>
           <div className={styles["resources-item"]}>
             <Link
-              href="https://gist.github.com/bruhbruhroblox/1e96a95bad8e590a440e37f07d305d2a"
+              href="https://gist.github.com/leftmove/1e96a95bad8e590a440e37f07d305d2a"
               target="_blank"
             >
               <button

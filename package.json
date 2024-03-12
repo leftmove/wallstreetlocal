@@ -43,12 +43,12 @@
   "main": "next.config.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bruhbruhroblox/whale-project.git"
+    "url": "git+https://github.com/leftmove/whale-project.git"
   },
-  "author": "bruhbruhroblox",
+  "author": "leftmove",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/bruhbruhroblox/whale-project/issues"
+    "url": "https://github.com/leftmove/whale-project/issues"
   },
-  "homepage": "https://github.com/bruhbruhroblox/whale-project#readme"
+  "homepage": "https://github.com/leftmove/whale-project#readme"
 }
