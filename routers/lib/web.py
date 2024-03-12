@@ -585,6 +585,9 @@ def estimate_time_newest(cik):
     if filer == None:
         return
     last_report = filer["last_report"]
+
+    api.sec_filer_search(cik)
+
     try:
         data = api.sec_stock_search(cik=cik, access_number=last_report)
         stock_count = process_count_stocks(data, cik)

@@ -67,9 +67,10 @@ router = APIRouter(
 # Note: Once two is set, three MUST be cancelled.
 
 
-def create_recent(cik, company, stamp):
+def create_recent(cik, company, stamp, backgound: BackgroundTasks = None):
     filer_query = {"cik": cik}
     company_name = company["name"]
+    backgound.add_task(web.estimate_time_newest, cik)
 
     try:
         filings = company["filings"]
@@ -126,7 +127,7 @@ def create_recent(cik, company, stamp):
     database.add_query_log(cik, "create-latest")
 
 
-def create_historical(cik, company, stamp):
+def create_historical(cik, company, stamp, background=None):
     filer_query = {"cik": cik}
     company_name = company["name"]
     last_report = company["last_report"]
@@ -180,9 +181,9 @@ def create_historical(cik, company, stamp):
     database.add_query_log(cik, "create-historical")
 
 
-def create_filer(sec_data, cik):
+def create_filer(sec_data, cik, background=None):
     company, stamp = web.initalize_filer(cik, sec_data)
-    create_recent(cik, company, stamp)
+    create_recent(cik, company, stamp, background)
     create_historical(cik, company, stamp)
 
 
@@ -210,6 +211,28 @@ def update_filer(company, background):
     background.add_task(create_historical, cik, company, stamp)
 
     return {"description": "Filer update started."}
+
+
+@router.get(
+    "/query",
+    tags=["filers"],
+    status_code=201,
+)
+async def query_filer(cik: str, background: BackgroundTasks):
+    filer = database.find_filer(cik)
+    if filer == None:
+        try:
+            sec_data = sec_filer_search(cik)
+        except Exception:
+            raise HTTPException(404, detail="CIK not found.")
+
+        background.add_task(create_filer, sec_data, cik, background)
+        background.add_task(web.estimate_time_newest, sec_data, cik)
+        res = {"description": "Filer creation started."}
+    else:
+        res = update_filer(filer, background)
+
+    return res
 
 
 @router.get("/rollback", tags=["filers"], status_code=201, include_in_schema=False)
@@ -257,28 +280,6 @@ async def rollback_filer(cik: str, password: str, background: BackgroundTasks):
     background.add_task(create_historical, cik, filer, stamp)
 
     return {"description": "Filer rollback started."}
-
-
-@router.get(
-    "/query",
-    tags=["filers"],
-    status_code=201,
-)
-async def query_filer(cik: str, background: BackgroundTasks):
-    filer = database.find_filer(cik)
-    if filer == None:
-        try:
-            sec_data = sec_filer_search(cik)
-        except Exception:
-            raise HTTPException(404, detail="CIK not found.")
-
-        background.add_task(create_filer, sec_data, cik)
-        background.add_task(web.estimate_time_newest, cik)
-        res = {"description": "Filer creation started."}
-    else:
-        res = update_filer(filer, background)
-
-    return res
 
 
 @cache(24)

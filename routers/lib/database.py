@@ -173,12 +173,21 @@ def watch_logs(pipeline):
 
 def add_query_log(cik, query):
     try:
-        filer_done = find_filer(cik, {"cik": 1, "name": 1, "_id": 0})
+        filer_done = find_filer(cik, {"cik": 1, "name": 1, "_id": 0, "filings": 1})
         filer_log = find_log(cik)
         if filer_done and filer_log:
+
+            stock_count = 0
+            filings = filer_done["filings"]
+            for access_number in filings:
+                filing_stocks = filings[access_number].get("stocks", [])
+                for _ in filing_stocks:
+                    stock_count += 1
+
             query_log = {
                 **filer_done,
                 "log": filer_log,
+                "count": stock_count,
                 "type": query,
                 "timestamp": datetime.now().timestamp(),
             }
