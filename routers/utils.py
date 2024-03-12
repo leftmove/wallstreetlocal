@@ -1,16 +1,16 @@
 from opentelemetry import trace
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import \
-    OTLPSpanExporter
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from prometheus_client import REGISTRY, Counter, Gauge, Histogram
-from prometheus_client.openmetrics.exposition import (CONTENT_TYPE_LATEST,
-                                                      generate_latest)
-from starlette.middleware.base import (BaseHTTPMiddleware,
-                                       RequestResponseEndpoint)
+from prometheus_client.openmetrics.exposition import (
+    CONTENT_TYPE_LATEST,
+    generate_latest,
+)
+from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
 from starlette.routing import Match
@@ -29,13 +29,11 @@ from datetime import datetime
 from pymongo import MongoClient
 from typing import Tuple
 
-INFO = Gauge(
-    "fastapi_app_info", "FastAPI application information.", [
-        "app_name"]
-)
+INFO = Gauge("fastapi_app_info", "FastAPI application information.", ["app_name"])
 REQUESTS = Counter(
-    "fastapi_requests_total", "Total count of requests by method and path.", [
-        "method", "path", "app_name"]
+    "fastapi_requests_total",
+    "Total count of requests by method and path.",
+    ["method", "path", "app_name"],
 )
 RESPONSES = Counter(
     "fastapi_responses_total",
@@ -65,7 +63,9 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
         self.app_name = app_name
         INFO.labels(app_name=self.app_name).inc()
 
-    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
         method = request.method
         path, is_handled_path = self.get_path(request)
 
@@ -73,32 +73,41 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         REQUESTS_IN_PROGRESS.labels(
-            method=method, path=path, app_name=self.app_name).inc()
+            method=method, path=path, app_name=self.app_name
+        ).inc()
         REQUESTS.labels(method=method, path=path, app_name=self.app_name).inc()
         before_time = time.perf_counter()
         try:
             response = await call_next(request)
         except BaseException as e:
             status_code = HTTP_500_INTERNAL_SERVER_ERROR
-            EXCEPTIONS.labels(method=method, path=path, exception_type=type(
-                e).__name__, app_name=self.app_name).inc()
+            EXCEPTIONS.labels(
+                method=method,
+                path=path,
+                exception_type=type(e).__name__,
+                app_name=self.app_name,
+            ).inc()
             raise e from None
         else:
             status_code = response.status_code
             after_time = time.perf_counter()
             # retrieve trace id for exemplar
             span = trace.get_current_span()
-            trace_id = trace.format_trace_id(
-                span.get_span_context().trace_id)
+            trace_id = trace.format_trace_id(span.get_span_context().trace_id)
 
-            REQUESTS_PROCESSING_TIME.labels(method=method, path=path, app_name=self.app_name).observe(
-                after_time - before_time, exemplar={'TraceID': trace_id}
-            )
+            REQUESTS_PROCESSING_TIME.labels(
+                method=method, path=path, app_name=self.app_name
+            ).observe(after_time - before_time, exemplar={"TraceID": trace_id})
         finally:
-            RESPONSES.labels(method=method, path=path,
-                             status_code=status_code, app_name=self.app_name).inc()
+            RESPONSES.labels(
+                method=method,
+                path=path,
+                status_code=status_code,
+                app_name=self.app_name,
+            ).inc()
             REQUESTS_IN_PROGRESS.labels(
-                method=method, path=path, app_name=self.app_name).dec()
+                method=method, path=path, app_name=self.app_name
+            ).dec()
 
         return response
 
@@ -111,26 +120,30 @@ class PrometheusMiddleware(BaseHTTPMiddleware):
 
         return request.url.path, False
 
+
 class EndpointFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
         return record.getMessage().find("GET /metrics") == -1
 
+
 def metrics(request: Request) -> Response:
-    return Response(generate_latest(REGISTRY), headers={"Content-Type": CONTENT_TYPE_LATEST})
+    return Response(
+        generate_latest(REGISTRY), headers={"Content-Type": CONTENT_TYPE_LATEST}
+    )
 
 
-def setting_otlp(app: ASGIApp, app_name: str, endpoint: str, log_correlation: bool = True) -> None:
+def setting_otlp(
+    app: ASGIApp, app_name: str, endpoint: str, log_correlation: bool = True
+) -> None:
 
-    resource = Resource.create(attributes={
-        "service.name": app_name,
-        "compose_service": app_name
-    })
+    resource = Resource.create(
+        attributes={"service.name": app_name, "compose_service": app_name}
+    )
 
     tracer = TracerProvider(resource=resource)
     trace.set_tracer_provider(tracer)
 
-    tracer.add_span_processor(BatchSpanProcessor(
-        OTLPSpanExporter(endpoint=endpoint)))
+    tracer.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint)))
 
     if log_correlation:
         LoggingInstrumentor().instrument(set_logging_format=True)
@@ -217,7 +230,7 @@ def initialize():
     search_empty = (
         True if companies_index.get_stats().number_of_documents == 1 else False
     )
-    backup_path = "./public/backup"
+    backup_path = "./static/backup"
 
     def insert_database(document_list):
         try:

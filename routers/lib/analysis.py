@@ -637,7 +637,7 @@ cwd = os.getcwd()
 
 
 def create_json(content, filename):
-    file_path = f"{cwd}/public/filers/{filename}"
+    file_path = f"{cwd}/static/filers/{filename}"
     try:
         with open(file_path, "r") as f:  # @IgnoreException
             filer_json = json.load(f)
@@ -700,7 +700,7 @@ def create_dataframe(global_stocks, headers=None):
 
 def create_csv(content, file_name, headers=None):
 
-    file_path = f"{cwd}/public/filers/{file_name}"
+    file_path = f"{cwd}/static/filers/{file_name}"
     try:
         with open(file_path, "r") as c:  # @IgnoreException
             first_line = c.readline()
@@ -789,7 +789,7 @@ def sort_and_format(filer_ciks):
 
 def debug_output(content):
     now = datetime.now().timestamp()
-    file_path = f"{cwd}/public/filers/debug-{now}.json"
+    file_path = f"{cwd}/static/filers/debug-{now}.json"
     with open(file_path, "w") as r:
         json.dump(content, r, indent=6)
 

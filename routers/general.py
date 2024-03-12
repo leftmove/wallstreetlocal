@@ -1,4 +1,5 @@
 from fastapi import BackgroundTasks, APIRouter, HTTPException
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 import os
@@ -18,6 +19,9 @@ cache = cm.cache
 router = APIRouter(
     tags=["general"],
 )
+
+cwd = os.getcwd()
+router.mount(f"{cwd}/static", StaticFiles(directory="static"), name="static")
 
 
 @cache(24)

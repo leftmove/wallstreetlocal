@@ -1,7 +1,7 @@
 <p align="center">
   <a href="https://wallstreetlocal.com" target="_blank">
     <picture>
-      <img alt="wallstreetlocal" src="https://raw.githubusercontent.com/bruhbruhroblox/pinestreetlocal/main/public/logo.png" style="max-width: 100%;">
+      <img alt="wallstreetlocal" src="https://raw.githubusercontent.com/leftmove/pinestreetlocal/main/public/logo.png" style="max-width: 100%;">
     </picture>
   </a>
 </p>
@@ -10,7 +10,7 @@
   A website that allows you to view the investments of America's largest investors.
 </p>
 <p align="center">
-  This repository holds the back-end code for wallstreetlocal, for the front-end, see <a href="https://github.com/bruhbruhroblox/walltreetlocal" target="_blank" >here</a>.
+  This repository holds the back-end code for wallstreetlocal, for the front-end, see <a href="https://github.com/leftmove/walltreetlocal" target="_blank" >here</a>.
 </p>
 
 

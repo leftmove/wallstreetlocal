@@ -214,7 +214,7 @@ def top_ciks_request():
 
     try:
         r = session.get(
-            "https://gist.githubusercontent.com/bruhbruhroblox/1e96a95bad8e590a440e37f07d305d2a/raw/wallstreetlocal-top-filers.json"
+            "https://gist.githubusercontent.com/leftmove/1e96a95bad8e590a440e37f07d305d2a/raw/wallstreetlocal-top-filers.json"
         )
         data = r.json()
     except Exception as e:
@@ -228,7 +228,7 @@ def popular_ciks_request():
 
     try:
         r = session.get(
-            "https://gist.githubusercontent.com/bruhbruhroblox/daca5d470c869e9d6f14c298af809f9f/raw/wallstreetlocal-popular-filers.json"
+            "https://gist.githubusercontent.com/leftmove/daca5d470c869e9d6f14c298af809f9f/raw/wallstreetlocal-popular-filers.json"
         )
         data = r.json()
     except Exception as e:

@@ -619,7 +619,7 @@ async def top_ciks():
 @cache(24)
 @router.get("/searched", status_code=200)
 async def popular_ciks():
-    
+
     filer_ciks = api.popular_ciks_request()
     try:
         filers_sorted = analysis.sort_and_format(filer_ciks)
@@ -642,7 +642,8 @@ def create_filer_try(cik):
             raise HTTPException(detail="Filer already exists.", status_code=409)
     except Exception as e:
         stamp = str(datetime.now())
-        with open(f"./public/errors/error-{stamp}.log", "w") as f:
+        cwd = os.getcwd()
+        with open(f"{cwd}/static/errors/error-{stamp}.log", "w") as f:
             error_string = f"Failed to Query Filer {cik}\n{repr(e)}\n{format_exc()}"
             f.write(error_string)
         logging.info("Error Occured\n", e)
