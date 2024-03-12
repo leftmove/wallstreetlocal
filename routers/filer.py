@@ -376,7 +376,7 @@ async def estimate(cik: str):
             cik,
             {
                 "_id": 0,
-                "logs": 0,
+                "log.logs": 0,
             },
         )
 
