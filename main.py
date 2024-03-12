@@ -43,6 +43,10 @@ log_config["formatters"]["access"]["fmt"] = (
     if production_environment
     else "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] - %(message)s"
 )
+log_config["formatters"]["access"][
+    "fmt"
+] = "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] - %(message)s"
+
 if production_environment:
     l.addFilter(EndpointFilter())
 
