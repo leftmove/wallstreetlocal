@@ -8,6 +8,7 @@ example.json
 /.vscode
 
 .venv
+env
 development.test.py
 **/__pycache__/
 /public/companies.bson
