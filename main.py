@@ -10,13 +10,13 @@ from routers import general
 from routers import filer
 from routers import stocks
 
-# from routers.utils import (
-#     PrometheusMiddleware,
-#     metrics,
-#     EndpointFilter,
-#     setting_otlp,
-#     initialize,
-# )
+from routers.utils import (
+    # PrometheusMiddleware,
+    # metrics,
+    # EndpointFilter,
+    # setting_otlp,
+    initialize,
+)
 
 APP_NAME = os.environ.get("APP_NAME", "backend")
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
