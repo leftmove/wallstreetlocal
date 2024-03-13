@@ -6,7 +6,7 @@ COPY ./requirements.txt /app/requirements.txt
 COPY ./main.py /app/main.py
 
 COPY ./routers /app/routers
-OPY ./static /app/static
+COPY ./static /app/static
 
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 

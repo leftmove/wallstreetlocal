@@ -1,20 +1,16 @@
 from pymongo import MongoClient
-from opentelemetry.instrumentation.pymongo import PymongoInstrumentor
+from pymongo.server_api import ServerApi
 
 import os
 import logging
 
 from datetime import datetime
 
-
 ENVIRONMENT = os.environ["ENVIRONMENT"]
 MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
 logging.info("[ Database (MongoDB) Initializing ] ...")
 
-if ENVIRONMENT == "production":
-    PymongoInstrumentor().instrument()
-
-client = MongoClient(MONGO_SERVER_URL)
+client = MongoClient(MONGO_SERVER_URL, server_api=ServerApi("1"))
 db = client["wallstreetlocal"]
 main = db["filers"]
 stocks = db["stocks"]

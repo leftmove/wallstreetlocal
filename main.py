@@ -43,7 +43,6 @@ app.include_router(filer.router)
 app.include_router(stocks.router)
 
 if __name__ == "__main__":
-    initialize()
     if production_environment:
         uvicorn.run(
             "main:app",

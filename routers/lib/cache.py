@@ -1,4 +1,3 @@
-from opentelemetry.instrumentation.redis import RedisInstrumentor
 import redis
 
 import json
@@ -10,13 +9,11 @@ from time import time
 from inspect import iscoroutinefunction
 
 REDIS_SERVER_URL = os.environ["REDIS_SERVER_URL"]
+REDIS_MASTER_KEY = os.environ["REDIS_MASTER_KEY"]
 ENVIRONMENT = os.environ["ENVIRONMENT"]
 logging.info("[ Cache (Redis) Initializing ] ...")
 
-if ENVIRONMENT == "production":
-    RedisInstrumentor().instrument()
-
-r = redis.Redis(host=REDIS_SERVER_URL, port=6379)
+r = redis.Redis(host=REDIS_SERVER_URL, port=14640, password=REDIS_MASTER_KEY)
 
 
 def timing(f):

@@ -9,7 +9,6 @@ COPY ./routers /app/routers
 COPY ./static /app/static
 
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
-RUN opentelemetry-bootstrap --action=install
 
 EXPOSE 8000
 
