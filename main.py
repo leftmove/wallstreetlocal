@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import logging
 import os
+import multiprocessing
 
 from routers import general
 from routers import filer
@@ -22,8 +23,8 @@ APP_NAME = os.environ.get("APP_NAME", "backend")
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 HOST = os.environ.get("HOST", "0.0.0.0")
 EXPOSE_PORT = int(os.environ.get("EXPOSE_PORT", 8000))
-WORKERS = int(os.environ.get("WORKERS", "9"))
 FORWARDED_ALLOW_IPS = os.environ.get("FORWARDED_ALLOW_IPS", "*")
+WORKERS = int(os.environ.get("WORKERS", ((multiprocessing.cpu_count() * 2) + 1)))
 production_environment = True if ENVIRONMENT == "production" else False
 
 middleware = [
@@ -44,6 +45,7 @@ app.include_router(filer.router)
 app.include_router(stocks.router)
 
 if __name__ == "__main__":
+    initialize()
     if production_environment:
         uvicorn.run(
             "main:app",
