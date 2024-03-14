@@ -22,6 +22,7 @@ APP_NAME = os.environ.get("APP_NAME", "backend")
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 HOST = os.environ.get("HOST", "0.0.0.0")
 EXPOSE_PORT = int(os.environ.get("EXPOSE_PORT", 8000))
+WORKERS = int(os.environ.get("WORKERS", "9"))
 FORWARDED_ALLOW_IPS = os.environ.get("FORWARDED_ALLOW_IPS", "*")
 production_environment = True if ENVIRONMENT == "production" else False
 
@@ -50,6 +51,7 @@ if __name__ == "__main__":
             port=EXPOSE_PORT,
             log_config=log_config,
             forwarded_allow_ips=FORWARDED_ALLOW_IPS,
+            workers=WORKERS,
         )
     else:
         uvicorn.run(
