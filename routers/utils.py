@@ -196,7 +196,7 @@ def initialize():
     companies = client["wallstreetlocal"]["companies"]
     companies_count = 852491
 
-    MEILI_SERVER_URL = f'http://{os.environ["MEILI_SERVER_URL"]}:7700'
+    MEILI_SERVER_URL = os.environ["MEILI_SERVER_URL"]
     MEILI_MASTER_KEY = os.environ["MEILI_MASTER_KEY"]
 
     try:
