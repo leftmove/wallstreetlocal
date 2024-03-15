@@ -5,7 +5,7 @@ import logging
 import time
 
 
-MEILI_SERVER_URL = os.environ["MEILI_SERVER_URL"]
+MEILI_SERVER_URL = f'http://{os.environ["MEILI_SERVER_URL"]}:7700'
 MEILI_MASTER_KEY = os.environ["MEILI_MASTER_KEY"]
 logging.info("[ Search (Meilisearch) Initializing ] ...")
 
