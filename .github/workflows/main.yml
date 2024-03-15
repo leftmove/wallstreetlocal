@@ -21,6 +21,8 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          url: ${{ secrets.ENV_URL }}
           script: |
             cd server
+            curl "$url" > docker-compose.prod.yaml
             bash deploy.sh
