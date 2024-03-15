@@ -1,5 +1,4 @@
 from pymongo import MongoClient
-from pymongo.server_api import ServerApi
 
 import os
 import logging
@@ -10,7 +9,7 @@ ENVIRONMENT = os.environ["ENVIRONMENT"]
 MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
 logging.info("[ Database (MongoDB) Initializing ] ...")
 
-client = MongoClient(MONGO_SERVER_URL, server_api=ServerApi("1"))
+client = MongoClient(MONGO_SERVER_URL)
 db = client["wallstreetlocal"]
 main = db["filers"]
 stocks = db["stocks"]
