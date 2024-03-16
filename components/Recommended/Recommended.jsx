@@ -49,6 +49,7 @@ const Recommended = (props) => {
             : ""
           : "",
         variant === "homepage" ? styles["recommended-homepage"] : "",
+        props.className || "",
       ].join(" ")}
     >
       <span className={[styles["recommended-title"], font.className].join(" ")}>

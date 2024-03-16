@@ -45,7 +45,7 @@
   width: 100%;
 }
 
-.about {
+.links-list {
   display: flex;
   align-items: center;
   list-style-type: none;
@@ -55,9 +55,9 @@
 .item {
   font-size: 1.25vw;
   text-align: center;
+  white-space: nowrap;
 
-  margin-left: 10px;
-  padding: 5px;
+  margin: 10px;
   border-radius: 5px;
 
   color: white;

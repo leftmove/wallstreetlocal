@@ -1,3 +1,9 @@
+.data {
+  width: 98%;
+  margin: auto;
+  overflow-x: none;
+}
+
 .reload {
   position: absolute;
   display: flex;

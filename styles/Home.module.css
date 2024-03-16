@@ -3,23 +3,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  overflow: hidden;
 
   width: 100%;
-  max-height: 105vh;
+  overflow: hidden;
 }
 
 .landing-hero {
   display: flex;
 
   width: 100%;
-  height: 105vh;
   z-index: 0;
 }
 
 .hero-image {
   width: 100%;
-  position: absolute;
   height: fit-content;
 
   z-index: -10;
@@ -31,16 +28,22 @@
   margin-top: 0px;
 }
 
+.landing-dummy {
+  background-color: purple;
+  width: 100%;
+  height: 100%;
+  z-index: 1000000;
+}
+
 .search-header {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: fit-content;
   position: absolute;
 
-  padding: 50px;
+  padding: 50px 30px 60px 30px;
   margin-top: 50px;
-  width: 800px;
+  width: 70%;
   border-radius: 10px;
   z-index: 5;
 
@@ -51,14 +54,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 30px;
+  margin-top: 20px;
+  width: 90%;
 }
 
 .search-hint {
-  font-size: 0.8rem;
+  font-size: 1vw;
   color: var(--white);
   opacity: 0.2;
-  margin-top: -5px;
   margin-bottom: 10px;
 }
 
@@ -72,15 +75,21 @@
 }
 
 .main-header {
-  font-size: 3rem;
+  font-size: 4vw;
   color: #04df16;
   text-align: center;
 }
 
 .sub-header {
-  font-size: 1.3rem;
+  font-size: 2vw;
   color: white;
   margin-top: 40px;
+}
+
+.recommended-header {
+  position: absolute;
+  bottom: 10%;
+  padding: 10px;
 }
 
 .explore {
@@ -112,7 +121,6 @@
   align-items: center;
 
   width: 70%;
-  height: 375px;
   margin: auto;
   margin-top: 20px;
 }

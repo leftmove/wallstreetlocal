@@ -80,42 +80,44 @@ const Headers = (props) => {
     clearTimeout(delayHandler);
   };
   return (
-    <>
-      <DndContext
-        sensors={sensors}
-        autoScroll={false}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <div className={styles["headers-container"]}>
-          <SortableContext
-            items={headers.map((header) => header.accessor)}
-            strategy={horizontalListSortingStrategy}
-          >
-            {headers.map((h, index) => (
-              <Header
-                key={h.accessor}
-                id={h.accessor}
-                header={h}
-                index={index}
-                count={count}
-                activate={() => updateActivation(h.accessor)}
-                onMouseEnter={(event) =>
-                  handleMouseEnter(event, h.display, h.tooltip)
-                }
-                onMouseLeave={(event) => handleMouseLeave(event)}
-              />
-            ))}
-          </SortableContext>
+    <div className={styles["headers-everything"]}>
+      <div className={styles["headers-buttons"]}>
+        <DndContext
+          sensors={sensors}
+          autoScroll={false}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <div className={styles["headers-container"]}>
+            <SortableContext
+              items={headers.map((header) => header.accessor)}
+              strategy={horizontalListSortingStrategy}
+            >
+              {headers.map((h, index) => (
+                <Header
+                  key={h.accessor}
+                  id={h.accessor}
+                  header={h}
+                  index={index}
+                  count={count}
+                  activate={() => updateActivation(h.accessor)}
+                  onMouseEnter={(event) =>
+                    handleMouseEnter(event, h.display, h.tooltip)
+                  }
+                  onMouseLeave={(event) => handleMouseLeave(event)}
+                />
+              ))}
+            </SortableContext>
 
-          <DragOverlay>
-            {event.header ? (
-              <Header id={event.header.accessor} header={event.header} />
-            ) : null}
-          </DragOverlay>
-        </div>
-      </DndContext>
+            <DragOverlay>
+              {event.header ? (
+                <Header id={event.header.accessor} header={event.header} />
+              ) : null}
+            </DragOverlay>
+          </div>
+        </DndContext>
+      </div>
       <div className={styles["headers-buttons"]}>
         <Header
           header={{ display: "Sold", active: sold }}
@@ -144,7 +146,7 @@ const Headers = (props) => {
           onMouseLeave={(event) => handleMouseLeave(event)}
         />
       </div>
-    </>
+    </div>
   );
 };
 

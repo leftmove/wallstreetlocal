@@ -23,6 +23,7 @@ const Tabs = () => {
         <div
           className={[
             styles["tab"],
+            styles["first-tab"],
             tab === "recent" ? styles["tab-clicked"] : "",
             font.className,
           ].join(" ")}
@@ -38,6 +39,7 @@ const Tabs = () => {
         <div
           className={[
             styles["tab"],
+            styles["last-tab"],
             tab === "historical" ? styles["tab-clicked"] : "",
             font.className,
           ].join(" ")}

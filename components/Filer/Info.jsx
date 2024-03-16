@@ -1,5 +1,7 @@
 "use server";
 
+import styles from "@/styles/Filer.module.css";
+
 import Head from "next/head";
 
 import Tabs from "@/components/Tabs/Tabs";
@@ -35,8 +37,10 @@ const Info = (props) => {
       </Head>
       <Header cik={cik} tab={tab} />
       <Tabs />
-      {tab == "historical" ? <Explorer /> : null}
-      {tab == "recent" ? <Index /> : null}
+      <div className={styles.data}>
+        {tab == "historical" ? <Explorer /> : null}
+        {tab == "recent" ? <Index /> : null}
+      </div>
     </>
   );
 };

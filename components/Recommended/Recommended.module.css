@@ -30,7 +30,7 @@
 .list-title {
   font-size: 1rem;
 
-  color: white;
+  color: var(--white);
   transition: color 0.3s ease;
 }
 
@@ -44,7 +44,7 @@
   cursor: pointer;
   text-align: left;
 
-  color: white;
+  color: var(--offwhite);
   transition: color 0.3s ease;
 }
 
@@ -53,7 +53,6 @@
 }
 
 .recommended-homepage {
-  margin-bottom: 15vh;
   opacity: 0;
 
   transform: translateY(400px);
@@ -78,7 +77,7 @@
 .recommended-title {
   font-size: 2rem;
 
-  color: white;
+  color: var(--primary);
 }
 
 .recommended-list {

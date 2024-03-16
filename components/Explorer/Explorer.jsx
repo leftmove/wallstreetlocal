@@ -142,10 +142,10 @@ const Explorer = () => {
   if (error) return <Unavailable />;
 
   return (
-    <div className={styles["explorer-container"]}>
-      {loading ? <Loading /> : null}
+    <>
       <Timeline />
       <div className={styles["explorer-tables"]}>
+        {loading ? <Loading /> : null}
         <div className={styles["table-container"]}>
           {primaryError ? <Error statusCode={404} /> : null}
           <Table
@@ -175,7 +175,7 @@ const Explorer = () => {
           />
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

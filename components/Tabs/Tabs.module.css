@@ -9,18 +9,29 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
 
   width: 10%;
-  margin: 30px 15px 0px 15px;
+  margin: 20px 0px 0px 0px;
+}
+
+.first-tab {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.last-tab {
+  border-bottom-right-radius: 5px;
+  border-top-right-radius: 5px;
 }
 
 .tab {
   text-align: center;
   cursor: pointer;
 
+  padding: 5px 0px;
   width: 100%;
-  padding: 5px 10px;
-  border-radius: 5px;
+  height: 100%;
 
   color: var(--secondary-dark);
   background-color: var(--offwhite-dark);

@@ -20,6 +20,7 @@ import {
 } from "@/redux/filerSlice";
 
 import useStocks from "@/components/Hooks/useStocks";
+import Analysis from "@/components/Analysis/Analysis";
 import Table from "@/components/Table/Table";
 import Sort from "./Sort/Sort";
 
@@ -76,20 +77,24 @@ const Index = () => {
   if (error) return <Error statusCode={404} />;
 
   return (
-    <div className={styles["table-container"]}>
-      <Sort />
-      <Table
-        items={items}
-        loading={loading}
-        headers={headers}
-        sort={select}
-        reverse={reverse}
-        activate={activate}
-        pagination={pagination}
-        skip={skip}
-        paginate={paginate}
-      />
-    </div>
+    <>
+      <div className={styles["table-container"]}>
+        <Analysis icon="filter">
+          <Sort />
+        </Analysis>
+        <Table
+          items={items}
+          loading={loading}
+          headers={headers}
+          sort={select}
+          reverse={reverse}
+          activate={activate}
+          pagination={pagination}
+          skip={skip}
+          paginate={paginate}
+        />
+      </div>
+    </>
   );
 };
 

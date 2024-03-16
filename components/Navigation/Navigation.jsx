@@ -14,6 +14,7 @@ const Item = ({ link, text, tab }) => (
   </li>
 );
 
+const server = process.env.NEXT_PUBLIC_SERVER;
 const Navigation = (props) => {
   const variant = props.variant || null;
   return (
@@ -40,11 +41,12 @@ const Navigation = (props) => {
           </div>
           {variant === "home" ? null : <Search />}
         </div>
-        <div>
-          <ul className={styles["about"]}>
+        <div className={styles["links"]}>
+          <ul className={styles["links-list"]}>
             <Item link="/recommended/top" text="Top Filers" />
             <Item link="/recommended/searched" text="Popular Filers" />
             <Item link="/about/resources" text="Resources" />
+            <Item link={server + "/docs"} text="API" tab={true} />
             <Item
               link="https://github.com/leftmove"
               text="Contact"

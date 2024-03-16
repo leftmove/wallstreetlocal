@@ -39,7 +39,6 @@ const Header = (props) => {
         !fixed && isDragging ? styles["header-dragging"] : "",
       ].join(" ")}
       onClick={() => activate()}
-      style={count ? { ...style, width: `calc(100% / ${count})` } : style}
       onMouseEnter={onMouseEnter ? () => onMouseEnter() : () => {}}
       onMouseLeave={onMouseLeave ? () => onMouseLeave() : () => {}}
       {...listeners}
