@@ -1,0 +1,59 @@
+.analysis-container {
+  max-height: 40px;
+  border-radius: 5px;
+  margin: 30px 0px;
+
+  overflow: hidden;
+  transition: max-height 0.3s ease, background-color 0.3s ease;
+}
+
+.analysis-expanded {
+  max-height: 800px;
+  background-color: var(--offwhite-dark);
+}
+
+.analysis-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  width: 98%;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 20px;
+  opacity: 1;
+  margin: auto;
+
+  background-color: var(--offwhite-dark);
+  transition: opacity 0.3s ease, color 0.3s ease;
+}
+
+.analysis-dummy {
+  height: 20px;
+  width: 1%;
+  transition: width 0.5s ease;
+}
+
+.dummy-expand {
+  width: 100%;
+  transition: width 0.5s ease;
+}
+
+.analysis-hidden {
+  opacity: 1;
+}
+
+.analysis-icon {
+  width: 20px;
+}
+
+.analysis-icon,
+.analysis-tip {
+  margin-right: 10px;
+}
+
+.analysis-children {
+  padding: 20px;
+  margin: auto;
+}
