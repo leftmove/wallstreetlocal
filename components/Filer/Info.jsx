@@ -6,6 +6,7 @@ import Head from "next/head";
 
 import Tabs from "@/components/Tabs/Tabs";
 import Index from "@/components/Index/Index";
+import Charts from "@/components/Charts/Charts";
 import Explorer from "@/components/Explorer/Explorer";
 import Header from "@/components/Header/Header";
 
@@ -38,8 +39,9 @@ const Info = (props) => {
       <Header cik={cik} tab={tab} />
       <Tabs />
       <div className={styles.data}>
-        {tab == "historical" ? <Explorer /> : null}
-        {tab == "recent" ? <Index /> : null}
+        {tab === "filings" ? <Explorer /> : null}
+        {tab === "charts" ? <Charts /> : null}
+        {tab === "stocks" ? <Index /> : null}
       </div>
     </>
   );

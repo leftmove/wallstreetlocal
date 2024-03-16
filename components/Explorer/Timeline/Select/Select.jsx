@@ -95,7 +95,10 @@ const Select = (props) => {
         </div>
         <div className={styles["picker-attributes"]}>
           {attributes.map((a) => (
-            <div className={styles["picker-attribute"]} key={a.text}>
+            <div
+              className={styles["picker-attribute"]}
+              key={a.text + selected?.access}
+            >
               <button
                 className={styles["attribute-button"]}
                 onClick={() => setPicking(!picking)}
