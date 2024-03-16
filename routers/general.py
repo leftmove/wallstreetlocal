@@ -42,8 +42,8 @@ async def startup():
             return
     cm.set_key_no_expiration(startup_key, "running")
 
-    if environment == "development":
-        debug_cik = os.environ["DEBUG_CIK"]
+    debug_cik = os.environ.get("DEBUG_CIK", None)
+    if environment == "development" and debug_cik:
         database.delete_filer(debug_cik)
     analysis.end_dangling()
 

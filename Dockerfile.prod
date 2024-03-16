@@ -2,13 +2,16 @@ FROM python:3.9
 
 WORKDIR /app
 
-COPY ./requirements.txt /app/requirements.txt
 COPY ./main.py /app/main.py
 
 COPY ./routers /app/routers
 COPY ./static /app/static
 
-RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+RUN pip install poetry
+RUN poetry config virtualenvs.create false
+
+COPY pyproject.toml poetry.lock ./
+RUN poetry install --no-dev
 
 EXPOSE 8000
 
