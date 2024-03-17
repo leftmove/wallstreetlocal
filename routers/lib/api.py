@@ -13,6 +13,13 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0"
 }
 
+ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
+production_environment = True if ENVIRONMENT == "production" else False
+if not production_environment:
+    from dotenv import load_dotenv
+
+    load_dotenv(".env.development")
+
 # Environment Variables
 FINN_HUB_API_KEY = os.environ["FINN_HUB_API_KEY"]
 ALPHA_VANTAGE_API_KEY = os.environ["ALPHA_VANTAGE_API_KEY"]

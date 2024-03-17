@@ -787,6 +787,125 @@ def sort_and_format(filer_ciks):
         raise KeyError
 
 
+# Really janky/inefficient
+
+
+def analyze_allocation(cik):
+
+    filing_project = {"access_number": 1, "report_date": 1}
+    pipeline = [
+        {"$match": {"cik": cik}},
+        {"$project": {"filings": {"$objectToArray": "$filings"}}},
+        {"$project": {"filings": "$filings.v"}},
+        {"$unwind": "$filings"},
+        {"$replaceRoot": {"newRoot": "$filings"}},
+        {"$project": {**filing_project, "stocks": 1}},
+        {"$project": {**filing_project, "stocks": {"$objectToArray": "$stocks"}}},
+        {"$project": {**filing_project, "stocks": "$stocks.v"}},
+        {"$unwind": "$stocks"},
+        {"$set": {"cusip": "$stocks.cusip"}},
+        {"$project": {**filing_project, "cusip": 1}},
+    ]
+    cursor = database.search_filers(pipeline)
+    if not cursor:
+        raise LookupError
+    filings = [result for result in cursor]
+
+    filer = database.search_filer(cik, {"stocks.cusip": 1, "stocks.industry": 1})
+    filer_stocks = filer["stocks"]
+
+    new_filings = {}
+    for filing in filings:
+        access_number = filing["access_number"]
+        report_date = filing["report_date"]
+        if new_filings.get(access_number):
+            filing_stocks = new_filings[access_number]["stocks"]
+
+            cusip = filing["cusip"]
+            stock = next(filter(lambda s: s["cusip"] == cusip, filer_stocks), None)
+            if stock:
+                filing_stocks.append(
+                    {
+                        "cusip": cusip,
+                        "industry": stock["industry"],
+                    }
+                )
+
+            new_filings[access_number]["stocks"] = filer_stocks
+        else:
+            cusip = filing["cusip"]
+            stock = next(filter(lambda s: s["cusip"] == cusip, filer_stocks), None)
+            if stock:
+                new_filings[access_number] = {
+                    "report_date": report_date,
+                    "stocks": [
+                        {
+                            "cusip": cusip,
+                            "industry": stock["industry"],
+                        }
+                    ],
+                }
+            else:
+                new_filings[access_number]["stocks"] = []
+
+    allocation_list = []
+    for f in new_filings:
+        filing = new_filings[f]
+        stocks = filing["stocks"]
+        industries = {}
+
+        if stocks:
+            for s in stocks:
+                industry = s["industry"]
+                if industries.get(industry):
+                    industries[industry]["count"] += 1
+                else:
+                    industries[industry] = {"count": 1}
+            industries["OTHER"] = industries.get("NA", {"count": 1})
+            industries.pop("NA", None)
+
+        count = len(stocks)
+        for i in industries:
+            industries[i]["percentage"] = (industries[i]["count"] / count) * 100
+
+        allocation_list.append(
+            {
+                "access_number": f,
+                "report_date": filing["report_date"],
+                "industries": industries,
+            }
+        )
+
+    return allocation_list
+
+
+def analyze_aum(cik):
+
+    pipeline = [
+        {"$match": {"cik": cik}},
+        {"$project": {"filings": {"$objectToArray": "$filings"}}},
+        {"$project": {"filings": "$filings.v"}},
+        {"$unwind": "$filings"},
+        {"$replaceRoot": {"newRoot": "$filings"}},
+        {"$project": {"stocks": 0}},
+    ]
+    cursor = database.search_filers(pipeline)
+    if not cursor:
+        raise LookupError
+    filings = [result for result in cursor]
+
+    aum_list = []
+    for filing in filings:
+        aum_list.append(
+            {
+                "aum": filing.get("market_value", "NA"),
+                "report_date": filing["report_date"],
+            }
+        )
+
+    return aum_list
+
+
 def debug_output(content):
     now = datetime.now().timestamp()
     file_path = f"{cwd}/static/filers/debug-{now}.json"

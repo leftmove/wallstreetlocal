@@ -168,11 +168,24 @@ def create_historical(cik, company, stamp, background=None):
             database.edit_filer(filer_query, stock_query)
             database.add_log(cik, log_item)
 
+        allocation_list = analysis.analyze_allocation(cik)
+        aum_list = analysis.analyze_aum(cik)
+        database.edit_filer(
+            {"cik": cik},
+            {
+                "$set": {
+                    "analysis.allocation": allocation_list,
+                    "analysis.aum_timeseries": aum_list,
+                }
+            },
+        )
+
         database.add_log(cik, "Updated Filer Historical Stocks", company_name, cik)
         database.edit_status(cik, 0)
     except Exception as e:
         database.edit_filer(filer_query, {"$set": {"update": False}})
         database.add_log(cik, "Failed to Update Filer Recent Stocks")
+        database.edit_status(cik, 0)
         logging.error(e)
 
     start = stamp["start"]
@@ -239,7 +252,7 @@ async def rollback_filer(cik: str, password: str, background: BackgroundTasks):
 
     filer = database.find_filer(cik)
     if not filer:
-        raise HTTPException(404, detail="CIK not found")
+        raise HTTPException(404, detail="CIK not found.")
     if password != os.environ["ADMIN_PASSWORD"]:
         raise HTTPException(detail="Unable to give access.", status_code=403)
 
@@ -690,22 +703,17 @@ async def query_filings(cik: str):
     return {"filings": filings}
 
 
-@router.get("/filings/allocation", status_code=200)
-async def query_filings(cik: str):
+@router.get("/analysis", status_code=200)
+async def analysis_info(cik: str, key: str):
 
-    pipeline = [
-        {"$match": {"cik": cik}},
-        {"$project": {"filings": {"$objectToArray": "$filings"}}},
-        {"$project": {"filings": "$filings.v"}},
-        {"$unwind": "$filings"},
-        {"$replaceRoot": {"newRoot": "$filings"}},
-        {"$project": {"access_number": 1, "filing_date": 1, "stocks": 1}},
-        {"$unwind": "$stocks"},
-        {"$project": {"access_number": 1, "filing_date": 1}},
-    ]
-    cursor = database.search_filers(pipeline)
-    if not cursor:
-        raise HTTPException(detail="Filer not found.", status_code=404)
-    filings = [result for result in cursor]
+    filer_log = database.find_log(cik, {"status": 1})
+    if not filer_log:
+        raise HTTPException(404, detail="CIK not found.")
+    if filer_log.get("status", 100) > 0:
+        raise HTTPException(409, detail="Filer still building.")
 
-    return {"filings": filings}
+    analysis_key = f"analysis.{key}"
+    filer = database.find_filer(cik, {analysis_key: 1})
+    info = filer["analysis"][key]
+
+    return {"filings": info}

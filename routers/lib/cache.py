@@ -8,12 +8,19 @@ from functools import wraps
 from time import time
 from inspect import iscoroutinefunction
 
+ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
+production_environment = True if ENVIRONMENT == "production" else False
+if not production_environment:
+    from dotenv import load_dotenv
+
+    load_dotenv(".env.development")
+
 REDIS_SERVER_URL = os.environ["REDIS_SERVER_URL"]
+REDIS_PORT = int(os.environ.get("REDIS_PORT", 14640))
 REDIS_MASTER_KEY = os.environ["REDIS_MASTER_KEY"]
-ENVIRONMENT = os.environ["ENVIRONMENT"]
 logging.info("[ Cache (Redis) Initializing ] ...")
 
-r = redis.Redis(host=REDIS_SERVER_URL, port=14640, password=REDIS_MASTER_KEY)
+r = redis.Redis(host=REDIS_SERVER_URL, port=REDIS_PORT, password=REDIS_MASTER_KEY)
 
 
 def timing(f):
