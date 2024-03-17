@@ -689,7 +689,8 @@ async def query_filings(cik: str):
 
     return {"filings": filings}
 
-@router.get("/filingscomplete", status_code=200)
+
+@router.get("/filings/allocation", status_code=200)
 async def query_filings(cik: str):
 
     pipeline = [
@@ -698,6 +699,9 @@ async def query_filings(cik: str):
         {"$project": {"filings": "$filings.v"}},
         {"$unwind": "$filings"},
         {"$replaceRoot": {"newRoot": "$filings"}},
+        {"$project": {"access_number": 1, "filing_date": 1, "stocks": 1}},
+        {"$unwind": "$stocks"},
+        {"$project": {"access_number": 1, "filing_date": 1}},
     ]
     cursor = database.search_filers(pipeline)
     if not cursor:
