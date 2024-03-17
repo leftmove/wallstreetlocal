@@ -1,1 +1,1 @@
-sudo docker compose -f docker-compose.yaml up --build --force-recreate -d
+sudo docker compose -f docker-compose.yaml up --build --force-recreate -d backend

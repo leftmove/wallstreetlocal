@@ -688,3 +688,20 @@ async def query_filings(cik: str):
     filings = [result for result in cursor]
 
     return {"filings": filings}
+
+@router.get("/filingscomplete", status_code=200)
+async def query_filings(cik: str):
+
+    pipeline = [
+        {"$match": {"cik": cik}},
+        {"$project": {"filings": {"$objectToArray": "$filings"}}},
+        {"$project": {"filings": "$filings.v"}},
+        {"$unwind": "$filings"},
+        {"$replaceRoot": {"newRoot": "$filings"}},
+    ]
+    cursor = database.search_filers(pipeline)
+    if not cursor:
+        raise HTTPException(detail="Filer not found.", status_code=404)
+    filings = [result for result in cursor]
+
+    return {"filings": filings}

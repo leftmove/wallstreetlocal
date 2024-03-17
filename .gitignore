@@ -4,6 +4,7 @@ start.sh
 example.json
 **/.env
 .env.*
+.env
 
 /.vscode
 

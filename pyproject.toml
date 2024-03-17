@@ -36,6 +36,8 @@ typing-extensions = "^4.10.0"
 urllib3 = "^2.2.1"
 uvicorn = "^0.28.0"
 
+[tool.poetry.scripts]
+dev = "main"
 
 [build-system]
 requires = ["poetry-core"]
