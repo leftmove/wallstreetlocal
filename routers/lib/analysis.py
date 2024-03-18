@@ -773,14 +773,18 @@ def sort_and_format(filer_ciks):
             reverse=True,
         )
         for filer in filers_sorted:
-            filer["date"] = datetime.utcfromtimestamp(filer["updated"]).strftime(
-                "%Y-%m-%d"
-            )
-            market_value = filer.get("market_value", 0)
-            filer["market_value"] = (
-                f"${int(market_value):,}" if market_value > 0 else "NA"
-            )
-            filer.pop("_id", None)
+            try:
+                filer["date"] = datetime.utcfromtimestamp(filer["updated"]).strftime(
+                    "%Y-%m-%d"
+                )
+                market_value = filer.get("market_value", 0)
+                filer["market_value"] = (
+                    f"${int(market_value):,}" if market_value > 0 else "NA"
+                )
+                filer.pop("_id", None)
+            except:
+                filer["date"] = "NA"
+                filer["market_value"] = "NA"
         return filers_sorted
     except Exception as e:
         logging.error(e)

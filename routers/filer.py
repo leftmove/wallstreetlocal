@@ -385,7 +385,7 @@ async def logs(cik: str, start: int = 0):
 @router.get("/estimate", status_code=202)
 async def estimate(cik: str):
     try:
-        filer = database.find_log(
+        log = database.find_log(
             cik,
             {
                 "_id": 0,
@@ -393,12 +393,10 @@ async def estimate(cik: str):
             },
         )
 
-        if not filer:
+        if not log:
             raise HTTPException(404, detail="CIK not found.")
 
-        log = filer["log"]
         time = log["time"]
-
         elapsed = time["elapsed"]
         required = time["required"]
         status = log["status"]
