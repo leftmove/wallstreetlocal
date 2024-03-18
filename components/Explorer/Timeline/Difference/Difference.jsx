@@ -10,9 +10,9 @@ import {
   editDifference,
 } from "@/redux/filerSlice";
 
-import { font, fontLight } from "@/components/fonts";
+import { font, fontLight } from "@fonts";
 
-import Headers from "@/components/Headers/Headers";
+import Headers from "components/Headers/Headers";
 import Record from "../Select/Record/Record";
 
 const Difference = (props) => {

@@ -3,9 +3,9 @@ import styles from "@/styles/Contact.module.css";
 import Head from "next/head";
 import { font } from "@fonts";
 
-import MailSVG from "@/public/static/envelope.svg";
-import DiscordSVG from "@/public/static/discord.svg";
-import LinkedInSVG from "@/public/static/linkedin.svg";
+import MailSVG from "@/images/envelope.svg";
+import DiscordSVG from "@/images/discord.svg";
+import LinkedInSVG from "@/images/linkedin.svg";
 
 export default function Contact() {
   return (

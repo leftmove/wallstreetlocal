@@ -1,6 +1,6 @@
 import styles from "./Source.module.css";
 
-import SourceIcon from "@/public/static/contact.svg";
+import SourceIcon from "@/images/contact.svg";
 
 const Source = (props) => {
   const cik = props.cik || null;

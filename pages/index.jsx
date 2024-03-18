@@ -6,15 +6,15 @@ import Image from "next/image";
 
 import { font, fontLight, fontBold } from "@fonts";
 
-import Layout from "@/components/Layouts/Home";
+import Layout from "components/Layouts/Home";
 
-import Search from "@/components/Search/Homepage/Search";
-import Recommended from "@/components/Recommended/Recommended";
+import Search from "components/Search/Homepage/Search";
+import Recommended from "components/Recommended/Recommended";
 
-import Hero from "@/public/static/hero.jpg";
-import FolderIcon from "@/public/static/folder.svg";
-import FileIcon from "@/public/static/file.svg";
-import BookIcon from "@/public/static/book.svg";
+import Hero from "@/images/hero.jpg";
+import FolderIcon from "@/images/folder.svg";
+import FileIcon from "@/images/file.svg";
+import BookIcon from "@/images/book.svg";
 
 export default function Home() {
   return (

@@ -1,7 +1,7 @@
 import styles from "./Pagination.module.css";
 
-import LeftIcon from "@/public/static/right.svg";
-import RightIcon from "@/public/static/left.svg";
+import LeftIcon from "@/images/right.svg";
+import RightIcon from "@/images/left.svg";
 
 import Count from "./Count/Count";
 import Limit from "./Limit/Limit";

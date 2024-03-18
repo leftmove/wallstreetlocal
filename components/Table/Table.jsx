@@ -1,7 +1,7 @@
 import styles from "./Table.module.css";
 
-import Loading from "@/components/Loading/Loading";
-import Unavailable from "@/components/Unavailable/Unavailable";
+import Loading from "components/Loading/Loading";
+import Unavailable from "components/Unavailable/Unavailable";
 import Row from "./Row/Row";
 import Header from "./Header/Header";
 import Pagination from "./Pagination/Pagination";

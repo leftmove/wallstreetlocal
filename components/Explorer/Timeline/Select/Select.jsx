@@ -9,12 +9,12 @@ import {
   editComparison,
 } from "@/redux/filerSlice";
 
-import { font, fontLight } from "@/components/fonts";
+import { font, fontLight } from "@fonts";
 
-import Headers from "@/components/Headers/Headers";
+import Headers from "components/Headers/Headers";
 import Record from "./Record/Record";
 import Picker from "./Picker/Picker";
-import Source from "@/components/Source/Source";
+import Source from "components/Source/Source";
 
 const Select = (props) => {
   const dispatch = useDispatch();

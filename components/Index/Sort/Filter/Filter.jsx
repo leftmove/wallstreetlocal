@@ -14,8 +14,8 @@ import {
 
 import { font, fontLight } from "@fonts";
 
-import Tip from "@/components/Tip/Tip";
-import Headers from "@/components/Headers/Headers";
+import Tip from "components/Tip/Tip";
+import Headers from "components/Headers/Headers";
 
 const Filter = () => {
   const headers = useSelector(selectHeaders);

@@ -156,7 +156,7 @@ const initialState = {
   cik: "",
   value: [],
   headers: initialHeaders,
-  tab: "recent",
+  tab: "stocks",
   sort: initialSort,
   filings: [],
   timeline: {

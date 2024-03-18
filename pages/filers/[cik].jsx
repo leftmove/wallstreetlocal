@@ -3,10 +3,10 @@ import axios from "axios";
 import { Provider } from "react-redux";
 import { wrapper } from "@/redux/store";
 
-import Layout from "@/components/Layouts/Layout";
-import Info from "@/components/Filer/Info";
-import Other from "@/components/Filer/Other";
-import Building from "@/components/Filer/Building";
+import Layout from "components/Layouts/Layout";
+import Info from "components/Filer/Info";
+import Other from "components/Filer/Other";
+import Building from "components/Filer/Building";
 
 const Filer = (props) => {
   const query = props.query;
@@ -70,7 +70,7 @@ export async function getServerSideProps(context) {
     props: {
       query,
       cik,
-      tab: tab || "recent",
+      tab: tab || "stocks",
       persist: persist || null,
       continuous: continuous || null,
     },

@@ -7,7 +7,7 @@ import useSWR from "swr";
 import Link from "next/link";
 import { font } from "@fonts";
 
-import SearchIcon from "@/public/static/search.svg";
+import SearchIcon from "@/images/search.svg";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
 const fetcher = (url, query, limit) =>

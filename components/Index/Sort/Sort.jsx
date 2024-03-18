@@ -4,7 +4,7 @@ import styles from "./Sort.module.css";
 import Filter from "./Filter/Filter";
 import Gain from "./Gain/Gain";
 import Record from "./Record/Record";
-import Tip from "@/components/Tip/Tip";
+import Tip from "components/Tip/Tip";
 
 const Sort = () => {
   return (

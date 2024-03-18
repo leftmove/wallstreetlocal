@@ -6,7 +6,7 @@ import Link from "next/link";
 import axios from "axios";
 
 import { font } from "@fonts";
-import { convertTitle } from "@/components/Filer/Info";
+import { convertTitle } from "components/Filer/Info";
 
 const headers = [
   { display: "Name", accessor: "name" },

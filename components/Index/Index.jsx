@@ -19,9 +19,9 @@ import {
   selectHeaders,
 } from "@/redux/filerSlice";
 
-import useStocks from "@/components/Hooks/useStocks";
-import Analysis from "@/components/Analysis/Analysis";
-import Table from "@/components/Table/Table";
+import useStocks from "components/Hooks/useStocks";
+import Analysis from "components/Analysis/Analysis";
+import Table from "components/Table/Table";
 import Sort from "./Sort/Sort";
 
 const server = process.env.NEXT_PUBLIC_SERVER;

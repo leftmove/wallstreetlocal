@@ -3,8 +3,8 @@ import styles from "./Navigation.module.css";
 import Link from "next/link";
 import { font } from "@fonts";
 
-import Search from "@/components/Search/Button/Search";
-import Bar from "@/components/Bar/Bar";
+import Search from "components/Search/Button/Search";
+import Bar from "components/Bar/Bar";
 
 const Item = ({ link, text, tab }) => (
   <li className={styles["item"] + " " + font.className}>

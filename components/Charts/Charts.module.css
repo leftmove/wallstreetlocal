@@ -1,0 +1,13 @@
+.charts-overall {
+  display: flex;
+  justify-content: center;
+  position: relative;
+
+  height: 50vh;
+  margin: 30px 10px;
+}
+
+.bar-stack {
+  height: 350px;
+  width: 1000px;
+}

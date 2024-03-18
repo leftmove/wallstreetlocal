@@ -3,66 +3,64 @@ import { BarStack } from "@visx/shape";
 import { Group } from "@visx/group";
 import { Grid } from "@visx/grid";
 import { AxisBottom } from "@visx/axis";
-import cityTemperature from "@visx/mock-data/lib/mocks/cityTemperature";
 import { scaleBand, scaleLinear, scaleOrdinal } from "@visx/scale";
-import { timeParse, timeFormat } from "@visx/vendor/d3-time-format";
 import { useTooltip, useTooltipInPortal, defaultStyles } from "@visx/tooltip";
 import { LegendOrdinal } from "@visx/legend";
 import { localPoint } from "@visx/event";
 
-const purple1 = "#6c5efb";
-const purple2 = "#c998ff";
-export const purple3 = "#a44afe";
-export const background = "#eaedff";
+import { font } from "@fonts";
+
 const defaultMargin = { top: 40, right: 0, bottom: 0, left: 0 };
-const tooltipStyles = {
-  ...defaultStyles,
-  minWidth: 60,
-  backgroundColor: "rgba(0,0,0,0.9)",
-  color: "white",
-};
-
-const data = cityTemperature.slice(0, 12);
-const keys = Object.keys(data[0]).filter((d) => d !== "date");
-
-const temperatureTotals = data.reduce((allTotals, currentDate) => {
-  const totalTemperature = keys.reduce((dailyTotal, k) => {
-    dailyTotal += Number(currentDate[k]);
-    return dailyTotal;
-  }, 0);
-  allTotals.push(totalTemperature);
-  return allTotals;
-}, []);
-
-const parseDate = timeParse("%Y-%m-%d");
-const format = timeFormat("%b %d");
-const formatDate = (date) => format(parseDate(date));
-
-// accessors
-const getDate = (d) => d.date;
-
-// scales
-const dateScale = scaleBand({
-  domain: data.map(getDate),
-  padding: 0.2,
-});
-const temperatureScale = scaleLinear({
-  domain: [0, Math.max(...temperatureTotals)],
-  nice: true,
-});
-const colorScale = scaleOrdinal({
-  domain: keys,
-  range: [purple1, purple2, purple3],
-});
-
 let tooltipTimeout;
 
 const Allocation = ({
+  data,
   width,
   height,
   events = false,
   margin = defaultMargin,
+  background = "#eaedff",
+  backgroundTooltip = "rgba(0,0,0,0.9)",
+  colors = ["#6c5efb", "#c998ff", "#a44afe"],
+  className,
 }) => {
+  const tooltipStyles = {
+    ...defaultStyles,
+    ...font.style,
+    minWidth: 60,
+    backgroundColor: backgroundTooltip,
+    color: "white",
+  };
+
+  const keys = Object.keys(data[0]).filter((d) => d !== "date");
+  const temperatureTotals = data.reduce((allTotals, currentDate) => {
+    const totalTemperature = keys.reduce((dailyTotal, k) => {
+      dailyTotal += Number(currentDate[k]);
+      return dailyTotal;
+    }, 0);
+    allTotals.push(totalTemperature);
+    return allTotals;
+  }, []);
+
+  const formatDate = (date) => date;
+
+  // accessors
+  const getDate = (d) => d.date;
+
+  // scales
+  const dateScale = scaleBand({
+    domain: data.map(getDate),
+    padding: 0.2,
+  });
+  const temperatureScale = scaleLinear({
+    domain: [0, Math.max(...temperatureTotals)],
+    nice: true,
+  });
+  const colorScale = scaleOrdinal({
+    domain: keys,
+    range: colors,
+  });
+
   const {
     tooltipOpen,
     tooltipLeft,
@@ -86,16 +84,15 @@ const Allocation = ({
 
   dateScale.rangeRound([0, xMax]);
   temperatureScale.range([yMax, 0]);
-  console.log(cityTemperature);
 
   return width < 10 ? null : (
-    <div style={{ position: "relative" }}>
-      <svg ref={containerRef} width={width} height={height}>
+    <div style={{ position: "relative" }} className={className}>
+      <svg ref={containerRef} width="100%" height="100%">
         <rect
           x={0}
           y={0}
-          width={width}
-          height={height}
+          width="100%"
+          height="100%"
           fill={background}
           rx={14}
         />
@@ -160,10 +157,10 @@ const Allocation = ({
           top={yMax + margin.top}
           scale={dateScale}
           tickFormat={formatDate}
-          stroke={purple3}
-          tickStroke={purple3}
+          stroke={colors[2]}
+          tickStroke={colors[2]}
           tickLabelProps={{
-            fill: purple3,
+            fill: colors[2],
             fontSize: 11,
             textAnchor: "middle",
           }}

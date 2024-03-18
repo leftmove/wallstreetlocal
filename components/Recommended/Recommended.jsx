@@ -7,7 +7,7 @@ import Link from "next/link";
 
 import { font } from "@fonts";
 
-import { convertTitle } from "@/components/Filer/Info";
+import { convertTitle } from "components/Filer/Info";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
 const Recommended = (props) => {
