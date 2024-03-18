@@ -10,7 +10,7 @@ import { localPoint } from "@visx/event";
 
 import { font } from "@fonts";
 
-const defaultMargin = { top: 40, right: 0, bottom: 0, left: 0 };
+const defaultMargin = { top: -20, right: 0, bottom: 0, left: 0 };
 let tooltipTimeout;
 
 const Allocation = ({
@@ -23,13 +23,14 @@ const Allocation = ({
   backgroundTooltip = "rgba(0,0,0,0.9)",
   colors = ["#6c5efb", "#c998ff", "#a44afe"],
   className,
+  legendClassName,
 }) => {
   const tooltipStyles = {
     ...defaultStyles,
     ...font.style,
     minWidth: 60,
     backgroundColor: backgroundTooltip,
-    color: "white",
+    color: "var(--offwhite-dark)",
   };
 
   const keys = Object.keys(data[0]).filter((d) => d !== "date");
@@ -176,11 +177,12 @@ const Allocation = ({
           fontSize: "14px",
         }}
       >
-        <LegendOrdinal
+        {/* <LegendOrdinal
+          className={legendClassName}
           scale={colorScale}
           direction="row"
           labelMargin="0 15px 0 0"
-        />
+        /> */}
       </div>
 
       {tooltipOpen && tooltipData && (
@@ -192,7 +194,7 @@ const Allocation = ({
           <div style={{ color: colorScale(tooltipData.key) }}>
             <strong>{tooltipData.key}</strong>
           </div>
-          <div>{tooltipData.bar.data[tooltipData.key]}℉</div>
+          <div>{tooltipData.bar.data[tooltipData.key]}%</div>
           <div>
             <small>{formatDate(getDate(tooltipData.bar.data))}</small>
           </div>

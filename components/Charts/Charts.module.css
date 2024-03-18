@@ -3,11 +3,18 @@
   justify-content: center;
   position: relative;
 
-  height: 50vh;
   margin: 30px 10px;
 }
 
 .bar-stack {
-  height: 350px;
-  width: 1000px;
+  height: 750px;
+  width: 1300px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  position: relative;
 }
