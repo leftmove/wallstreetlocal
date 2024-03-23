@@ -3,6 +3,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 import os
+from traceback import format_exc
+from datetime import datetime
 
 from .lib import database
 from .lib import cache as cm
@@ -84,6 +86,14 @@ async def query_top(password: str, background: BackgroundTasks):
     background.add_task(cycle_filers, filer_ciks)
 
     return {"description": "Started querying filers."}
+
+
+def create_error(cik, e):
+    stamp = str(datetime.now())
+    cwd = os.getcwd()
+    with open(f"{cwd}/static/errors/error-{stamp}.log", "w") as f:
+        error_string = f"Failed to Query Filer {cik}\n{repr(e)}\n{format_exc()}"
+        f.write(error_string)
 
 
 @cache(1)

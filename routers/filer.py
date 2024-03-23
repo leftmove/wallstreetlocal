@@ -89,6 +89,7 @@ def create_recent(cik, company, stamp, backgound: BackgroundTasks = None):
         database.add_log(cik, "Queried Filer Recent Stocks", company_name, cik)
     except Exception as e:
         logging.error(e)
+        create_error(cik, e)
         raise HTTPException(status_code=500, detail="Error getting newest stocks.")
 
     try:
@@ -119,6 +120,7 @@ def create_recent(cik, company, stamp, backgound: BackgroundTasks = None):
         )
         database.add_log(cik, "Failed to Update Filer Recent Stocks", company_name, cik)
         database.edit_status(cik, 2)
+        create_error(cik, e)
         logging.error(e)
 
     start = stamp["start"]
@@ -146,6 +148,7 @@ def create_historical(cik, company, stamp, background=None):
         database.add_log(cik, "Queried Filer Historical Stocks", company_name, cik)
     except Exception as e:
         logging.error(e)
+        create_error(cik, e)
         database.add_log(
             cik, "Failed to Query Filer Historical Stocks", company_name, cik
         )
@@ -184,6 +187,7 @@ def create_historical(cik, company, stamp, background=None):
         database.edit_filer(filer_query, {"$set": {"update": False}})
         database.add_log(cik, "Failed to Update Filer Recent Stocks")
         database.edit_status(cik, 0)
+        create_error(cik, e)
         logging.error(e)
 
     start = stamp["start"]
@@ -638,6 +642,14 @@ async def popular_ciks():
     return {"filers": filers_sorted}
 
 
+def create_error(cik, e):
+    stamp = str(datetime.now())
+    cwd = os.getcwd()
+    with open(f"{cwd}/static/errors/error-{stamp}.log", "w") as f:
+        error_string = f"Failed to Query Filer {cik}\n{repr(e)}\n{format_exc()}"
+        f.write(error_string)
+
+
 def create_filer_try(cik):
     try:
         filer = database.find_filer(cik)
@@ -650,11 +662,7 @@ def create_filer_try(cik):
         else:
             raise HTTPException(detail="Filer already exists.", status_code=409)
     except Exception as e:
-        stamp = str(datetime.now())
-        cwd = os.getcwd()
-        with open(f"{cwd}/static/errors/error-{stamp}.log", "w") as f:
-            error_string = f"Failed to Query Filer {cik}\n{repr(e)}\n{format_exc()}"
-            f.write(error_string)
+        create_error(cik, e)
         logging.info("Error Occured\n", e)
 
 
