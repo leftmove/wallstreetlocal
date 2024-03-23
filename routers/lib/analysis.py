@@ -5,6 +5,7 @@ import os
 import logging
 
 from datetime import datetime
+from traceback import format_exc
 
 from . import database
 from . import api
@@ -256,6 +257,14 @@ def serialize_local(
     }
 
 
+def create_error(cik, e):
+    stamp = str(datetime.now())
+    cwd = os.getcwd()
+    with open(f"{cwd}/static/errors/error-analysis-{stamp}.log", "w") as f:
+        error_string = f"Failed to Query Filer {cik}\n{repr(e)}\n{format_exc()}"
+        f.write(error_string)
+
+
 def analyze_total(cik, stocks, access_number):
     market_values = []
     for key in stocks:
@@ -437,10 +446,13 @@ def analyze_filings(cik, filings, last_report):
                 )
 
 
-def analyze_stocks(cik, filings, historical_cache=None):
+def analyze_stocks(cik, filings):
     stock_cache = {}
-    for access_number in filings:
-        filing_stocks = filings[access_number].get("stocks")
+    filings_sorted = sorted(
+        [filings[an] for an in filings], key=lambda d: d["report_date"], reverse=True
+    )
+    for filing in filings_sorted:
+        filing_stocks = filing.get("stocks")
         if not filing_stocks:
             continue
         for cusip in filing_stocks:
@@ -449,19 +461,9 @@ def analyze_stocks(cik, filings, historical_cache=None):
                 cusip = filing_stock["cusip"]
                 name = filing_stock["name"]
 
-                first_appearance = filing_stock["first_appearance"]
-                buy_time = filings[first_appearance]["report_date"]
-                if historical_cache != None:
-                    historical_stock = historical_cache.get(cusip)
-                    historical_buy = (
-                        historical_stock.get("buy_time", float("inf"))
-                        if historical_stock
-                        else float("inf")
-                    )
-                    if buy_time < historical_buy:
-                        continue
-
                 found_stock = stock_cache.get(cusip)
+                if found_stock:
+                    continue
                 found_stock = (
                     database.find_stock("cusip", cusip)
                     if not found_stock
@@ -478,13 +480,6 @@ def analyze_stocks(cik, filings, historical_cache=None):
                     "sold": sold_stamp,
                 }
 
-                cached_stock = stock_cache.get(cusip)
-                if cached_stock and cached_stock <= buy_time:
-                    continue
-
-                if cached_stock:
-                    stock_cache[cusip] = buy_time
-
                 updated_stock = serialize_stock(filing_stock, found_stock)
                 log_stock = {
                     "name": name,
@@ -492,8 +487,7 @@ def analyze_stocks(cik, filings, historical_cache=None):
                     "identifier": cusip,
                 }
 
-                if historical_cache != None:
-                    historical_cache[cusip] = updated_stock
+                stock_cache[cusip] = updated_stock
 
                 filer_stocks = database.find_filer(cik, {"stocks": 1})["stocks"]
                 insert = (
@@ -502,7 +496,6 @@ def analyze_stocks(cik, filings, historical_cache=None):
                     else True
                 )
 
-                # Plain awful and inefficient but MongoDB updating is awful
                 if insert:
                     stock_query = {"$push": {"stocks": updated_stock}}
                 else:
@@ -517,12 +510,16 @@ def analyze_stocks(cik, filings, historical_cache=None):
                     stock_query = {
                         "$set": {"stocks." + str(stock_index): updated_stock}
                     }
-
                 yield stock_query, log_stock
+
             except Exception as e:
                 logging.error(e)
+                create_error(cik, e)
                 database.add_log(
-                    cik, "Error Analyzing Stock for Filings", cusip, access_number
+                    cik,
+                    "Error Analyzing Stock for Filings",
+                    cusip,
+                    filing.get("access_number", "NA"),
                 )
 
 

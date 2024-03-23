@@ -645,7 +645,7 @@ async def popular_ciks():
 def create_error(cik, e):
     stamp = str(datetime.now())
     cwd = os.getcwd()
-    with open(f"{cwd}/static/errors/error-{stamp}.log", "w") as f:
+    with open(f"{cwd}/static/errors/error-filer-{stamp}.log", "w") as f:
         error_string = f"Failed to Query Filer {cik}\n{repr(e)}\n{format_exc()}"
         f.write(error_string)
 

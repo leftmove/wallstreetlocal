@@ -91,7 +91,7 @@ async def query_top(password: str, background: BackgroundTasks):
 def create_error(cik, e):
     stamp = str(datetime.now())
     cwd = os.getcwd()
-    with open(f"{cwd}/static/errors/error-{stamp}.log", "w") as f:
+    with open(f"{cwd}/static/errors/error-general-{stamp}.log", "w") as f:
         error_string = f"Failed to Query Filer {cik}\n{repr(e)}\n{format_exc()}"
         f.write(error_string)
 
