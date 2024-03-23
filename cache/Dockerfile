@@ -1,6 +1,7 @@
 FROM redis:alpine
 
-COPY redis.conf ./redis.conf
+WORKDIR /cache
+COPY ./redis.conf /cache/redis.conf
 
 EXPOSE 6379
 
