@@ -16,53 +16,6 @@ logging.info("[ Data Initializing ] ...")
 parser = "lxml"
 
 
-# def process_name(cusip, name, cik):
-#     msg = f"Querying Stock\n"
-#     found_stock = database.find_stock("cusip", cusip)
-
-#     if found_stock == None:
-#         try:
-#             data = cusip_request(cusip, cik)
-#             result = data["result"][0]
-#             ticker = data["symbol"]
-
-#             stock = process_stock(ticker, cusip, cik)
-
-#             if stock:
-#                 ticker = stock["ticker"]
-#                 name = stock["name"]
-#                 msg += f"Success, Added Stock"
-#             else:a
-#                 name = result["description"]
-#                 stock = {
-#                     "name": name,
-#                     "ticker": ticker,
-#                     "cusip": cusip,
-#                     "update": False,
-#                 }
-#                 msg += f"Failed, No Query Data"
-
-#             database.add_stock(stock)
-#             database.add_log(cik, msg, name, cusip)
-
-#             return ticker, name
-#         except Exception:
-#             stock = {"name": name, "ticker": "NA", "cusip": cusip}
-#             stock["update"] = False
-
-#             database.add_stock(stock)
-#             msg += f"Failed, Unknown Error"
-
-#             database.add_log(cik, msg, name, cusip)
-#             return "NA", name
-#     else:
-#         name = found_stock["name"]
-#         msg += f"Success, Found Stock"
-
-#         database.add_log(cik, msg, name, cusip)
-#         return found_stock["ticker"], found_stock["name"]
-
-
 def process_names(stocks, cik):
 
     cusip_list = list(map(lambda s: s["cusip"], stocks))
@@ -348,63 +301,6 @@ def process_stock(ticker, cusip, name, cik):
 
     return info
 
-
-def process_count_stocks(cik, data):
-    index_soup = BeautifulSoup(data, parser)
-    rows = index_soup.find_all("tr")
-    directory = None
-    for row in rows:
-        # The most genius code ever written
-        info_row = any(
-            [
-                (
-                    True
-                    if any(
-                        [
-                            True if d in table_key and d and d != " " else False
-                            for d in [b.text.strip() for b in row]
-                        ]
-                    )
-                    else False
-                )
-                for table_key in info_table_key
-            ]
-        )
-        if info_row:
-            link = row.find("a")
-            directory = link["href"]
-            break
-    if directory == None:
-        return 0
-
-    data = api.sec_directory_search(directory, cik)
-    stock_soup = BeautifulSoup(data, parser)
-    stock_table = stock_soup.find_all("table")[3]
-    stock_fields = stock_table.find_all("tr")[1:3]
-    stock_rows = stock_table.find_all("tr")[3:]
-
-    (
-        _,
-        _,
-        cusipColumn,
-        _,
-        _,
-        _,
-    ) = sort_rows(stock_fields[0], stock_fields[1])
-
-    stock_count = 0
-    local_stocks = []
-    for row in stock_rows:
-        columns = row.find_all("td")
-        stock_cusip = columns[cusipColumn].text
-
-        if stock_cusip in local_stocks:
-            continue
-        else:
-            local_stocks.append(stock_cusip)
-            stock_count += 1
-
-
 def scrape_txt(cik, filing, directory):
     pass
 
@@ -576,35 +472,24 @@ def query_stocks(found_stocks):
         )
 
 
-def estimate_time(filings, cik):
-    stock_count = 0
-    for access_number in filings:
-        try:
-            data = api.sec_stock_search(cik=cik, access_number=access_number)
-            new_count = process_count_stocks(cik, data)
-            stock_count += new_count  # type: ignore
-        except Exception as e:
-            logging.info(f"\nError Counting Stocks\n{e}\n--------------------------\n")
-            continue
-
-    remaining = analysis.time_remaining(stock_count)
-
-    return remaining
-
-
 def estimate_time_newest(cik):
     filer = database.find_filer(cik, {"last_report": 1})
-    if filer == None:
-        return
+    if not filer:
+        raise LookupError
+    
     last_report = filer["last_report"]
-
-    api.sec_filer_search(cik)
+    last_query = f"filings.{last_report}"
+    last_filing = database.find_filer(cik, {last_query: 1})
+    if not last_filing:
+        raise LookupError
+    else:
+        last_filing = last_filing["filings"][last_report]
 
     try:
         data = api.sec_stock_search(cik=cik, access_number=last_report)
-        stock_count = process_count_stocks(cik, data)
+        stock_count = scrape_stocks(cik=cik, data=data, filing=last_filing, empty=True)
     except Exception as e:
-        logging.info(f"\nError Counting Stocks\n{e}\n--------------------------\n")
+        logging.info(f"Error Counting Stocks\n{e}")
         raise
 
     log = database.find_log(cik, {"status": 1})
@@ -614,8 +499,6 @@ def estimate_time_newest(cik):
     database.edit_log(
         cik, {"status": 3 if status > 3 else status, "time.required": remaining}
     )
-
-    return remaining
 
 
 logging.info("[ Data Initialized ]")
