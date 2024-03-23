@@ -14,9 +14,6 @@ development.test.py
 **/__pycache__/
 /static/companies.bson
 /static/companies.json
-/static/favicon.ico
-
-/search/companies.json
 
 /proxy/letsencrypt
 /proxy/data
