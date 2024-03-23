@@ -14,7 +14,7 @@
 
 .analysis-button {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
   cursor: pointer;
 
@@ -31,7 +31,6 @@
 }
 
 .analysis-expanded .analysis-button {
-  justify-content: center;
   width: 97%;
 }
 
