@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from datetime import datetime
+from xml.etree import ElementTree
 
 import lxml
 import cchardet
@@ -63,11 +64,13 @@ parser = "lxml"
 
 
 def process_names(stocks, cik):
+
+    cusip_list = list(map(lambda s: s["cusip"], stocks))
+    cursor = database.find_stocks("cusip", {"$in": cusip_list})
+
     global_stocks = {}
     found_stocks = {}
     skip = []
-    cusip_list = list(map(lambda s: s["cusip"], stocks))
-    cursor = database.find_stocks("cusip", {"$in": cusip_list})
 
     for found_stock in cursor:
         cusip = found_stock["cusip"]
@@ -164,9 +167,6 @@ def process_filings(data):
     return filings, last_report, first_report
 
 
-info_table_key = ["INFORMATION TABLE"]
-
-
 def check_new(cik):
     data = api.sec_filer_search(cik)
     recent_filings = data["filings"]["recent"]
@@ -198,12 +198,6 @@ def check_new(cik):
 
 
 def sort_rows(row_one, row_two):
-    nameColumn = 0
-    classColumn = 1
-    cusipColumn = 2
-    valueColumn = 5
-    shrsColumn = 6
-    multiplier = 1
     for i, (lineOne, lineTwo) in enumerate(
         zip(row_one.find_all("td"), row_two.find_all("td"))
     ):
@@ -217,6 +211,8 @@ def sort_rows(row_one, row_two):
             valueColumn = i
             if lineTwo.text == "(x$1000)":
                 multiplier = 1000
+            else:
+                multiplier = 1
         elif lineTwo.text == "PRN AMT":
             shrsColumn = i
     return nameColumn, classColumn, cusipColumn, valueColumn, shrsColumn, multiplier
@@ -409,18 +405,7 @@ def process_count_stocks(data, cik):
             stock_count += 1
 
 
-def scrape_stocks(data, last_report, access_number, report_date, cik):
-    index_soup = BeautifulSoup(data, parser)
-    rows = index_soup.find_all("tr")
-    directory = None
-    for row in rows:
-        items = list(map(lambda b: b.text.strip(), row))
-        if any(item in items for item in info_table_key):
-            link = row.find("a")
-            directory = link["href"]
-            break
-    if directory == None:
-        return {}
+def scrape_html(cik, filing, directory):
 
     data = api.sec_directory_search(directory, cik)
     stock_soup = BeautifulSoup(data, parser)
@@ -428,7 +413,6 @@ def scrape_stocks(data, last_report, access_number, report_date, cik):
     stock_fields = stock_table.find_all("tr")[1:3]
     stock_rows = stock_table.find_all("tr")[3:]
 
-    # Stock Logging
     (
         nameColumn,
         classColumn,
@@ -438,8 +422,10 @@ def scrape_stocks(data, last_report, access_number, report_date, cik):
         multiplier,
     ) = sort_rows(stock_fields[0], stock_fields[1])
 
-    local_stocks = {}
-    global_stocks = {}
+    row_stocks = {}
+    report_date = filing["report_date"]
+    access_number = filing["access_number"]
+
     for row in stock_rows:
         columns = row.find_all("td")
 
@@ -449,9 +435,9 @@ def scrape_stocks(data, last_report, access_number, report_date, cik):
         stock_class = columns[classColumn].text
         stock_cusip = columns[cusipColumn].text
 
-        local_stock = local_stocks.get(stock_cusip)
+        row_stock = row_stocks.get(stock_cusip)
 
-        if local_stock == None:
+        if row_stock == None:
             new_stock = {
                 "name": stock_name,
                 "ticker": "NA",
@@ -463,74 +449,88 @@ def scrape_stocks(data, last_report, access_number, report_date, cik):
                 "access_number": access_number,
             }
         else:
-            new_stock = local_stock
-            new_stock["market_value"] = local_stock["market_value"] + stock_value
+            new_stock = row_stock
+            new_stock["market_value"] = row_stock["market_value"] + stock_value
+            new_stock["shares_held"] = row_stock["shares_held"] + stock_shrs_amt
 
-        local_stocks[stock_cusip] = new_stock
-        # stock_count += 1
+        row_stocks[stock_cusip] = new_stock
+        yield new_stock
 
-    update_list = []
-    for key in local_stocks:
-        local_stock = local_stocks[key]
-        global_stock = global_stocks.get(key)
-        stock_cusip = local_stock["cusip"]
-        stock_name = local_stock["name"]
 
-        if global_stock == None and global_stock not in update_list:
-            new_stock = local_stock
-            update_list.append(new_stock)
-            continue
+def scrape_xml(cik, filing, directory):
 
-        else:
-            local_date = local_stock["date"]
-            local_access_number = local_stock["access_number"]
-            global_date = global_stock["date"]
+    data = api.sec_directory_search(directory, cik)
+    stock_soup = BeautifulSoup(data, parser)
 
-            if local_date >= global_date:
-                new_stock = global_stock
-                new_stock["last_report"] = local_access_number
+    print(stock_soup)
 
-            else:
-                new_stock = global_stock
-                new_stock["first_report"] = local_access_number
 
-            global_stocks[stock_cusip] = new_stock
+info_table_key = ["INFORMATION TABLE"]
 
+
+def scrape_stocks(cik, data, filing):
+    index_soup = BeautifulSoup(data, parser)
+    rows = index_soup.find_all("tr")
+    directory = {"link": None, "type": None}
+    for row in rows:
+        items = list(map(lambda b: b.text.strip(), row))
+        if any(item in items for item in info_table_key):
+            link = row.find("a")
+            href = link["href"]
+
+            is_xml = True if href.endswith(".xml") else False
+            is_html = True if "xslForm" in href else False
+            is_txt = False
+
+            directory_type = directory["type"]
+            if is_xml and is_html == False and True == False:
+                directory["type"] = "xml"
+                directory["link"] = href
+            elif is_xml and is_html and directory_type != "xml":
+                directory["type"] = "html"
+                directory["link"] = href
+            elif is_txt and directory_type != "xml" and directory_type != "html":
+                directory["type"] = "txt"
+                directory["link"] = href
+
+    link = directory["link"]
+    form = directory["type"]
+    if not link:
+        filing_stocks = {}
+        return filing_stocks
+
+    if form == "xml" or False:
+        scrape_document = scrape_xml
+    if form == "html":
+        scrape_document = scrape_html
+    elif form == "txt":
+        scrape_document = scrape_txt
+
+    update_list = [new_stock for new_stock in scrape_document(cik, filing, link)]
     updated_stocks = process_names(update_list, cik)
+
+    filing_stocks = {}
     for new_stock in update_list:
         stock_cusip = new_stock["cusip"]
-
         updated_stock = updated_stocks[stock_cusip]
+
         updated_stock.pop("_id", None)
         new_stock.update(updated_stocks[stock_cusip])
 
-        access_number = new_stock["access_number"]
-        sold = False if access_number == last_report else True
+        filing_stocks[stock_cusip] = new_stock
 
-        new_stock["sold"] = sold
-        del new_stock["access_number"]
-
-        global_stocks[stock_cusip] = new_stock
-
-    return global_stocks
+    return filing_stocks
 
 
-def process_stocks(cik, filings, last_report):
+def process_stocks(cik, filings):
     filings_list = sorted(
         [filings[an] for an in filings], key=lambda d: d["report_date"]
     )
     for document in filings_list:
         access_number = document["access_number"]
-        report_date = document["report_date"]
         data = api.sec_stock_search(cik=cik, access_number=access_number)
         try:
-            new_stocks = scrape_stocks(
-                data=data,
-                last_report=last_report,
-                access_number=access_number,
-                report_date=report_date,
-                cik=cik,
-            )
+            new_stocks = scrape_stocks(cik=cik, data=data, filing=document)
             yield access_number, new_stocks
         except Exception as e:
             logging.info(f"\nError Updating Stocks\n{e}\n--------------------------\n")
