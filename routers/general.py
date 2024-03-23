@@ -11,7 +11,7 @@ from .lib import analysis
 from .lib.api import popular_ciks_request, top_ciks_request
 from .lib.backup import save_collections
 
-from .filer import create_filer_try
+from .filer import create_filer_try, create_filer_replace
 
 environment = os.environ["ENVIRONMENT"]
 
@@ -108,8 +108,7 @@ async def progressive_restore(password: str, background: BackgroundTasks):
 
     def cycle_filers(ciks):
         for cik in ciks:
-            database.delete_filer(cik)
-            create_filer_try(cik)
+            create_filer_replace(cik)
         database.edit_specific_log(type_query, {"$set": {"status": "stopped"}})
 
     background.add_task(cycle_filers, all_ciks)

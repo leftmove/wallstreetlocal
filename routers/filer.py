@@ -658,6 +658,27 @@ def create_filer_try(cik):
         logging.info("Error Occured\n", e)
 
 
+def create_filer_replace(cik):
+    try:
+        filer = database.find_filer(cik)
+        if filer:
+            database.delete_filer(cik)
+
+        try:
+            sec_data = sec_filer_search(cik)
+        except Exception:
+            raise HTTPException(status_code=404, detail="CIK not found.")
+        create_filer(sec_data, cik)
+
+    except Exception as e:
+        stamp = str(datetime.now())
+        cwd = os.getcwd()
+        with open(f"{cwd}/static/errors/error-{stamp}.log", "w") as f:
+            error_string = f"Failed to Query Filer {cik}\n{repr(e)}\n{format_exc()}"
+            f.write(error_string)
+        logging.info("Error Occured\n", e)
+
+
 @router.get("/remove", status_code=200, include_in_schema=False)
 async def remove_filer(cik: str, password: str):
 
