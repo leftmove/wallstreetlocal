@@ -24,5 +24,5 @@ jobs:
           url: ${{ secrets.ENV_URL }}
           script: |
             cd server
-            curl "$url" > docker-compose.prod.yaml
+            curl "$url" > docker-compose.yaml
             bash deploy.sh
