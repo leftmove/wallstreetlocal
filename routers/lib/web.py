@@ -257,7 +257,7 @@ def initalize_filer(cik, sec_data):
 
     database.create_log(stamp)
     database.add_filer(company)
-    company = process_filer(sec_data, cik)
+    company = process_filer(cik, sec_data)
 
     stamp = {"name": company["name"], "start": start}
     database.edit_log(cik, stamp)
@@ -269,7 +269,7 @@ def initalize_filer(cik, sec_data):
 redundant_keys = ["name", "cik", "symbol"]
 
 
-def process_filer(data, cik):
+def process_filer(cik, data):
     filings, last_report, first_report = process_filings(data)
     time = (datetime.now()).timestamp()
 
@@ -349,7 +349,7 @@ def process_stock(ticker, cusip, name, cik):
     return info
 
 
-def process_count_stocks(data, cik):
+def process_count_stocks(cik, data):
     index_soup = BeautifulSoup(data, parser)
     rows = index_soup.find_all("tr")
     directory = None
@@ -405,7 +405,11 @@ def process_count_stocks(data, cik):
             stock_count += 1
 
 
-def scrape_html(cik, filing, directory):
+def scrape_txt(cik, filing, directory):
+    pass
+
+
+def scrape_html(cik, filing, directory, empty=False):
 
     data = api.sec_directory_search(directory, cik)
     stock_soup = BeautifulSoup(data, parser)
@@ -429,11 +433,14 @@ def scrape_html(cik, filing, directory):
     for row in stock_rows:
         columns = row.find_all("td")
 
+        if empty:
+            yield None
+
+        stock_cusip = columns[cusipColumn].text
         stock_name = columns[nameColumn].text
         stock_value = float(columns[valueColumn].text.replace(",", "")) * multiplier
         stock_shrs_amt = float(columns[shrsColumn].text.replace(",", ""))
         stock_class = columns[classColumn].text
-        stock_cusip = columns[cusipColumn].text
 
         row_stock = row_stocks.get(stock_cusip)
 
@@ -468,7 +475,7 @@ def scrape_xml(cik, filing, directory):
 info_table_key = ["INFORMATION TABLE"]
 
 
-def scrape_stocks(cik, data, filing):
+def scrape_stocks(cik, data, filing, empty=False):
     index_soup = BeautifulSoup(data, parser)
     rows = index_soup.find_all("tr")
     directory = {"link": None, "type": None}
@@ -505,6 +512,11 @@ def scrape_stocks(cik, data, filing):
         scrape_document = scrape_html
     elif form == "txt":
         scrape_document = scrape_txt
+
+    if empty:
+        for i, _ in enumerate(scrape_document(cik, filing, link, empty)):
+            row_count = i
+        return row_count
 
     update_list = [new_stock for new_stock in scrape_document(cik, filing, link)]
     updated_stocks = process_names(update_list, cik)
@@ -569,7 +581,7 @@ def estimate_time(filings, cik):
     for access_number in filings:
         try:
             data = api.sec_stock_search(cik=cik, access_number=access_number)
-            new_count = process_count_stocks(data, cik)
+            new_count = process_count_stocks(cik, data)
             stock_count += new_count  # type: ignore
         except Exception as e:
             logging.info(f"\nError Counting Stocks\n{e}\n--------------------------\n")
@@ -590,7 +602,7 @@ def estimate_time_newest(cik):
 
     try:
         data = api.sec_stock_search(cik=cik, access_number=last_report)
-        stock_count = process_count_stocks(data, cik)
+        stock_count = process_count_stocks(cik, data)
     except Exception as e:
         logging.info(f"\nError Counting Stocks\n{e}\n--------------------------\n")
         raise

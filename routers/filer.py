@@ -70,7 +70,9 @@ router = APIRouter(
 def create_recent(cik, company, stamp, backgound: BackgroundTasks = None):
     filer_query = {"cik": cik}
     company_name = company["name"]
-    backgound.add_task(web.estimate_time_newest, cik)
+
+    if backgound:
+        backgound.add_task(web.estimate_time_newest, cik)
 
     try:
         filings = company["filings"]
@@ -196,7 +198,7 @@ def create_historical(cik, company, stamp, background=None):
     database.add_query_log(cik, "create-historical")
 
 
-def create_filer(sec_data, cik, background=None):
+def create_filer(cik, sec_data, background=None):
     company, stamp = web.initalize_filer(cik, sec_data)
     create_recent(cik, company, stamp, background)
     create_historical(cik, company, stamp)
@@ -241,7 +243,7 @@ async def query_filer(cik: str, background: BackgroundTasks):
         except Exception:
             raise HTTPException(404, detail="CIK not found.")
 
-        background.add_task(create_filer, sec_data, cik, background)
+        background.add_task(create_filer, cik, sec_data, background)
         res = {"description": "Filer creation started."}
     else:
         res = update_filer(filer, background)
@@ -650,7 +652,7 @@ def create_error(cik, e):
         f.write(error_string)
 
 
-def create_filer_try(cik):
+def create_filer_try(cik, background = None):
     try:
         filer = database.find_filer(cik)
         if filer == None:
@@ -658,7 +660,7 @@ def create_filer_try(cik):
                 sec_data = sec_filer_search(cik)
             except Exception:
                 raise HTTPException(status_code=404, detail="CIK not found.")
-            create_filer(sec_data, cik)
+            create_filer(cik, sec_data, background)
         else:
             raise HTTPException(detail="Filer already exists.", status_code=409)
     except Exception as e:
@@ -666,7 +668,7 @@ def create_filer_try(cik):
         logging.info("Error Occured\n", e)
 
 
-def create_filer_replace(cik):
+def create_filer_replace(cik, background = None):
     try:
         filer = database.find_filer(cik, {"_id": 1})
         if filer:
@@ -676,7 +678,7 @@ def create_filer_replace(cik):
             sec_data = sec_filer_search(cik)
         except Exception:
             raise HTTPException(status_code=404, detail="CIK not found.")
-        create_filer(sec_data, cik)
+        create_filer(cik, sec_data, background)
 
     except Exception as e:
         stamp = str(datetime.now())
