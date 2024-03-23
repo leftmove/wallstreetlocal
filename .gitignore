@@ -12,8 +12,9 @@ example.json
 env
 development.test.py
 **/__pycache__/
-/public/companies.bson
-/public/companies.json
+/static/companies.bson
+/static/companies.json
+/static/favicon.ico
 
 /search/companies.json
 

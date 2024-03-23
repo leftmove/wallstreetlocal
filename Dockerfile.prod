@@ -5,7 +5,6 @@ WORKDIR /app
 COPY ./main.py /app/main.py
 
 COPY ./routers /app/routers
-COPY ./public /app/public
 COPY ./static /app/static
 
 RUN pip install poetry

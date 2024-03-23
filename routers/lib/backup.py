@@ -6,6 +6,8 @@ from pymongo import MongoClient
 
 MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
 
+cwd = os.getcwd()
+
 
 def save_collections():
 
@@ -13,7 +15,7 @@ def save_collections():
     collections = ["companies", "filers", "stocks", "statistics"]
 
     for coll in collections:
-        with open(f"./static/backup/{coll}.bson", "wb+") as f:
+        with open(f"{cwd}/static/backup/{coll}.bson", "wb+") as f:
             cursor = backup_client["wallstreetlocal"][coll].find({})
             for document in cursor:
                 f.write(bson.BSON.encode(document))

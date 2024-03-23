@@ -660,7 +660,7 @@ def create_filer_try(cik):
 
 def create_filer_replace(cik):
     try:
-        filer = database.find_filer(cik)
+        filer = database.find_filer(cik, {"_id": 1})
         if filer:
             database.delete_filer(cik)
 

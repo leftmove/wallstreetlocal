@@ -128,4 +128,4 @@ async def backup(password: str, background: BackgroundTasks):
 @cache
 @router.get("/favicon.ico", status_code=200)
 async def favicon():
-    return FileResponse(f"{cwd}/public/favicon.ico")
+    return FileResponse(f"{cwd}/static/favicon.ico")
