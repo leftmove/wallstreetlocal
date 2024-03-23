@@ -20,7 +20,12 @@ REDIS_PORT = int(os.environ.get("REDIS_PORT", 14640))
 REDIS_MASTER_KEY = os.environ["REDIS_MASTER_KEY"]
 logging.info("[ Cache (Redis) Initializing ] ...")
 
-r = redis.Redis(host=REDIS_SERVER_URL, port=REDIS_PORT, password=REDIS_MASTER_KEY)
+r = redis.Redis(
+    host=REDIS_SERVER_URL,
+    port=REDIS_PORT,
+    password=REDIS_MASTER_KEY,
+    decode_responses=True,
+)
 
 
 def timing(f):

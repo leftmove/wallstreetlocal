@@ -652,7 +652,7 @@ def create_error(cik, e):
         f.write(error_string)
 
 
-def create_filer_try(cik, background = None):
+def create_filer_try(cik, background=None):
     try:
         filer = database.find_filer(cik)
         if filer == None:
@@ -668,7 +668,7 @@ def create_filer_try(cik, background = None):
         logging.info("Error Occured\n", e)
 
 
-def create_filer_replace(cik, background = None):
+def create_filer_replace(cik, background=None):
     try:
         filer = database.find_filer(cik, {"_id": 1})
         if filer:
