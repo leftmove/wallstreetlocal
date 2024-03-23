@@ -98,8 +98,6 @@ async def progressive_restore(password: str, background: BackgroundTasks):
         status = restore_log["status"]
         if status == "running":
             raise HTTPException(status_code=429, detail="Restore already running.")
-        else:
-            database.edit_specific_log(type_query, {"$set": {"status": "running"}})
     else:
         database.create_log({**type_query, "status": "running"})
 
@@ -107,6 +105,7 @@ async def progressive_restore(password: str, background: BackgroundTasks):
     all_ciks = [filer["cik"] for filer in filers]
 
     def cycle_filers(ciks):
+        database.edit_specific_log(type_query, {"$set": {"status": "running"}})
         for cik in ciks:
             create_filer_replace(cik)
         database.edit_specific_log(type_query, {"$set": {"status": "stopped"}})
@@ -129,4 +128,4 @@ async def backup(password: str, background: BackgroundTasks):
 @cache
 @router.get("/favicon.ico", status_code=200)
 async def favicon():
-    return FileResponse("./public/favicon.ico")
+    return FileResponse(f"{cwd}/public/favicon.ico")
