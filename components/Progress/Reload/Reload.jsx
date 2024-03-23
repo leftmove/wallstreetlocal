@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { fontLight } from "@fonts";
 
-import useEllipsis from "components/Hooks/useEllipsis";
+import useEllipsis from "@/components/Hooks/useEllipsis";
 
 const Reload = (props) => {
   const router = useRouter();

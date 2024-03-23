@@ -17,10 +17,10 @@ import {
   setFilingCount,
 } from "@/redux/filerSlice";
 
-import useFilingStocks from "components/Hooks/useFilingStocks";
-import Loading from "components/Loading/Loading";
-import Table from "components/Table/Table";
-import Unavailable from "components/Unavailable/Unavailable";
+import useFilingStocks from "@/components/Hooks/useFilingStocks";
+import Loading from "@/components/Loading/Loading";
+import Table from "@/components/Table/Table";
+import Unavailable from "@/components/Unavailable/Unavailable";
 import Timeline from "./Timeline/Timeline";
 
 const server = process.env.NEXT_PUBLIC_SERVER;

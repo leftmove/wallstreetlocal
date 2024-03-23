@@ -7,8 +7,8 @@ import Link from "next/link";
 
 import { font } from "@fonts";
 
-import DataIcon from "@/images/data.svg";
-import TableIcon from "@/images/csv.svg";
+import DataIcon from "@/public/static/data.svg";
+import TableIcon from "@/public/static/csv.svg";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
 const Record = (props) => {

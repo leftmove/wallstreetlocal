@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styles from "./Expand.module.css";
 
-import ExpandSVG from "@/images/expand.svg";
+import ExpandSVG from "@/public/static/expand.svg";
 
 const Expand = ({ onClick, expandState }) => {
   const [clickState, setClick] = useState(false);

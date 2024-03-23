@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createSelector  } from "@reduxjs/toolkit";
 import { HYDRATE } from "next-redux-wrapper";
 
 const initialDate = new Date();
@@ -596,14 +596,7 @@ export const selectActive = (state) => state.filer.sort.set;
 export const selectSold = (state) => state.filer.sort.sold;
 export const selectNa = (state) => state.filer.sort.na;
 export const selectHeaders = (state) => state.filer.headers;
-export const selectStocks = (state) => {
-  const filer = state.filer;
-  let next = filer.value.slice();
-
-  if (!next) return next;
-
-  return next;
-};
+export const selectStocks = createSelector([(state) => state.filer.value], stocks => stocks)
 export const selectDates = (state) =>
   state.filer.dates.map((d) => {
     return { ...d, id: d.accessor };

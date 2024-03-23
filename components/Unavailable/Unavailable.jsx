@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { font } from "@fonts";
 
-import useEllipsis from "components/Hooks/useEllipsis";
+import useEllipsis from "@/components/Hooks/useEllipsis";
 
 const Unavailable = (props) => {
   const type = props.type || "stocks";

@@ -6,8 +6,8 @@ import { selectTimeline, setOpen } from "@/redux/filerSlice";
 
 import { font, fontLight } from "@fonts";
 
-import Analysis from "components/Analysis/Analysis";
-import Tip from "components/Tip/Tip";
+import Analysis from "@/components/Analysis/Analysis";
+import Tip from "@/components/Tip/Tip";
 import Difference from "./Difference/Difference";
 import Select from "./Select/Select";
 

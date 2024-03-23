@@ -40,7 +40,7 @@ const Tab = (props) => {
 
 const tabs = [
   { title: "Stocks", hint: "Table", id: "stocks" },
-  { title: "Charts", hint: "Graphs", id: "charts" },
+  // { title: "Charts", hint: "Graphs", id: "charts" },
   { title: "Filings", hint: "Comparisons", id: "filings" },
 ];
 

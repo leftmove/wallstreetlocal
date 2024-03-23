@@ -1,5 +1,5 @@
 import styles from "./Loading.module.css";
-import LoadingSVG from "@/images/loading.svg";
+import LoadingSVG from "@/public/static/loading.svg";
 
 const Loading = (props) => {
   return (

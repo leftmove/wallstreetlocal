@@ -1,5 +1,5 @@
 .analysis-container {
-  max-height: 40px;
+  max-height: 50px;
   border-radius: 5px;
   margin: 30px 0px;
 
@@ -14,19 +14,30 @@
 
 .analysis-button {
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
   cursor: pointer;
 
-  width: 98%;
+  width: 10%;
   border-radius: 5px;
   padding: 10px;
-  margin-bottom: 20px;
   opacity: 1;
   margin: auto;
+  margin-top: 10px;
 
   background-color: var(--offwhite-dark);
-  transition: opacity 0.3s ease, color 0.3s ease;
+  transition: opacity 0.3s ease, color 0.3s ease, width 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.analysis-expanded .analysis-button {
+  justify-content: center;
+  width: 97%;
+}
+
+.analysis-button:hover {
+  color: var(--offwhite);
+  background-color: var(--secondary);
 }
 
 .analysis-dummy {
@@ -46,11 +57,6 @@
 
 .analysis-icon {
   width: 20px;
-}
-
-.analysis-icon,
-.analysis-tip {
-  margin-right: 10px;
 }
 
 .analysis-children {

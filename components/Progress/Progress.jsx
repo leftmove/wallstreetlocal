@@ -7,8 +7,8 @@ import { font } from "@fonts";
 import axios from "axios";
 import useSWR from "swr";
 
-import Redirect from "components/Filer/Redirect";
-import Source from "components/Source/Source";
+import Redirect from "@/components/Filer/Redirect";
+import Source from "@/components/Source/Source";
 import Estimation from "./Estimation/Estimation";
 import Console from "./Console/Console";
 

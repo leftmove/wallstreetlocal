@@ -7,8 +7,8 @@ import useSWR from "swr";
 
 import { fontLight } from "@fonts";
 
-import useEllipsis from "components/Hooks/useEllipsis";
-import useInterval from "components/Hooks/useInterval";
+import useEllipsis from "@/components/Hooks/useEllipsis";
+import useInterval from "@/components/Hooks/useInterval";
 
 const fetcher = (url, cik) =>
   axios

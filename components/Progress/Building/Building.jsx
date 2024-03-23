@@ -3,7 +3,7 @@ import styles from "./Building.module.css";
 import Link from "next/link";
 import { fontLight } from "@fonts";
 
-import Loading from "components/Loading/Loading";
+import Loading from "@/components/Loading/Loading";
 
 const Building = (props) => {
   return (

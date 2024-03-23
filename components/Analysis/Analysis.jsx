@@ -1,8 +1,8 @@
 import styles from "./Analysis.module.css";
 import { useState } from "react";
 
-import FolderIcon from "@/images/folder.svg";
-import FilterIcon from "@/images/filter.svg";
+import FolderIcon from "@/public/static/folder.svg";
+import FilterIcon from "@/public/static/filter.svg";
 
 import { fontLight } from "@fonts";
 
