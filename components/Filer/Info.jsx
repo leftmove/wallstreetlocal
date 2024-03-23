@@ -4,11 +4,11 @@ import styles from "@/styles/Filer.module.css";
 
 import Head from "next/head";
 
-import Tabs from "@/components/Tabs/Tabs";
-import Index from "@/components/Index/Index";
-import Charts from "@/components/Charts/Charts";
-import Explorer from "@/components/Explorer/Explorer";
-import Header from "@/components/Header/Header";
+import Tabs from "components/Tabs/Tabs";
+import Index from "components/Index/Index";
+import Charts from "components/Charts/Charts";
+import Explorer from "components/Explorer/Explorer";
+import Header from "components/Header/Header";
 
 const convertTitle = (d) => {
   if (d) {

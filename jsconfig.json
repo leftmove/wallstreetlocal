@@ -4,7 +4,7 @@
     "paths": {
       "@/*": ["./*"],
       "@/images/*": ["public/static/*"],
-      "@fonts": ["pages/_app.js"]
+      "@fonts": ["components/fonts"]
     }
   }
 }

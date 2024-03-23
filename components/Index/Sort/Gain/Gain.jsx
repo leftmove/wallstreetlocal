@@ -28,7 +28,7 @@ import {
 import Select from "./Select/Select";
 import Plus from "./Droppable/Plus";
 import Trash from "./Droppable/Trash";
-import Tip from "@/components/Tip/Tip";
+import Tip from "components/Tip/Tip";
 
 const Gain = () => {
   const dates = useSelector(selectDates);

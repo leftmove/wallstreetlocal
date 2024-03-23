@@ -20,7 +20,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { font } from "@fonts";
 
 import Picker from "./Picker/Picker";
-import Loading from "@/components/Loading/Loading";
+import Loading from "components/Loading/Loading";
 
 // const animateLayoutChanges = (args) => {
 //   const { isSorting, wasSorting } = args;

@@ -3,8 +3,8 @@ import { useEffect, useRef } from "react";
 
 import { fontLight } from "@fonts";
 
-import useEllipsis from "@/components/Hooks/useEllipsis";
-import Loading from "@/components/Loading/Loading";
+import useEllipsis from "components/Hooks/useEllipsis";
+import Loading from "components/Loading/Loading";
 
 const Console = (props) => {
   const logs = props.logs;

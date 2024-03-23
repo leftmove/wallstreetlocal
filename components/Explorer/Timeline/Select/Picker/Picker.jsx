@@ -12,7 +12,7 @@ import {
   setOpen,
 } from "@/redux/filerSlice";
 
-import { font, fontLight } from "@/components/fonts";
+import { font, fontLight } from "components/fonts";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
 const Picker = (props) => {
