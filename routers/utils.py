@@ -228,7 +228,7 @@ def initialize():
     REDIS_PORT = int(os.environ.get("REDIS_PORT", 14640))
     logging.info("[ Cache (Redis) Initializing ] ...")
 
-    cache = redis.Redis(
+    store = redis.Redis(
         host=REDIS_SERVER_URL,
         port=REDIS_PORT,
         decode_responses=True,
@@ -237,13 +237,13 @@ def initialize():
     search.get_keys()
     companies_index.update(primary_key="cik")
 
-    cache.flushall()
-
     db_empty = True if companies.count_documents({}) == 0 else False
     search_empty = (
         True if companies_index.get_stats().number_of_documents == 1 else False
     )
     backup_path = "./static/backup"
+
+    store.flushall()
 
     def insert_database(document_list):
         try:
