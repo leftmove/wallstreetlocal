@@ -49,6 +49,7 @@ const Top = (props) => {
             <tr>
               {headers.map((header) => (
                 <th
+                  key={header.display}
                   className={[
                     styles["column"],
                     styles["header-column"],

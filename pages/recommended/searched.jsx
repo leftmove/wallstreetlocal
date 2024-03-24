@@ -80,6 +80,7 @@ const Searched = (props) => {
                     }
                     return (
                       <td
+                        key={header.display}
                         className={[styles["column"], font.className].join(" ")}
                       >
                         {display}

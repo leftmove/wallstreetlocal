@@ -12,16 +12,15 @@ const Filer = (props) => {
   const query = props.query;
   const cik = props.cik;
 
-  const continuous = props.continuous;
   const persist = props.persist;
   const tab = props.tab;
 
-  if (query.ok || continuous) {
-    return <Info cik={cik} tab={tab} />;
-  }
-
   if (query.building || persist) {
     return <Building cik={cik} persist={persist} />;
+  }
+
+  if (query.ok || query.continuous) {
+    return <Info cik={cik} tab={tab} />;
   }
 
   if (query.error) {
@@ -34,11 +33,11 @@ export async function getServerSideProps(context) {
   const cik = context.query.cik || null;
   const persist = context.query.persist;
   const tab = context.query.tab;
-  const continuous = context.query.continuous;
 
   const query = {
     ok: false,
     building: false,
+    continuous: false,
     error: false,
   };
 
@@ -49,6 +48,9 @@ export async function getServerSideProps(context) {
     })
     .then((r) => {
       switch (r?.status) {
+        case 302:
+          query.continuous = true;
+          break;
         case 201:
         case 409:
           query.building = true;
@@ -72,7 +74,6 @@ export async function getServerSideProps(context) {
       cik,
       tab: tab || "stocks",
       persist: persist || null,
-      continuous: continuous || null,
     },
   };
 }
