@@ -153,7 +153,7 @@ const Progress = (props) => {
         <Console loading={loading} logs={log.logs} />
       </div>
       {/* <span>View stocks continuously.</span> */}
-      {persist ? null : <Estimation cik={cik} />}
+      {/*persist ? null : <Estimation cik={cik} /> */}
     </>
   );
 };
