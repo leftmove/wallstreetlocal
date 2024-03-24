@@ -11,9 +11,11 @@ import meilisearch
 import requests
 import json
 import os
+import redis
 
 from tqdm import tqdm
 from datetime import datetime
+from traceback import format_exc
 from pymongo import MongoClient
 from typing import Tuple
 
@@ -170,6 +172,14 @@ def save_response_content(response, destination, chunk_size):
         progress.close()
 
 
+def create_error(e):
+    stamp = str(datetime.now())
+    cwd = os.getcwd()
+    with open(f"{cwd}/static/errors/error-start-{stamp}.log", "w") as f:
+        error_string = f"Error Occurred During Start\n{repr(e)}\n{format_exc()}"
+        f.write(error_string)
+
+
 def initialize():
     print(
         r"""
@@ -193,6 +203,8 @@ def initialize():
     MONGO_BACKUP_URL = os.environ["MONGO_BACKUP_URL"]
 
     client = MongoClient(MONGO_SERVER_URL)
+    filers = client["wallstreetlocal"]["filers"]
+    logs = client["wallstreetlocal"]["logs"]
     companies = client["wallstreetlocal"]["companies"]
     companies_count = 852491
 
@@ -211,8 +223,21 @@ def initialize():
     except:
         search = meilisearch.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)
         companies_index = search.index("companies")
+
+    REDIS_SERVER_URL = os.environ["REDIS_SERVER_URL"]
+    REDIS_PORT = int(os.environ.get("REDIS_PORT", 14640))
+    logging.info("[ Cache (Redis) Initializing ] ...")
+
+    cache = redis.Redis(
+        host=REDIS_SERVER_URL,
+        port=REDIS_PORT,
+        decode_responses=True,
+    )
+
     search.get_keys()
     companies_index.update(primary_key="cik")
+
+    cache.flushall()
 
     db_empty = True if companies.count_documents({}) == 0 else False
     search_empty = (
@@ -224,18 +249,14 @@ def initialize():
         try:
             companies.insert_many(document_list)
         except Exception as e:
-            stamp = str(datetime.now())
-            with open(f"{backup_path}/error-{stamp}.log", "w+") as f:
-                f.write(str(e))
+            create_error(e)
             print("Error Occured")
 
     def insert_search(document_list):
         try:
             companies_index.add_documents(document_list, "cik")
         except Exception as e:
-            stamp = str(datetime.now())
-            with open(f"{backup_path}/error-{stamp}.log", "w+") as f:
-                f.write(str(e))
+            create_error(e)
             print("Error Occured")
 
     if search_empty:
@@ -316,3 +337,20 @@ def initialize():
         print("[ Search (Meilisearch) Loaded ]")
     if db_empty:
         print("[ Database (MongoDB) Loaded ]")
+
+    ENVIRONMENT = os.environ["ENVIRONMENT"]
+    production_environment = True if ENVIRONMENT == "production" else False
+
+    if not production_environment:
+
+        DEBUG_CIK = os.environ["DEBUG_CIK"]
+        filer_query = {"cik": DEBUG_CIK}
+
+        logs.delete_one(filer_query)
+        filers.delete_one(filer_query)
+
+        in_progress_logs = logs.find({"status": {"$gt": 0}}, {"cik": 1})
+        in_progress = [l["cik"] for l in in_progress_logs]
+
+        logs.delete_many({"cik": {"$in": in_progress}})
+        filers.delete_many({"cik": {"$in": in_progress}})

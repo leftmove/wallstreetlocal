@@ -3,6 +3,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 import os
+import asyncio
+
 from traceback import format_exc
 from datetime import datetime
 
@@ -32,32 +34,43 @@ async def info():
     return {"message": "Hello World!"}
 
 
-@router.on_event("startup")
-async def startup():
-
-    startup_key = "startup-process"
-    value = cm.get_key(startup_key)
-    if value == "running":
-        return
-    else:
-        if value == "stopped":
-            return
-
-    cm.set_key_no_expiration(startup_key, "running")
-
-    debug_cik = os.environ.get("DEBUG_CIK", None)
-    if environment == "development" and debug_cik:
-        database.delete_filer(debug_cik)
-    analysis.end_dangling()
-
-    cm.flush_all()
-    cm.set_key_no_expiration(startup_key, "stopped")
-
-
 @cache
 @router.get("/undefined", status_code=200)
 async def info_undefined():
     return {"message": "Hello World!"}
+
+
+async def background_query(query_type, cik_list, background, query_function):
+
+    query = cm.get_key(query_type)
+    if query and query == "running":
+        raise HTTPException(status_code=429, detail="Query already running.")
+
+    running = []
+    max_processes = 10
+
+    cm.set_key_no_expiration(query_type, "running")
+
+    for cik in cik_list:
+
+        while len(running) >= max_processes:
+            for run in running:
+                process = database.find_log(run, {"status": 1})
+
+                if not process:
+                    continue
+
+                status = process.get("status", 4)
+                if status == 0:
+                    running.remove(run)
+
+            await asyncio.sleep(5)
+
+        if len(running) < 10:
+            background.add_task(query_function, cik, background)
+            running.append(cik)
+
+    cm.set_key_no_expiration(query_type, "stopped")
 
 
 @cache(1)
@@ -66,20 +79,11 @@ async def query_top(password: str, background: BackgroundTasks):
     if password != os.environ["ADMIN_PASSWORD"]:
         raise HTTPException(detail="Unable to give access.", status_code=403)
 
-    query = cm.get_key("query")
-    if query and query == "running":
-        raise HTTPException(status_code=429, detail="Query already running.")
-
     filer_ciks = top_ciks_request()
     filer_ciks.extend(popular_ciks_request())
 
-    def cycle_filers(ciks):
-        cm.set_key_no_expiration("query", "running")
-        for cik in ciks:
-            create_filer_try(cik, background)
-        cm.set_key_no_expiration("query", "stopped")
+    await background_query("query", filer_ciks, background, create_filer_try)
 
-    background.add_task(cycle_filers, filer_ciks)
     return {"description": "Started querying filers."}
 
 
@@ -104,13 +108,7 @@ async def progressive_restore(password: str, background: BackgroundTasks):
     filers = database.find_filers({}, {"cik": 1})
     all_ciks = [filer["cik"] for filer in filers]
 
-    def cycle_filers(ciks):
-        cm.set_key_no_expiration("restore", "running")
-        for cik in ciks:
-            create_filer_replace(cik, background)
-        cm.set_key_no_expiration("restore", "stopped")
-
-    background.add_task(cycle_filers, all_ciks)
+    await background_query("restore", all_ciks, background, create_filer_replace)
 
     return {"description": "Started progressive restore of filers."}
 

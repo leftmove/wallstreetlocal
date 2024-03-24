@@ -19,7 +19,7 @@ REDIS_SERVER_URL = os.environ["REDIS_SERVER_URL"]
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 14640))
 logging.info("[ Cache (Redis) Initializing ] ...")
 
-r = redis.Redis(
+store = redis.Redis(
     host=REDIS_SERVER_URL,
     port=REDIS_PORT,
     decode_responses=True,
@@ -41,16 +41,16 @@ def timing(f):
 
 
 def get_key(key):
-    result = r.get(key)
+    result = store.get(key)
     return result
 
 
 def set_key(key, value, expire_time):
-    r.setex(key, expire_time, value)
+    store.setex(key, expire_time, value)
 
 
 def set_key_no_expiration(key, value):
-    r.set(key, value)
+    store.set(key, value)
 
 
 # def cache_sync(func, hours=2):
@@ -58,14 +58,14 @@ def set_key_no_expiration(key, value):
 #     def wrapper(*args, **kwargs):
 #         key_parts = [func.__name__] + list(args)
 #         key = "-".join(str(k) for k in key_parts)
-#         result = r.get(key)
+#         result = store.get(key)
 
 #         if result is None:
 #             value = func(*args, **kwargs)
 #             value_json = json.dumps(value)
 
 #             expire_time = 60 * 60 * hours
-#             r.setex(key, expire_time, value_json)
+#             store.setex(key, expire_time, value_json)
 #         else:
 #             value_json = result.decode("utf-8")
 #             value = json.loads(value_json)
@@ -80,14 +80,14 @@ def set_key_no_expiration(key, value):
 #     async def wrapper(*args, **kwargs):
 #         key_parts = [func.__name__] + list(args)
 #         key = "-".join(str(k) for k in key_parts)
-#         result = r.get(key)
+#         result = store.get(key)
 
 #         if result is None:
 #             value = await func(*args, **kwargs)
 #             value_json = json.dumps(value)
 
 #             expire_time = 60 * 60 * hours
-#             r.setex(key, expire_time, value_json)
+#             store.setex(key, expire_time, value_json)
 #         else:
 #             value_json = result.decode("utf-8")
 #             value = json.loads(value_json)
@@ -98,7 +98,7 @@ def set_key_no_expiration(key, value):
 
 
 def flush_all():
-    r.flushall()
+    store.flushall()
 
 
 def cache(_, hours=2):
@@ -107,7 +107,7 @@ def cache(_, hours=2):
         async def wrapped(*args, **kwargs):
             key_parts = [func.__name__] + list(args)
             key = "-".join(str(k) for k in key_parts)
-            result = r.get(key)
+            result = store.get(key)
 
             if result is None:
                 is_coroutine = iscoroutinefunction(func)
@@ -119,7 +119,7 @@ def cache(_, hours=2):
                 value_json = json.dumps(value)
 
                 expire_time = 60 * 60 * hours
-                r.setex(key, expire_time, value_json)
+                store.setex(key, expire_time, value_json)
             else:
                 value_json = result.decode("utf-8")
                 value = json.loads(value_json)
