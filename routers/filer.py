@@ -35,6 +35,7 @@ router = APIRouter(
         200: {"model": HTTPError, "description": "Success."},
         201: {"model": HTTPError, "description": "Successfully created object."},
         202: {"model": HTTPError, "description": "Accepted."},
+        302: {"model": HTTPError, "description": "See other"},
         403: {"model": HTTPError, "description": "Forbidden."},
         404: {"model": HTTPError, "description": "Not found."},
         409: {
@@ -211,11 +212,10 @@ def update_filer(company, background):
     operation = database.find_log(cik)
     if operation == None:
         raise HTTPException(404, detail="CIK not found.")
-    if operation["status"] > 0:
+    if operation["status"] == 2 or operation["status"] == 1:
+        raise HTTPException(302, detail="Filer continuous building.")
+    if operation["status"] > 2:
         raise HTTPException(409, detail="Filer still building.")
-
-    # if (time - company["updated"]) < 3600:
-    #     raise HTTPException(detail="Filer queried too recently.", status_code=429)
 
     update, last_report = web.check_new(cik)
     if not update:
