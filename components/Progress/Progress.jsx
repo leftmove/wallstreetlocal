@@ -138,7 +138,6 @@ const Progress = (props) => {
 
   return (
     <>
-      {/* {stop ? <Reload /> : null} */}
       {stop ? <Redirect cik={cik} delay={0} /> : null}
       <div className={[styles["progress"], font.className].join(" ")}>
         <div className={styles["header"]}>

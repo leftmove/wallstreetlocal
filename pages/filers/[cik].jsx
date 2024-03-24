@@ -12,6 +12,7 @@ const Filer = (props) => {
   const query = props.query;
   const cik = props.cik;
 
+  const continuous = props.continuous;
   const persist = props.persist;
   const tab = props.tab;
 
@@ -19,7 +20,7 @@ const Filer = (props) => {
     return <Building cik={cik} persist={persist} />;
   }
 
-  if (query.ok || query.continuous) {
+  if (query.ok || query.continuous || continuous) {
     return <Info cik={cik} tab={tab} />;
   }
 
@@ -31,8 +32,9 @@ const Filer = (props) => {
 const server = process.env.NEXT_PUBLIC_SERVER;
 export async function getServerSideProps(context) {
   const cik = context.query.cik || null;
-  const persist = context.query.persist;
-  const tab = context.query.tab;
+  const continuous = context.query.continuous || null;
+  const persist = context.query.persist || null;
+  const tab = context.query.tab || "stocks";
 
   const query = {
     ok: false,
@@ -72,8 +74,9 @@ export async function getServerSideProps(context) {
     props: {
       query,
       cik,
-      tab: tab || "stocks",
-      persist: persist || null,
+      tab,
+      persist,
+      continuous,
     },
   };
 }
