@@ -42,6 +42,7 @@ async def startup():
     else:
         if value == "stopped":
             return
+
     cm.set_key_no_expiration(startup_key, "running")
 
     debug_cik = os.environ.get("DEBUG_CIK", None)
@@ -49,6 +50,7 @@ async def startup():
         database.delete_filer(debug_cik)
     analysis.end_dangling()
 
+    cm.flush_all()
     cm.set_key_no_expiration(startup_key, "stopped")
 
 

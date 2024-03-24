@@ -97,6 +97,10 @@ def set_key_no_expiration(key, value):
 #     return wrapper
 
 
+def flush_all():
+    r.flushall()
+
+
 def cache(_, hours=2):
     def wrapper(func):
         @wraps(func)
