@@ -33,7 +33,7 @@ def check_stock(ticker):
 
 
 def search_stocks(pipeline):
-    cursor = stocks.aggregate(pipeline)
+    cursor = stocks.aggregate(pipeline, allowDiskUsage=True)
     return cursor
 
 
