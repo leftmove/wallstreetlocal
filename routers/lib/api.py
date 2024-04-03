@@ -3,6 +3,8 @@ import time
 import requests
 import logging
 
+from datetime import datetime
+
 from . import database
 
 logging.info("[ APIs Initializing ] ...")
@@ -55,10 +57,34 @@ def rate_limit(cik, wait=60):
         database.add_log(cik, "Resuming...", "Rate Limit", cik)
 
 
+request_count = 0
+last_request = datetime.now()
+
+
+def limit_requests():
+    global request_count
+    global last_request
+
+    request_count += 1
+    request_time = datetime.now().timestamp()
+    request_count = (
+        0
+        if request_count >= 10 and (request_time - last_request) > 2
+        else request_count
+    )
+
+    last_request = request_time
+    if request_count >= 10:
+        time.sleep(3)
+        request_count = 0
+
+
 def get_request(url, cik=None, params={}, custom_headers=headers, custom_wait=60):
     retries = 5
     while retries:
         try:
+
+            limit_requests()
             res = session.get(url, params=params, headers=custom_headers)
 
             if res.status_code == 429:
@@ -78,6 +104,7 @@ def post_request(url, cik, payload={}, custom_headers=headers, custom_wait=60):
     retries = 5
     while retries:
         try:
+            limit_requests()
             res = session.post(url, json=payload, headers=custom_headers)
 
             if res.status_code == 429:
@@ -109,7 +136,9 @@ def fund_tickers():
 
 def sec_filer_search(cik):
     res = get_request(
-        f"https://data.sec.gov/submissions/CIK{cik.zfill(10)}.json", cik, custom_wait=1
+        f"https://data.sec.gov/submissions/CIK{cik.zfill(10)}.json",
+        cik,
+        custom_wait=600,
     )
     data = res.json()
 
@@ -129,15 +158,15 @@ def sec_stock_search(cik, access_number):
     res = get_request(
         f"https://www.sec.gov/Archives/edgar/data/{cik}/{access_number_replace}/{access_number}-index.html",
         cik,
-        custom_wait=1,
+        custom_wait=600,
     )
     data = res.content
 
     return data
 
 
-def sec_directory_search(directory, cik):
-    res = get_request(f"https://www.sec.gov{directory}", cik, custom_wait=1)
+def sec_directory_search(cik, directory):
+    res = get_request(f"https://www.sec.gov{directory}", cik, custom_wait=600)
     data = res.content
 
     return data

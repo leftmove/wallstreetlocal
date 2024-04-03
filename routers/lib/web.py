@@ -1,9 +1,10 @@
 from bs4 import BeautifulSoup
 from datetime import datetime
-from xml.etree import ElementTree
+import xml.etree.ElementTree as ElementTree
 
 import lxml
 import cchardet
+import json
 import logging
 
 from . import database
@@ -12,8 +13,6 @@ from . import analysis
 
 
 logging.info("[ Data Initializing ] ...")
-
-parser = "lxml"
 
 
 def process_names(stocks, cik):
@@ -301,14 +300,15 @@ def process_stock(ticker, cusip, name, cik):
 
     return info
 
+
 def scrape_txt(cik, filing, directory):
     pass
 
 
 def scrape_html(cik, filing, directory, empty=False):
 
-    data = api.sec_directory_search(directory, cik)
-    stock_soup = BeautifulSoup(data, parser)
+    data = api.sec_directory_search(cik, directory)
+    stock_soup = BeautifulSoup(data, "lxml")
     stock_table = stock_soup.find_all("table")[3]
     stock_fields = stock_table.find_all("tr")[1:3]
     stock_rows = stock_table.find_all("tr")[3:]
@@ -360,19 +360,60 @@ def scrape_html(cik, filing, directory, empty=False):
         yield new_stock
 
 
-def scrape_xml(cik, filing, directory):
+def scrape_xml(cik, filing, directory, empty=False):
 
-    data = api.sec_directory_search(directory, cik)
-    stock_soup = BeautifulSoup(data, parser)
+    data = api.sec_directory_search(cik, directory)
+    data_str = data.decode(json.detect_encoding(data))
+    tree = ElementTree.fromstring(data_str)
 
-    print(stock_soup)
+    info_table = {}
+    namespace = {"ns": "http://www.sec.gov/edgar/document/thirteenf/informationtable"}
+
+    report_date = filing["report_date"]
+    access_number = filing["access_number"]
+
+    for info in tree.findall("ns:infoTable", namespace):
+
+        if empty:
+            yield None
+
+        stock_cusip = info.find("ns:cusip", namespace).text
+        stock_name = info.find("ns:nameOfIssuer", namespace).text
+        stock_value = float(info.find("ns:value", namespace).text.replace(",", ""))
+        stock_shrs_amt = float(
+            info.find("ns:shrsOrPrnAmt", namespace)
+            .find("ns:sshPrnamt", namespace)
+            .text.replace(",", "")
+        )
+        stock_class = info.find("ns:titleOfClass", namespace).text
+
+        info_stock = info.get(stock_cusip)
+
+        if info_stock == None:
+            new_stock = {
+                "name": stock_name,
+                "ticker": "NA",
+                "class": stock_class,
+                "market_value": stock_value,
+                "shares_held": stock_shrs_amt,
+                "cusip": stock_cusip,
+                "date": report_date,
+                "access_number": access_number,
+            }
+        else:
+            new_stock = info_stock
+            new_stock["market_value"] = info_stock["market_value"] + stock_value
+            new_stock["shares_held"] = info_stock["shares_held"] + stock_shrs_amt
+
+        info_table[stock_cusip] = new_stock
+        yield new_stock
 
 
 info_table_key = ["INFORMATION TABLE"]
 
 
 def scrape_stocks(cik, data, filing, empty=False):
-    index_soup = BeautifulSoup(data, parser)
+    index_soup = BeautifulSoup(data, "lxml")
     rows = index_soup.find_all("tr")
     directory = {"link": None, "type": None}
     for row in rows:
@@ -386,7 +427,7 @@ def scrape_stocks(cik, data, filing, empty=False):
             is_txt = False
 
             directory_type = directory["type"]
-            if is_xml and is_html == False and True == False:
+            if is_xml and not is_html:
                 directory["type"] = "xml"
                 directory["link"] = href
             elif is_xml and is_html and directory_type != "xml":
@@ -476,7 +517,7 @@ def estimate_time_newest(cik):
     filer = database.find_filer(cik, {"last_report": 1})
     if not filer:
         raise LookupError
-    
+
     last_report = filer["last_report"]
     last_query = f"filings.{last_report}"
     last_filing = database.find_filer(cik, {last_query: 1})

@@ -238,7 +238,8 @@ async def query_filer(cik: str, background: BackgroundTasks):
     if filer == None:
         try:
             sec_data = sec_filer_search(cik)
-        except Exception:
+        except Exception as e:
+            logging.error(e)
             raise HTTPException(404, detail="CIK not found.")
 
         background.add_task(create_filer, cik, sec_data, background)
