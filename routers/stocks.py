@@ -56,6 +56,7 @@ async def stock_info(
         cursor = database.search_filers(pipeline)
     except Exception as e:
         cursor = []
+        count = 0
 
     try:
         stock_list = [result for result in cursor]
