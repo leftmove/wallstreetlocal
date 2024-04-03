@@ -55,8 +55,7 @@ async def stock_info(
         )
         cursor = database.search_filers(pipeline)
     except Exception as e:
-        logging.error(e)
-        raise HTTPException(detail="Invalid search requirements.", status_code=422)
+        cursor = []
 
     try:
         stock_list = [result for result in cursor]

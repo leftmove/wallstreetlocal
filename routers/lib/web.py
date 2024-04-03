@@ -409,7 +409,7 @@ def scrape_xml(cik, filing, directory, empty=False):
         yield new_stock
 
 
-info_table_key = ["INFORMATION TABLE"]
+info_table_key = ["INFORMATION TABLE", "Complete submission text file"]
 
 
 def scrape_stocks(cik, data, filing, empty=False):
