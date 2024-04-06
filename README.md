@@ -9,9 +9,9 @@
 <p align="center">
   A website that allows you to view the investments of America's largest investors.
 </p>
-<p align="center">
-  This repository holds the front-end code for wallstreetlocal, for the back-end, see <a href="https://github.com/leftmove/pinestreetlocal" target="_blank" >pinestreetlocal</a>.
-</p>
+<h4 align="center">
+  This repository holds the front-end for wallstreetlocal, for the back-end, see <a href="https://github.com/leftmove/pinestreetlocal" target="_blank" >pinestreetlocal</a>.
+</h4>
 
 <!-- <h1 align="center" color="red">
   The site may be down currently due to excessive traffic.

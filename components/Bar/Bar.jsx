@@ -17,11 +17,7 @@ const NextNProgress = ({
   showOnShallow = true,
   options,
   nonce,
-  transformCSS = (css) => (
-    <style nonce={nonce} jsx global>
-      {css}
-    </style>
-  ),
+  transformCSS = (css) => <style nonce={nonce}>{css}</style>,
 }) => {
   let timer = null;
 

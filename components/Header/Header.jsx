@@ -42,7 +42,7 @@ const Header = (props) => {
   const [expand, setExpand] = useState(false);
 
   useEffect(() => {
-    dispatch(setCik(cik));
+    dispatch(setCik(cik ? cik : ""));
     dispatch(setTab(tab));
   }, [cik]);
 
