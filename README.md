@@ -1,7 +1,7 @@
 <p align="center">
   <a href="https://wallstreetlocal.com" target="_blank">
     <picture>
-      <img alt="wallstreetlocal" src="https://raw.githubusercontent.com/leftmove/pinestreetlocal/main/public/logo.png" style="max-width: 100%;">
+      <img alt="wallstreetlocal" src="https://raw.githubusercontent.com/leftmove/pinestreetlocal/main/static/logo.png" style="max-width: 100%;">
     </picture>
   </a>
 </p>
@@ -13,11 +13,9 @@
   This repository holds the back-end code for wallstreetlocal, for the front-end, see <a href="https://github.com/leftmove/walltreetlocal" target="_blank" >here</a>.
 </p>
 
-
 <h1 align="center" color="red">
   The site may be down currently due to excessive traffic.
 </h1>
-
 
 <p align="center">
   Creating a website is time consuming, and hosting is expensive. If you can, please consider <a href="https://ko-fi.com/wallstreetlocal" target="_blank" >donating</a>.
@@ -35,9 +33,9 @@ docker compose up -f docker-compose.yaml up
 
 To run both the development and production builds, you will need to have environment variables for third party APIs. Most of the environment variables in the provided compose files you can keep as is, but for the API keys you will need to visit the following services.
 
-* [Alpha Vantage](https://www.alphavantage.co/)
-* [OpenFIGI](https://www.openfigi.com/)
-* [Finnhub](https://finnhub.io/)
+- [Alpha Vantage](https://www.alphavantage.co/)
+- [OpenFIGI](https://www.openfigi.com/)
+- [Finnhub](https://finnhub.io/)
 
 These three different services allow for the most up-to-date and accurate data, while also avoiding rate-limiting.
 
@@ -59,11 +57,10 @@ docker compose -f docker-compose.yaml up
 python main.py
 ```
 
+`docker-compose.yaml` (Development)
 
-`docker-compose.yaml` (Development) 
 ```yaml
 services:
-
   cache:
     container_name: cache
     build:
@@ -107,6 +104,7 @@ networks:
 #### Production
 
 The production build is made for running at scale, so you may want to do the following things:
+
 - Either run Grafana or remove telemetry altogether (reccomended for self-hosting).
 - Run on only one worker
 - Map all docker ports to `localhost`
@@ -118,11 +116,11 @@ docker compose -f docker-compose.yaml up
 ```
 
 `docker-compose.yaml` (Production)
+
 ```yaml
 version: "3.4"
 
 services:
-
   backend:
     container_name: backend
     build:
@@ -137,7 +135,6 @@ services:
     networks:
       - proxy-network
     environment:
-
       APP_NAME: "backend"
       ENVIRONMENT: "production"
       ADMIN_PASSWORD: "***********"
@@ -195,6 +192,7 @@ networks:
 ```
 
 ## License
+
 [MIT License](./LICENSE)
 
 [Community Code of Conduct](./CODE_OF_CONDUCT.MD)
