@@ -57,6 +57,7 @@ const Picker = (props) => {
 
           return (
             <div
+              key={accessNumber}
               className={[styles["picker-filing"], fontLight.className].join(
                 " "
               )}
@@ -97,6 +98,7 @@ const Picker = (props) => {
       >
         {attributes.map((a) => (
           <div
+            key={a.hint}
             className={[
               selectStyles["picker-attribute"],
               styles["picker-attribute"],

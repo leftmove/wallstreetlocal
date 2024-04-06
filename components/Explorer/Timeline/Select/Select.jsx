@@ -20,10 +20,8 @@ const Select = (props) => {
   const dispatch = useDispatch();
   const type = props.type;
   const cik = useSelector(selectCik);
-  const selected =
-    type === "secondary"
-      ? useSelector(selectSecondary)
-      : useSelector(selectPrimary);
+  const selected = useSelector(
+    type === "secondary" ? selectSecondary : selectPrimary );
   const headers = selected.headers;
 
   const updateHeaders = (h) => dispatch(editComparison({ type, headers: h }));

@@ -91,6 +91,7 @@ const Top = (props) => {
                     }
                     return (
                       <td
+                        key={header.accessor}
                         className={[styles["column"], font.className].join(" ")}
                       >
                         {display}
