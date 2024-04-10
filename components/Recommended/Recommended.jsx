@@ -67,7 +67,7 @@ const Recommended = (props) => {
                 return { ...f, title: convertTitle(f.name) };
               })
               .map((filer) => (
-                <li className={styles["recommended-item"]}>
+                <li key={filer.cik} className={styles["recommended-item"]}>
                   <Link href={`/filers/${filer.cik}`}>
                     <span>{convertTitle(filer.title)}</span>
                   </Link>

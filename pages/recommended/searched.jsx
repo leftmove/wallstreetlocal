@@ -41,6 +41,7 @@ const Searched = (props) => {
             <tr>
               {headers.map((header) => (
                 <th
+                  key={header.accessor}
                   className={[
                     styles["column"],
                     styles["header-column"],

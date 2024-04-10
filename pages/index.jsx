@@ -75,7 +75,7 @@ export default function Home() {
           The Securities and Exchange Commission (SEC) keeps record of every
           company in the United States. Companies whose holdings surpass $100
           million though, are required to file a special type of form: the 13F
-          form. This form, filed quarterly, discloses the filer's holdings,
+          form. This form, filed quarterly, discloses the filer&apos;s holdings,
           providing transparency into their investment activities and allowing
           the public and other market participants to monitor them.
         </p>
@@ -86,7 +86,7 @@ export default function Home() {
         >
           The problem though, is that these holdings are often cumbersome to
           access, and valuable analysis is often hidden behind a paywall.
-          Through wallstreetlocal, the SEC's 13F filers become more accessible
+          Through wallstreetlocal, the SEC&apos;s 13F filers become more accessible
           and open.
         </p>
         {/* <div className={styles["selling-points"]}>
