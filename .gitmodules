@@ -1,3 +1,4 @@
 [submodule "content"]
 	path = content
 	url = git@github.com:leftmove/pinestreetlocal.git
+	branch = main
