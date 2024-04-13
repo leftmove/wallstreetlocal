@@ -1,3 +1,6 @@
 [submodule "website"]
 	path = website
 	url = git@github.com:leftmove/wallstreetlocal.git
+	branch = main
+[submodule "content"]
+	branch = main
