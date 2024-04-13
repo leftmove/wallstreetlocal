@@ -13,14 +13,6 @@
   This repository holds the back-end code for wallstreetlocal, for the front-end, see <a href="https://github.com/leftmove/walltreetlocal" target="_blank" >here</a>.
 </p>
 
-<h1 align="center" color="red">
-  The site may be down currently due to excessive traffic.
-</h1>
-
-<p align="center">
-  Creating a website is time consuming, and hosting is expensive. If you can, please consider <a href="https://ko-fi.com/wallstreetlocal" target="_blank" >donating</a>.
-</p>
-
 ### Getting Started
 
 This project uses Docker, to deploy, run the following command.
@@ -42,6 +34,13 @@ These three different services allow for the most up-to-date and accurate data, 
 #### Development
 
 The development build is mainly made for testing, so it is ideal for self-hosting.
+
+A full list of this app's microservices.
+
+- FastAPI for the main application
+- MongoDB for the database
+- Redis for cache
+- Meilisearch for search
 
 To run the full app, you need the microservices running through Docker, and the main application running seperately.
 
@@ -105,7 +104,6 @@ networks:
 
 The production build is made for running at scale, so you may want to do the following things:
 
-- Either run Grafana or remove telemetry altogether (reccomended for self-hosting).
 - Run on only one worker
 - Map all docker ports to `localhost`
 
@@ -143,7 +141,6 @@ services:
       HOST: "0.0.0.0"
       EXPOSE_PORT: 8000
       FORWARDED_ALLOW_IPS: "*"
-      OTLP_GRPC_ENDPOINT: "http://trace:4317"
 
       FINN_HUB_API_KEY: "***********"
       ALPHA_VANTAGE_API_KEY: "***********"
@@ -190,6 +187,8 @@ networks:
   proxy-network:
     name: proxy-network
 ```
+
+#### _If these compose files do not work for you, they are probably outdated. Please write an issue!_
 
 ## License
 
