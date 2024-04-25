@@ -2,6 +2,7 @@ from pymongo import MongoClient
 
 import os
 import logging
+import tqdm
 
 from datetime import datetime
 
@@ -26,7 +27,7 @@ statistics = db["statistics"]
 
 def check_stock(ticker):
     stock = stocks.find_one({"ticker": ticker})
-    if stock == None:
+    if stock is None:
         return False
     else:
         return True
@@ -177,7 +178,6 @@ def add_query_log(cik, query):
         filer_done = find_filer(cik, {"cik": 1, "name": 1, "_id": 0, "filings": 1})
         filer_log = find_log(cik)
         if filer_done and filer_log:
-
             stock_count = 0
             filings = filer_done["filings"]
             for access_number in filings:
@@ -195,6 +195,58 @@ def add_query_log(cik, query):
             statistics.insert_one(query_log)
     except Exception as e:
         logging.error(e)
+
+
+def migrate_collections():
+    sourceClient = MongoClient()
+    destinationClient = MongoClient(
+        os.environ["MONGO_MIGRATION_URL"],
+        tlsAllowInvalidCertificates=True,
+    )
+
+    sourceDb = sourceClient["wallstreetlocal"]
+    destinationDb = destinationClient["wallstreetlocal"]
+
+    collections = ["filers", "logs", "statistics", "stocks"]
+
+    for collection in collections:
+        sourceCollection = sourceDb[collection]
+        destinationCollection = destinationDb[collection]
+
+        sourceCount = sourceCollection.count_documents({})
+        destinationCount = destinationCollection.count_documents({})
+
+        print(f"Starting Migration of '{collection}'")
+        progress = tqdm.tqdm(total=sourceCount)
+
+        for document in sourceCollection.find({}, {"cik": 1}):
+            documentId = document["cik"]
+            destinationDocument = destinationCollection.find_one({"cik": documentId})
+
+            if destinationDocument:
+                progress.update(1)
+
+                for i, possibleDuplicate in enumerate(
+                    destinationCollection.find({"cik": documentId}, {"cik": 1})
+                ):
+                    if i == 0:
+                        continue
+                    destinationCollection.delete_one({"cik": documentId})
+
+                continue
+
+            try:
+                document = sourceCollection.find_one({"cik": documentId})
+                destinationCollection.insert_one(document)
+            except Exception as e:
+                print(e)
+
+            progress.update(1)
+
+        progress.close()
+        print(f"Finished Migration of '{collection}'")
+
+        print(sourceCount, destinationCount)
 
 
 # def search_sec(pipeline):

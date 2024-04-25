@@ -10,7 +10,6 @@ from datetime import datetime
 
 from .lib import database
 from .lib import cache as cm
-from .lib import analysis
 
 from .lib.api import popular_ciks_request, top_ciks_request
 from .lib.backup import save_collections
@@ -41,7 +40,6 @@ async def info_undefined():
 
 
 async def background_query(query_type, cik_list, background, query_function):
-
     query = cm.get_key(query_type)
     if query and query == "running":
         raise HTTPException(status_code=429, detail="Query already running.")
@@ -52,7 +50,6 @@ async def background_query(query_type, cik_list, background, query_function):
     cm.set_key_no_expiration(query_type, "running")
 
     for cik in cik_list:
-
         while len(running) >= max_processes:
             for run in running:
                 process = database.find_log(run, {"status": 1})
@@ -115,12 +112,21 @@ async def progressive_restore(password: str, background: BackgroundTasks):
 
 @router.get("/backup", status_code=201)
 async def backup(password: str, background: BackgroundTasks):
-
     if password != os.environ["ADMIN_PASSWORD"]:
         raise HTTPException(detail="Unable to give access.", status_code=403)
 
     background.add_task(save_collections)
     return {"description": "Started backing up collections."}
+
+
+@router.get("/migrate", status_code=201)
+async def migrate(password: str):
+    if password != os.environ["ADMIN_PASSWORD"]:
+        raise HTTPException(detail="Unable to give access.", status_code=403)
+
+    database.migrate_collections()
+
+    return {"description": "Migrated collections."}
 
 
 @cache
