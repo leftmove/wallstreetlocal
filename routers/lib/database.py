@@ -198,7 +198,7 @@ def add_query_log(cik, query):
 
 
 def migrate_collections():
-    sourceClient = MongoClient()
+    sourceClient = MongoClient(MONGO_SERVER_URL)
     destinationClient = MongoClient(
         os.environ["MONGO_MIGRATION_URL"],
         tlsAllowInvalidCertificates=True,
