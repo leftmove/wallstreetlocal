@@ -197,58 +197,6 @@ def add_query_log(cik, query):
         logging.error(e)
 
 
-def migrate_collections():
-    sourceClient = MongoClient(MONGO_SERVER_URL)
-    destinationClient = MongoClient(
-        os.environ["MONGO_MIGRATION_URL"],
-        tlsAllowInvalidCertificates=True,
-    )
-
-    sourceDb = sourceClient["wallstreetlocal"]
-    destinationDb = destinationClient["wallstreetlocal"]
-
-    collections = ["filers", "logs", "statistics", "stocks"]
-
-    for collection in collections:
-        sourceCollection = sourceDb[collection]
-        destinationCollection = destinationDb[collection]
-
-        sourceCount = sourceCollection.count_documents({})
-        destinationCount = destinationCollection.count_documents({})
-
-        print(f"Starting Migration of '{collection}'")
-        progress = tqdm.tqdm(total=sourceCount)
-
-        for document in sourceCollection.find({}, {"cik": 1}):
-            documentId = document["cik"]
-            destinationDocument = destinationCollection.find_one({"cik": documentId})
-
-            if destinationDocument:
-                progress.update(1)
-
-                for i, possibleDuplicate in enumerate(
-                    destinationCollection.find({"cik": documentId}, {"cik": 1})
-                ):
-                    if i == 0:
-                        continue
-                    destinationCollection.delete_one({"cik": documentId})
-
-                continue
-
-            try:
-                document = sourceCollection.find_one({"cik": documentId})
-                destinationCollection.insert_one(document)
-            except Exception as e:
-                print(e)
-
-            progress.update(1)
-
-        progress.close()
-        print(f"Finished Migration of '{collection}'")
-
-        print(sourceCount, destinationCount)
-
-
 # def search_sec(pipeline):
 #     cursor = companies.aggregate(pipeline)
 #     return cursor

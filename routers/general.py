@@ -119,16 +119,6 @@ async def backup(password: str, background: BackgroundTasks):
     return {"description": "Started backing up collections."}
 
 
-@router.get("/migrate", status_code=201)
-async def migrate(password: str):
-    if password != os.environ["ADMIN_PASSWORD"]:
-        raise HTTPException(detail="Unable to give access.", status_code=403)
-
-    database.migrate_collections()
-
-    return {"description": "Migrated collections."}
-
-
 @cache
 @router.get("/favicon.ico", status_code=200)
 async def favicon():
