@@ -16,7 +16,7 @@ if not production_environment:
 MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
 logging.info("[ Database (MongoDB) Initializing ] ...")
 
-client = MongoClient(MONGO_SERVER_URL)
+client = MongoClient(MONGO_SERVER_URL, tlsAllowInvalidCertificates=True)
 db = client["wallstreetlocal"]
 main = db["filers"]
 stocks = db["stocks"]
