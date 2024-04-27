@@ -36,7 +36,7 @@ export default function Home() {
             className={styles["hero-image"]}
             src={Hero}
             alt="landing skyscraper"
-            sizes="100%"
+            fill={true}
           />
         </div>
         <div className={styles["search-header"]}>
@@ -86,8 +86,8 @@ export default function Home() {
         >
           The problem though, is that these holdings are often cumbersome to
           access, and valuable analysis is often hidden behind a paywall.
-          Through wallstreetlocal, the SEC&apos;s 13F filers become more accessible
-          and open.
+          Through wallstreetlocal, the SEC&apos;s 13F filers become more
+          accessible and open.
         </p>
         {/* <div className={styles["selling-points"]}>
           <div className={styles["selling-point"]}>

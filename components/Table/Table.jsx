@@ -30,12 +30,14 @@ const Table = (props) => {
       <Pagination pagination={pagination} paginate={paginate} skip={skip} />
       <table className={styles["table"]}>
         <thead>
-          <Header
-            headers={headers}
-            sort={sort}
-            reverse={reverse}
-            activate={activate}
-          />
+          {items.length <= 0 && pagination.sold && pagination.na ? null : (
+            <Header
+              headers={headers}
+              sort={sort}
+              reverse={reverse}
+              activate={activate}
+            />
+          )}
         </thead>
         <tbody>
           {items.map((i) => (

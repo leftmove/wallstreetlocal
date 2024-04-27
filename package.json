@@ -1,6 +1,6 @@
 {
   "name": "whale-project",
-  "version": "8.7",
+  "version": "9.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
