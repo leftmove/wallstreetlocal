@@ -144,14 +144,13 @@ async def query_filing(
     reverse: bool,
     unavailable: bool,
 ):
-
-    filer_query = f"$filings.{access_number}.stocks"
     additonal = [
+        {"$match": {"access_number": access_number}},
         {
             "$set": {
                 "stocks": {
                     "$map": {
-                        "input": {"$objectToArray": filer_query},
+                        "input": {"$objectToArray": "$stocks"},
                         "as": "stock",
                         "in": "$$stock.v",
                     }
@@ -162,9 +161,17 @@ async def query_filing(
 
     try:
         pipeline, count = analysis.sort_pipeline(
-            cik, limit, offset, sort, sold, reverse, unavailable, additonal
+            cik,
+            limit,
+            offset,
+            sort,
+            sold,
+            reverse,
+            unavailable,
+            additonal,
+            database.search_filings,
         )
-        cursor = database.search_filers(pipeline)
+        cursor = database.search_filings(pipeline)
     except Exception as e:
         logging.error(e)
         raise HTTPException(detail="Invalid search requirements.", status_code=422)

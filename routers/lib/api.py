@@ -185,7 +185,7 @@ def ticker_request(function, symbol, cik):
 
 def stock_request(value, cik, backup=None):
     params = {"q": value, "token": FINN_HUB_API_KEY}
-    res = get_request(f"https://finnhub.io/api/v1/search", cik, params=params)
+    res = get_request("https://finnhub.io/api/v1/search", cik, params=params)
 
     data = res.json()
     count = data["count"]
@@ -242,7 +242,7 @@ def stock_request(value, cik, backup=None):
             result = {"ticker": ticker, "name": result["description"]}
             return result
 
-    raise LookupError
+    raise LookupError  # @IgnoreException
 
 
 def top_ciks_request():

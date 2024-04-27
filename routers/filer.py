@@ -147,7 +147,6 @@ def create_historical(cik, company, stamp, background=None):
                 {"$set": {"stocks": filing_stocks}},
             )
 
-        filings = database.find_filings(cik)
         database.add_log(cik, "Queried Filer Historical Stocks", company_name, cik)
     except Exception as e:
         logging.error(e)
@@ -158,6 +157,7 @@ def create_historical(cik, company, stamp, background=None):
     try:
         database.add_log(cik, "Creating Filer (Historical)", company_name, cik)
 
+        filings = database.map_filings(cik)
         for (
             access_number,
             filing_stock,
@@ -213,16 +213,18 @@ def update_filer(company, background):
     time = datetime.now().timestamp()
 
     operation = database.find_log(cik)
-    if operation == None:
+    if operation is None:
         raise HTTPException(404, detail="CIK not found.")
     if operation["status"] == 2 or operation["status"] == 1:
-        raise HTTPException(302, detail="Filer continuous building.")
+        raise HTTPException(  # @IgnoreException
+            302, detail="Filer continuous building."
+        )  # @IgnoreException
     if operation["status"] > 2:
         raise HTTPException(409, detail="Filer still building.")
 
     update, last_report = web.check_new(cik)
     if not update:
-        raise HTTPException(200, detail="Filer already up to date.")
+        raise HTTPException(200, detail="Filer already up to date.")  # @IgnoreException
 
     database.edit_status(cik, 1)
     database.edit_filer({"cik": cik}, {"$set": {"last_report": last_report}})
@@ -257,13 +259,13 @@ async def query_filer(cik: str, background: BackgroundTasks):
 
 @router.get("/rollback", tags=["filers"], status_code=201, include_in_schema=False)
 async def rollback_filer(cik: str, password: str, background: BackgroundTasks):
-    filer = database.find_filer(cik)
+    filer = database.find_filer(cik, {"last_report": 1})
     if not filer:
         raise HTTPException(404, detail="CIK not found.")
     if password != os.environ["ADMIN_PASSWORD"]:
         raise HTTPException(detail="Unable to give access.", status_code=403)
 
-    filings = filer["filings"]
+    filings = database.map_filings(cik)
     last_report = filer["last_report"]
     filings.pop(last_report, None)
 
@@ -285,12 +287,12 @@ async def rollback_filer(cik: str, password: str, background: BackgroundTasks):
         [filings[an] for an in filings], key=lambda d: d["report_date"]
     )
     for access_number in filings:
-        filing_stocks = filings[access_number]
-        database.edit_filer(
-            {"cik": cik}, {"$set": {f"filings.{access_number}.stocks": filing_stocks}}
+        filing_stocks = filings[access_number]["stocks"]
+        database.edit_filing(
+            {"cik": cik, "access_number": access_number},
+            {"$set": {"stocks": filing_stocks}},
         )
 
-    filer["filings"] = filings
     last_report = filings_sorted[-1]["access_number"]
     database.edit_filer({"cik": cik}, {"$set": {"last_report": last_report}})
 
@@ -330,7 +332,7 @@ async def logs(cik: str, start: int = 0):
             },
         )
 
-        if log == None:
+        if log is None:
             raise HTTPException(404, detail="CIK not found.")
 
         filer_status = log["status"]
@@ -424,7 +426,7 @@ async def estimate(cik: str):
 @router.get("/info", tags=["filers"], status_code=200)
 async def filer_info(cik: str):
     filer = database.find_filer(cik, {"_id": 0, "stocks": 0, "filings": 0})
-    if filer == None:
+    if filer is None:
         raise HTTPException(404, detail="Filer not found.")
 
     status = database.find_log(cik, {"status": 1, "_id": 0})
@@ -437,7 +439,7 @@ async def filer_info(cik: str):
 @router.get("/record", tags=["filers", "records"], status_code=200)
 async def record(cik: str):
     filer = database.find_filer(cik, {"_id": 1})
-    if filer == None:
+    if filer is None:
         raise HTTPException(404, detail="Filer not found.")
     filer_log = database.find_log(cik, {"status": 1})
     if filer_log.get("status", 100) > 0:
@@ -456,7 +458,7 @@ async def record(cik: str):
 @router.get("/recordcsv", tags=["filers", "records"], status_code=200)
 async def record_csv(cik: str, headers: str = None):
     filer = database.find_filer(cik, {"_id": 1})
-    if filer == None:
+    if filer is None:
         raise HTTPException(404, detail="Filer not found.")
     filer_log = database.find_log(cik, {"status": 1})
     if filer_log.get("status", 100) > 0:
@@ -564,16 +566,13 @@ async def partial_record(cik: str, time: float):
 @router.get("/record/filing", tags=["filers", "records"], status_code=200)
 async def record_filing(cik: str, access_number):
     filer = database.find_filer(cik, {"_id": 1})
-    if filer == None:
+    if filer is None:
         raise HTTPException(404, detail="Filer not found.")
     filer_log = database.find_log(cik, {"status": 1})
     if filer_log.get("status", 100) > 0:
         raise HTTPException(409, detail="Filer still building.")
 
-    filer_query = f"filings.{access_number}"
-    filer = database.find_filer(cik, {filer_query: 1})
-    filing = filer["filings"][access_number]
-
+    filing = database.find_filing(cik, access_number)
     filename = f"wallstreetlocal-{cik}-{access_number}.json"
     file_path = analysis.create_json(filing, filename)
 
@@ -586,7 +585,7 @@ async def record_filing(cik: str, access_number):
 @router.get("/record/filingcsv", tags=["filers", "records"], status_code=200)
 async def record_filing_csv(cik: str, access_number: str, headers: str = None):
     filer = database.find_filer(cik, {"_id": 1})
-    if filer == None:
+    if filer is None:
         raise HTTPException(404, detail="Filer not found.")
     filer_log = database.find_log(cik, {"status": 1})
     if filer_log.get("status", 100) > 0:
@@ -599,16 +598,16 @@ async def record_filing_csv(cik: str, access_number: str, headers: str = None):
             headers_string = headers_string + f"-{access_number}"
             header_hash = hash(headers_string)
             file_name = f"wallstreetlocal-{cik}{header_hash}.csv"
-        except:
+        except Exception as e:
+            print(e)
             raise HTTPException(
                 status_code=422, detail="Malformed headers, unable to process request."
             )
     else:
         file_name = f"wallstreetlocal-{cik}-{access_number}.csv"
 
-    filer_query = f"filings.{access_number}"
-    filer = database.find_filer(cik, {filer_query: 1})
-    stock_dict = filer["filings"][access_number]["stocks"]
+    filing = database.find_filing(cik, access_number)
+    stock_dict = filing["stocks"]
     stock_list = [stock_dict[cusip] for cusip in stock_dict]
 
     file_path, filename = analysis.create_csv(stock_list, file_name, headers)
@@ -745,7 +744,7 @@ async def popular_ciks():
 def create_filer_try(cik, background=None):
     try:
         filer = database.find_filer(cik)
-        if filer == None:
+        if filer is None:
             try:
                 sec_data = sec_filer_search(cik)
             except Exception:
@@ -762,7 +761,6 @@ def create_filer_replace(cik, background=None):
         filer = database.find_filer(cik, {"_id": 1})
         if filer:
             database.delete_filer(cik)
-
         try:
             sec_data = sec_filer_search(cik)
         except Exception:
@@ -801,14 +799,10 @@ async def hang_dangling(password: str):
 @router.get("/filings", status_code=200)
 async def query_filings(cik: str):
     pipeline = [
-        {"$match": {"cik": cik}},
-        {"$project": {"filings": {"$objectToArray": "$filings"}}},
-        {"$project": {"filings": "$filings.v"}},
-        {"$unwind": "$filings"},
-        {"$replaceRoot": {"newRoot": "$filings"}},
-        {"$project": {"stocks": 0}},
+        {"$match": {"cik": cik, "form": "13F-HR"}},
+        {"$project": {"stocks": 0, "_id": 0}},
     ]
-    cursor = database.search_filers(pipeline)
+    cursor = database.search_filings(pipeline)
     if not cursor:
         raise HTTPException(detail="Filer not found.", status_code=404)
     filings = [result for result in cursor]

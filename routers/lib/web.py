@@ -104,12 +104,10 @@ def check_new(cik):
     latest_report = document_reports[-1]
     latest_date = latest_report["report"]
 
-    filer = database.find_filer(
-        cik, {"filings": 1, "last_report": 1}
-    )  # Inefficient because I cannot figure out how to retrieve only the report date attribute, even though it seems like a simple operation
-    filings = filer["filings"]
+    filer = database.find_filer(cik, {"last_report": 1})
     last_report = filer["last_report"]
-    queried_report = filings[last_report]["report_date"]
+    recent_filing = database.find_filing(cik, last_report)
+    queried_report = recent_filing["report_date"]
 
     if latest_date > queried_report:
         latest_access = latest_report["access"]
@@ -428,12 +426,12 @@ def scrape_stocks(cik, data, filing, empty=False):
         filing_stocks = {}
         return filing_stocks
 
-    if form == "xml" or False:
-        scrape_document = scrape_xml
     if form == "html":
         scrape_document = scrape_html
-    elif form == "txt":
-        scrape_document = scrape_txt
+    elif form == "xml":
+        scrape_document = scrape_xml
+    # elif form == "txt":
+    #     scrape_document = scrape_txt
 
     if empty:
         for i, _ in enumerate(scrape_document(cik, filing, link, empty)):
@@ -508,12 +506,9 @@ def estimate_time_newest(cik):
         raise LookupError
 
     last_report = filer["last_report"]
-    last_query = f"filings.{last_report}"
-    last_filing = database.find_filer(cik, {last_query: 1})
+    last_filing = database.find_filing(cik, last_report)
     if not last_filing:
         raise LookupError
-    else:
-        last_filing = last_filing["filings"][last_report]
 
     try:
         data = api.sec_stock_search(cik=cik, access_number=last_report)

@@ -343,7 +343,8 @@ def initialize():
     production_environment = True if ENVIRONMENT == "production" else False
 
     if not production_environment:
-        DEBUG_CIK = os.environ["DEBUG_CIK"]
+        DEBUG_CIK = os.environ.get("DEBUG_CIK", "")
+
         filer_query = {"cik": DEBUG_CIK}
 
         logs.delete_one(filer_query)

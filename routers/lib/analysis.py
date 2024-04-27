@@ -560,6 +560,7 @@ def sort_pipeline(
     reverse: bool,
     unavailable: bool,
     additonal: list = [],
+    collection_search=database.search_filers,
 ):
     if limit < 0:
         raise ValueError
@@ -579,12 +580,12 @@ def sort_pipeline(
         ]
     )
 
-    if sold == False:
+    if sold is False:
         pipeline.append({"$match": {"sold": False}})
-    if unavailable == False:
+    if unavailable is False:
         sort_query = f"${sort}"
 
-    cursor = database.search_filers(pipeline)
+    cursor = collection_search(pipeline)
     results = [result for result in cursor]
     if not cursor or not results:
         raise LookupError
@@ -593,7 +594,7 @@ def sort_pipeline(
     pipeline.append(
         {"$sort": {sort: 1 if reverse else -1, "_id": 1}},
     )
-    if unavailable == False:
+    if unavailable is False:
         sort_stage = pipeline.pop(-1)
         pipeline.extend(
             [
@@ -789,11 +790,7 @@ def sort_and_format(filer_ciks):
 def analyze_allocation(cik):
     filing_project = {"access_number": 1, "report_date": 1}
     pipeline = [
-        {"$match": {"cik": cik}},
-        {"$project": {"filings": {"$objectToArray": "$filings"}}},
-        {"$project": {"filings": "$filings.v"}},
-        {"$unwind": "$filings"},
-        {"$replaceRoot": {"newRoot": "$filings"}},
+        {"$match": {"cik": cik, "form": "13F-HR"}},
         {"$project": {**filing_project, "stocks": 1}},
         {"$project": {**filing_project, "stocks": {"$objectToArray": "$stocks"}}},
         {"$project": {**filing_project, "stocks": "$stocks.v"}},
@@ -801,13 +798,13 @@ def analyze_allocation(cik):
         {"$set": {"cusip": "$stocks.cusip"}},
         {"$project": {**filing_project, "cusip": 1}},
     ]
-    cursor = database.search_filers(pipeline)
+    cursor = database.search_filings(pipeline)
     if not cursor:
         raise LookupError
     filings = [result for result in cursor]
 
     filer = database.search_filer(cik, {"stocks.cusip": 1, "stocks.industry": 1})
-    filer_stocks = filer["stocks"]
+    filer_stocks = dict(zip([s["cusip"] for s in filer["stocks"]], filer["stocks"]))
 
     new_filings = {}
     for filing in filings:
@@ -815,9 +812,8 @@ def analyze_allocation(cik):
         report_date = filing["report_date"]
         if new_filings.get(access_number):
             filing_stocks = new_filings[access_number]["stocks"]
-
             cusip = filing["cusip"]
-            stock = next(filter(lambda s: s["cusip"] == cusip, filer_stocks), None)
+            stock = filer_stocks[cusip]
             if stock:
                 filing_stocks.append(
                     {
@@ -826,10 +822,10 @@ def analyze_allocation(cik):
                     }
                 )
 
-            new_filings[access_number]["stocks"] = filer_stocks
+            new_filings[access_number]["stocks"] = filing_stocks
         else:
             cusip = filing["cusip"]
-            stock = next(filter(lambda s: s["cusip"] == cusip, filer_stocks), None)
+            stock = filer_stocks[cusip]
             if stock:
                 new_filings[access_number] = {
                     "report_date": report_date,
@@ -875,19 +871,7 @@ def analyze_allocation(cik):
 
 
 def analyze_aum(cik):
-    pipeline = [
-        {"$match": {"cik": cik}},
-        {"$project": {"filings": {"$objectToArray": "$filings"}}},
-        {"$project": {"filings": "$filings.v"}},
-        {"$unwind": "$filings"},
-        {"$replaceRoot": {"newRoot": "$filings"}},
-        {"$project": {"stocks": 0}},
-    ]
-    cursor = database.search_filers(pipeline)
-    if not cursor:
-        raise LookupError
-    filings = [result for result in cursor]
-
+    filings = database.find_filings(cik, {"_id": 0, "stocks": 0})
     aum_list = []
     for filing in filings:
         aum_list.append(
