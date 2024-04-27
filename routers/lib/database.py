@@ -2,7 +2,6 @@ from pymongo import MongoClient
 
 import os
 import logging
-import tqdm
 
 from datetime import datetime
 
@@ -18,10 +17,12 @@ logging.info("[ Database (MongoDB) Initializing ] ...")
 
 client = MongoClient(MONGO_SERVER_URL, tlsAllowInvalidCertificates=True)
 db = client["wallstreetlocal"]
+
+logs = db["logs"]
 main = db["filers"]
 stocks = db["stocks"]
+filings = db["filings"]
 companies = db["companies"]
-logs = db["logs"]
 statistics = db["statistics"]
 
 
@@ -101,6 +102,38 @@ def delete_filer(cik):
 
 def delete_filers(query):
     main.delete_many(query)
+
+
+def find_filing(cik, access_number, form_type="13F-HR"):
+    result = filings.find_one(
+        {"cik": cik, "access_number": access_number, "form": form_type}
+    )
+    return result
+
+
+def find_filings(cik, form_type="13F-HR"):
+    cursor = filings.find({"cik": cik, "form": form_type})
+    results = [result for result in cursor]
+    return results
+
+
+def map_filings(cik, key="access_number", form_type="13F-HR"):
+    cursor = filings.find({"cik": cik, "form": form_type})
+    results = [result for result in cursor]
+    results_dict = dict(zip([r[key] for r in results], results))
+    return results_dict
+
+
+def add_filings(filing_list):
+    filings.insert_many(filing_list)
+
+
+def edit_filing(query, value):
+    filings.update_one(query, value)
+
+
+def delete_filings(cik):
+    filings.delete_many({"cik": cik})
 
 
 def create_log(value):

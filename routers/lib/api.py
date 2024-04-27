@@ -83,7 +83,6 @@ def get_request(url, cik=None, params={}, custom_headers=headers, custom_wait=60
     retries = 5
     while retries:
         try:
-
             limit_requests()
             res = session.get(url, params=params, headers=custom_headers)
 
@@ -227,7 +226,7 @@ def stock_request(value, cik, backup=None):
 
     if backup:
         params = {"q": backup, "token": FINN_HUB_API_KEY}
-        res = get_request(f"https://finnhub.io/api/v1/search", cik, params=params)
+        res = get_request("https://finnhub.io/api/v1/search", cik, params=params)
 
         data = res.json()
         count = data["count"]
@@ -247,7 +246,6 @@ def stock_request(value, cik, backup=None):
 
 
 def top_ciks_request():
-
     try:
         r = session.get(
             "https://gist.githubusercontent.com/leftmove/1e96a95bad8e590a440e37f07d305d2a/raw/wallstreetlocal-top-filers.json"
@@ -261,7 +259,6 @@ def top_ciks_request():
 
 
 def popular_ciks_request():
-
     try:
         r = session.get(
             "https://gist.githubusercontent.com/leftmove/daca5d470c869e9d6f14c298af809f9f/raw/wallstreetlocal-popular-filers.json"

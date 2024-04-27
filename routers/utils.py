@@ -204,6 +204,7 @@ def initialize():
 
     client = MongoClient(MONGO_SERVER_URL)
     filers = client["wallstreetlocal"]["filers"]
+    filings = client["wallstreetlocal"]["filings"]
     logs = client["wallstreetlocal"]["logs"]
     companies = client["wallstreetlocal"]["companies"]
     companies_count = 852491
@@ -342,12 +343,12 @@ def initialize():
     production_environment = True if ENVIRONMENT == "production" else False
 
     if not production_environment:
-
         DEBUG_CIK = os.environ["DEBUG_CIK"]
         filer_query = {"cik": DEBUG_CIK}
 
         logs.delete_one(filer_query)
         filers.delete_one(filer_query)
+        filings.delete_many(filer_query)
 
         in_progress_logs = logs.find({"status": {"$gt": 0}}, {"cik": 1})
         in_progress = [l["cik"] for l in in_progress_logs]

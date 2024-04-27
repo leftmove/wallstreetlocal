@@ -76,17 +76,16 @@ def create_recent(cik, company, stamp, backgound: BackgroundTasks = None):
         backgound.add_task(web.estimate_time_newest, cik)
 
     try:
-        filings = company["filings"]
         last_report = company["last_report"]
-        recent_filing = filings[last_report]
+        recent_filing = database.find_filing(cik, last_report)
 
         for access_number, filing_stocks in web.process_stocks(
             cik, {last_report: recent_filing}
         ):
             recent_filing["stocks"] = filing_stocks
-            database.edit_filer(
-                filer_query,
-                {"$set": {f"filings.{access_number}.stocks": filing_stocks}},
+            database.edit_filing(
+                {**filer_query, "access_number": access_number},
+                {"$set": {"stocks": filing_stocks}},
             )
 
         database.add_log(cik, "Queried Filer Recent Stocks", company_name, cik)
@@ -98,18 +97,23 @@ def create_recent(cik, company, stamp, backgound: BackgroundTasks = None):
         database.add_log(cik, "Creating Filer (Newest)", company_name, cik)
 
         for (
-            stock_query,
+            access_number,
             filing_stock,
         ) in analysis.analyze_filings(cik, {last_report: recent_filing}, last_report):
-            database.edit_filer(filer_query, {"$set": {stock_query: filing_stock}})
+            stock_cusip = filing_stock["cusip"]
+            stock_query = f"stocks.{stock_cusip}"
+            database.edit_filing(
+                {**filer_query, "access_number": access_number},
+                {"$set": {stock_query: filing_stock}},
+            )
 
-        filings = database.find_filer(cik, {"filings": 1})
-        filings = filings["filings"]
-        recent_market_value = filings[last_report].get("market_value", "NA")
+        recent_filing = database.find_filing(cik, last_report)
+        recent_market_value = recent_filing.get("market_value", "NA")
         database.edit_filer(
             filer_query, {"$set": {"market_value": recent_market_value}}
         )
 
+        filings = database.find_filings(cik)
         for stock_query, log_item in analysis.analyze_stocks(cik, filings):
             database.edit_filer(filer_query, stock_query)
             database.add_log(cik, log_item)
@@ -136,16 +140,14 @@ def create_historical(cik, company, stamp, background=None):
     last_report = company["last_report"]
 
     try:
-        filings = company["filings"]
+        filings = database.map_filings(cik)
         for access_number, filing_stocks in web.process_stocks(cik, filings):
-            database.edit_filer(
-                filer_query,
-                {"$set": {f"filings.{access_number}.stocks": filing_stocks}},
+            database.edit_filing(
+                {**filer_query, "access_number": access_number},
+                {"$set": {"stocks": filing_stocks}},
             )
 
-        filings = database.find_filer(cik, {"filings": 1})
-        filings = filings["filings"]
-
+        filings = database.find_filings(cik)
         database.add_log(cik, "Queried Filer Historical Stocks", company_name, cik)
     except Exception as e:
         logging.error(e)
@@ -157,14 +159,17 @@ def create_historical(cik, company, stamp, background=None):
         database.add_log(cik, "Creating Filer (Historical)", company_name, cik)
 
         for (
-            stock_query,
+            access_number,
             filing_stock,
         ) in analysis.analyze_filings(cik, filings, last_report):
-            database.edit_filer(filer_query, {"$set": {stock_query: filing_stock}})
+            stock_cusip = filing_stock["cusip"]
+            stock_query = f"stocks.{stock_cusip}"
+            database.edit_filing(
+                {**filer_query, "access_number": access_number},
+                {"$set": {stock_query: filing_stock}},
+            )
 
-        filings = database.find_filer(cik, {"filings": 1})
-        filings = filings["filings"]
-
+        filings = database.find_filings(cik)
         for stock_query, log_item in analysis.analyze_stocks(cik, filings):
             database.edit_filer(filer_query, stock_query)
             database.add_log(cik, log_item)
@@ -192,7 +197,7 @@ def create_historical(cik, company, stamp, background=None):
         logging.error(e)
 
     start = stamp["start"]
-    stamp = {"time.elapsed": datetime.now().timestamp() - start}
+    stamp = {"time.elapsed": datetime.now().timestamp() - start, "logs": []}
     database.edit_log(cik, stamp)
     database.add_query_log(cik, "create-historical")
 
@@ -235,7 +240,7 @@ def update_filer(company, background):
 )
 async def query_filer(cik: str, background: BackgroundTasks):
     filer = database.find_filer(cik)
-    if filer == None:
+    if not filer:
         try:
             sec_data = sec_filer_search(cik)
         except Exception as e:

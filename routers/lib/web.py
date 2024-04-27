@@ -16,7 +16,6 @@ logging.info("[ Data Initializing ] ...")
 
 
 def process_names(stocks, cik):
-
     cusip_list = list(map(lambda s: s["cusip"], stocks))
     cursor = database.find_stocks("cusip", {"$in": cusip_list})
 
@@ -31,13 +30,13 @@ def process_names(stocks, cik):
     for stock in stocks:
         cusip = stock["cusip"]
         name = stock["name"]
-        msg = f"Querying Stock\n"
+        msg = "Querying Stock\n"
 
         found_stock = found_stocks.get(cusip)
         if found_stock:
             ticker = found_stock["ticker"]
             name = found_stock["name"]
-            msg += f"Success, Found Stock"
+            msg += "Success, Found Stock"
             global_stocks[cusip] = {
                 "name": name,
                 "ticker": ticker,
@@ -57,7 +56,7 @@ def process_names(stocks, cik):
                 if stock:
                     ticker = stock["ticker"]
                     name = stock["name"]
-                    msg += f"Success, Added Stock"
+                    msg += "Success, Added Stock"
                 else:
                     name = result["name"]
                     stock = {
@@ -66,7 +65,7 @@ def process_names(stocks, cik):
                         "cusip": cusip,
                         "update": False,
                     }
-                    msg += f"Failed, No Query Data"
+                    msg += "Failed, No Query Data"
 
                 database.add_stock(stock)
                 database.add_log(cik, msg, name, cusip)
@@ -83,40 +82,10 @@ def process_names(stocks, cik):
                 skip.append(cusip)
                 global_stocks[cusip] = stock
 
-                msg += f"Failed, No Query Data"
+                msg += "Failed, No Query Data"
                 database.add_log(cik, msg, name, cusip)
 
     return global_stocks
-
-
-def process_filings(data):
-    data_filings = data["filings"]["recent"]
-    filings = {}
-    for i, form in enumerate(data_filings["form"]):
-        if "13F-HR" not in form:
-            continue
-
-        access_number = data_filings["accessionNumber"][i]
-        filing = {
-            # "form": data_filings["form"][i],
-            "access_number": data_filings["accessionNumber"][i],
-            "filing_date": analysis.convert_date(data_filings["filingDate"][i]),
-            "report_date": analysis.convert_date(data_filings["reportDate"][i]),
-            "document": data_filings["primaryDocument"][i],
-            "description": data_filings["primaryDocDescription"][i],
-        }
-        filings[access_number] = filing
-
-    last_report = "NA"
-    first_report = "NA"
-    for i, form in enumerate(data_filings["form"]):
-        if form == "13F-HR":
-            if last_report == "NA":
-                last_report = data_filings["accessionNumber"][i]
-
-            first_report = data_filings["accessionNumber"][i]
-
-    return filings, last_report, first_report
 
 
 def check_new(cik):
@@ -189,6 +158,33 @@ def process_keys(tickers, name, cik):
     return name, stock_info  # type: ignore
 
 
+def process_filings(cik, data):
+    data_filings = data["filings"]["recent"]
+    filings = []
+    for i, form in enumerate(data_filings["form"]):
+        filing = {
+            "cik": cik,
+            "form": data_filings["form"][i],
+            "access_number": data_filings["accessionNumber"][i],
+            "filing_date": analysis.convert_date(data_filings["filingDate"][i]),
+            "report_date": analysis.convert_date(data_filings["reportDate"][i]),
+            "document": data_filings["primaryDocument"][i],
+            "description": data_filings["primaryDocDescription"][i],
+        }
+        filings.append(filing)
+
+    last_report = "NA"
+    first_report = "NA"
+    for i, form in enumerate(data_filings["form"]):
+        if form == "13F-HR":
+            if last_report == "NA":
+                last_report = data_filings["accessionNumber"][i]
+
+            first_report = data_filings["accessionNumber"][i]
+
+    return filings, last_report, first_report
+
+
 def initalize_filer(cik, sec_data):
     company = {
         "name": sec_data["name"],
@@ -209,11 +205,12 @@ def initalize_filer(cik, sec_data):
 
     database.create_log(stamp)
     database.add_filer(company)
-    company = process_filer(cik, sec_data)
+    company, filings = process_filer(cik, sec_data)
 
     stamp = {"name": company["name"], "start": start}
     database.edit_log(cik, stamp)
     database.edit_filer({"cik": cik}, {"$set": company})
+    database.add_filings(filings)
 
     return company, stamp
 
@@ -222,7 +219,7 @@ redundant_keys = ["name", "cik", "symbol"]
 
 
 def process_filer(cik, data):
-    filings, last_report, first_report = process_filings(data)
+    filings, last_report, first_report = process_filings(cik, data)
     time = (datetime.now()).timestamp()
 
     name = data["name"]
@@ -239,22 +236,13 @@ def process_filer(cik, data):
         "tickers": tickers,
         "updated": time,
         "exchanges": data["exchanges"],
-        "filings": filings,
         "stocks": [],
         "first_report": first_report,
         "last_report": last_report,
         "financials": extra_data,
     }
 
-    return company
-
-
-def process_filer_newest(company):
-    cik = company["cik"]
-    newest_data = api.sec_filer_search(cik)
-    filings, last_report = process_filings(newest_data)  # type: ignore
-
-    return filings, last_report
+    return company, filings
 
 
 def process_stock(ticker, cusip, name, cik):
@@ -271,11 +259,11 @@ def process_stock(ticker, cusip, name, cik):
     price = stock_price.get("05. price")
     for key in stock_info.keys():
         field = stock_info[key]
-        if field == None:
+        if field is None:
             stock_info[key] = "NA"
     for key in stock_price.keys():
         field = stock_price[key]
-        if field == None:
+        if field is None:
             stock_price[key] = "NA"
 
     financials = analysis.convert_underscore(stock_info)
@@ -291,7 +279,7 @@ def process_stock(ticker, cusip, name, cik):
         "cusip": cusip,
         "sector": stock_info.get("Sector", "NA"),
         "industry": stock_info.get("Industry", "NA"),
-        "price": "NA" if price == None else float(price),
+        "price": "NA" if price is None else float(price),
         "time": (datetime.now()).timestamp(),
         "financials": financials,
         "quote": quote,
@@ -306,7 +294,6 @@ def scrape_txt(cik, filing, directory):
 
 
 def scrape_html(cik, filing, directory, empty=False):
-
     data = api.sec_directory_search(cik, directory)
     stock_soup = BeautifulSoup(data, "lxml")
     stock_table = stock_soup.find_all("table")[3]
@@ -340,7 +327,7 @@ def scrape_html(cik, filing, directory, empty=False):
 
         row_stock = row_stocks.get(stock_cusip)
 
-        if row_stock == None:
+        if row_stock is None:
             new_stock = {
                 "name": stock_name,
                 "ticker": "NA",
@@ -361,7 +348,6 @@ def scrape_html(cik, filing, directory, empty=False):
 
 
 def scrape_xml(cik, filing, directory, empty=False):
-
     data = api.sec_directory_search(cik, directory)
     data_str = data.decode(json.detect_encoding(data))
     tree = ElementTree.fromstring(data_str)
@@ -373,7 +359,6 @@ def scrape_xml(cik, filing, directory, empty=False):
     access_number = filing["access_number"]
 
     for info in tree.findall("ns:infoTable", namespace):
-
         if empty:
             yield None
 
@@ -389,7 +374,7 @@ def scrape_xml(cik, filing, directory, empty=False):
 
         info_stock = info.get(stock_cusip)
 
-        if info_stock == None:
+        if info_stock is None:
             new_stock = {
                 "name": stock_name,
                 "ticker": "NA",
@@ -477,6 +462,10 @@ def process_stocks(cik, filings):
     )
     for document in filings_list:
         access_number = document["access_number"]
+        form_type = document["form"]
+        if "13F-HR" not in form_type:
+            continue
+
         data = api.sec_stock_search(cik=cik, access_number=access_number)
         try:
             new_stocks = scrape_stocks(cik=cik, data=data, filing=document)
@@ -488,14 +477,14 @@ def process_stocks(cik, filings):
 
 def query_stocks(found_stocks):
     for found_stock in found_stocks:
-        if found_stock == None:
+        if found_stock is None:
             continue
 
         ticker = found_stock.get("ticker")
         time = datetime.now().timestamp()
         last_updated = found_stock.get("updated")
 
-        if last_updated != None:
+        if last_updated is not None:
             if (time - last_updated) < (60 * 60 * 24 * 3):
                 continue
 

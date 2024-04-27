@@ -15,7 +15,7 @@ logging.info("[ Analysis Initializing ] ...")
 
 
 def convert_date(date_str):
-    date = (datetime.strptime(date_str, "%Y-%m-%d")).timestamp()
+    date = (datetime.strptime(date_str, "%Y-%m-%d")).timestamp() if date_str else ""
     return date
 
 
@@ -325,6 +325,7 @@ def analyze_report(local_stock, filings):
 
 
 def analyze_timeseries(cik, local_stock, global_stock, filings):
+    filings_map = dict(zip([f["access_number"] for f in filings], filings))
     timeseries_global = global_stock.get("timeseries", [])
     ticker = global_stock.get("ticker")
     cusip = global_stock.get("cusip")
@@ -363,8 +364,8 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
     sold = local_stock["sold"]
     first_appearance = local_stock["first_appearance"]
     last_appearance = local_stock["last_appearance"]
-    buy_time = filings[first_appearance]["report_date"]
-    sold_time = filings[last_appearance]["report_date"] if sold else "NA"
+    buy_time = filings_map[first_appearance]["report_date"]
+    sold_time = filings_map[last_appearance]["report_date"] if sold else "NA"
 
     buy_stamp = {"time": buy_time, "series": "NA"}
     sold_stamp = {"time": sold_time, "series": "NA"}
@@ -399,8 +400,7 @@ def analyze_filings(cik, filings, last_report):
         total_value = analyze_total(cik, filing_stocks, access_number)
         for cusip in filing_stocks:
             try:
-                stock_query = f"filings.{access_number}.stocks.{cusip}"
-
+                stock_query = access_number
                 local_stock = filing_stocks[cusip]
                 cusip = local_stock["cusip"]
 
@@ -448,9 +448,7 @@ def analyze_filings(cik, filings, last_report):
 
 def analyze_stocks(cik, filings):
     stock_cache = {}
-    filings_sorted = sorted(
-        [filings[an] for an in filings], key=lambda d: d["report_date"], reverse=True
-    )
+    filings_sorted = sorted(filings, key=lambda d: d["report_date"], reverse=True)
     for filing in filings_sorted:
         filing_stocks = filing.get("stocks")
         if not filing_stocks:
@@ -563,7 +561,6 @@ def sort_pipeline(
     unavailable: bool,
     additonal: list = [],
 ):
-
     if limit < 0:
         raise ValueError
 
@@ -667,7 +664,6 @@ default_format = [
 
 
 def create_dataframe(global_stocks, headers=None):
-
     top_row = []
     if not headers:
         header_format = default_format
@@ -696,7 +692,6 @@ def create_dataframe(global_stocks, headers=None):
 
 
 def create_csv(content, file_name, headers=None):
-
     file_path = f"{cwd}/static/filers/{file_name}"
     try:
         with open(file_path, "r") as c:  # @IgnoreException
@@ -792,7 +787,6 @@ def sort_and_format(filer_ciks):
 
 
 def analyze_allocation(cik):
-
     filing_project = {"access_number": 1, "report_date": 1}
     pipeline = [
         {"$match": {"cik": cik}},
@@ -881,7 +875,6 @@ def analyze_allocation(cik):
 
 
 def analyze_aum(cik):
-
     pipeline = [
         {"$match": {"cik": cik}},
         {"$project": {"filings": {"$objectToArray": "$filings"}}},
