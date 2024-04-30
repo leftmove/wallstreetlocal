@@ -1,7 +1,6 @@
 import { Toaster, toast } from "sonner";
 
-import { font, fontLight } from "@fonts";
-import { internalMutate } from "swr/_internal";
+import { fontLight } from "@fonts";
 
 const Health = (props) => {
   const health = props.health || false;
@@ -16,9 +15,9 @@ const Health = (props) => {
 
   return (
     <Toaster
+      className={fontLight.className}
       toastOptions={{
         style: {
-          font: font.className,
           color: "var(--primary)",
           outline: "var(--secondary-dark)",
           borderColor: "var(--primary-dark)",
