@@ -50,6 +50,10 @@ async def background_query(query_type, cik_list, background, query_function):
     cm.set_key_no_expiration(query_type, "running")
 
     for cik in cik_list:
+        if len(running) < 10:
+            background.add_task(query_function, cik, background)
+            running.append(cik)
+
         while len(running) >= max_processes:
             for run in running:
                 process = database.find_log(run, {"status": 1})
@@ -62,10 +66,6 @@ async def background_query(query_type, cik_list, background, query_function):
                     running.remove(run)
 
             await asyncio.sleep(5)
-
-        if len(running) < 10:
-            background.add_task(query_function, cik, background)
-            running.append(cik)
 
     cm.set_key_no_expiration(query_type, "stopped")
 
@@ -83,22 +83,10 @@ async def query_top(password: str, background: BackgroundTasks):
     return {"description": "Started querying filers."}
 
 
-def create_error(cik, e):
-    stamp = str(datetime.now())
-    cwd = os.getcwd()
-    with open(f"{cwd}/static/errors/error-general-{stamp}.log", "w") as f:
-        error_string = f"Failed to Query Filer {cik}\n{repr(e)}\n{format_exc()}"
-        f.write(error_string)
-
-
 @router.get("/restore", status_code=200)
 async def progressive_restore(password: str, background: BackgroundTasks):
     if password != os.environ["ADMIN_PASSWORD"]:
         raise HTTPException(detail="Unable to give access.", status_code=403)
-
-    restore = cm.get_key("restore")
-    if restore and restore == "running":
-        raise HTTPException(status_code=429, detail="Restore already running.")
 
     filers = database.find_filers({}, {"cik": 1})
     all_ciks = [filer["cik"] for filer in filers]
@@ -106,6 +94,14 @@ async def progressive_restore(password: str, background: BackgroundTasks):
     await background_query("restore", all_ciks, background, create_filer_replace)
 
     return {"description": "Started progressive restore of filers."}
+
+
+def create_error(cik, e):
+    stamp = str(datetime.now())
+    cwd = os.getcwd()
+    with open(f"{cwd}/static/errors/error-general-{stamp}.log", "w") as f:
+        error_string = f"Failed to Query Filer {cik}\n{repr(e)}\n{format_exc()}"
+        f.write(error_string)
 
 
 @router.get("/backup", status_code=201)
