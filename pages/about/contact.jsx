@@ -37,7 +37,7 @@ export default function Contact() {
           </div>
           <iframe
             id="kofiframe"
-            src="https://ko-fi.com/wallstreetlocal/?hidefeed=true&widget=true&embed=true&preview=true"
+            src="https://ko-fi.com/anonyon/?hidefeed=true&widget=true&embed=true&preview=true"
             className={styles["contact-kofi"]}
             height="712"
             title="wallstreetlocal"

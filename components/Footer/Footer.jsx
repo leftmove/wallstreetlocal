@@ -24,7 +24,7 @@ const Footer = () => {
         </Link>
       </div>
       <Link
-        href="https://ko-fi.com/wallstreetlocal"
+        href="https://ko-fi.com/anonyon"
         target="_blank"
         className={[styles["donation"], fontLight.className].join(" ")}
       >

@@ -52,11 +52,7 @@ const Navigation = (props) => {
               text="Contact"
               tab={true}
             />
-            <Item
-              link="https://ko-fi.com/wallstreetlocal"
-              text="Donate"
-              tab={true}
-            />
+            <Item link="https://ko-fi.com/anonyon" text="Donate" tab={true} />
             <Item
               link="https://github.com/leftmove/wallstreetlocal"
               text="Source"
