@@ -70,7 +70,6 @@ async def background_query(query_type, cik_list, background, query_function):
     cm.set_key_no_expiration(query_type, "stopped")
 
 
-@cache(1)
 @router.get("/query", status_code=200, include_in_schema=False)
 async def query_top(password: str, background: BackgroundTasks):
     if password != os.environ["ADMIN_PASSWORD"]:
@@ -92,7 +91,6 @@ def create_error(cik, e):
         f.write(error_string)
 
 
-@cache(1)
 @router.get("/restore", status_code=200)
 async def progressive_restore(password: str, background: BackgroundTasks):
     if password != os.environ["ADMIN_PASSWORD"]:
