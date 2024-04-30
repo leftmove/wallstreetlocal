@@ -31,7 +31,7 @@ def get_confirm_token(response):
 
 def save_response_content(response, destination, chunk_size):
     with open(destination, "wb") as f:
-        size = int(response.headers["Content-Length"] + 10**6) / (10**6)
+        size = int(response.headers["Content-Length"]) / (10**6)
         mb_chunk = chunk_size / (10**6)
         progress = tqdm(total=size, desc="Downloading Database", unit="mb")
         for i, chunk in enumerate(response.iter_content(chunk_size)):
