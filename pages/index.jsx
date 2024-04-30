@@ -1,22 +1,24 @@
+"use server";
+
 import styles from "@/styles/Home.module.css";
 
-import Head from "next/head";
+import axios from "axios";
 
+import Head from "next/head";
 import Image from "next/image";
 
 import { font, fontLight, fontBold } from "@fonts";
 
 import Layout from "components/Layouts/Home";
-
 import Search from "components/Search/Homepage/Search";
 import Recommended from "components/Recommended/Recommended";
-
+import Health from "components/Health/Health";
 import Hero from "@/images/hero.jpg";
 import FolderIcon from "@/images/folder.svg";
 import FileIcon from "@/images/file.svg";
 import BookIcon from "@/images/book.svg";
 
-export default function Home() {
+export default function Home(props) {
   return (
     <>
       <Head>
@@ -30,6 +32,7 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <Health health={props.health} />
       <div className={styles["landing"]}>
         <div className={styles["landing-hero"]}>
           <Image
@@ -150,6 +153,20 @@ export default function Home() {
       </main>
     </>
   );
+}
+
+const server = process.env.NEXT_PUBLIC_SERVER;
+export async function getServerSideProps() {
+  const health = await axios
+    .get(server + "/health")
+    .then((r) => r.status === 200)
+    .then(() => true)
+    .catch(() => false);
+  return {
+    props: {
+      health,
+    },
+  };
 }
 
 Home.getLayout = ({ Component, pageProps }) => (

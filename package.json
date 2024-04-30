@@ -30,10 +30,12 @@
     "next": "13.1.6",
     "next-nprogress-bar": "^2.3.5",
     "next-redux-wrapper": "^8.1.0",
+    "next-themes": "^0.3.0",
     "qs": "^6.12.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-redux": "^8.0.5",
+    "sonner": "^1.4.41",
     "swr": "^2.1.1"
   },
   "devDependencies": {
