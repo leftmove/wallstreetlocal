@@ -75,7 +75,11 @@ def background_query(query_type, cik_list, background, query_function):
     cm.set_key_no_expiration(query_type, "running")
 
     for cik in cik_list:
-        query_function(cik, background)
+        found_log = database.find_log(cik, {"status": 1})
+        found_status = found_log.get("status", 0)
+
+        if found_status <= 0:
+            query_function(cik, background)
 
     cm.set_key_no_expiration(query_type, "stopped")
 
