@@ -46,8 +46,7 @@ async def health():
 
     pipeline = [
         {"$match": {}},
-        {"$addFields": {"randInt": {"$randInt": {}}}},
-        {"$sort": {"randInt": 1}},
+        {"$sample": {"size": 3}},
         {"$limit": 5},
     ]
     random_filers = database.search_filers(pipeline)
