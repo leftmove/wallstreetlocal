@@ -177,7 +177,6 @@ def process_filings(cik, data):
         if form == "13F-HR":
             if last_report == "NA":
                 last_report = data_filings["accessionNumber"][i]
-
             first_report = data_filings["accessionNumber"][i]
 
     return filings, last_report, first_report

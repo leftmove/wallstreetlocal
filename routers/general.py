@@ -1,9 +1,10 @@
 from fastapi import BackgroundTasks, APIRouter, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.concurrency import run_in_threadpool
 
 import os
-import asyncio
+import time
 
 from traceback import format_exc
 from datetime import datetime
@@ -44,28 +45,10 @@ def background_query(query_type, cik_list, background, query_function):
     if query and query == "running":
         raise HTTPException(status_code=429, detail="Query already running.")
 
-    running = []
-    max_processes = 10
-
     cm.set_key_no_expiration(query_type, "running")
 
     for cik in cik_list:
-        if len(running) < 10:
-            background.add_task(query_function, cik, background)
-            running.append(cik)
-
-        while len(running) >= max_processes:
-            for run in running:
-                process = database.find_log(run, {"status": 1})
-
-                if not process:
-                    continue
-
-                status = process.get("status", 4)
-                if status == 0:
-                    running.remove(run)
-
-            asyncio.sleep(5)
+        query_function(cik, background)
 
     cm.set_key_no_expiration(query_type, "stopped")
 
