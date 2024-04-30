@@ -15,7 +15,7 @@ from .lib import cache as cm
 from .lib.api import popular_ciks_request, top_ciks_request
 from .lib.backup import save_collections
 
-from .filer import create_filer_try, create_filer_replace
+from .filer import query_filer, create_filer_try, create_filer_replace
 
 environment = os.environ["ENVIRONMENT"]
 
@@ -38,6 +38,34 @@ async def info():
 @router.get("/undefined", status_code=200)
 async def info_undefined():
     return {"message": "Hello World!"}
+
+
+@router.get("/health", status_code=200)
+async def health():
+    health_checks = []
+
+    pipeline = [
+        {"$match": {}},
+        {"$addFields": {"randInt": {"$randInt": {}}}},
+        {"$sort": {"randInt": 1}},
+        {"$limit": 5},
+    ]
+    random_filers = database.search_filers(pipeline)
+    for filer in random_filers:
+        cik = filer["cik"]
+        try:
+            query_filer(cik)
+            health_checks.append(True)
+        except Exception as e:
+            create_error(cik, e)
+            health_checks.append(False)
+            continue
+
+    health_passed = sum(health_checks) / len(health_checks)
+    if health_passed < 0.8:
+        raise HTTPException(status_code=500, detail="The server doesn't seem healthy.")
+
+    return {"message": "The server is healthy."}
 
 
 def background_query(query_type, cik_list, background, query_function):

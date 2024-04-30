@@ -211,13 +211,15 @@ def initialize():
 
     print("Deleting In-Progress Filers ...")
     in_progress_logs = logs.find({"status": {"$gt": 0}}, {"cik": 1})
-    in_progress = [log["cik"] for log in in_progress_logs]
+    in_progress = [log.get("cik", None) for log in in_progress_logs]
 
     logs.delete_many({"cik": {"$in": in_progress}})
     filers.delete_many({"cik": {"$in": in_progress}})
 
     print("Deleting Empty Logs ...")
-    log_ciks = [log["cik"] for log in logs.find({}, {"cik": 1})]
+    log_ciks = list(
+        filter(lambda x: x, [log.get("cik", None) for log in logs.find({}, {"cik": 1})])
+    )
     log_filers = [
         filer["cik"] for filer in filers.find({"cik": {"$in": log_ciks}}, {"cik": 1})
     ]
