@@ -39,7 +39,7 @@ async def info_undefined():
     return {"message": "Hello World!"}
 
 
-async def background_query(query_type, cik_list, background, query_function):
+def background_query(query_type, cik_list, background, query_function):
     query = cm.get_key(query_type)
     if query and query == "running":
         raise HTTPException(status_code=429, detail="Query already running.")
@@ -65,7 +65,7 @@ async def background_query(query_type, cik_list, background, query_function):
                 if status == 0:
                     running.remove(run)
 
-            await asyncio.sleep(5)
+            asyncio.sleep(5)
 
     cm.set_key_no_expiration(query_type, "stopped")
 
@@ -78,7 +78,9 @@ async def query_top(password: str, background: BackgroundTasks):
     filer_ciks = top_ciks_request()
     filer_ciks.extend(popular_ciks_request())
 
-    await background_query("query", filer_ciks, background, create_filer_try)
+    background.add_task(
+        background_query, "query", filer_ciks, background, create_filer_try
+    )
 
     return {"description": "Started querying filers."}
 
@@ -91,7 +93,9 @@ async def progressive_restore(password: str, background: BackgroundTasks):
     filers = database.find_filers({}, {"cik": 1})
     all_ciks = [filer["cik"] for filer in filers]
 
-    await background_query("restore", all_ciks, background, create_filer_replace)
+    background.add_task(
+        background_query, "restore", all_ciks, background, create_filer_replace
+    )
 
     return {"description": "Started progressive restore of filers."}
 
