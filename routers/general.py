@@ -87,8 +87,8 @@ async def query_top(password: str, background: BackgroundTasks):
     if password != os.environ["ADMIN_PASSWORD"]:
         raise HTTPException(detail="Unable to give access.", status_code=403)
 
-    filer_ciks = top_ciks_request()
-    filer_ciks.extend(popular_ciks_request())
+    filer_ciks = popular_ciks_request()
+    filer_ciks.extend(top_ciks_request())
 
     background.add_task(
         background_query, "query", filer_ciks, background, create_filer_try
