@@ -22,5 +22,6 @@ docker-compose.yml
 docker-compose.yaml
 docker-compose.dev.yml
 docker-compose.dev.yaml
+*.pem
 
 docker-proj.zip

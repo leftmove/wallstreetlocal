@@ -325,7 +325,6 @@ def analyze_report(local_stock, filings):
 
 
 def analyze_timeseries(cik, local_stock, global_stock, filings):
-    filings_map = dict(zip([f["access_number"] for f in filings], filings))
     timeseries_global = global_stock.get("timeseries", [])
     ticker = global_stock.get("ticker")
     cusip = global_stock.get("cusip")
@@ -364,8 +363,8 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
     sold = local_stock["sold"]
     first_appearance = local_stock["first_appearance"]
     last_appearance = local_stock["last_appearance"]
-    buy_time = filings_map[first_appearance]["report_date"]
-    sold_time = filings_map[last_appearance]["report_date"] if sold else "NA"
+    buy_time = filings[first_appearance]["report_date"]
+    sold_time = filings[last_appearance]["report_date"] if sold else "NA"
 
     buy_stamp = {"time": buy_time, "series": "NA"}
     sold_stamp = {"time": sold_time, "series": "NA"}
@@ -397,7 +396,13 @@ def analyze_filings(cik, filings, last_report):
         filing_stocks = filings[access_number].get("stocks")
         if not filing_stocks:
             continue
+
         total_value = analyze_total(cik, filing_stocks, access_number)
+        database.edit_filing(
+            {"cik": cik, "access_number": access_number, "form": "13F-HR"},
+            {"$set": {"market_value": total_value}},
+        )
+
         for cusip in filing_stocks:
             try:
                 stock_query = access_number
@@ -449,6 +454,7 @@ def analyze_filings(cik, filings, last_report):
 def analyze_stocks(cik, filings):
     stock_cache = {}
     filings_sorted = sorted(filings, key=lambda d: d["report_date"], reverse=True)
+    filings_map = dict(zip([f["access_number"] for f in filings], filings))
     for filing in filings_sorted:
         filing_stocks = filing.get("stocks")
         if not filing_stocks:
@@ -471,7 +477,7 @@ def analyze_stocks(cik, filings):
                     continue
 
                 buy_stamp, sold_stamp = analyze_timeseries(
-                    cik, filing_stock, found_stock, filings
+                    cik, filing_stock, found_stock, filings_map
                 )
                 filing_stock["prices"] = {
                     "buy": buy_stamp,
@@ -487,7 +493,7 @@ def analyze_stocks(cik, filings):
 
                 stock_cache[cusip] = updated_stock
 
-                filer_stocks = database.find_filer(cik, {"stocks": 1})["stocks"]
+                filer_stocks = database.search_filer(cik, {"stocks.cusip": 1})["stocks"]
                 insert = (
                     False
                     if next(filter(lambda s: s["cusip"] == cusip, filer_stocks), None)
@@ -638,7 +644,8 @@ def create_json(content, filename):
             filer_json = json.load(f)
             if (datetime.now().timestamp() - filer_json["updated"]) > 60 * 60 * 3:
                 raise ValueError
-    except:
+    except Exception as e:
+        print(e)
         with open(file_path, "w") as r:
             json.dump(content, r, indent=6)
 
@@ -703,7 +710,8 @@ def create_csv(content, file_name, headers=None):
                     expire_time = 60 * 60 * 24 * 3
                     cache.set_key(file_path, "bababooey", expire_time)
                     raise ValueError
-    except:
+    except Exception as e:
+        print(e)
         stock_list = create_dataframe(content, headers)
         with open(file_path, "w") as f:
             writer = csv.writer(f)
@@ -775,7 +783,8 @@ def sort_and_format(filer_ciks):
                     f"${int(market_value):,}" if market_value > 0 else "NA"
                 )
                 filer.pop("_id", None)
-            except:
+            except Exception as e:
+                print(e)
                 filer["date"] = "NA"
                 filer["market_value"] = "NA"
         return filers_sorted

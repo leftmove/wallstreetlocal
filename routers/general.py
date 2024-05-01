@@ -1,10 +1,8 @@
 from fastapi import BackgroundTasks, APIRouter, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
-from fastapi.concurrency import run_in_threadpool
 
 import os
-import time
 
 from traceback import format_exc
 from datetime import datetime
@@ -53,7 +51,7 @@ async def health():
     for filer in random_filers:
         cik = filer["cik"]
         try:
-            query_filer(cik)
+            await query_filer(cik, background=False)
             health_checks.append(True)
         except Exception as e:
             create_error(cik, e)

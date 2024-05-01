@@ -13,7 +13,6 @@ from datetime import datetime
 from .lib import web
 from .lib import database
 from .lib import analysis
-from .lib import api
 
 from .lib.search import search_companies
 from .lib.api import sec_filer_search
@@ -364,7 +363,7 @@ async def logs(cik: str, start: int = 0):
         log["count"] = count
         log["logs"] = logs
 
-        if log.get("rate_limit") == True:
+        if log.get("rate_limit"):
             raise HTTPException(503, detail="Rate limited, please wait 60 seconds.")
 
         required = time["required"]
@@ -470,7 +469,8 @@ async def record_csv(cik: str, headers: str = None):
             headers = json.loads(headers_string)
             header_hash = hash(headers_string)
             file_name = f"wallstreetlocal-{cik}-{header_hash}.csv"
-        except:
+        except Exception as e:
+            print(e)
             raise HTTPException(
                 status_code=422, detail="Malformed headers, unable to process request."
             )
