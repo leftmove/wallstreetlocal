@@ -40,7 +40,7 @@ def rate_limit(cik, wait=60):
             },
         )
 
-        if log == None:
+        if log is None:
             raise LookupError
 
         database.add_log(cik, "Waiting 60 Seconds...", "Rate Limit", cik)
@@ -245,30 +245,30 @@ def stock_request(value, cik, backup=None):
     raise LookupError  # @IgnoreException
 
 
-def top_ciks_request():
-    try:
-        r = session.get(
-            "https://gist.githubusercontent.com/leftmove/1e96a95bad8e590a440e37f07d305d2a/raw/wallstreetlocal-top-filers.json"
-        )
-        data = r.json()
-    except Exception as e:
-        logging.error(e)
-        raise LookupError
+# def top_ciks_request():
+#     try:
+#         r = session.get(
+#             "https://gist.githubusercontent.com/leftmove/1e96a95bad8e590a440e37f07d305d2a/raw/wallstreetlocal-top-filers.json"
+#         )
+#         data = r.json()
+#     except Exception as e:
+#         logging.error(e)
+#         raise LookupError
 
-    return data
+#     return data
 
 
-def popular_ciks_request():
-    try:
-        r = session.get(
-            "https://gist.githubusercontent.com/leftmove/daca5d470c869e9d6f14c298af809f9f/raw/wallstreetlocal-popular-filers.json"
-        )
-        data = r.json()
-    except Exception as e:
-        logging.error(e)
-        raise LookupError
+# def popular_ciks_request():
+#     try:
+#         r = session.get(
+#             "https://gist.githubusercontent.com/leftmove/daca5d470c869e9d6f14c298af809f9f/raw/wallstreetlocal-popular-filers.json"
+#         )
+#         data = r.json()
+#     except Exception as e:
+#         logging.error(e)
+#         raise LookupError
 
-    return data
+#     return data
 
 
 logging.info("[ APIs Initialized ]")

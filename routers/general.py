@@ -10,10 +10,10 @@ from datetime import datetime
 from .lib import database
 from .lib import cache as cm
 
-from .lib.api import popular_ciks_request, top_ciks_request
 from .lib.backup import save_collections
 
-from .filer import query_filer, create_filer_try, create_filer_replace
+from .filer import popular_cik_list, top_cik_list
+from .worker import try_filer, replace_filer, delay_error
 
 environment = os.environ["ENVIRONMENT"]
 
@@ -51,8 +51,12 @@ async def health():
     for filer in random_filers:
         cik = filer["cik"]
         try:
-            await query_filer(cik, background=False)
-            health_checks.append(True)
+            found_log = database.find_log(cik, {"status": 1})
+            found_status = found_log.get("status", 0)
+            if found_status >= 0:
+                health_checks.append(False)
+            else:
+                health_checks.append(True)
         except Exception as e:
             create_error(cik, e)
             health_checks.append(False)
@@ -65,49 +69,61 @@ async def health():
     return {"message": "The server is healthy."}
 
 
-def background_query(query_type, cik_list, background, query_function):
+@router.get("/error", include_in_schema=False)
+async def trigger_error():
+    1 / 0
+    return {"message": "This will never be reached."}
+
+
+@router.get("/task-error", include_in_schema=False)
+async def task_error():
+    delay_error.delay()
+    return {"message": "Task error triggered."}
+
+
+def background_query(query_type, cik_list, query_function):
     query = cm.get_key(query_type)
     if query and query == "running":
-        raise HTTPException(status_code=429, detail="Query already running.")
-
+        raise HTTPException(detail="Query is already running.", status_code=409)
     cm.set_key_no_expiration(query_type, "running")
 
     for cik in cik_list:
-        found_log = database.find_log(cik, {"status": 1})
-        found_status = found_log.get("status", 0)
+        try:
+            found_log = database.find_log(cik, {"status": 1})
+            found_status = found_log.get("status", 0) if found_log else 0
 
-        if found_status <= 0:
-            query_function(cik, background)
+            if found_status <= 0:
+                query_function(cik)
+        except Exception as e:
+            print(e)
+            create_error(cik, e)
+            continue
 
     cm.set_key_no_expiration(query_type, "stopped")
 
 
 @router.get("/query", status_code=200, include_in_schema=False)
-async def query_top(password: str, background: BackgroundTasks):
+async def query_top(password: str):
     if password != os.environ["ADMIN_PASSWORD"]:
         raise HTTPException(detail="Unable to give access.", status_code=403)
 
-    filer_ciks = top_ciks_request()
-    filer_ciks.extend(popular_ciks_request())
+    filer_ciks = popular_cik_list
+    filer_ciks.extend(top_cik_list)
 
-    background.add_task(
-        background_query, "query", filer_ciks, background, create_filer_try
-    )
+    background_query("query", filer_ciks, try_filer.delay)
 
     return {"description": "Started querying filers."}
 
 
 @router.get("/restore", status_code=200)
-async def progressive_restore(password: str, background: BackgroundTasks):
+async def progressive_restore(password: str):
     if password != os.environ["ADMIN_PASSWORD"]:
         raise HTTPException(detail="Unable to give access.", status_code=403)
 
     filers = database.find_filers({}, {"cik": 1})
     all_ciks = [filer["cik"] for filer in filers]
 
-    background.add_task(
-        background_query, "restore", all_ciks, background, create_filer_replace
-    )
+    background_query("restore", all_ciks, replace_filer.delay)
 
     return {"description": "Started progressive restore of filers."}
 

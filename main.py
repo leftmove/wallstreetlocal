@@ -25,7 +25,7 @@ ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 HOST = os.environ.get("HOST", "0.0.0.0")
 EXPOSE_PORT = int(os.environ.get("EXPOSE_PORT", 8000))
 FORWARDED_ALLOW_IPS = os.environ.get("FORWARDED_ALLOW_IPS", "*")
-WORKERS = int(os.environ.get("WORKERS", ((multiprocessing.cpu_count() * 2) + 1)))
+WORKERS = int(os.environ.get("WORKERS", (multiprocessing.cpu_count() + 1)))
 production_environment = True if ENVIRONMENT == "production" else False
 
 middleware = [
@@ -33,12 +33,11 @@ middleware = [
         CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
     ),
 ]
-l = logging.getLogger("uvicorn.access")
+log = logging.getLogger("uvicorn.access")
 log_config = uvicorn.config.LOGGING_CONFIG
-log_config["formatters"]["access"][
-    "fmt"
-] = "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] - %(message)s"
-
+log_config["formatters"]["access"]["fmt"] = (
+    "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] - %(message)s"
+)
 
 app = FastAPI(middleware=middleware)
 app.include_router(general.router)
