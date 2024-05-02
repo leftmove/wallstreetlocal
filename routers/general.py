@@ -13,7 +13,7 @@ from .lib import cache as cm
 from .lib.backup import save_collections
 
 from .filer import popular_cik_list, top_cik_list
-from .worker import try_filer, replace_filer
+from .worker import try_filer, replace_filer, delay_error
 
 environment = os.environ["ENVIRONMENT"]
 
@@ -67,6 +67,18 @@ async def health():
         raise HTTPException(status_code=500, detail="The server doesn't seem healthy.")
 
     return {"message": "The server is healthy."}
+
+
+@router.get("/error", include_in_schema=False)
+async def trigger_error():
+    1 / 0
+    return {"message": "This will never be reached."}
+
+
+@router.get("/task-error", include_in_schema=False)
+async def task_error():
+    delay_error.delay()
+    return {"message": "Task error triggered."}
 
 
 def background_query(query_type, cik_list, query_function):

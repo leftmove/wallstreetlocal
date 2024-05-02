@@ -1,17 +1,43 @@
 import logging
-import meilisearch
 import requests
 import json
 import os
 import threading
-import redis
 
 from tqdm import tqdm
 from datetime import datetime
 from traceback import format_exc
-from pymongo import MongoClient
+
+import redis
+import meilisearch
+import pymongo
+
+import sentry_sdk
+from sentry_sdk.integrations.redis import RedisIntegration
+from sentry_sdk.integrations.pymongo import PyMongoIntegration
 
 from .worker import queue
+
+MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
+MONGO_BACKUP_URL = os.environ["MONGO_BACKUP_URL"]
+MEILI_SERVER_URL = os.environ["MEILI_SERVER_URL"]
+MEILI_MASTER_KEY = os.environ["MEILI_MASTER_KEY"]
+REDIS_SERVER_URL = os.environ["REDIS_SERVER_URL"]
+REDIS_PORT = int(os.environ.get("REDIS_PORT", 14640))
+SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
+DEBUG_CIK = os.environ.get("DEBUG_CIK", "")
+ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
+production_environment = True if ENVIRONMENT == "production" else False
+
+if production_environment:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        enable_tracing=True,
+        integrations=[
+            RedisIntegration(),
+            PyMongoIntegration(),
+        ],
+    )
 
 
 def download_file_from_google_drive(file_id, destination, chunk_size=32768):
@@ -77,18 +103,12 @@ def initialize():
     """
     )
 
-    MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
-    MONGO_BACKUP_URL = os.environ["MONGO_BACKUP_URL"]
-
-    client = MongoClient(MONGO_SERVER_URL)
+    client = pymongo.MongoClient(MONGO_SERVER_URL)
     filers = client["wallstreetlocal"]["filers"]
     filings = client["wallstreetlocal"]["filings"]
     logs = client["wallstreetlocal"]["logs"]
     companies = client["wallstreetlocal"]["companies"]
     companies_count = 853_000
-
-    MEILI_SERVER_URL = os.environ["MEILI_SERVER_URL"]
-    MEILI_MASTER_KEY = os.environ["MEILI_MASTER_KEY"]
 
     try:
         retries = 3
@@ -103,8 +123,6 @@ def initialize():
         search = meilisearch.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)
         companies_index = search.index("companies")
 
-    REDIS_SERVER_URL = os.environ["REDIS_SERVER_URL"]
-    REDIS_PORT = int(os.environ.get("REDIS_PORT", 14640))
     logging.info("[ Cache (Redis) Initializing ] ...")
 
     store = redis.Redis(
@@ -264,12 +282,8 @@ def initialize():
     worker.start()
 
     print("Setting Up Environment ...")
-    ENVIRONMENT = os.environ["ENVIRONMENT"]
-    production_environment = True if ENVIRONMENT == "production" else False
 
     if not production_environment:
-        DEBUG_CIK = os.environ.get("DEBUG_CIK", "")
-
         filer_query = {"cik": DEBUG_CIK}
 
         logs.delete_one(filer_query)
