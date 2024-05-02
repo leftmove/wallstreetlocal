@@ -3,12 +3,15 @@ import meilisearch
 import requests
 import json
 import os
+import threading
 import redis
 
 from tqdm import tqdm
 from datetime import datetime
 from traceback import format_exc
 from pymongo import MongoClient
+
+from .worker import queue
 
 
 def download_file_from_google_drive(file_id, destination, chunk_size=32768):
@@ -40,6 +43,11 @@ def save_response_content(response, destination, chunk_size):
                 if (i * mb_chunk) < size:
                     progress.update(mb_chunk)
         progress.close()
+
+
+def start_worker(queue=queue):
+    worker = queue.Worker()
+    worker.start()
 
 
 def create_error(e):
@@ -226,6 +234,35 @@ def initialize():
     log_ciks = list(set(log_ciks) - set(log_filers))
     logs.delete_many({"cik": {"$in": log_ciks}})
 
+    print("Retrieving Filer Lists ...")
+    cwd = os.getcwd()
+    try:
+        r = requests.get(
+            "https://gist.githubusercontent.com/leftmove/1e96a95bad8e590a440e37f07d305d2a/raw/wallstreetlocal-top-filers.json"
+        )
+
+        data = r.json()
+        top_ciks_path = f"{cwd}/static/top.json"
+        with open(top_ciks_path, "w") as f:
+            json.dump(data, f)
+    except Exception as e:
+        print(e)
+    try:
+        r = requests.get(
+            "https://gist.githubusercontent.com/leftmove/daca5d470c869e9d6f14c298af809f9f/raw/wallstreetlocal-popular-filers.json"
+        )
+
+        data = r.json()
+        popular_ciks_path = f"{cwd}/static/popular.json"
+        with open(popular_ciks_path, "w") as f:
+            json.dump(data, f)
+    except Exception as e:
+        print(e)
+
+    print("Starting Worker ...")
+    worker = threading.Thread(target=start_worker)
+    worker.start()
+
     print("Setting Up Environment ...")
     ENVIRONMENT = os.environ["ENVIRONMENT"]
     production_environment = True if ENVIRONMENT == "production" else False
@@ -238,3 +275,5 @@ def initialize():
         logs.delete_one(filer_query)
         filers.delete_one(filer_query)
         filings.delete_many(filer_query)
+
+    print("Done!")

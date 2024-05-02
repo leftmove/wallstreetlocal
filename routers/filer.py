@@ -618,98 +618,16 @@ async def record_filing_csv(cik: str, access_number: str, headers: str = None):
 
 cwd = os.getcwd()
 
+top_ciks_path = f"{cwd}/static/top.json"
+with open(top_ciks_path, "r") as f:
+    top_cik_list = json.load(f)
+
 
 @cache(24)
 @router.get("/top", status_code=200)
 async def top_ciks():
-    # filer_ciks = api.top_ciks_request()
-    filer_ciks = [
-        "916542",
-        "1364742",
-        "809398",
-        "102909",
-        "728672",
-        "1425930",
-        "1540138",
-        "1109448",
-        "1075869",
-        "52388",
-        "820027",
-        "1164508",
-        "1167557",
-        "1379495",
-        "760559",
-        "1362495",
-        "216543",
-        "1350694",
-        "1114667",
-        "872616",
-        "733986",
-        "1419186",
-        "949308",
-        "884546",
-        "845563",
-        "1218806",
-        "801051",
-        "354204",
-        "200217",
-        "1959989",
-        "1889527",
-        "1076598",
-        "1127999",
-        "1056288",
-        "809398",
-        "850529",
-        "38777",
-        "807249",
-        "1214717",
-        "772129",
-        "1259933",
-        "928204",
-        "922439",
-        "20430",
-        "1536139",
-        "812295",
-        "1060749",
-        "704051",
-        "312348",
-        "728100",
-        "1050470",
-        "65103",
-        "1140601",
-        "1053187",
-        "728774",
-        "937615",
-        "73124",
-        "885708",
-        "949509",
-        "919219",
-        "1845793",
-        "1263568",
-        "1082463",
-        "763212",
-        "1126328",
-        "1421578",
-        "1004781",
-        "1084208",
-        "728014",
-        "400007",
-        "1204692",
-        "93751",
-        "1897612",
-        "850401",
-        "887793",
-        "1574850",
-        "1599719",
-        "1040188",
-        "19481",
-        "1052100",
-        "829937",
-        "902219",
-        "793241",
-    ]
     try:
-        filers_sorted = analysis.sort_and_format(filer_ciks)
+        filers_sorted = analysis.sort_and_format(top_cik_list)
     except Exception as e:
         print(e)
         raise HTTPException(500, detail="Error fetching filers.")
@@ -717,23 +635,16 @@ async def top_ciks():
     return {"filers": filers_sorted}
 
 
+popular_ciks_path = f"{cwd}/static/popular.json"
+with open(popular_ciks_path, "r") as f:
+    popular_cik_list = json.load(f)
+
+
 @cache(24)
 @router.get("/searched", status_code=200)
 async def popular_ciks():
-    # filer_ciks = api.popular_ciks_request()
-    filer_ciks = [
-        "1067983",
-        "1649339",
-        "1541617",
-        "1709323",
-        "1536411",
-        "1037389",
-        "1791786",
-        "1350694",
-        "1167483",
-    ]
     try:
-        filers_sorted = analysis.sort_and_format(filer_ciks)
+        filers_sorted = analysis.sort_and_format(popular_cik_list)
     except Exception as e:
         print(e)
         raise HTTPException(500, detail="Error fetching filers.")
