@@ -299,9 +299,7 @@ def analyze_report(local_stock, filings):
     first_appearance = "NA"
     last_appearance = "NA"
 
-    filings_sorted = sorted(
-        [filings[an] for an in filings], key=lambda d: d["report_date"]
-    )
+    filings_sorted = sorted([f for f in filings], key=lambda d: d.get("report_date", 0))
     for filing in filings_sorted:
         filing_stocks = filing["stocks"]
         if cusip in filing_stocks:
@@ -382,9 +380,10 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
 
 def analyze_filings(cik, filings, last_report):
     stock_cache = {}
-    for access_number in filings:
-        filing_stocks = filings[access_number].get("stocks")
-        if not filing_stocks:
+    for filing in filings:
+        access_number = filing.get("access_number", "")
+        filing_stocks = filing.get("stocks")
+        if not filing_stocks or not access_number:
             continue
 
         total_value = analyze_total(cik, filing_stocks, access_number)

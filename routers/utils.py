@@ -7,6 +7,7 @@ import threading
 from tqdm import tqdm
 from datetime import datetime
 from traceback import format_exc
+from dotenv import load_dotenv
 
 import redis
 import meilisearch
@@ -19,6 +20,9 @@ from sentry_sdk.integrations.pymongo import PyMongoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 
 from .worker import queue
+from .lib import errors
+
+load_dotenv()
 
 MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
 MONGO_BACKUP_URL = os.environ["MONGO_BACKUP_URL"]
@@ -71,7 +75,7 @@ def get_confirm_token(response):
 
 def save_response_content(response, destination, chunk_size):
     with open(destination, "wb") as f:
-        size = int(response.headers["Content-Length"]) / (10**6)
+        size = (int(response.headers["Content-Length"]) / (10**6)) + (5 * 10**6)
         mb_chunk = chunk_size / (10**6)
         progress = tqdm(total=size, desc="Downloading Database", unit="mb")
         for i, chunk in enumerate(response.iter_content(chunk_size)):
@@ -85,14 +89,6 @@ def save_response_content(response, destination, chunk_size):
 def start_worker(queue=queue):
     worker = queue.Worker()
     worker.start()
-
-
-def create_error(e):
-    stamp = str(datetime.now())
-    cwd = os.getcwd()
-    with open(f"{cwd}/static/errors/error-start-{stamp}.log", "w") as f:
-        error_string = f"Error Occurred During Start\n{repr(e)}\n{format_exc()}"
-        f.write(error_string)
 
 
 def initialize():
@@ -155,14 +151,14 @@ def initialize():
         try:
             companies.insert_many(document_list)
         except Exception as e:
-            create_error(e)
+            errors.report_error(e)
             print("Error Occured")
 
     def insert_search(document_list):
         try:
             companies_index.add_documents(document_list, "cik")
         except Exception as e:
-            create_error(e)
+            errors.report_error(e)
             print("Error Occured")
 
     if search_empty:
@@ -225,6 +221,13 @@ def initialize():
             progress.update(database_count)
             database_documents = []
 
+        if db_empty and database_count and search_empty and search_count:
+            progress.update(database_count)
+        elif db_empty and database_count:
+            progress.update(database_count)
+        elif search_empty and search_count:
+            progress.update(search_count)
+
         if search_empty:
             companies_index.update_displayed_attributes(
                 [
@@ -261,6 +264,9 @@ def initialize():
     log_ciks = list(set(log_ciks) - set(log_filers))
     logs.delete_many({"cik": {"$in": log_ciks}})
 
+    print("Cleaning Errors ...")
+    errors.cleanup_errors()
+
     print("Retrieving Filer Lists ...")
     cwd = os.getcwd()
     try:
@@ -287,8 +293,9 @@ def initialize():
         print(e)
 
     print("Starting Worker ...")
-    worker = threading.Thread(target=start_worker)
-    worker.start()
+    if production_environment:
+        worker = threading.Thread(target=start_worker)
+        worker.start()
 
     print("Setting Up Environment ...")
 

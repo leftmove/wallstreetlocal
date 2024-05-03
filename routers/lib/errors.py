@@ -11,7 +11,9 @@ TELEMETRY = bool(os.environ.get("TELEMETRY", False))
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 production_environment = True if ENVIRONMENT == "production" else False
 run_telemetry = True if TELEMETRY else False
+
 cwd = os.getcwd()
+errors_folder = f"{cwd}/static/errors"
 
 
 def timestamp():
@@ -19,7 +21,22 @@ def timestamp():
 
 
 def create_path(cik, stamp):
-    return f"{cwd}/static/errors/error-{cik}-{stamp}.log"
+    return f"{errors_folder}/error-{cik}-{stamp}.log"
+
+
+def cleanup_errors():
+    for file in os.listdir(errors_folder):
+        error_path = f"{errors_folder}/{file}"
+        if file.endswith(".log"):
+            try:
+                now = datetime.now().timestamp()
+                modified = os.path.getmtime(error_path)
+                expire_time = 60 * 60 * 24 * 3
+
+                if now - modified > expire_time:
+                    os.remove(error_path)
+            except FileNotFoundError:
+                pass
 
 
 def format_error(e, program=None):

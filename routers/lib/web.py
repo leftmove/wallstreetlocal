@@ -406,15 +406,15 @@ def scrape_stocks(cik, data, filing, empty=False):
             is_txt = False
 
             directory_type = directory["type"]
-            if is_xml and not is_html:
-                directory["type"] = "xml"
-                directory["link"] = href
-            elif is_xml and is_html and directory_type != "xml":
+            if is_html:
                 directory["type"] = "html"
                 directory["link"] = href
-            elif is_txt and directory_type != "xml" and directory_type != "html":
-                directory["type"] = "txt"
+            elif is_xml and directory_type != "html":
+                directory["type"] = "xml"
                 directory["link"] = href
+            # elif is_txt and directory_type != "xml" and directory_type != "html":
+            #     directory["type"] = "txt"
+            #     directory["link"] = href
 
     link = directory["link"]
     form = directory["type"]
@@ -451,9 +451,7 @@ def scrape_stocks(cik, data, filing, empty=False):
 
 
 def process_stocks(cik, filings):
-    filings_list = sorted(
-        [filings[an] for an in filings], key=lambda d: d["report_date"]
-    )
+    filings_list = sorted([f for f in filings], key=lambda d: d.get("report_date", 0))
     for document in filings_list:
         access_number = document["access_number"]
         form_type = document["form"]

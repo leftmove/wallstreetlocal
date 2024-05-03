@@ -77,7 +77,7 @@ def create_recent(cik, company, stamp):
         recent_filing = database.find_filing(cik, last_report)
 
         for access_number, filing_stocks in web.process_stocks(
-            cik, {last_report: recent_filing}
+            cik, [recent_filing]
         ):
             recent_filing["stocks"] = filing_stocks
             database.edit_filing(
@@ -137,7 +137,7 @@ def create_historical(cik, company, stamp):
     last_report = company["last_report"]
 
     try:
-        filings = database.map_filings(cik)
+        filings = database.find_filings(cik)
         for access_number, filing_stocks in web.process_stocks(cik, filings):
             database.edit_filing(
                 {**filer_query, "access_number": access_number},
@@ -153,8 +153,7 @@ def create_historical(cik, company, stamp):
 
     try:
         database.add_log(cik, "Creating Filer (Historical)", company_name, cik)
-
-        filings = database.map_filings(cik)
+        filings = database.find_filings(cik)
         for (
             access_number,
             filing_stock,
