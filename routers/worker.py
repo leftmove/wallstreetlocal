@@ -25,7 +25,7 @@ queue.config_from_object(config)
 
 
 @signals.celeryd_init.connect
-def init_worker(**kwargs):
+def init_worker(*args, **kwargs):
     if production_environment and run_telemetry:
         sentry_sdk.init(
             dsn=SENTRY_DSN,
@@ -35,28 +35,28 @@ def init_worker(**kwargs):
 
 
 @queue.task
-def create_recent(**kwargs):
-    filer.create_recent(**kwargs)
+def create_recent(*args, **kwargs):
+    filer.create_recent(*args, **kwargs)
 
 
 @queue.task
-def create_historical(**kwargs):
-    filer.create_historical(**kwargs)
+def create_historical(*args, **kwargs):
+    filer.create_historical(*args, **kwargs)
 
 
 @queue.task
-def create_filer(**kwargs):
-    filer.create_filer(**kwargs)
+def create_filer(*args, **kwargs):
+    filer.create_filer(*args, **kwargs)
 
 
 @queue.task
-def try_filer(**kwargs):
-    filer.create_filer_try(**kwargs)
+def try_filer(*args, **kwargs):
+    filer.create_filer_try(*args, **kwargs)
 
 
 @queue.task
-def replace_filer(**kwargs):
-    filer.create_filer_replace(**kwargs)
+def replace_filer(*args, **kwargs):
+    filer.create_filer_replace(*args, **kwargs)
 
 
 @queue.task
