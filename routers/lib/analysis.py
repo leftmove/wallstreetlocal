@@ -380,6 +380,7 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
 
 def analyze_filings(cik, filings, last_report):
     stock_cache = {}
+    filings_map = dict(zip([f["access_number"] for f in filings], filings))
     for filing in filings:
         access_number = filing.get("access_number", "")
         filing_stocks = filing.get("stocks")
@@ -421,7 +422,7 @@ def analyze_filings(cik, filings, last_report):
                     sold,
                     first_appearance,
                     last_appearance,
-                    filings,
+                    filings_map,
                     portfolio_percentage,
                     ownership_percentage,
                 )

@@ -76,9 +76,7 @@ def create_recent(cik, company, stamp):
         last_report = company["last_report"]
         recent_filing = database.find_filing(cik, last_report)
 
-        for access_number, filing_stocks in web.process_stocks(
-            cik, [recent_filing]
-        ):
+        for access_number, filing_stocks in web.process_stocks(cik, [recent_filing]):
             recent_filing["stocks"] = filing_stocks
             database.edit_filing(
                 {**filer_query, "access_number": access_number},
@@ -96,7 +94,7 @@ def create_recent(cik, company, stamp):
         for (
             access_number,
             filing_stock,
-        ) in analysis.analyze_filings(cik, {last_report: recent_filing}, last_report):
+        ) in analysis.analyze_filings(cik, [recent_filing], last_report):
             stock_cusip = filing_stock["cusip"]
             stock_query = f"stocks.{stock_cusip}"
             database.edit_filing(

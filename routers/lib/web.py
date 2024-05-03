@@ -391,7 +391,7 @@ def scrape_xml(cik, filing, directory, empty=False):
 info_table_key = ["INFORMATION TABLE", "Complete submission text file"]
 
 
-def scrape_stocks(cik, data, filing, empty=False):
+def scrape_stocks(cik, data, filing, last_report, empty=False):
     index_soup = BeautifulSoup(data, "lxml")
     rows = index_soup.find_all("tr")
     directory = {"link": None, "type": None}
@@ -434,7 +434,11 @@ def scrape_stocks(cik, data, filing, empty=False):
             row_count = i
         return row_count
 
-    update_list = [new_stock for new_stock in scrape_document(cik, filing, link)]
+    access_number = filing["access_number"]
+    update_list = [
+        {**new_stock, "sold": True if access_number == last_report else False}
+        for new_stock in scrape_document(cik, filing, link)
+    ]
     updated_stocks = process_names(update_list, cik)
 
     filing_stocks = {}
@@ -452,6 +456,7 @@ def scrape_stocks(cik, data, filing, empty=False):
 
 def process_stocks(cik, filings):
     filings_list = sorted([f for f in filings], key=lambda d: d.get("report_date", 0))
+    last_report = filings_list[-1]["access_number"]
     for document in filings_list:
         access_number = document["access_number"]
         form_type = document["form"]
@@ -460,7 +465,9 @@ def process_stocks(cik, filings):
 
         data = api.sec_stock_search(cik=cik, access_number=access_number)
         try:
-            new_stocks = scrape_stocks(cik=cik, data=data, filing=document)
+            new_stocks = scrape_stocks(
+                cik=cik, data=data, filing=document, last_report=last_report
+            )
             yield access_number, new_stocks
         except Exception as e:
             logging.info(f"\nError Updating Stocks\n{e}\n--------------------------\n")
