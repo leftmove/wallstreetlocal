@@ -263,11 +263,11 @@ def analyze_total(cik, stocks, access_number):
         market_values.append(value)
 
     total = sum(market_values)
-    database.edit_filer(
-        {"cik": cik},
+    database.edit_filing(
+        {"cik": cik, "access_number": access_number, "form": "13F-HR"},
         {
             "$set": {
-                f"filings.{access_number}.market_value": total,
+                "market_value": total,
             }
         },
     )
@@ -299,9 +299,10 @@ def analyze_report(local_stock, filings):
     first_appearance = "NA"
     last_appearance = "NA"
 
-    filings_sorted = sorted([f for f in filings], key=lambda d: d.get("report_date", 0))
-    for filing in filings_sorted:
-        filing_stocks = filing["stocks"]
+    for filing in filings:
+        filing_stocks = filing.get("stocks", [])
+        if not filing_stocks:
+            continue
         if cusip in filing_stocks:
             access_number = filing["access_number"]
             first_appearance = (
@@ -388,18 +389,18 @@ def analyze_filings(cik, filings, last_report):
             continue
 
         total_value = analyze_total(cik, filing_stocks, access_number)
-        database.edit_filing(
-            {"cik": cik, "access_number": access_number, "form": "13F-HR"},
-            {"$set": {"market_value": total_value}},
-        )
-
         for cusip in filing_stocks:
             try:
                 stock_query = access_number
                 local_stock = filing_stocks[cusip]
                 cusip = local_stock["cusip"]
 
-                first_appearance, last_appearance = analyze_report(local_stock, filings)
+                filings_sorted = sorted(
+                    [f for f in filings], key=lambda d: d.get("report_date", 0)
+                )
+                first_appearance, last_appearance = analyze_report(
+                    local_stock, filings_sorted
+                )
                 sold = False if last_appearance == last_report else False
 
                 found_stock = stock_cache.get(cusip)

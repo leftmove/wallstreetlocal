@@ -419,7 +419,7 @@ async def estimate(cik: str):
 @cache(1 / 6)
 @router.get("/info", tags=["filers"], status_code=200)
 async def filer_info(cik: str):
-    filer = database.find_filer(cik, {"_id": 0, "stocks": 0, "filings": 0})
+    filer = database.find_filer(cik, {"_id": 0, "stocks": 0})
     if filer is None:
         raise HTTPException(404, detail="Filer not found.")
 

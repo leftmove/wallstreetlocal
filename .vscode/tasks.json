@@ -1,0 +1,39 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "delay",
+      "type": "shell",
+      "command": "sleep 5",
+      "problemMatcher": []
+    },
+    {
+      "label": "startServer",
+      "type": "shell",
+      "command": "docker exec cache redis-cli FLUSHALL && python -m debugpy --listen 0.0.0.0:6900 -m celery -A routers.worker worker -l info",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "python",
+        "pattern": {
+          "regexp": "^(.*)$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": ".*"
+        }
+      }
+    },
+    {
+      "label": "killProcess",
+      "type": "shell",
+      "command": "pkill -f 'python -m debugpy'",
+      "problemMatcher": []
+    },
+    {
+      "label": "preLaunch",
+      "dependsOn": ["startServer", "delay"],
+      "problemMatcher": []
+    }
+  ]
+}

@@ -6,8 +6,6 @@ example.json
 .env.*
 .env
 
-/.vscode
-
 .venv
 env
 development.test.py

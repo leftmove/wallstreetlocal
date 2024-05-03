@@ -5,8 +5,6 @@ import os
 import threading
 
 from tqdm import tqdm
-from datetime import datetime
-from traceback import format_exc
 from dotenv import load_dotenv
 
 import redis
