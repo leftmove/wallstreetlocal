@@ -11,10 +11,12 @@ from traceback import format_exc
 import redis
 import meilisearch
 import pymongo
+import uvicorn
 
 import sentry_sdk
 from sentry_sdk.integrations.redis import RedisIntegration
 from sentry_sdk.integrations.pymongo import PyMongoIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
 
 from .worker import queue
 
@@ -29,6 +31,12 @@ DEBUG_CIK = os.environ.get("DEBUG_CIK", "")
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 production_environment = True if ENVIRONMENT == "production" else False
 
+log = logging.getLogger("uvicorn.access")
+log_config = uvicorn.config.LOGGING_CONFIG
+log_config["formatters"]["access"]["fmt"] = (
+    "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] - %(message)s"
+)
+
 if production_environment:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
@@ -36,6 +44,7 @@ if production_environment:
         integrations=[
             RedisIntegration(),
             PyMongoIntegration(),
+            LoggingIntegration(level=logging.INFO, event_level=logging.INFO),
         ],
     )
 
@@ -119,11 +128,9 @@ def initialize():
             companies_index.add_documents([{"cik": "TEST"}])
             retries -= 1
         raise RuntimeError  # @IgnoreException
-    except:
+    except RuntimeError:
         search = meilisearch.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)
         companies_index = search.index("companies")
-
-    logging.info("[ Cache (Redis) Initializing ] ...")
 
     store = redis.Redis(
         host=REDIS_SERVER_URL,

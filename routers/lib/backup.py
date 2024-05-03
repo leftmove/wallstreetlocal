@@ -10,7 +10,6 @@ cwd = os.getcwd()
 
 
 def save_collections():
-
     backup_client = MongoClient(MONGO_SERVER_URL)
     collections = ["companies", "filers", "stocks", "statistics"]
 
@@ -35,22 +34,6 @@ def save_response_content(response, destination):
     with open(destination, "wb") as f:
         for chunk in response.iter_content(CHUNK_SIZE):
             if chunk:
-                f.write(chunk)
-
-
-def get_confirm_token(response):
-    for key, value in response.cookies.items():
-        if key.startswith("download_warning"):
-            return value
-
-    return None
-
-
-def save_response_content(response, destination):
-    chunk_size = 32768
-    with open(destination, "wb") as f:
-        for chunk in response.iter_content(chunk_size):
-            if chunk:  # filter out keep-alive new chunks
                 f.write(chunk)
 
 

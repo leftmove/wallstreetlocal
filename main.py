@@ -3,7 +3,6 @@ from fastapi.middleware import Middleware
 from fastapi.middleware.cors import CORSMiddleware
 
 import uvicorn
-import logging
 import os
 import multiprocessing
 
@@ -12,10 +11,7 @@ from routers import filer
 from routers import stocks
 
 from routers.utils import (
-    # PrometheusMiddleware,
-    # metrics,
-    # EndpointFilter,
-    # setting_otlp,
+    log_config,
     initialize,
 )
 
@@ -33,11 +29,6 @@ middleware = [
         CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
     ),
 ]
-log = logging.getLogger("uvicorn.access")
-log_config = uvicorn.config.LOGGING_CONFIG
-log_config["formatters"]["access"]["fmt"] = (
-    "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] - %(message)s"
-)
 
 app = FastAPI(middleware=middleware)
 app.include_router(general.router)

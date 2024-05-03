@@ -1,7 +1,6 @@
 import meilisearch
 
 import os
-import logging
 import time
 
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
@@ -9,11 +8,10 @@ production_environment = True if ENVIRONMENT == "production" else False
 if not production_environment:
     from dotenv import load_dotenv
 
-    load_dotenv(".env.development")
+    load_dotenv(".env")
 
 MEILI_SERVER_URL = os.environ["MEILI_SERVER_URL"]
 MEILI_MASTER_KEY = os.environ["MEILI_MASTER_KEY"]
-logging.info("[ Search (Meilisearch) Initializing ] ...")
 
 search = meilisearch.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)
 if "companies" not in [index.uid for index in search.get_indexes()["results"]]:
@@ -37,6 +35,3 @@ def search_companies(query, options={}):
     hits = result["hits"]
 
     return hits
-
-
-logging.info("[ Search (Meilisearch) Initialized ]")

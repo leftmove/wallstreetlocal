@@ -5,13 +5,11 @@ import os
 import logging
 
 from datetime import datetime
-from traceback import format_exc
 
 from . import database
 from . import api
 from . import cache
-
-logging.info("[ Analysis Initializing ] ...")
+from . import errors
 
 
 def convert_date(date_str):
@@ -255,14 +253,6 @@ def serialize_local(
         "sold": sold,
         "update": update,
     }
-
-
-def create_error(cik, e):
-    stamp = str(datetime.now())
-    cwd = os.getcwd()
-    with open(f"{cwd}/static/errors/error-analysis-{stamp}.log", "w") as f:
-        error_string = f"Failed to Query Filer {cik}\n{repr(e)}\n{format_exc()}"
-        f.write(error_string)
 
 
 def analyze_total(cik, stocks, access_number):
@@ -517,8 +507,7 @@ def analyze_stocks(cik, filings):
                 yield stock_query, log_stock
 
             except Exception as e:
-                logging.error(e)
-                create_error(cik, e)
+                errors.report_error(cik, e)
                 database.add_log(
                     cik,
                     "Error Analyzing Stock for Filings",
@@ -891,13 +880,3 @@ def analyze_aum(cik):
         )
 
     return aum_list
-
-
-def debug_output(content):
-    now = datetime.now().timestamp()
-    file_path = f"{cwd}/static/filers/debug-{now}.json"
-    with open(file_path, "w") as r:
-        json.dump(content, r, indent=6)
-
-
-logging.info("[ Analysis Initialized ]")

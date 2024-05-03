@@ -12,9 +12,6 @@ from . import api
 from . import analysis
 
 
-logging.info("[ Data Initializing ] ...")
-
-
 def process_names(stocks, cik):
     cusip_list = list(map(lambda s: s["cusip"], stocks))
     cursor = database.find_stocks("cusip", {"$in": cusip_list})
@@ -523,6 +520,3 @@ def estimate_time_newest(cik):
     database.edit_log(
         cik, {"status": 3 if status > 3 else status, "time.required": remaining}
     )
-
-
-logging.info("[ Data Initialized ]")

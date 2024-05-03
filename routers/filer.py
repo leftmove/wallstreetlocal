@@ -1,4 +1,4 @@
-from fastapi import BackgroundTasks, HTTPException, APIRouter
+from fastapi import HTTPException, APIRouter
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
@@ -6,14 +6,15 @@ import json
 import os
 import logging
 from urllib import parse
-from traceback import format_exc
 from datetime import datetime
 
+from . import worker
 
 from .lib import web
 from .lib import database
 from .lib import analysis
 
+from .lib.errors import report_error
 from .lib.search import search_companies
 from .lib.api import sec_filer_search
 from .lib.cache import cache
@@ -67,12 +68,9 @@ router = APIRouter(
 # Note: Once two is set, three MUST be cancelled.
 
 
-def create_recent(cik, company, stamp, backgound: BackgroundTasks = None):
+def create_recent(cik, company, stamp):
     filer_query = {"cik": cik}
     company_name = company["name"]
-
-    if backgound:
-        backgound.add_task(web.estimate_time_newest, cik)
 
     try:
         last_report = company["last_report"]
@@ -89,7 +87,7 @@ def create_recent(cik, company, stamp, backgound: BackgroundTasks = None):
 
         database.add_log(cik, "Queried Filer Recent Stocks", company_name, cik)
     except Exception as e:
-        logging.error(e)
+        report_error(cik, e)
         raise HTTPException(status_code=500, detail="Error getting newest stocks.")
 
     try:
@@ -120,12 +118,12 @@ def create_recent(cik, company, stamp, backgound: BackgroundTasks = None):
         database.add_log(cik, "Updated Filer Recent Stocks", company_name, cik)
         database.edit_status(cik, 2)
     except Exception as e:
+        report_error(cik, e)
         database.edit_filer(
             {"cik": cik}, {"$set": {"market_value": "NA", "update": False}}
         )
         database.add_log(cik, "Failed to Update Filer Recent Stocks", company_name, cik)
         database.edit_status(cik, 2)
-        logging.error(e)
 
     start = stamp["start"]
     stamp = {"time.elapsed": datetime.now().timestamp() - start}
@@ -133,7 +131,7 @@ def create_recent(cik, company, stamp, backgound: BackgroundTasks = None):
     database.add_query_log(cik, "create-latest")
 
 
-def create_historical(cik, company, stamp, background=None):
+def create_historical(cik, company, stamp):
     filer_query = {"cik": cik}
     company_name = company["name"]
     last_report = company["last_report"]
@@ -148,7 +146,7 @@ def create_historical(cik, company, stamp, background=None):
 
         database.add_log(cik, "Queried Filer Historical Stocks", company_name, cik)
     except Exception as e:
-        logging.error(e)
+        report_error(cik, e)
         database.add_log(
             cik, "Failed to Query Filer Historical Stocks", company_name, cik
         )
@@ -188,12 +186,12 @@ def create_historical(cik, company, stamp, background=None):
         database.add_log(cik, "Updated Filer Historical Stocks", company_name, cik)
         database.edit_status(cik, 0)
     except Exception as e:
+        report_error(cik, e)
         database.edit_filer(filer_query, {"$set": {"update": False}})
         database.add_log(
             cik, "Failed to Update Filer Historical Stocks", company_name, cik
         )
         database.edit_status(cik, 0)
-        logging.error(e)
 
     start = stamp["start"]
     stamp = {"time.elapsed": datetime.now().timestamp() - start, "logs": []}
@@ -201,13 +199,13 @@ def create_historical(cik, company, stamp, background=None):
     database.add_query_log(cik, "create-historical")
 
 
-def create_filer(cik, sec_data, background=None):
+def create_filer(cik, sec_data):
     company, stamp = web.initalize_filer(cik, sec_data)
-    create_recent(cik, company, stamp, background)
+    create_recent(cik, company, stamp)
     create_historical(cik, company, stamp)
 
 
-def update_filer(company, background):
+def update_filer(company):
     cik = company["cik"]
     time = datetime.now().timestamp()
 
@@ -229,7 +227,7 @@ def update_filer(company, background):
     database.edit_filer({"cik": cik}, {"$set": {"last_report": last_report}})
 
     stamp = {"name": company["name"], "start": time}
-    background.add_task(create_historical, cik, company, stamp)
+    worker.create_historical.delay(cik, company, stamp)
 
     return {"description": "Filer update started."}
 
@@ -239,7 +237,7 @@ def update_filer(company, background):
     tags=["filers"],
     status_code=201,
 )
-async def query_filer(cik: str, background: BackgroundTasks):
+async def query_filer(cik: str):
     filer = database.find_filer(cik)
     if not filer:
         try:
@@ -248,16 +246,16 @@ async def query_filer(cik: str, background: BackgroundTasks):
             logging.error(e)
             raise HTTPException(404, detail="CIK not found.")
 
-        background.add_task(create_filer, cik, sec_data, background)
+        worker.create_filer.delay(cik, sec_data)
         res = {"description": "Filer creation started."}
     else:
-        res = update_filer(filer, background)
+        res = update_filer(filer)
 
     return res
 
 
 @router.get("/rollback", tags=["filers"], status_code=201, include_in_schema=False)
-async def rollback_filer(cik: str, password: str, background: BackgroundTasks):
+async def rollback_filer(cik: str, password: str):
     filer = database.find_filer(cik, {"last_report": 1})
     if not filer:
         raise HTTPException(404, detail="CIK not found.")
@@ -297,7 +295,7 @@ async def rollback_filer(cik: str, password: str, background: BackgroundTasks):
 
     start = datetime.now().timestamp()
     stamp = {"name": filer["name"], "start": start}
-    background.add_task(create_historical, cik, filer, stamp)
+    worker.create_historical(cik, filer, stamp)
 
     return {"description": "Filer rollback started."}
 
@@ -652,7 +650,7 @@ async def popular_ciks():
     return {"filers": filers_sorted}
 
 
-def create_filer_try(cik, background=None):
+def create_filer_try(cik):
     try:
         filer = database.find_filer(cik)
         if filer is None:
@@ -660,14 +658,14 @@ def create_filer_try(cik, background=None):
                 sec_data = sec_filer_search(cik)
             except Exception:
                 raise HTTPException(status_code=404, detail="CIK not found.")
-            create_filer(cik, sec_data, background)
+            create_filer(cik, sec_data)
         else:
             raise HTTPException(detail="Filer already exists.", status_code=409)
     except Exception as e:
-        logging.info("Error Occured\n", e)
+        report_error(cik, e)
 
 
-def create_filer_replace(cik, background=None):
+def create_filer_replace(cik):
     try:
         filer = database.find_filer(cik, {"_id": 1})
         if filer:
@@ -676,15 +674,10 @@ def create_filer_replace(cik, background=None):
             sec_data = sec_filer_search(cik)
         except Exception:
             raise HTTPException(status_code=404, detail="CIK not found.")
-        create_filer(cik, sec_data, background)
+        create_filer(cik, sec_data)
 
     except Exception as e:
-        stamp = str(datetime.now())
-        cwd = os.getcwd()
-        with open(f"{cwd}/static/errors/error-{stamp}.log", "w") as f:
-            error_string = f"Failed to Query Filer {cik}\n{repr(e)}\n{format_exc()}"
-            f.write(error_string)
-        logging.info("Error Occured\n", e)
+        report_error(cik, e)
 
 
 @router.get("/remove", status_code=200, include_in_schema=False)

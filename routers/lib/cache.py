@@ -17,7 +17,6 @@ if not production_environment:
 
 REDIS_SERVER_URL = os.environ["REDIS_SERVER_URL"]
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 14640))
-logging.info("[ Cache (Redis) Initializing ] ...")
 
 store = redis.Redis(
     host=REDIS_SERVER_URL,
@@ -129,6 +128,3 @@ def cache(_, hours=2):
         return wrapped
 
     return wrapper
-
-
-logging.info("[ Cache (Redis) Initialized ]")

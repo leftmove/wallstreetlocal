@@ -3,19 +3,14 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 import os
-
-from traceback import format_exc
-from datetime import datetime
+import logging
 
 from .lib import database
 from .lib import cache as cm
-
 from .lib.backup import save_collections
 
 from .filer import popular_cik_list, top_cik_list
 from .worker import try_filer, replace_filer, delay_error
-
-environment = os.environ["ENVIRONMENT"]
 
 cache = cm.cache
 router = APIRouter(
@@ -58,7 +53,7 @@ async def health():
             else:
                 health_checks.append(True)
         except Exception as e:
-            create_error(cik, e)
+            logging.error(e)
             health_checks.append(False)
             continue
 
@@ -95,8 +90,7 @@ def background_query(query_type, cik_list, query_function):
             if found_status <= 0:
                 query_function(cik)
         except Exception as e:
-            print(e)
-            create_error(cik, e)
+            logging.error(e)
             continue
 
     cm.set_key_no_expiration(query_type, "stopped")
@@ -126,14 +120,6 @@ async def progressive_restore(password: str):
     background_query("restore", all_ciks, replace_filer.delay)
 
     return {"description": "Started progressive restore of filers."}
-
-
-def create_error(cik, e):
-    stamp = str(datetime.now())
-    cwd = os.getcwd()
-    with open(f"{cwd}/static/errors/error-general-{stamp}.log", "w") as f:
-        error_string = f"Failed to Query Filer {cik}\n{repr(e)}\n{format_exc()}"
-        f.write(error_string)
 
 
 @router.get("/backup", status_code=201)

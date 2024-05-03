@@ -6,7 +6,7 @@ from celery import Celery, signals
 import sentry_sdk
 from sentry_sdk.integrations.celery import CeleryIntegration
 
-from .filer import create_filer_try, create_filer_replace
+from . import filer
 
 REDIS_SERVER_URL = os.environ.get("REDIS_SERVER_URL", "cache")
 REDIS_PORT = os.environ.get("REDIS_PORT", 6379)
@@ -34,13 +34,28 @@ def init_worker(**kwargs):
 
 
 @queue.task
-def try_filer(cik):
-    create_filer_try(cik, False)
+def create_recent(**kwargs):
+    filer.create_recent(**kwargs)
 
 
 @queue.task
-def replace_filer(cik):
-    create_filer_replace(cik, False)
+def create_historical(**kwargs):
+    filer.create_historical(**kwargs)
+
+
+@queue.task
+def create_filer(**kwargs):
+    filer.create_filer(**kwargs)
+
+
+@queue.task
+def try_filer(**kwargs):
+    filer.create_filer_try(**kwargs)
+
+
+@queue.task
+def replace_filer(**kwargs):
+    filer.create_filer_replace(**kwargs)
 
 
 @queue.task

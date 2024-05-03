@@ -1,10 +1,10 @@
-from pymongo import MongoClient
-
 import os
 import logging
-
 from datetime import datetime
 
+import pymongo
+
+MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 production_environment = True if ENVIRONMENT == "production" else False
 if not production_environment:
@@ -12,10 +12,8 @@ if not production_environment:
 
     load_dotenv(".env.development")
 
-MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
-logging.info("[ Database (MongoDB) Initializing ] ...")
 
-client = MongoClient(MONGO_SERVER_URL)
+client = pymongo.MongoClient(MONGO_SERVER_URL)
 db = client["wallstreetlocal"]
 
 logs = db["logs"]
@@ -82,7 +80,7 @@ def search_filer(cik, project={"_id": 0}):
     try:
         result = cursor.next()
         return result
-    except:
+    except StopIteration:
         return None
 
 
@@ -156,7 +154,7 @@ def find_specific_log(query):
 
 
 def add_log(cik, message, name="", identifier=""):
-    if type(message) == dict:
+    if message.isinstance(dict):
         log_string = (
             f'{message["message"]}, ({message["name"]}) ({message["identifier"]})'
         )
@@ -233,11 +231,3 @@ def add_query_log(cik, query):
             statistics.insert_one(query_log)
     except Exception as e:
         logging.error(e)
-
-
-# def search_sec(pipeline):
-#     cursor = companies.aggregate(pipeline)
-#     return cursor
-
-
-logging.info("[ Database (MongoDB) Initialized ]")
