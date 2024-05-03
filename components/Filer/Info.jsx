@@ -15,7 +15,6 @@ const convertTitle = (d) => {
         d = d.replace(
             /(^\w|\s\w)(\S*)/g,
             (_, m1, m2) => {
-                // Check if the word is already in mixed case
                 if (/[a-z][A-Z]|[A-Z][a-z]/.test(m1 + m2)) {
                     return m1 + m2; // Return the original word
                 } else {
@@ -23,7 +22,7 @@ const convertTitle = (d) => {
                 }
             }
         );
-        ["LLC", "LP", "L.P.", "LLP"].forEach((word) => {
+        ["LLC", "LP", "L.P.", "LLP", "N.A."].forEach((word) => {
             d = d.replace(
                 word.at(0).toUpperCase() + word.toLowerCase().slice(1),
                 word
