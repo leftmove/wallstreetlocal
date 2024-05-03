@@ -7,9 +7,10 @@ from traceback import format_exc
 
 import sentry_sdk
 
+TELEMETRY = bool(os.environ.get("TELEMETRY", False))
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 production_environment = True if ENVIRONMENT == "production" else False
-
+run_telemetry = True if TELEMETRY else False
 cwd = os.getcwd()
 
 
@@ -38,7 +39,7 @@ def report_error(cik, e):
     stamp = timestamp()
     error_path = create_path(cik, stamp)
     with open(error_path, "w") as f:
-        if production_environment:
+        if production_environment and run_telemetry:
             sentry_sdk.capture_exception(e)
         error = format_error(e)
         logging.erro(error)

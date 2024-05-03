@@ -26,10 +26,12 @@ MEILI_SERVER_URL = os.environ["MEILI_SERVER_URL"]
 MEILI_MASTER_KEY = os.environ["MEILI_MASTER_KEY"]
 REDIS_SERVER_URL = os.environ["REDIS_SERVER_URL"]
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 14640))
-SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
 DEBUG_CIK = os.environ.get("DEBUG_CIK", "")
+SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
+TELEMETRY = bool(os.environ.get("TELEMETRY", False))
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 production_environment = True if ENVIRONMENT == "production" else False
+run_telemetry = True if TELEMETRY else False
 
 log = logging.getLogger("uvicorn.access")
 log_config = uvicorn.config.LOGGING_CONFIG
@@ -37,7 +39,7 @@ log_config["formatters"]["access"]["fmt"] = (
     "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] - %(message)s"
 )
 
-if production_environment:
+if production_environment and run_telemetry:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         enable_tracing=True,

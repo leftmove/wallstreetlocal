@@ -31,7 +31,13 @@ To run both the development and production builds, you will need to have environ
 
 These three different services allow for the most up-to-date and accurate data, while also avoiding rate-limiting.
 
-#### Development
+#### Telemetry
+
+For telemetry, wallstreetlocal uses [Sentry](https://sentry.io/). You can sign up [here](https://sentry.io/signup/).
+
+_Sentry is a paid service, although it has a free trial. If you are a student, there is also a free upgrade available._
+
+### Development
 
 The development build is mainly made for testing, so it is ideal for self-hosting.
 
@@ -41,6 +47,7 @@ A full list of this app's microservices.
 - MongoDB for the database
 - Redis for cache
 - Meilisearch for search
+- Sentry for telemetry
 
 To run the full app, you need the microservices running through Docker, and the main application running seperately.
 
@@ -100,7 +107,38 @@ networks:
     driver: bridge
 ```
 
-#### Production
+Example `.env` (Development)
+
+```env
+SERVER = "127.0.0.1"
+APP_NAME = "backend"
+ENVIRONMENT = "development"
+ADMIN_PASSWORD = "***********"
+DEBUG_CIK = "1067983"
+
+WORKERS = 1
+HOST = "0.0.0.0"
+EXPOSE_PORT = 8000
+FORWARDED_ALLOW_IPS = "*"
+
+FINN_HUB_API_KEY ="***********"
+ALPHA_VANTAGE_API_KEY ="***********"
+OPEN_FIGI_API_KEY = "***********"
+
+MONGO_SERVER_URL = "mongodb://${SERVER}:27017"
+MONGO_BACKUP_URL = "1LT4xiFJkh6YlAPQDcov8YIKqcvevFlEE"
+
+REDIS_SERVER_URL = "${SERVER}"
+REDIS_PORT = 6379
+
+MEILI_SERVER_URL = "http://${SERVER}:7700"
+MEILI_MASTER_KEY = "***********"
+
+SENTRY_DSN = ""
+TELEMETRY = False
+```
+
+### Production
 
 The production build is made for running at scale, so you may want to do the following things:
 
@@ -149,8 +187,11 @@ services:
       MONGO_SERVER_URL: "database"
       MONGO_BACKUP_URL: "1LT4xiFJkh6YlAPQDcov8YIKqcvevFlEE"
       REDIS_SERVER_URL: "cache"
+      REDIS_PORT: 6379
       MEILI_SERVER_URL: "search"
       MEILI_MASTER_KEY: "***********"
+
+      TELEMETRY: False
 
   cache:
     container_name: cache
@@ -188,7 +229,7 @@ networks:
     name: proxy-network
 ```
 
-#### _If these compose files do not work for you, they are probably outdated. Please write an issue!_
+#### _If these configuration files do not work for you, they are likely outdated. To fix them, please write an issue._
 
 ## License
 
