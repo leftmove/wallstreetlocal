@@ -154,7 +154,7 @@ def find_specific_log(query):
 
 
 def add_log(cik, message, name="", identifier=""):
-    if message.isinstance(dict):
+    if isinstance(message, dict):
         log_string = (
             f'{message["message"]}, ({message["name"]}) ({message["identifier"]})'
         )

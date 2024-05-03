@@ -42,5 +42,5 @@ def report_error(cik, e):
         if production_environment and run_telemetry:
             sentry_sdk.capture_exception(e)
         error = format_error(e)
-        logging.erro(error)
+        logging.error(error)
         f.write(error)
