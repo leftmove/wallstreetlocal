@@ -153,6 +153,9 @@ def find_specific_log(query):
     return result
 
 
+max_logs = 100
+
+
 def add_log(cik, message, name="", identifier=""):
     if isinstance(message, dict):
         log_string = (
@@ -164,8 +167,7 @@ def add_log(cik, message, name="", identifier=""):
         logs.update_one(
             {"cik": cik},
             {
-                "$push": {"logs": {"$each": logs_string}},
-                "$set": {"logs": {"$slice": -100}},
+                "$push": {"logs": {"$each": logs_string, "$slice": -max_logs}},
             },
         )
 
@@ -182,7 +184,7 @@ def add_logs(cik, formatted_logs):
 
     logs.update_one(
         {"cik": cik},
-        {"$push": {"logs": {"$each": logs_split}}, "$set": {"logs": {"$slice": -100}}},
+        {"$push": {"logs": {"$each": logs_split, "$slice": -max_logs}}},
     )
 
 
