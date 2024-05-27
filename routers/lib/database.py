@@ -161,7 +161,13 @@ def add_log(cik, message, name="", identifier=""):
         logs.update_one({"cik": cik}, {"$push": {"logs": log_string}})
     else:
         logs_string = [f"{log} ({name}) ({identifier})" for log in message.split("\n")]
-        logs.update_one({"cik": cik}, {"$push": {"logs": {"$each": logs_string}}})
+        logs.update_one(
+            {"cik": cik},
+            {
+                "$push": {"logs": {"$each": logs_string}},
+                "$set": {"logs": {"$slice": -100}},
+            },
+        )
 
 
 def add_logs(cik, formatted_logs):
@@ -174,7 +180,10 @@ def add_logs(cik, formatted_logs):
             ]
         )
 
-    logs.update_one({"cik": cik}, {"$push": {"logs": {"$each": logs_split}}})
+    logs.update_one(
+        {"cik": cik},
+        {"$push": {"logs": {"$each": logs_split}}, "$set": {"logs": {"$slice": -100}}},
+    )
 
 
 def edit_log(cik, stamp):
