@@ -40,11 +40,9 @@ The problem though, is that these holdings are often cumbersome to access, and v
 
 ## Getting Started
 
-This repository holds the [backend](./backend/) and [frontend](./frontend/) for wallstreetlocal.
+This repository holds the [backend](./backend/) and the [frontend](./frontend/) for wallstreetlocal.
 
-To visit the wallstreetlocal, you can go to [`wallstreetlocal.com`](https://wallstreetlocal.com).
-
-You can also see important resources used to create the site at the [resources](https://www.wallstreetlocal.com/about/resources) page, or view the OpenAPI documentation at the [API](https://content.wallstreetlocal.com/docs) page.
+To visit wallstreetlocal, you can go to [`wallstreetlocal.com`](https://wallstreetlocal.com). You can also see important resources used to create the site at the [resources](https://www.wallstreetlocal.com/about/resources) page, or view the OpenAPI API documentation at the [API](https://content.wallstreetlocal.com/docs) page.
 
 For more information, see the documentation for wallstreetlocal's development stack below.
 
@@ -107,9 +105,9 @@ These three different services allow for the most up-to-date and accurate data, 
 
 #### Telemetry
 
-Although it is reccomended that you turn off telemetry for self-hosting, you can enable telemetry through the `TELEMETRY` environment variable.
+Although it is reccomended that you turn off telemetry for self-hosting, you can enable it through the `TELEMETRY` environment variable.
 
-For telemetry/tracing/logs, wallstreetlocal uses [Sentry](https://sentry.io/). You can sign up [here](https://sentry.io/signup/), or self-host that too.
+For telemetry/tracing/logs, wallstreetlocal uses [Sentry](https://sentry.io/). You can sign up [here](https://sentry.io/signup/), or [self-host](https://develop.sentry.dev/self-hosted/) that too.
 
 #### Development
 
