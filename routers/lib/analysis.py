@@ -787,6 +787,8 @@ def sort_and_format(filer_ciks):
 
 
 def analyze_allocation(cik):
+    start = datetime.now().timestamp()
+
     filing_project = {"access_number": 1, "report_date": 1}
     pipeline = [
         {"$match": {"cik": cik, "form": "13F-HR"}},
@@ -838,6 +840,7 @@ def analyze_allocation(cik):
             else:
                 new_filings[access_number]["stocks"] = []
 
+    allocation_access = []
     allocation_list = []
     for f in new_filings:
         filing = new_filings[f]
@@ -858,6 +861,7 @@ def analyze_allocation(cik):
         for i in industries:
             industries[i]["percentage"] = (industries[i]["count"] / count) * 100
 
+        allocation_access.append(f)
         allocation_list.append(
             {
                 "access_number": f,
@@ -866,18 +870,38 @@ def analyze_allocation(cik):
             }
         )
 
+    end = datetime.now().timestamp()
+    completion = end - start
+
+    allocation_statistic = {
+        "filings": allocation_access,
+    }
+    database.add_statistic(cik, "allocation", allocation_statistic, completion)
+
     return allocation_list
 
 
 def analyze_aum(cik):
+    start = datetime.now().timestamp()
+
     filings = database.find_filings(cik, {"_id": 0, "stocks": 0})
+    aum_access = []
     aum_list = []
     for filing in filings:
+        access_number = filing["access_number"]
+        aum_access.append(access_number)
         aum_list.append(
             {
+                "access_number": access_number,
                 "aum": filing.get("market_value", "NA"),
                 "report_date": filing["report_date"],
             }
         )
+
+    aum_statistic = {"filings": aum_access}
+    end = datetime.now().timestamp()
+
+    completion = end - start
+    database.add_statistic(cik, "aum", aum_statistic, completion)
 
     return aum_list

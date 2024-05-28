@@ -220,10 +220,27 @@ def watch_logs(pipeline):
     return cursor
 
 
-def add_query_log(cik, query):
+def add_statistic(cik, query, statistic, completion):
+    statistic = {
+        "cik": cik,
+        **statistic,
+        "type": query,
+        "completion": completion,
+    }
+    statistics.insert_one(statistic)
+
+
+def add_query_log(cik, query, completion=None):
     try:
-        filer_done = find_filer(cik, {"cik": 1, "name": 1, "_id": 0})
-        filer_log = find_log(cik)
+        filer_done = find_filer(
+            cik,
+            {
+                "cik": 1,
+                "name": 1,
+                "_id": 0,
+            },
+        )
+        filer_log = find_log(cik, {"logs": 0})
         if filer_done and filer_log:
             stock_count = 0
             filings = find_filings(cik)
@@ -232,12 +249,15 @@ def add_query_log(cik, query):
                 for _ in filing_stocks:
                     stock_count += 1
 
+            if not completion:
+                completion = filer_log["time"]["elapsed"]
+
             query_log = {
                 **filer_done,
-                "log": filer_log,
-                "count": stock_count,
                 "type": query,
-                "timestamp": datetime.now().timestamp(),
+                "log": filer_log,
+                "completion": completion,
+                "count": stock_count,
             }
             statistics.insert_one(query_log)
     except Exception as e:
