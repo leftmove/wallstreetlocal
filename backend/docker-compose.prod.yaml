@@ -1,0 +1,74 @@
+version: "3.4"
+
+services:
+  backend:
+    container_name: backend
+    build:
+      dockerfile: Dockerfile.prod
+    restart: always
+    depends_on:
+      - database
+      - cache
+      - search
+    volumes:
+      - ./public:/app/public
+    networks:
+      - proxy-network
+    environment:
+      APP_NAME: "backend"
+      ENVIRONMENT: "production"
+      ADMIN_PASSWORD: "***********"
+
+      WORKERS: 9
+      HOST: "0.0.0.0"
+      EXPOSE_PORT: 8000
+      FORWARDED_ALLOW_IPS: "*"
+
+      FINN_HUB_API_KEY: "***********"
+      ALPHA_VANTAGE_API_KEY: "***********"
+      OPEN_FIGI_API_KEY: "***********"
+
+      MONGO_SERVER_URL: "database"
+      MONGO_BACKUP_URL: "1LT4xiFJkh6YlAPQDcov8YIKqcvevFlEE"
+      REDIS_SERVER_URL: "cache"
+      REDIS_PORT: 6379
+      MEILI_SERVER_URL: "search"
+      MEILI_MASTER_KEY: "***********"
+
+      TELEMETRY: True
+      SENTRY_DSN: "***********"
+
+  cache:
+    container_name: cache
+    build:
+      context: ./cache
+      dockerfile: Dockerfile
+    networks:
+      - proxy-network
+    restart: always
+
+  database:
+    container_name: database
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+    networks:
+      - proxy-network
+    volumes:
+      - ./database/main_db:/data/db
+    restart: always
+
+  search:
+    container_name: search
+    build:
+      context: ./search
+      dockerfile: Dockerfile
+    volumes:
+      - ./search/search_db:/meili_data
+    networks:
+      - proxy-network
+    restart: always
+
+networks:
+  proxy-network:
+    name: proxy-network
