@@ -1,0 +1,8 @@
+FROM mongo:7.0
+
+WORKDIR /data
+
+EXPOSE 27017
+EXPOSE 28017
+
+CMD ["mongod"]
