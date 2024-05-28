@@ -69,7 +69,7 @@ const initialHeaders = [
     accessor: "ownership_str",
     active: false,
     tooltip:
-      "The number of shares owned, divided by the current total of shares that exist, expressed in percent. This value is only accurate recently. ( Shares Owned / Shares Existing )",
+      "The number of shares owned, divided by the current total of shares outstanding, expressed in percent. This value is only accurate the most value of shares outstanding. ( Shares Owned / Shares Existing )",
   },
   {
     display: "Sold Date",
@@ -109,7 +109,7 @@ const initialHeaders = [
     accessor: "gain_str",
     active: true,
     tooltip:
-      "The price paid for the stock subtracted from recent price, and then divided by price paid, expressed in percent. ( Recent Price - Price Paid) / Price Paid )",
+      "The price paid for the stock subtracted from the recent price, and then divided by price paid, expressed in percent. ( ( Recent Price - Price Paid ) / Price Paid )",
   },
   {
     display: "Industry",
