@@ -21,7 +21,7 @@ The problem though, is that these holdings are often cumbersome to access, and v
 - **Large:** With over 850,000 companies archived, any filer registered with the SEC can be queried. Download the database [here](https://drive.google.com/file/d/1LT4xiFJkh6YlAPQDcov8YIKqcvevFlEE/view).
 - **Recent:** View thousands of cached stocks in the database, with accurate and recent data.
 - **Historical:** View filer holdings going back 30+ years in the explorer, or visit the SEC directly.
-- **On-Demand:** Data is queried and stored on user request, and is progressively available for downloading and archiving.
+- **On-Demand:** Data is queried and stored on user request, and is progressively available for download.
 
 ---
 
@@ -40,13 +40,13 @@ The problem though, is that these holdings are often cumbersome to access, and v
 
 ## Getting Started
 
-This repository holds the [backend]("./backend") and [frontend]("./frontend") for wallstreetlocal.
+This repository holds the [backend](./backend/) and [frontend](./frontend/) for wallstreetlocal.
 
 To visit the wallstreetlocal, you can go to [`wallstreetlocal.com`](https://wallstreetlocal.com).
 
 You can also see important resources used to create the site at the [resources](https://www.wallstreetlocal.com/about/resources) page, or view the OpenAPI documentation at the [API](https://content.wallstreetlocal.com/docs) page.
 
-For more information, see the documentation for wallstreetlocal's development stack.
+For more information, see the documentation for wallstreetlocal's development stack below.
 
 - [FastAPI](https://fastapi.tiangolo.com/) for the backend.
 - [NextJS](https://nextjs.org/) for the frontend.
@@ -84,12 +84,13 @@ A production version of the site is hosted at [`wallstreetlocal.com`](https://wa
    Or for a production build, run
 
    ```bash
-   npm run build && npm run start
+   npm run build
+   npm run start
    ```
 
-Once the above steps are completed, the backend should automatically be configured to [`content.wallstreetlocal.com`](https://content.wallstreetlocal.com).
+Once the above steps are completed, the frontend should be hosted at [localhost:3000](http://localhost:3000), with the backend automatically be configured to [`content.wallstreetlocal.com`](https://content.wallstreetlocal.com).
 
-Hosting the frontend alone is the reccomended way to self-host, as there is little hassle, but if you want to self-host the backend too, see [below](#backend).
+Hosting the frontend alone is the reccomended way to self-host, but if you want to self-host the backend too, see [below](#backend).
 
 ### Backend
 
@@ -105,9 +106,9 @@ These three different services allow for the most up-to-date and accurate data, 
 
 #### Telemetry
 
-Although it is reccomended that you turn off telemetry for self-hosting, you can if you want to.
+Although it is reccomended that you turn off telemetry for self-hosting, you can enable telemetry through the `TELEMETRY` environment variable.
 
-For telemetry/tracing/logs, wallstreetlocal uses [Sentry](https://sentry.io/). You can sign up [here](https://sentry.io/signup/), or self-host.
+For telemetry/tracing/logs, wallstreetlocal uses [Sentry](https://sentry.io/). You can sign up [here](https://sentry.io/signup/), or self-host that too.
 
 #### Development
 
@@ -115,7 +116,7 @@ The development build is mainly made for testing, so it is ideal for self-hostin
 
 To run the full app, you need the microservices running through Docker, and the main application running seperately.
 
-You can find the developement compose file [here]("./backend/docker-compose.dev.yaml"). You will also need a `.env` file that can be found [here]("./backend/.env.example")
+You can find the developement compose file [here]("./backend/docker-compose.dev.yaml"). You will also need a `.env` file that can be found [here]("./backend/.env.example").
 
 Once you have all the configuration files ready, to start the app, run the following.
 
@@ -139,7 +140,7 @@ Once you have all the configuration files ready, to start the app, run the follo
 
 #### Production
 
-The production build is made for running at scale, so running it will be more cumbersome.
+The production build is made for deploying at scale, so running it will be more cumbersome.
 
 You can find the compose file [here]("./backend/docker-compose.prod.yaml"). There is no `.env` file though, as all the environment variables are included in the compose file.
 
