@@ -115,7 +115,7 @@ The development build is mainly made for testing, so it is ideal for self-hostin
 
 To run the full app, you need the microservices running through Docker, and the main application running seperately.
 
-You can find the developement compose file [here]("./backend/docker-compose.dev.yaml"). You will also need a `.env` file that can be found [here]("./backend/development.env.example")
+You can find the developement compose file [here]("./backend/docker-compose.dev.yaml"). You will also need a `.env` file that can be found [here]("./backend/.env.example")
 
 Once you have all the configuration files ready, to start the app, run the following.
 
