@@ -50,6 +50,7 @@ For more information, see the documentation for wallstreetlocal's development st
 
 - [FastAPI](https://fastapi.tiangolo.com/) for the backend.
 - [NextJS](https://nextjs.org/) for the frontend.
+- [Celery](https://docs.celeryq.dev/en/stable/getting-started/introduction.html) for long-running, asychronous backend tasks.
 - [Docker](https://docs.docker.com/) for all the different microservices.
 - [MongoDB](https://www.mongodb.com/docs/) for the database.
 - [Redis](https://redis.io/) for caching.
