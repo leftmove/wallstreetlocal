@@ -48,7 +48,7 @@ async def health():
         try:
             found_log = database.find_log(cik, {"status": 1})
             found_status = found_log.get("status", 0)
-            if found_status >= 0:
+            if found_status > 0:
                 health_checks.append(False)
             else:
                 health_checks.append(True)
