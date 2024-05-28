@@ -169,7 +169,7 @@ Once you have all the configuration files ready, to start the app, run the follo
 
 If you feel you can contribute to this project, or you've found a bug, create an issue or pull request.
 
-This project is soley mantained so it is prone to bugs and anti-patterns, please call them out where you see them. All contributions are highly appreciated!
+This project is soley mantained so it is prone to bugs and anti-patterns, please call them out where you see them. [All contributions are highly appreciated!](./CONTRIBUTING.md)
 
 <div align="center">
   <img src="https://api.star-history.com/svg?repos=leftmove/wallstreetlocal,leftmove/pinestreetlocal&type=Date)](https://star-history.com/#leftmove/wallstreetlocal&leftmove/pinestreetlocal&Date" />
