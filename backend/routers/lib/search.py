@@ -18,8 +18,7 @@ def _prepare_meilisearch():
     companies_index = client.index("companies")
     indexes = client.get_indexes()
     if not indexes or "companies" not in [index.uid for index in indexes]:
-        task = client.create_index("companies", {"primaryKey": "cik"})
-        client.wait_for_task(task.task_uid, timeout=None)
+        client.create_index("companies", primary_key="cik")
     companies_index.update_displayed_attributes(
         [
             "name",
