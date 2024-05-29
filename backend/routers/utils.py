@@ -73,7 +73,7 @@ def get_confirm_token(response):
 
 def save_response_content(response, destination, chunk_size):
     with open(destination, "wb") as f:
-        size = (int(response.headers["Content-Length"]) / (10**6)) + (5 * 10**6)
+        size = 530
         mb_chunk = chunk_size / (10**6)
         progress = tqdm(total=size, desc="Downloading Database", unit="mb")
         for i, chunk in enumerate(response.iter_content(chunk_size)):
@@ -109,10 +109,12 @@ def initialize():
     )
 
     client = pymongo.MongoClient(MONGO_SERVER_URL)
-    filers = client["wallstreetlocal"]["filers"]
-    filings = client["wallstreetlocal"]["filings"]
-    logs = client["wallstreetlocal"]["logs"]
-    companies = client["wallstreetlocal"]["companies"]
+    db = client["wallstreetlocal"]
+    filers = db["filers"]
+    filings = db["filings"]
+    logs = db["logs"]
+    statistics = db["statistics"]
+    companies = db["companies"]
     companies_count = 853_000
 
     try:
@@ -289,6 +291,42 @@ def initialize():
             json.dump(data, f)
     except Exception as e:
         print(e)
+
+    print("Calculating Statistics ...")
+    create_latest = statistics.find_many(
+        {"type": "create-latest", "completion": {"$exists": True}}
+    )
+    results = [result for result in create_latest]
+    latest_completitions = [result["completion"] for result in results]
+    latest_total = sum(latest_completitions)
+    latest_count = len(latest_completitions)
+    latest_average = latest_total / latest_count
+    latest_stat = {
+        "count": latest_count,
+        "total": latest_total,
+        "average": latest_average,
+    }
+
+    create_historical = statistics.find_many(
+        {"type": "create-historical", "completion": {"$exists": True}}
+    )
+    results = [result for result in create_historical]
+    historical_completitions = [result["completion"] for result in results]
+    historical_total = sum(historical_completitions)
+    historical_count = len(historical_completitions)
+    historical_average = historical_total / historical_count
+    historical_stat = {
+        "count": historical_count,
+        "total": historical_total,
+        "average": historical_average,
+    }
+
+    statistic = {
+        "latest": latest_stat,
+        "historical": historical_stat,
+    }
+    with open(f"{cwd}/static/statistics.json", "w") as s:
+        json.dump(statistic, s)
 
     print("Starting Worker ...")
     if production_environment:

@@ -37,6 +37,7 @@ urllib3 = "^2.2.1"
 uvicorn = "^0.28.0"
 celery = {extras = ["redis"], version = "^5.4.0"}
 sentry-sdk = {extras = ["celery"], version = "^2.0.1"}
+meilisearch-python-sdk = "^2.9.0"
 
 [tool.poetry.scripts]
 dev = "main"
