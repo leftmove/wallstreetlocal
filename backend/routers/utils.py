@@ -8,7 +8,7 @@ from tqdm import tqdm
 from dotenv import load_dotenv
 
 import redis
-import meilisearch
+import meilisearch_python_sdk
 import pymongo
 import uvicorn
 
@@ -118,14 +118,14 @@ def initialize():
     try:
         retries = 3
         while retries:
-            search = meilisearch.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)
-            search.create_index("companies", {"primaryKey": "cik"})
+            search = meilisearch_python_sdk.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)
+            search.create_index("companies", primary_key="cik")
             companies_index = search.index("companies")
             companies_index.add_documents([{"cik": "TEST"}])
             retries -= 1
         raise RuntimeError  # @IgnoreException
     except RuntimeError:
-        search = meilisearch.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)
+        search = meilisearch_python_sdk.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)
         companies_index = search.index("companies")
 
     store = redis.Redis(
