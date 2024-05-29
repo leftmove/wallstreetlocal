@@ -1,16 +1,16 @@
 import os
 import logging
+
+from dotenv import load_dotenv
 from datetime import datetime
 
 import pymongo
 
+load_dotenv()
+
 MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 production_environment = True if ENVIRONMENT == "production" else False
-if not production_environment:
-    from dotenv import load_dotenv
-
-    load_dotenv(".env.development")
 
 
 client = pymongo.MongoClient(MONGO_SERVER_URL)

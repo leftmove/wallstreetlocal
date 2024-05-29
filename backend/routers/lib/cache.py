@@ -7,13 +7,12 @@ import logging
 from functools import wraps
 from time import time
 from inspect import iscoroutinefunction
+from dotenv import load_dotenv
+
+load_dotenv()
 
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 production_environment = True if ENVIRONMENT == "production" else False
-if not production_environment:
-    from dotenv import load_dotenv
-
-    load_dotenv(".env.development")
 
 REDIS_SERVER_URL = os.environ["REDIS_SERVER_URL"]
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 14640))
