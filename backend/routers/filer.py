@@ -300,12 +300,7 @@ async def rollback_filer(cik: str, password: str):
 @cache(24)
 @router.get("/search", tags=["filers"], status_code=200)
 async def search_filers(q: str, limit: int = 4):
-    options = {"limit": limit, "filter": "thirteen_f = true"}
-    hits = search_companies(q, options)
-
-    results = []
-    for result in hits:
-        results.append(result)
+    hits = await search_companies(q, limit=limit, filter="thirteen_f = true")
 
     return {"description": "Successfully queried 13F filers.", "results": hits}
 
