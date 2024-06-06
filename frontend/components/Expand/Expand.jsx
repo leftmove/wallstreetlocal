@@ -1,10 +1,15 @@
 import { useState } from "react";
 import styles from "./Expand.module.css";
-
 import ExpandSVG from "@/public/static/expand.svg";
+import { FC } from "react";
 
-const Expand = ({ onClick, expandState }) => {
-  const [clickState, setClick] = useState(false);
+interface ExpandProps {
+  onClick: () => void;
+  expandState?: boolean;
+}
+
+const Expand: FC<ExpandProps> = ({ onClick, expandState }) => {
+  const [clickState, setClick] = useState<boolean>(false);
   const click = expandState ? expandState : clickState;
 
   return (
