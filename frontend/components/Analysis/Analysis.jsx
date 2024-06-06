@@ -1,12 +1,18 @@
 import styles from "./Analysis.module.css";
-import { useState } from "react";
+import { useState, ReactNode } from "react";
 
 import FolderIcon from "@/public/static/folder.svg";
 import FilterIcon from "@/public/static/filter.svg";
 
 import { fontLight } from "@fonts";
 
-const Analysis = ({ text = "Analysis", icon = "folder", children }) => {
+type AnalysisProps = {
+  text?: string;
+  icon?: "folder" | "filter";
+  children?: ReactNode;
+};
+
+const Analysis = ({ text = "Analysis", icon = "folder", children }: AnalysisProps) => {
   const [open, setOpen] = useState(false);
   return (
     <div
