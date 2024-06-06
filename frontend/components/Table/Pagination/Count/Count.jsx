@@ -1,11 +1,21 @@
 import styles from "../Pagination.module.css";
-import { useEffect, useState } from "react";
-
+import { useEffect, useState, ChangeEvent, FocusEvent, KeyboardEvent } from "react";
 import { font } from "@fonts";
 
-const Count = (props) => {
+interface Pagination {
+  count: number;
+  limit: number;
+  offset: number;
+}
+
+interface CountProps {
+  pagination: Pagination;
+  skip: (offset: number) => void;
+}
+
+const Count: React.FC<CountProps> = (props) => {
   const pagination = props.pagination;
-  const setOffset = (o) => props.skip(o);
+  const setOffset = (o: number) => props.skip(o);
 
   const totalPageCount = Math.ceil(pagination.count / pagination.limit);
   const realPageCount = Math.floor(pagination.offset / pagination.limit) + 1;
@@ -23,8 +33,8 @@ const Count = (props) => {
     }
     setFocus(false);
   };
-  const handleChange = (e) =>
-    isNaN(e.target.value) ? null : setPageCount(Number(e.target.value));
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) =>
+    isNaN(Number(e.target.value)) ? null : setPageCount(Number(e.target.value));
 
   return (
     <div className={styles["pagination-display"]}>
@@ -38,7 +48,7 @@ const Count = (props) => {
         onChange={(e) => handleChange(e)}
         type="text"
         value={focus ? pageCount : realPageCount}
-        onKeyDown={(e) => (e.key === "Enter" ? e.target.blur() : null)}
+        onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => (e.key === "Enter" ? e.currentTarget.blur() : null)}
       />
       <span className={[styles["pagination-text"], font.className].join(" ")}>
         of {totalPageCount}
