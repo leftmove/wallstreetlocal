@@ -1,7 +1,10 @@
-import styles from "./Footer.module.css";
-import Link from "next/link";
-import { font, fontLight } from "@fonts";
 import React from "react";
+import styles from "./Footer.module.css";
+
+import Link from "next/link";
+
+import { font, fontLight } from "@fonts";
+
 const Footer: React.FC = () => {
   return (
     <div className={styles["footer"]}>

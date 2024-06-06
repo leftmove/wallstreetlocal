@@ -26,7 +26,7 @@ const Filer: FC<FilerProps> = (props) => {
   const continuous = props.continuous;
   const persist = props.persist;
   const tab = props.tab;
-  console.log(cik);
+  
   if (query.building || persist) {
     return <Building cik={cik} persist={persist} />;
   }

@@ -1,12 +1,9 @@
-import { NextConfig } from 'next';
-import { Configuration, RuleSetRule } from 'webpack';
-
-const nextConfig: NextConfig = {
+const nextConfig = {
   reactStrictMode: true,
-  webpack(config: Configuration) {
+  webpack(config) {
     const fileLoaderRule = config.module?.rules?.find((rule) =>
-      (rule as RuleSetRule).test?.test?.(".svg")
-    ) as RuleSetRule;
+      rule.test?.test?.(".svg")
+    );
 
     config.module?.rules?.push(
       {
@@ -30,6 +27,7 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_SERVER: "https://content.wallstreetlocal.com",
   },
   output: "standalone",
+  reactStrictMode: true,
 };
 
 export default nextConfig;
