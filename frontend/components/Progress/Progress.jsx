@@ -12,7 +12,14 @@ import Estimation from "./Estimation/Estimation";
 import Console from "./Console/Console";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
-const logFetcher = (url, cik, start) =>
+
+interface LogFetcherResponse {
+  data: any;
+  status: number;
+  logs?: string[];
+}
+
+const logFetcher = (url: string, cik: string, start: number): Promise<LogFetcherResponse> =>
   axios
     .get(url, {
       params: { cik: cik, start: start },
@@ -25,48 +32,28 @@ const logFetcher = (url, cik, start) =>
       const status = e.response.status;
       const error = new Error(e.data.message);
 
-      error.status = status;
+      (error as any).status = status;
       throw error;
     });
 
-const Progress = (props) => {
-  // const [host, setHost] = useState("localhost:3000");
-  // useEffect(() => {
-  //   setHost(window.location.host);
-  // }, [host]);
+interface ProgressProps {
+  cik: string;
+  name?: string;
+  persist?: boolean;
+}
 
-  // const [logs, pushLog] = useReducer(
-  //   (prev, next) => [...prev, ...next],
-  //   ["Initializing..."]
-  // );
+interface LogState {
+  logs: string[];
+  count: number;
+  wait: boolean;
+}
 
-  // useSWRSubscription(
-  //   `ws://${host}/api/filers/logs?cik=${props.cik}`,
-  //   (key, { next }) => {
-  //     const socket = new WebSocket(key);
-  //     socket.addEventListener("message", ({ data }) => {
-  //       pushLog(data.split("\n"));
-
-  //       if (data.includes("Finished")) {
-  //         return () => socket.close();
-  //       }
-
-  //       return next(null, data);
-  //     });
-  //     socket.addEventListener("error", (event) => next(event.error));
-  //     socket.addEventListener("close", () => {
-  //       setTimeout(() => {
-  //         window.location.reload();
-  //       }, 10 * 1000);
-  //     });
-  //     return () => socket.close();
-  //   }
-  // );
+const Progress: React.FC<ProgressProps> = (props) => {
   const cik = props.cik;
   const name = props.name || null;
   const persist = props.persist || false;
   const [log, addLogs] = useReducer(
-    (prev, next) => {
+    (prev: LogState, next: string[]) => {
       if (next.length === 0) {
         return prev;
       }
@@ -82,7 +69,7 @@ const Progress = (props) => {
         wait: false,
       };
     },
-    { logs: ["Initializing, this may take a while..."], count: 0 }
+    { logs: ["Initializing, this may take a while..."], count: 0, wait: false }
   );
   const [wait, setWait] = useState(false);
   const [stop, setStop] = useState(false);
@@ -122,19 +109,21 @@ const Progress = (props) => {
     }
   }, [data]);
 
-  if (error) {
-    switch (error.status) {
-      case 503:
-        setWait(true);
-        setTimeout(() => {
-          setWait(false), 15 * 1000;
-        });
-        break;
-      case 404:
-        addLogs(["Logs not found, try reloading the page."]);
-        break;
+  useEffect(() => {
+    if (error) {
+      switch ((error as any).status) {
+        case 503:
+          setWait(true);
+          setTimeout(() => {
+            setWait(false), 15 * 1000;
+          });
+          break;
+        case 404:
+          addLogs(["Logs not found, try reloading the page."]);
+          break;
+      }
     }
-  }
+  }, [error]);
 
   return (
     <>
