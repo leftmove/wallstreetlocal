@@ -6,7 +6,13 @@ import { fontLight } from "@fonts";
 
 import useEllipsis from "components/Hooks/useEllipsis";
 
-const Redirect = (props) => {
+interface RedirectProps {
+  cik?: string | null;
+  wait?: number;
+  delay?: number;
+}
+
+const Redirect: React.FC<RedirectProps> = (props) => {
   const cik = props.cik || null;
   const wait = props.wait || 1000;
 
@@ -30,7 +36,7 @@ const Redirect = (props) => {
   );
 };
 
-export async function getServerSideProps(context) {
+export async function getServerSideProps(context: any) {
   const { cik, wait } = context.query;
   return {
     props: { cik, wait },
