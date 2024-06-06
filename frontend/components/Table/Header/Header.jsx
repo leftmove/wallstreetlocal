@@ -5,11 +5,26 @@ import { font } from "@fonts";
 
 import Sort from "./sort.svg";
 
-const Header = (props) => {
+import React from "react";
+
+interface HeaderProps {
+  headers: Header[];
+  sort: string;
+  reverse: boolean;
+  activate: (accessor: string, direction: boolean) => void;
+}
+
+interface Header {
+  display: string;
+  sort: string;
+  active: boolean;
+}
+
+const Header: React.FC<HeaderProps> = (props) => {
   const headers = props.headers;
   const sort = props.sort;
   const reverse = props.reverse;
-  const activateHeader = (accessor, direction) =>
+  const activateHeader = (accessor: string, direction: boolean) =>
     props.activate(accessor, direction);
 
   return (
