@@ -6,7 +6,15 @@ import { font } from "@fonts";
 
 import useEllipsis from "components/Hooks/useEllipsis";
 
-const Unavailable = (props) => {
+import React from "react";
+
+type UnavailableProps = {
+  type?: "stocks" | "loading";
+  cik?: string;
+  text?: string;
+};
+
+const Unavailable: React.FC<UnavailableProps> = (props) => {
   const type = props.type || "stocks";
   const cik = type == "stocks" ? props.cik : null;
   const text = props.text || null;
@@ -25,7 +33,7 @@ const Unavailable = (props) => {
             <Link
               href={
                 "https://www.sec.gov/cgi-bin/browse-edgar?" +
-                new URLSearchParams({ CIK: cik.padStart(10, 0) })
+                new URLSearchParams({ CIK: cik!.padStart(10, "0") })
               }
               className={styles["error-link"]}
               target="_blank"
