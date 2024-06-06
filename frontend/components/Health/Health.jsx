@@ -1,10 +1,11 @@
 import { Toaster, toast } from "sonner";
-
 import { fontLight } from "@fonts";
-
-const Health = (props) => {
+import React from "react";
+type HealthProps = {
+  health?: boolean;
+};
+const Health: React.FC<HealthProps> = (props) => {
   const health = props.health || false;
-
   if (health === false) {
     setTimeout(() => {
       toast.warning(
@@ -12,7 +13,6 @@ const Health = (props) => {
       );
     }, 1000);
   }
-
   return (
     <Toaster
       className={fontLight.className}
@@ -27,5 +27,4 @@ const Health = (props) => {
     />
   );
 };
-
 export default Health;
