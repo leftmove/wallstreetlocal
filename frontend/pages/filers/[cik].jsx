@@ -1,50 +1,54 @@
 import axios from "axios";
-
 import { Provider } from "react-redux";
 import { wrapper } from "@/redux/store";
-
 import Layout from "components/Layouts/Layout";
 import Info from "components/Filer/Info";
 import Other from "components/Filer/Other";
 import Building from "components/Filer/Building";
-
-const Filer = (props) => {
+import { GetServerSideProps } from "next";
+import { FC } from "react";
+interface Query {
+  ok: boolean;
+  building: boolean;
+  continuous: boolean;
+  error: boolean;
+}
+interface FilerProps {
+  query: Query;
+  cik: string | null;
+  continuous: boolean | null;
+  persist: boolean | null;
+  tab: string;
+}
+const Filer: FC<FilerProps> = (props) => {
   const query = props.query;
   const cik = props.cik;
-
   const continuous = props.continuous;
   const persist = props.persist;
   const tab = props.tab;
-
   console.log(cik);
-
   if (query.building || persist) {
     return <Building cik={cik} persist={persist} />;
   }
-
   if (query.ok || query.continuous || continuous) {
     return <Info cik={cik} tab={tab} />;
   }
-
   if (query.error) {
     return <Other />;
   }
 };
-
 const server = process.env.NEXT_PUBLIC_SERVER;
-export async function getServerSideProps(context) {
+export const getServerSideProps: GetServerSideProps = async (context) => {
   const cik = context.query.cik || null;
   const continuous = context.query.continuous || null;
   const persist = context.query.persist || null;
   const tab = context.query.tab || "stocks";
-
-  const query = {
+  const query: Query = {
     ok: false,
     building: false,
     continuous: false,
     error: false,
   };
-
   await axios
     .get(server + "/filers/query", {
       params: { cik },
@@ -71,7 +75,6 @@ export async function getServerSideProps(context) {
       console.error(e);
       query.error = true;
     });
-
   return {
     props: {
       query,
@@ -81,13 +84,11 @@ export async function getServerSideProps(context) {
       continuous,
     },
   };
-}
-
+};
 Filer.getLayout = function getLayout({ Component, ...rest }) {
   const { store, props } = wrapper.useWrappedStore(rest);
   const { cik } = props.pageProps;
   const reduxStore = { ...store, filer: { ...store.filer, cik: cik } };
-
   return (
     <Layout>
       <Provider store={reduxStore}>
@@ -96,5 +97,4 @@ Filer.getLayout = function getLayout({ Component, ...rest }) {
     </Layout>
   );
 };
-
 export default Filer;
