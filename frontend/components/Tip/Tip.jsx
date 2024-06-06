@@ -2,7 +2,12 @@ import styles from "./Tip.module.css";
 
 import { fontLight } from "@fonts";
 
-const Tip = (props) => {
+interface TipProps {
+  top?: number | null;
+  text: string;
+}
+
+const Tip: React.FC<TipProps> = (props) => {
   const top = props.top || null;
   return (
     <span
