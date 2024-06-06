@@ -2,7 +2,23 @@ import tableStyles from "../Table.module.css";
 
 import { font } from "@fonts";
 
-const Row = (props) => {
+interface Header {
+  accessor: string;
+  display: string;
+  active: boolean;
+}
+
+interface Item {
+  cusip: string;
+  [key: string]: any;
+}
+
+interface RowProps {
+  item: Item;
+  headers: Header[];
+}
+
+const Row: React.FC<RowProps> = (props) => {
   const item = props.item;
   const headers = props.headers;
   return (
