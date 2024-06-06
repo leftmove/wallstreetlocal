@@ -18,12 +18,30 @@ import {
 
 import Header from "./Header/Header";
 
-const Headers = (props) => {
+interface HeaderProps {
+  accessor: string;
+  display: string;
+  tooltip: string;
+  active: boolean;
+}
+
+interface HeadersProps {
+  headers: HeaderProps[];
+  sold: boolean;
+  na: boolean;
+  updateDescription: (description: { title: string; text: string }) => void;
+  updateHeaders: (newHeaders: HeaderProps[]) => void;
+  updateActivation: (accessor: string) => void;
+  updateSold: () => void;
+  updateNa: () => void;
+}
+
+const Headers: React.FC<HeadersProps> = (props) => {
   const headers = props.headers;
   const sold = props.sold;
   const na = props.na;
 
-  const [event, setEvent] = useReducer((prev, next) => {
+  const [event, setEvent] = useReducer((prev: any, next: any) => {
     return { ...prev, ...next };
   }, {});
   const sensors = useSensors(
@@ -40,21 +58,21 @@ const Headers = (props) => {
     })
   );
 
-  const [delayHandler, setDelayHandler] = useState(null);
+  const [delayHandler, setDelayHandler] = useState<NodeJS.Timeout | null>(null);
   const count = headers.length;
 
-  const updateDescription = (description) =>
+  const updateDescription = (description: { title: string; text: string }) =>
     props.updateDescription(description);
-  const updateHeaders = (newHeaders) => props.updateHeaders(newHeaders);
-  const updateActivation = (accessor) => props.updateActivation(accessor);
+  const updateHeaders = (newHeaders: HeaderProps[]) => props.updateHeaders(newHeaders);
+  const updateActivation = (accessor: string) => props.updateActivation(accessor);
   const updateSold = () => props.updateSold();
   const updateNa = () => props.updateNa();
 
-  const handleDragStart = (e) => {
+  const handleDragStart = (e: any) => {
     const header = headers.find((h) => h.accessor === e.active.id);
     setEvent({ ...e, dragging: true, header });
   };
-  const handleDragEnd = (e) => {
+  const handleDragEnd = (e: any) => {
     const active = e.active;
     const over = e.over;
 
@@ -73,11 +91,11 @@ const Headers = (props) => {
     updateHeaders(updatedHeaders);
   };
 
-  const handleMouseEnter = (event, title, text) => {
+  const handleMouseEnter = (event: React.MouseEvent, title: string, text: string) => {
     setDelayHandler(setTimeout(() => updateDescription({ title, text }), 300));
   };
   const handleMouseLeave = () => {
-    clearTimeout(delayHandler);
+    clearTimeout(delayHandler!);
   };
   return (
     <div className={styles["headers-everything"]}>
