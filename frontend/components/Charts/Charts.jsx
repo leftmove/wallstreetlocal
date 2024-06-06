@@ -2,7 +2,7 @@ import styles from "./Charts.module.css";
 
 // import Allocation from "./Allocation/Allocation";
 
-const Charts = () => {
+const Charts: React.FC = () => {
   return (
     <>
       <div className={styles["charts-overall"]}>
