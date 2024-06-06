@@ -8,7 +8,32 @@ import Router from "next/router";
 import * as NProgress from "nprogress";
 import * as React from "react";
 
-const NextNProgress = ({
+type NProgressOptions = {
+  minimum?: number;
+  easing?: string;
+  speed?: number;
+  trickle?: boolean;
+  trickleSpeed?: number;
+  showSpinner?: boolean;
+  barSelector?: string;
+  spinnerSelector?: string;
+  parent?: string;
+  template?: string;
+};
+
+type NextNProgressProps = {
+  color?: string;
+  displaySpinner?: boolean;
+  startPosition?: number;
+  stopDelayMs?: number;
+  height?: number;
+  showOnShallow?: boolean;
+  options?: NProgressOptions;
+  nonce?: string;
+  transformCSS?: (css: string) => JSX.Element;
+};
+
+const NextNProgress: React.FC<NextNProgressProps> = ({
   color = "var(--primary-dark)",
   displaySpinner = false,
   startPosition = 0.3,
@@ -19,7 +44,7 @@ const NextNProgress = ({
   nonce,
   transformCSS = (css) => <style nonce={nonce}>{css}</style>,
 }) => {
-  let timer = null;
+  let timer: NodeJS.Timeout | null = null;
 
   React.useEffect(() => {
     if (options) {
@@ -35,14 +60,14 @@ const NextNProgress = ({
     };
   }, []);
 
-  const routeChangeStart = (_, { shallow }) => {
+  const routeChangeStart = (_: string, { shallow }: { shallow: boolean }) => {
     if (!shallow || showOnShallow) {
       NProgress.set(startPosition);
       NProgress.start();
     }
   };
 
-  const routeChangeEnd = (_, { shallow }) => {
+  const routeChangeEnd = (_: string, { shallow }: { shallow: boolean }) => {
     if (!shallow || showOnShallow) {
       if (timer) clearTimeout(timer);
       timer = setTimeout(() => {
@@ -51,7 +76,7 @@ const NextNProgress = ({
     }
   };
 
-  const routeChangeError = (_err, _url, { shallow }) => {
+  const routeChangeError = (_err: Error, _url: string, { shallow }: { shallow: boolean }) => {
     if (!shallow || showOnShallow) {
       if (timer) clearTimeout(timer);
       timer = setTimeout(() => {
