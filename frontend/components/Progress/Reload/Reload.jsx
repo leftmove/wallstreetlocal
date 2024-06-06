@@ -1,12 +1,14 @@
 import styles from "./Reload.module.css";
 import { useEffect } from "react";
-
 import { useRouter } from "next/router";
 import { fontLight } from "@fonts";
-
 import useEllipsis from "components/Hooks/useEllipsis";
 
-const Reload = (props) => {
+interface ReloadProps {
+  delay?: number;
+}
+
+const Reload: React.FC<ReloadProps> = (props) => {
   const router = useRouter();
   const { ellipsis } = useEllipsis();
   useEffect(() => {
