@@ -25,7 +25,7 @@ const tooltipStyles = {
 const data = cityTemperature.slice(0, 12);
 const keys = Object.keys(data[0]).filter((d) => d !== "date");
 
-const temperatureTotals = data.reduce((allTotals, currentDate) => {
+const temperatureTotals = data.reduce((allTotals: number[], currentDate: any) => {
   const totalTemperature = keys.reduce((dailyTotal, k) => {
     dailyTotal += Number(currentDate[k]);
     return dailyTotal;
@@ -36,28 +36,35 @@ const temperatureTotals = data.reduce((allTotals, currentDate) => {
 
 const parseDate = timeParse("%Y-%m-%d");
 const format = timeFormat("%b %d");
-const formatDate = (date) => format(parseDate(date));
+const formatDate = (date: string) => format(parseDate(date) as Date);
 
 // accessors
-const getDate = (d) => d.date;
+const getDate = (d: any) => d.date;
 
 // scales
-const dateScale = scaleBand({
+const dateScale = scaleBand<string>({
   domain: data.map(getDate),
   padding: 0.2,
 });
-const temperatureScale = scaleLinear({
+const temperatureScale = scaleLinear<number>({
   domain: [0, Math.max(...temperatureTotals)],
   nice: true,
 });
-const colorScale = scaleOrdinal({
+const colorScale = scaleOrdinal<string, string>({
   domain: keys,
   range: [purple1, purple2, purple3],
 });
 
-let tooltipTimeout;
+let tooltipTimeout: number;
 
-const Allocation = ({
+interface AllocationProps {
+  width: number;
+  height: number;
+  events?: boolean;
+  margin?: { top: number; right: number; bottom: number; left: number };
+}
+
+const Allocation: React.FC<AllocationProps> = ({
   width,
   height,
   events = false,
