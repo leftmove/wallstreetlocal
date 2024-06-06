@@ -1,6 +1,5 @@
 import styles from "./Select.module.css";
 import { useState } from "react";
-
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectCik,
@@ -8,25 +7,43 @@ import {
   selectSecondary,
   editComparison,
 } from "@/redux/filerSlice";
-
 import { font, fontLight } from "components/fonts";
-
 import Headers from "components/Headers/Headers";
 import Record from "./Record/Record";
 import Picker from "./Picker/Picker";
 import Source from "components/Source/Source";
 
-const Select = (props) => {
+interface SelectProps {
+  type: "primary" | "secondary";
+  setDescription: (description: string) => void;
+}
+
+interface Header {
+  accessor: string;
+  active: boolean;
+}
+
+interface Selected {
+  headers: Header[];
+  access: string;
+  report?: { date: string };
+  filing?: { date: string };
+  value: string;
+  sort: { sold: boolean; na: boolean };
+}
+
+const Select: React.FC<SelectProps> = (props) => {
   const dispatch = useDispatch();
   const type = props.type;
   const cik = useSelector(selectCik);
-  const selected = useSelector(
-    type === "secondary" ? selectSecondary : selectPrimary );
+  const selected: Selected = useSelector(
+    type === "secondary" ? selectSecondary : selectPrimary
+  );
   const headers = selected.headers;
 
-  const updateHeaders = (h) => dispatch(editComparison({ type, headers: h }));
-  const updateDescription = (d) => props.setDescription(d);
-  const updateActivation = (a) =>
+  const updateHeaders = (h: Header[]) => dispatch(editComparison({ type, headers: h }));
+  const updateDescription = (d: string) => props.setDescription(d);
+  const updateActivation = (a: string) =>
     dispatch(
       editComparison({
         type,
