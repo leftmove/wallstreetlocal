@@ -1,43 +1,51 @@
 import styles from "./Recommended.module.css";
 import { useEffect, useState } from "react";
-
 import axios from "axios";
-
 import Link from "next/link";
-
 import { font } from "@fonts";
-
 import { convertTitle } from "components/Filer/Info";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
-const Recommended = (props) => {
+
+interface Filer {
+  cik: string;
+  name: string;
+  title?: string;
+}
+
+interface RecommendedProps {
+  variant?: "default" | "homepage";
+  className?: string;
+}
+
+const Recommended: React.FC<RecommendedProps> = (props) => {
   const variant = props.variant || "default";
   const [show, setShow] = useState(false);
-  const [topFilers, setTopFilers] = useState([]);
-  const [searchedFilers, setSearchedFilers] = useState([]);
+  const [topFilers, setTopFilers] = useState<Filer[]>([]);
+  const [searchedFilers, setSearchedFilers] = useState<Filer[]>([]);
+
   useEffect(() => {
-    topFilers == []
+    topFilers.length === 0
       ? null
       : axios
           .get(server + "/filers/top")
           .then((r) => r.data)
-          .then((data) => setTopFilers(data.filers || null));
-    searchedFilers == []
+          .then((data) => setTopFilers(data.filers || []));
+
+    searchedFilers.length === 0
       ? null
       : axios
           .get(server + "/filers/searched")
           .then((r) => r.data)
-          .then((data) => setSearchedFilers(data.filers || null));
+          .then((data) => setSearchedFilers(data.filers || []));
 
-    window.addEventListener(
-      "scroll",
-      () => {
-        setShow(true);
-      },
-      true
-    );
-    return () => window.removeEventListener("scroll", () => {}, true);
-  }, []);
+    const handleScroll = () => {
+      setShow(true);
+    };
+
+    window.addEventListener("scroll", handleScroll, true);
+    return () => window.removeEventListener("scroll", handleScroll, true);
+  }, [topFilers, searchedFilers]);
 
   return (
     <div
@@ -98,4 +106,5 @@ const Recommended = (props) => {
     </div>
   );
 };
+
 export default Recommended;
