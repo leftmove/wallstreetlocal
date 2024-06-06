@@ -18,7 +18,11 @@ import FolderIcon from "@/images/folder.svg";
 import FileIcon from "@/images/file.svg";
 import BookIcon from "@/images/book.svg";
 
-export default function Home(props) {
+interface HomeProps {
+  health: boolean;
+}
+
+export default function Home(props: HomeProps) {
   return (
     <>
       <Head>
@@ -169,7 +173,7 @@ export async function getServerSideProps() {
   };
 }
 
-Home.getLayout = ({ Component, pageProps }) => (
+Home.getLayout = ({ Component, pageProps }: { Component: any; pageProps: any }) => (
   <Layout>
     <Component {...pageProps} />
   </Layout>
