@@ -7,7 +7,7 @@ import MailSVG from "@/images/envelope.svg";
 import DiscordSVG from "@/images/discord.svg";
 import LinkedInSVG from "@/images/linkedin.svg";
 
-export default function Contact() {
+export default function Contact(): JSX.Element {
   return (
     <>
       <Head>
