@@ -2,14 +2,41 @@ import axios from "axios";
 import useSWR from "swr";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
+
+interface Selected {
+  sort: Sort;
+  stocks: Stock[];
+  access: string;
+  headers: string[];
+}
+
+interface Sort {
+  sort: string;
+  reverse: boolean;
+}
+
+interface Stock {
+  cusip: string;
+  [key: string]: any;
+}
+
+interface StockFetcherParams {
+  pagination: number;
+  sort: string;
+  offset: number;
+  reverse: boolean;
+  sold: boolean;
+  na: boolean;
+}
+
 const useFilingStocks = (
-  cik,
-  selected,
-  setCount,
-  setStocks,
-  activate,
-  skip,
-  paginate
+  cik: string,
+  selected: Selected,
+  setCount: (count: number) => void,
+  setStocks: (stocks: Stock[]) => void,
+  activate: boolean,
+  skip: boolean,
+  paginate: boolean
 ) => {
   const sort = selected.sort;
   const stocks = selected.stocks;
@@ -18,10 +45,10 @@ const useFilingStocks = (
   const pagination = selected.sort;
 
   const stockFetcher = (
-    url,
-    cik,
-    access,
-    { pagination, sort, offset, reverse, sold, na }
+    url: string,
+    cik: string,
+    access: string,
+    { pagination, sort, offset, reverse, sold, na }: StockFetcherParams
   ) =>
     axios
       .get(url, {
@@ -50,6 +77,7 @@ const useFilingStocks = (
         }
       })
       .catch((e) => console.error(e));
+
   const { isLoading: loading, error } = useSWR(
     cik && access ? [server + "/stocks/filing", cik, access, sort] : null,
     ([url, cik, access, sort]) => stockFetcher(url, cik, access, sort),
