@@ -5,6 +5,7 @@ type FontWeight = "700" | "800" | "900";
 interface FontOptions {
     weight: FontWeight;
     subsets: string[];
+    className: string;
 }
 
 const font: FontOptions = Inter({ weight: "800", subsets: ["latin"] });
