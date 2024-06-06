@@ -10,7 +10,7 @@ import Charts from "components/Charts/Charts";
 import Explorer from "components/Explorer/Explorer";
 import Header from "components/Header/Header";
 
-const convertTitle = (d) => {
+const convertTitle = (d: string | null): string | null => {
     if (d) {
         d = d.replace(
             /(^\w|\s\w)(\S*)/g,
@@ -32,9 +32,21 @@ const convertTitle = (d) => {
     return d;
 };
 
-const Info = (props) => {
+interface InfoProps {
+  cik?: string | null;
+  tab?: TabType;
+}
+
+enum TabType {
+  RECENT = "recent",
+  FILINGS = "filings",
+  CHARTS = "charts",
+  STOCKS = "stocks"
+}
+
+const Info: React.FC<InfoProps> = (props) => {
   const cik = props.cik || null;
-  const tab = props.tab || "recent";
+  const tab = props.tab || TabType.RECENT;
   const titleText = `Filers - ${cik}`;
 
   return (
@@ -45,9 +57,9 @@ const Info = (props) => {
       <Header cik={cik} tab={tab} />
       <Tabs />
       <div className={styles.data}>
-        {tab === "filings" ? <Explorer /> : null}
-        {/* {tab === "charts" ? <Charts /> : null} */}
-        {tab === "stocks" ? <Index /> : null}
+        {tab === TabType.FILINGS ? <Explorer /> : null}
+        {/* {tab === TabType.CHARTS ? <Charts /> : null} */}
+        {tab === TabType.STOCKS ? <Index /> : null}
       </div>
     </>
   );
