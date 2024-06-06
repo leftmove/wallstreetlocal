@@ -1,22 +1,18 @@
 import styles from "./Estimation.module.css";
-
 import { useEffect, useState } from "react";
-
 import axios from "axios";
 import useSWR from "swr";
-
 import { fontLight } from "@fonts";
-
 import useEllipsis from "components/Hooks/useEllipsis";
 import useInterval from "components/Hooks/useInterval";
 
-const fetcher = (url, cik) =>
+const fetcher = (url: string, cik: string): Promise<any> =>
   axios
     .get(url, { params: { cik: cik } })
     .then((r) => r.data)
     .catch((e) => console.log(e));
 
-const secondsToDhms = (seconds) => {
+const secondsToDhms = (seconds: number): string => {
   seconds = Number(seconds);
 
   const d = Math.floor(seconds / (3600 * 24));
@@ -32,7 +28,18 @@ const secondsToDhms = (seconds) => {
 };
 
 const server = process.env.NEXT_PUBLIC_SERVER;
-const Estimation = (props) => {
+
+interface EstimationProps {
+  cik: string;
+}
+
+interface TimeState {
+  confirmed: number;
+  estimated: number;
+  status: number;
+}
+
+const Estimation = (props: EstimationProps): JSX.Element => {
   const cik = props.cik;
   const {
     data,
@@ -45,7 +52,7 @@ const Estimation = (props) => {
       refreshInterval: 10000,
     }
   );
-  const [time, setTime] = useState({
+  const [time, setTime] = useState<TimeState>({
     confirmed: 0,
     estimated: 0,
     status: 2,
@@ -56,6 +63,7 @@ const Estimation = (props) => {
   useInterval(() => {
     setTime({ ...time, estimated: time.estimated - 1 });
   }, 1000);
+
   useEffect(() => {
     if (data) {
       const estimation = data?.time;
