@@ -6,18 +6,30 @@ import Row from "./Row/Row";
 import Header from "./Header/Header";
 import Pagination from "./Pagination/Pagination";
 
-const Table = (props) => {
+type TableProps = {
+  items: Array<{ id: string; [key: string]: any }>;
+  loading?: boolean;
+  headers: Array<string>;
+  sort: string;
+  reverse: boolean;
+  activate: (accessor: string, direction: boolean) => void;
+  pagination: { sold: boolean; na: boolean; [key: string]: any };
+  paginate: (p: number) => void;
+  skip: (o: number) => void;
+};
+
+const Table: React.FC<TableProps> = (props) => {
   const items = props.items;
   const loading = props.loading || false;
 
   const headers = props.headers;
   const sort = props.sort;
   const reverse = props.reverse;
-  const activate = (accessor, direction) => props.activate(accessor, direction);
+  const activate = (accessor: string, direction: boolean) => props.activate(accessor, direction);
 
   const pagination = props.pagination;
-  const paginate = (p) => props.paginate(p);
-  const skip = (o) => props.skip(o);
+  const paginate = (p: number) => props.paginate(p);
+  const skip = (o: number) => props.skip(o);
 
   return (
     <>
