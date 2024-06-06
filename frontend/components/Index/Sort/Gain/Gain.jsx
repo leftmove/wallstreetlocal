@@ -1,6 +1,7 @@
+ 
 import styles from "./Gain.module.css";
 import { useReducer } from "react";
-
+import { useDispatch, useSelector } from "react-redux";
 import {
   selectDates,
   updateDates,
@@ -8,8 +9,6 @@ import {
   openDate,
   removeDate,
 } from "@/redux/filerSlice";
-import { useDispatch, useSelector } from "react-redux";
-
 import {
   DndContext,
   DragOverlay,
@@ -24,19 +23,35 @@ import {
   horizontalListSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
-
 import Select from "./Select/Select";
 import Plus from "./Droppable/Plus";
 import Trash from "./Droppable/Trash";
 import Tip from "components/Tip/Tip";
 
-const Gain = () => {
-  const dates = useSelector(selectDates);
+interface DateType {
+  id: string;
+  accessor: string;
+  // Add other properties as needed
+}
+
+interface EventType {
+  active: { id: string };
+  over?: { id: string };
+  dragging?: boolean;
+  date?: DateType | null;
+}
+
+const Gain: React.FC = () => {
+  const dates = useSelector(selectDates) as DateType[];
   const dispatch = useDispatch();
 
-  const [event, setEvent] = useReducer((prev, next) => {
-    return { ...prev, ...next };
-  }, {});
+  const [event, setEvent] = useReducer(
+    (prev: EventType, next: Partial<EventType>) => {
+      return { ...prev, ...next };
+    },
+    {} as EventType
+  );
+
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: {
@@ -51,13 +66,14 @@ const Gain = () => {
     })
   );
 
-  const handleDragStart = (e) => {
+  const handleDragStart = (e: EventType) => {
     const date = dates.find((date) => date.id === e.active.id);
 
-    setEvent({ ...e, dragging: true, date: date });
+    setEvent({ ...e, dragging: true, date: date || null });
     dispatch(openDate({ accessor: e.active.id, open: false }));
   };
-  const handleDragEnd = (e) => {
+
+  const handleDragEnd = (e: EventType) => {
     const active = e.active;
     const over = e.over;
 
@@ -131,4 +147,5 @@ const Gain = () => {
     </div>
   );
 };
+
 export default Gain;
