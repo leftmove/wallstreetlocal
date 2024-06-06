@@ -8,14 +8,31 @@ import axios from "axios";
 import { font } from "@fonts";
 import { convertTitle } from "components/Filer/Info";
 
-const headers = [
+interface Header {
+  display: string;
+  accessor: string;
+}
+
+interface Filer {
+  name: string;
+  cik: string;
+  market_value: string;
+  date: string;
+  [key: string]: any;
+}
+
+interface TopProps {
+  filers: Filer[];
+}
+
+const headers: Header[] = [
   { display: "Name", accessor: "name" },
   { display: "CIK", accessor: "cik" },
   { display: "Assets Under Management", accessor: "market_value" },
   { display: "Last Updated", accessor: "date" },
 ];
 
-const Top = (props) => {
+const Top: React.FC<TopProps> = (props) => {
   return (
     <>
       <Head>
