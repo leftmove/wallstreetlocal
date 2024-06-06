@@ -1,9 +1,8 @@
 import styles from "./Footer.module.css";
-
 import Link from "next/link";
 import { font, fontLight } from "@fonts";
-
-const Footer = () => {
+import React from "react";
+const Footer: React.FC = () => {
   return (
     <div className={styles["footer"]}>
       <div className={styles["logo"]}>
@@ -35,5 +34,4 @@ const Footer = () => {
     </div>
   );
 };
-
 export default Footer;
