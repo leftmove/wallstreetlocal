@@ -7,14 +7,20 @@ import { selectTab, setTab } from "@/redux/filerSlice";
 
 import { font, fontLight } from "@fonts";
 
-const Tab = (props) => {
-  const id = props.id;
-  const tab = props.tab;
-  const index = props.index + 1;
-  const handleTab = props.handleTab;
+import React from "react";
 
-  const length = props.length;
-  const hint = props.hint || null;
+interface TabProps {
+  id: string;
+  tab: string;
+  index: number;
+  handleTab: (id: string) => void;
+  length: number;
+  hint?: string | null;
+  title: string;
+}
+
+const Tab: React.FC<TabProps> = (props) => {
+  const { id, tab, index, handleTab, length, hint, title } = props;
   return (
     <div className={styles["tab-container"]}>
       <div
@@ -27,7 +33,7 @@ const Tab = (props) => {
         ].join(" ")}
         onClick={() => handleTab(id)}
       >
-        {props.title}
+        {title}
       </div>
       {hint ? (
         <span className={[styles["tab-tip"], fontLight.className].join(" ")}>
@@ -38,18 +44,24 @@ const Tab = (props) => {
   );
 };
 
-const tabs = [
+interface TabData {
+  title: string;
+  hint: string;
+  id: string;
+}
+
+const tabs: TabData[] = [
   { title: "Stocks", hint: "Table", id: "stocks" },
   // { title: "Charts", hint: "Graphs", id: "charts" },
   { title: "Filings", hint: "Comparisons", id: "filings" },
 ];
 
-const Tabs = () => {
+const Tabs: React.FC = () => {
   const tab = useSelector(selectTab);
   const dispatch = useDispatch();
 
   const router = useRouter();
-  const handleTab = (value) => {
+  const handleTab = (value: string) => {
     router.query.tab = value;
     router.push(router);
     dispatch(setTab(value));
