@@ -5,7 +5,24 @@ import { font } from "@fonts";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-const Header = (props) => {
+import React from "react";
+
+interface HeaderProps {
+  header: HeaderType;
+  activate: () => void;
+  fixed?: boolean;
+  count?: number;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+}
+
+interface HeaderType {
+  accessor: string;
+  display: string;
+  active: boolean;
+}
+
+const Header: React.FC<HeaderProps> = (props) => {
   const header = props.header;
   const activate = props.activate;
   const fixed = props.fixed || false;
