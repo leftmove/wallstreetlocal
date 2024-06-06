@@ -1,7 +1,14 @@
 import { Inter } from "@next/font/google";
 
-const font = Inter({ weight: "800", subsets: ["latin"] });
-const fontBold = Inter({ weight: "900", subsets: ["latin"] });
-const fontLight = Inter({ weight: "700", subsets: ["latin"] });
+type FontWeight = "700" | "800" | "900";
+
+interface FontOptions {
+    weight: FontWeight;
+    subsets: string[];
+}
+
+const font: FontOptions = Inter({ weight: "800", subsets: ["latin"] });
+const fontBold: FontOptions = Inter({ weight: "900", subsets: ["latin"] });
+const fontLight: FontOptions = Inter({ weight: "700", subsets: ["latin"] });
 
 export { font, fontBold, fontLight };
