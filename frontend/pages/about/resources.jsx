@@ -1,15 +1,14 @@
 import styles from "@/styles/Resources.module.css";
-
 import Head from "next/head";
 import Link from "next/link";
 import { font } from "@fonts";
-
-export default function Resources() {
+import React from "react";
+export default function Resources(): JSX.Element {
   return (
     <>
       <Head>
         <title>wallstreetlocal | Resources</title>
-      </Head>{" "}
+      </Head>
       <div className={styles["resources"]}>
         <div className={styles["resources-head"]}>
           <h1
