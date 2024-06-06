@@ -7,8 +7,17 @@ import { removeDate } from "@/redux/filerSlice";
 
 import TrashSVG from "./trash.svg";
 
-const Trash = (props) => {
-  const event = props.event;
+interface TrashProps {
+  event: {
+    dragging: boolean;
+    over?: {
+      id: string;
+    };
+  };
+}
+
+const Trash: React.FC<TrashProps> = (props) => {
+  const { event } = props;
   const dispatch = useDispatch();
 
   const id = "trash";
@@ -20,7 +29,7 @@ const Trash = (props) => {
         className={[
           styles["drop-button"],
           event.dragging ? styles["drop-button-drag"] : "",
-          // event.dragging && event.over.id === id
+          // event.dragging && event.over?.id === id
           //   ? styles["drop-button-over"]
           //   : "",
         ].join(" ")}
