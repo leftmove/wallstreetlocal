@@ -6,16 +6,27 @@ import { font } from "@fonts";
 import Search from "components/Search/Button/Search";
 import Bar from "components/Bar/Bar";
 
-const Item = ({ link, text, tab }) => (
+interface ItemProps {
+  link: string;
+  text: string;
+  tab?: boolean;
+}
+
+const Item: React.FC<ItemProps> = ({ link, text, tab }) => (
   <li className={styles["item"] + " " + font.className}>
-    <Link href={link} target={tab ? "_blank" : null}>
+    <Link href={link} target={tab ? "_blank" : undefined}>
       {text}
     </Link>
   </li>
 );
 
 const server = process.env.NEXT_PUBLIC_SERVER;
-const Navigation = (props) => {
+
+interface NavigationProps {
+  variant?: "home" | string;
+}
+
+const Navigation: React.FC<NavigationProps> = (props) => {
   const variant = props.variant || null;
   return (
     <>
