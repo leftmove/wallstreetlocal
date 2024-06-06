@@ -2,7 +2,9 @@ import styles from "@/styles/Fill.module.css";
 
 import { font } from "@fonts";
 
-export default function MobileLayout() {
+import React from "react";
+
+export default function MobileLayout(): JSX.Element {
   return (
     <div className={styles.fill}>
       <span className={font.className}>
