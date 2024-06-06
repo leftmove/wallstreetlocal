@@ -1,8 +1,14 @@
-import { createSlice, createSelector } from "@reduxjs/toolkit";
+import { createSlice, createSelector, PayloadAction } from "@reduxjs/toolkit";
 import { HYDRATE } from "next-redux-wrapper";
-
-const initialDate = new Date();
-const initialHeaders = [
+const initialDate: Date = new Date();
+interface Header {
+  display: string;
+  sort: string;
+  accessor: string;
+  active: boolean;
+  tooltip: string;
+}
+const initialHeaders: Header[] = [
   {
     display: "Ticker",
     sort: "ticker",
@@ -128,7 +134,7 @@ const initialHeaders = [
       "The report date listed on the SEC filing this stock was taken from.",
   },
 ];
-const initialComparisons = initialHeaders.map((h) => {
+const initialComparisons: Header[] = initialHeaders.map((h) => {
   switch (h.sort) {
     case "buy_price":
       return { ...h, active: false };
@@ -140,7 +146,19 @@ const initialComparisons = initialHeaders.map((h) => {
       return h;
   }
 });
-const initialSort = {
+interface Sort {
+  sort: string;
+  type: string;
+  set: boolean;
+  na: boolean;
+  sold: boolean;
+  reverse: boolean;
+  pagination: number;
+  limit: number;
+  count: number;
+  offset: number;
+}
+const initialSort: Sort = {
   sort: "ticker",
   type: "string",
   set: true,
@@ -152,7 +170,47 @@ const initialSort = {
   count: 0,
   offset: 0,
 };
-const initialState = {
+interface Filing {
+  time: number;
+  date: string;
+}
+interface Comparison {
+  type: string;
+  access: string;
+  filing: Filing;
+  report: Filing;
+  headers: Header[];
+  sort: Sort;
+  stocks: any[];
+}
+interface Timeline {
+  comparisons: Comparison[];
+  open: boolean;
+}
+interface DateState {
+  year: number;
+  month: number;
+  day: number;
+  timestamp: number;
+  open: boolean;
+  accessor: string;
+}
+interface State {
+  cik: string;
+  value: any[];
+  headers: Header[];
+  tab: string;
+  sort: Sort;
+  filings: any[];
+  timeline: Timeline;
+  difference: {
+    headers: Header[];
+    sort: Sort;
+    stocks: any[];
+  };
+  dates: DateState[];
+}
+const initialState: State = {
   cik: "",
   value: [],
   headers: initialHeaders,
@@ -179,10 +237,14 @@ const initialState = {
       {
         type: "secondary",
         access: "",
-        filingTime: 0,
-        reportTime: 0,
-        filingDate: "",
-        reportDate: "",
+        filing: {
+          time: 0,
+          date: "",
+        },
+        report: {
+          time: 0,
+          date: "",
+        },
         headers: initialComparisons,
         sort: initialSort,
         stocks: [],
@@ -206,35 +268,31 @@ const initialState = {
     },
   ],
 };
-
 export const filerSlice = createSlice({
   name: "filer",
   initialState,
   reducers: {
-    setCik(state, action) {
+    setCik(state, action: PayloadAction<string>) {
       Object.keys(initialState).map((k) => {
         state[k] = initialState[k];
       });
       state.cik = action.payload;
-
       return state;
     },
-    setTab(state, action) {
+    setTab(state, action: PayloadAction<string>) {
       const payload = action.payload;
       state.tab = payload;
-
       return state;
     },
-    activateHeader(state, action) {
+    activateHeader(state, action: PayloadAction<string>) {
       const headers = state.headers;
       const payload = action.payload;
       state.headers = headers.map((h) =>
         h.accessor === payload ? { ...h, active: !h.active } : h
       );
-
       return state;
     },
-    sortHeader(state, action) {
+    sortHeader(state, action: PayloadAction<{ sort: string }>) {
       const payload = action.payload;
       let type = "string";
       switch (payload.sort) {
@@ -273,92 +331,80 @@ export const filerSlice = createSlice({
       const sort = state.sort;
       const set = sort.set;
       state.sort = { ...sort, set: !set };
-
       return state;
     },
-    addHeader(state, action) {
+    addHeader(state, action: PayloadAction<Header>) {
       const payload = action.payload;
       const headers = state.headers;
-
       headers.push({
         ...payload,
         active: true,
       });
-
       state.headers = headers;
       return state;
     },
-    editHeader(state, action) {
+    editHeader(state, action: PayloadAction<{ accessor: string; display: string }>) {
       const payload = action.payload;
       const headers = state.headers.map((h) =>
         h.accessor === payload.accessor ? { ...h, display: payload.display } : h
       );
-
       state.headers = headers;
       return state;
     },
-    removeHeader(state, action) {
+    removeHeader(state, action: PayloadAction<string>) {
       const payload = action.payload;
       const headers = state.headers.filter((h) => h.accessor !== payload);
-
       state.headers = headers;
       return state;
     },
-    setHeaders(state, action) {
+    setHeaders(state, action: PayloadAction<Header[]>) {
       const payload = action.payload;
       state.headers = payload;
-
       return state;
     },
     sortSold(state) {
       const sort = state.sort;
       const sold = sort.sold;
       state.sort = { ...sort, sold: !sold };
-
       return state;
     },
     sortNa(state) {
       const sort = state.sort;
       const na = sort.na;
       state.sort = { ...sort, na: !na };
-
       return state;
     },
-    setStocks(state, action) {
+    setStocks(state, action: PayloadAction<any[]>) {
       const stocks = action.payload;
       state.value = stocks;
       return state;
     },
-    updateStocks(state, action) {
+    updateStocks(state, action: PayloadAction<{ field: string; values: Record<string, any> }>) {
       const payload = action.payload;
       const field = payload.field;
       const values = payload.values;
-
       let stocks = state.value;
       stocks = stocks.map((stock) => {
         const cusip = stock.cusip;
         const value = values[cusip];
-
         return { ...stock, [field]: value };
       });
-
       state.value = stocks;
       return state;
     },
-    addDate(state, action) {
+    addDate(state, action: PayloadAction<DateState>) {
       const dates = state.dates;
       dates.push(action.payload);
       state.dates = dates;
-
       return state;
     },
-    removeDate(state, action) {
+    removeDate(state, action: PayloadAction<string>) {
       const accessor = action.payload;
       const dates = state.dates;
       state.dates = dates.filter((date) => date.accessor !== accessor);
       return state;
     },
-    editDate(state, action) {
+    editDate(state, action: PayloadAction<{ accessor: string; type: string; value: any }>) {
       const payload = action.payload;
       const dates = state.dates.map((date) => {
         if (payload.accessor === date.accessor) {
@@ -392,25 +438,12 @@ export const filerSlice = createSlice({
       state.dates = dates;
       return state;
     },
-    updateDates(state, action) {
+    updateDates(state, action: PayloadAction<DateState[]>) {
       const payload = action.payload;
-
-      // const over = payload.over;
-      // const accessor = payload.accessor;
-      // const active = dates.find((d) => d.accessor === accessor);
-
-      // const activeIndex = dates.findIndex((d) => d.accessor === accessor);
-      // const overIndex = dates.findIndex((d) => d.accessor === over);
-
-      // arrayMove()
-
-      // dates.splice(activeIndex, 1);
-      // dates.splice(overIndex, 0, active);
-
       state.dates = payload;
       return state;
     },
-    openDate(state, action) {
+    openDate(state, action: PayloadAction<{ accessor: string; open: boolean }>) {
       const payload = action.payload;
       const accessor = payload.accessor;
       const dates = state.dates.map((date) =>
@@ -431,7 +464,6 @@ export const filerSlice = createSlice({
       };
       const newDate = new Date(latestDate.accessor);
       newDate.setDate(newDate.getDate() + 1);
-
       dates.push({
         year: newDate.getFullYear(),
         month: newDate.getMonth(),
@@ -440,31 +472,27 @@ export const filerSlice = createSlice({
         open: false,
         accessor: newDate.toLocaleDateString(),
       });
-
       state.dates = dates;
       return state;
     },
-    setPagination(state, action) {
+    setPagination(state, action: PayloadAction<number>) {
       state.sort.pagination = action.payload;
       return state;
     },
-    setCount(state, action) {
+    setCount(state, action: PayloadAction<number>) {
       const sort = state.sort;
       const payload = action.payload;
       const pagination = sort.pagination;
-
       if (pagination < 0) {
-        state.sort.pagination = payload > 100 ? 100 : payload;
+4821         state.sort.pagination = payload > 100 ? 100 : payload;
       }
-
       state.sort.count = payload;
       return state;
     },
-    setFilingCount(state, action) {
+    setFilingCount(state, action: PayloadAction<{ type: string; count: number }>) {
       const payload = action.payload;
       const type = payload.type;
       const count = payload.count;
-
       const comparisons = state.timeline.comparisons.map((c) =>
         c.type === type
           ? {
@@ -473,46 +501,39 @@ export const filerSlice = createSlice({
             }
           : c
       );
-
       state.timeline.comparisons = comparisons;
       return state;
     },
-    setOffset(state, action) {
+    setOffset(state, action: PayloadAction<number>) {
       const payload = action.payload;
       if (payload >= 0) {
         state.sort.offset = Number(payload);
       }
       return state;
     },
-    setFilings(state, action) {
+    setFilings(state, action: PayloadAction<any[]>) {
       const payload = action.payload;
-
       state.filings = payload;
       return state;
     },
-    setPrimary(state, action) {
+    setPrimary(state, action: PayloadAction<Partial<Comparison>>) {
       const payload = action.payload;
-
       const comparisons = state.timeline.comparisons;
       const primary = comparisons[0];
       state.timeline.comparisons[0] = { ...primary, ...payload };
-
       return state;
     },
-    setSecondary(state, action) {
+    setSecondary(state, action: PayloadAction<Partial<Comparison>>) {
       const payload = action.payload;
-
       const comparisons = state.timeline.comparisons;
       const secondary = comparisons[1];
       state.timeline.comparisons[1] = { ...secondary, ...payload };
-
       return state;
     },
-    setComparison(state, action) {
+    setComparison(state, action: PayloadAction<{ type: string; access: string }>) {
       const payload = action.payload;
       const type = payload.type;
       const access = payload.access;
-
       const filing = state.filings.find((f) => f.access_number == access);
       const filingDate = new Date(filing.filing_date * 1000);
       const reportDate = new Date(filing.report_date * 1000);
@@ -522,12 +543,10 @@ export const filerSlice = createSlice({
       const reportStr = reportDate.toLocaleDateString();
       const marketValue = new Intl.NumberFormat().format(filing.market_value);
       const filingStocks = filing.stocks;
-
       const comparisonIndex = state.timeline.comparisons.findIndex(
         (c) => c.type == type
       );
       const comparison = state.timeline.comparisons[comparisonIndex];
-
       state.timeline.comparisons[comparisonIndex] = {
         ...comparison,
         access,
@@ -546,43 +565,36 @@ export const filerSlice = createSlice({
     },
     setOpen(state) {
       const open = state.timeline.open;
-
       state.timeline.open = !open;
       return state;
     },
-    editComparison(state, action) {
+    editComparison(state, action: PayloadAction<Partial<Comparison>>) {
       const payload = action.payload;
       const type = payload.type;
-
       const comparison = payload;
       const comparisons = state.timeline.comparisons.map((c) => {
         return c.type == type ? { ...c, ...comparison } : c;
       });
-
       state.timeline.comparisons = comparisons;
       return state;
     },
-    editSort(state, action) {
+    editSort(state, action: PayloadAction<{ type: string; [key: string]: any }>) {
       const payload = action.payload;
       const type = payload.type;
       delete payload.type;
-
       const comparisons = state.timeline.comparisons.map((c) => {
         return c.type == type ? { ...c, sort: { ...c.sort, ...payload } } : c;
       });
-
       state.timeline.comparisons = comparisons;
       return state;
     },
-    editDifference(state, action) {
+    editDifference(state, action: PayloadAction<Partial<State["difference"]>>) {
       const payload = action.payload;
       const difference = state.difference;
-
       state.difference = { ...difference, ...payload };
       return state;
     },
-
-    [HYDRATE]: (state, action) => {
+    [HYDRATE]: (state, action: PayloadAction<any>) => {
       return {
         ...state,
         ...action.payload,
@@ -590,37 +602,35 @@ export const filerSlice = createSlice({
     },
   },
 });
-
-export const selectCik = (state) => state.filer.cik;
-export const selectTab = (state) => state.filer.tab;
-export const selectSort = (state) => state.filer.sort;
-export const selectActive = (state) => state.filer.sort.set;
-export const selectSold = (state) => state.filer.sort.sold;
-export const selectNa = (state) => state.filer.sort.na;
-export const selectHeaders = (state) => state.filer.headers;
+export const selectCik = (state: { filer: State }) => state.filer.cik;
+export const selectTab = (state: { filer: State }) => state.filer.tab;
+export const selectSort = (state: { filer: State }) => state.filer.sort;
+export const selectActive = (state: { filer: State }) => state.filer.sort.set;
+export const selectSold = (state: { filer: State }) => state.filer.sort.sold;
+export const selectNa = (state: { filer: State }) => state.filer.sort.na;
+export const selectHeaders = (state: { filer: State }) => state.filer.headers;
 export const selectStocks = createSelector(
-  [(state) => state.filer.value],
+  [(state: { filer: State }) => state.filer.value],
   (stocks) => stocks
 );
 export const selectDates = createSelector(
-  [(state) => state.filer.dates],
+  [(state: { filer: State }) => state.filer.dates],
   (dates) =>
     dates.map((d) => {
       return { ...d, id: d.accessor };
     })
 );
 export const selectPagination = createSelector(
-  [(state) => state.filer.sort],
+  [(state: { filer: State }) => state.filer.sort],
   (sort) => {
     return { limit: sort.pagination, offset: sort.offset, count: sort.count };
   }
 );
-export const selectTimeline = (state) => state.filer.timeline;
-export const selectFilings = (state) => state.filer.filings;
-export const selectPrimary = (state) => state.filer.timeline.comparisons[0];
-export const selectSecondary = (state) => state.filer.timeline.comparisons[1];
-export const selectDifference = (state) => state.filer.difference;
-
+export const selectTimeline = (state: { filer: State }) => state.filer.timeline;
+export const selectFilings = (state: { filer: State }) => state.filer.filings;
+export const selectPrimary = (state: { filer: State }) => state.filer.timeline.comparisons[0];
+export const selectSecondary = (state: { filer: State }) => state.filer.timeline.comparisons[1];
+export const selectDifference = (state: { filer: State }) => state.filer.difference;
 export const {
   setCik,
   setTab,
@@ -633,7 +643,6 @@ export const {
   sortNa,
   updateStocks,
   setStocks,
-  sortStocks,
   addDate,
   setHeaders,
   removeHeader,
@@ -655,5 +664,4 @@ export const {
   setOpen,
   editDifference,
 } = filerSlice.actions;
-
 export default filerSlice.reducer;
