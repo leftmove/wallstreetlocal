@@ -6,11 +6,23 @@ import RightIcon from "@/public/static/left.svg";
 import Count from "./Count/Count";
 import Limit from "./Limit/Limit";
 
-const Pagination = (props) => {
+interface PaginationProps {
+  pagination: PaginationData;
+  paginate: (page: number) => void;
+  skip: (offset: number) => void;
+}
+
+interface PaginationData {
+  offset: number;
+  limit: number;
+  count: number;
+}
+
+const Pagination: React.FC<PaginationProps> = (props) => {
   const pagination = props.pagination;
 
-  const paginate = (p) => props.paginate(p);
-  const skip = (o) => props.skip(o);
+  const paginate = (p: number) => props.paginate(p);
+  const skip = (o: number) => props.skip(o);
 
   const leftOffset = Number(pagination.offset - pagination.limit);
   const rightOffset = Number(pagination.offset + pagination.limit);
