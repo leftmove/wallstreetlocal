@@ -23,23 +23,28 @@ import Table from "components/Table/Table";
 import Unavailable from "components/Unavailable/Unavailable";
 import Timeline from "./Timeline/Timeline";
 
-const server = process.env.NEXT_PUBLIC_SERVER;
+const server: string | undefined = process.env.NEXT_PUBLIC_SERVER;
 
-// Most janky code I've ever written. Really, just the worst.
-// I made some mistakes in the infastructure making the stocks table,
-// and now as I repeat the code here, the same mistakes are amplifed
-// greatly. Way too much repitition, partly my own fault, but
-// (I think) mostly due to React's at times terrible data fetching
-// system(s). Libraries help at first, then make it worse later.
-// TLDR: Fix later.
+interface Filing {
+  access_number: string;
+}
 
-const Explorer = () => {
+interface FilingData {
+  filings: Filing[];
+}
+
+interface Comparison {
+  type: "primary" | "secondary";
+  access: string;
+}
+
+const Explorer: React.FC = () => {
   const dispatch = useDispatch();
   const cik = useSelector(selectCik);
   const primary = useSelector(selectPrimary);
   const secondary = useSelector(selectSecondary);
 
-  const filingFetcher = (url, cik) =>
+  const filingFetcher = (url: string, cik: string) =>
     axios
       .get(url, {
         params: {
@@ -47,12 +52,12 @@ const Explorer = () => {
         },
       })
       .then((r) => r.data)
-      .then((data) => {
+      .then((data: FilingData) => {
         if (data) {
           const filings = data.filings;
 
           dispatch(setFilings(filings));
-          if (primary.access == "") {
+          if (primary.access === "") {
             dispatch(
               setComparison({
                 type: "primary",
@@ -60,7 +65,7 @@ const Explorer = () => {
               })
             );
           }
-          if (secondary.access == "") {
+          if (secondary.access === "") {
             dispatch(
               setComparison({
                 type: "secondary",
@@ -76,7 +81,7 @@ const Explorer = () => {
       .catch((e) => console.error(e));
   const { isLoading: loading, error } = useSWR(
     cik ? [server + "/filers/filings", cik] : null,
-    ([url, cik]) => filingFetcher(url, cik),
+    ([url, cik]: [string, string]) => filingFetcher(url, cik),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
