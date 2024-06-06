@@ -17,20 +17,30 @@ import { font, fontLight } from "@fonts";
 import Tip from "components/Tip/Tip";
 import Headers from "components/Headers/Headers";
 
-const Filter = () => {
-  const headers = useSelector(selectHeaders);
+interface Description {
+  title: string;
+  text: string;
+}
+
+interface Header {
+  display: string;
+  tooltip: string;
+}
+
+const Filter: React.FC = () => {
+  const headers = useSelector(selectHeaders) as Header[];
   const sold = useSelector(selectSold);
   const na = useSelector(selectNa);
   const dispatch = useDispatch();
 
   const initialHeader = headers[0];
-  const [description, setDescription] = useState({
+  const [description, setDescription] = useState<Description>({
     title: initialHeader.display,
     text: initialHeader.tooltip,
   });
-  const updateDescription = (d) => setDescription(d);
-  const updateHeaders = (h) => dispatch(setHeaders(h));
-  const updateActivation = (a) => dispatch(activateHeader(a));
+  const updateDescription = (d: Description) => setDescription(d);
+  const updateHeaders = (h: Header[]) => dispatch(setHeaders(h));
+  const updateActivation = (a: string) => dispatch(activateHeader(a));
   const updateSold = () => dispatch(sortSold());
   const updateNa = () => dispatch(sortNa());
 
