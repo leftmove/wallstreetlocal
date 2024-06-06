@@ -1,22 +1,33 @@
 import styles from "./Search.module.css";
 import { useEffect, useReducer, useState } from "react";
-
 import axios from "axios";
 import useSWR from "swr";
-
 import Link from "next/link";
 import { font } from "@fonts";
 
-const server = process.env.NEXT_PUBLIC_SERVER;
-const fetcher = (url, query, limit) =>
+const server: string | undefined = process.env.NEXT_PUBLIC_SERVER;
+
+interface Result {
+  cik: string;
+  name: string;
+  tickers: string[];
+}
+
+const fetcher = (url: string, query: string, limit: number) =>
   axios
     .get(url, { params: { q: query, limit } })
     .then((res) => res.data)
     .catch((e) => console.error(e));
 
+interface InputState {
+  search: string;
+  results: Result[];
+  focus: boolean;
+}
+
 const Search = () => {
   const [input, setInput] = useReducer(
-    (prev, next) => {
+    (prev: InputState, next: Partial<InputState>) => {
       return { ...prev, ...next };
     },
     {
@@ -29,7 +40,7 @@ const Search = () => {
   const limit = 5;
   const { data } = useSWR(
     input.search ? [server + "/filers/search", input.search, limit] : null,
-    ([url, query, limit]) => fetcher(url, query, limit),
+    ([url, query, limit]: [string, string, number]) => fetcher(url, query, limit),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -67,10 +78,9 @@ const Search = () => {
           input.focus && input.search.length ? styles["results-expand"] : "",
         ].join(" ")}
       >
-
         {
           <ul className={styles["result-list"]}>
-            {input.results.map((result) => {
+            {input.results.map((result: Result) => {
               return (
                 <li key={result.cik}>
                   <Link href={`/filers/${result.cik}`}>
@@ -92,7 +102,6 @@ const Search = () => {
           </ul>
         }
       </div>
-
     </div>
   );
 };
