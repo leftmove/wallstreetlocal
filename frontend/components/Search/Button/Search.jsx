@@ -10,7 +10,20 @@ import { font } from "@fonts";
 import SearchIcon from "@/public/static/search.svg";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
-const fetcher = (url, query, limit) =>
+
+type Result = {
+  cik: string;
+  name: string;
+  tickers: string[];
+};
+
+type InputState = {
+  results: Result[];
+  search: string;
+  focus: boolean;
+};
+
+const fetcher = (url: string, query: string, limit: number) =>
   axios
     .get(url, { params: { q: query, limit } })
     .then((res) => res.data)
@@ -18,7 +31,7 @@ const fetcher = (url, query, limit) =>
 
 const Search = () => {
   const [input, setInput] = useReducer(
-    (prev, next) => {
+    (prev: InputState, next: Partial<InputState>) => {
       return { ...prev, ...next };
     },
     {
@@ -32,7 +45,7 @@ const Search = () => {
   const limit = 10;
   const { data } = useSWR(
     input.search ? [server + "/filers/search", input.search, limit] : null,
-    ([url, query, limit]) => fetcher(url, query, limit),
+    ([url, query, limit]: [string, string, number]) => fetcher(url, query, limit),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
