@@ -9,7 +9,14 @@ import DataIcon from "@/public/static/data.svg";
 import TableIcon from "@/public/static/csv.svg";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
-const Record = (props) => {
+
+type Props = {
+  variant?: "json" | "csv";
+  selected: { access: string };
+  headers?: { tooltip: string; [key: string]: any }[];
+};
+
+const Record: React.FC<Props> = (props) => {
   const cik = useSelector(selectCik);
   const variant = props.variant || "json";
   const selected = props.selected;
@@ -23,6 +30,7 @@ const Record = (props) => {
       "_blank"
     );
   };
+
   const handleCSVDownload = () => {
     window.open(
       server +
@@ -30,11 +38,12 @@ const Record = (props) => {
         new URLSearchParams({
           cik,
           access_number: selected.access,
-          headers: JSON.stringify(headers.map(({ tooltip, ...rest }) => rest)),
+          headers: JSON.stringify(headers?.map(({ tooltip, ...rest }) => rest)),
         }),
       "_blank"
     );
   };
+
   return (
     <button
       className={[styles["record"], font.className].join(" ")}
