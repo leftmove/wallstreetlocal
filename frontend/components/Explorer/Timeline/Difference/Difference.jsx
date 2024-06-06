@@ -15,14 +15,33 @@ import { font, fontLight } from "components/fonts";
 import Headers from "components/Headers/Headers";
 import Record from "../Select/Record/Record";
 
-const Difference = (props) => {
+interface DifferenceProps {
+  setDescription: (description: string) => void;
+}
+
+interface Header {
+  accessor: string;
+  active: boolean;
+}
+
+interface Sort {
+  sold: boolean;
+  na: boolean;
+}
+
+interface DifferenceState {
+  headers: Header[];
+  sort: Sort;
+}
+
+const Difference: React.FC<DifferenceProps> = (props) => {
   const dispatch = useDispatch();
-  const difference = useSelector(selectDifference);
+  const difference: DifferenceState = useSelector(selectDifference);
   const headers = difference.headers;
 
-  const updateHeaders = (h) => dispatch(editDifference({ headers: h }));
-  const updateDescription = (d) => props.setDescription(d);
-  const updateActivation = (a) =>
+  const updateHeaders = (h: Header[]) => dispatch(editDifference({ headers: h }));
+  const updateDescription = (d: string) => props.setDescription(d);
+  const updateActivation = (a: string) =>
     dispatch(
       editDifference({
         headers: headers.map((h) =>
