@@ -1,9 +1,8 @@
+ 
 import styles from "./Select.module.css";
 import { useState, useEffect } from "react";
-
 import useSWR from "swr";
 import axios from "axios";
-
 import { useDispatch, useSelector } from "react-redux";
 import {
   addHeader,
@@ -13,43 +12,38 @@ import {
   removeHeader,
   editHeader,
 } from "@/redux/filerSlice";
-
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-
 import { font } from "@fonts";
-
 import Picker from "./Picker/Picker";
 import Loading from "components/Loading/Loading";
-
-// const animateLayoutChanges = (args) => {
-//   const { isSorting, wasSorting } = args;
-
-//   if (isSorting || wasSorting) {
-//     return defaultAnimateLayoutChanges(args);
-//   }
-
-//   return true;
-// };
-
 const server = process.env.NEXT_PUBLIC_SERVER;
-const getFetcher = (url, cik, time) =>
+const getFetcher = (url: string, cik: string, time: number) =>
   axios
     .get(url, { params: { cik: cik, time: time } })
     .then((r) => r.data)
     .catch((e) => console.error(e));
-
-const Select = (props) => {
+interface SelectProps {
+  date: {
+    accessor: string;
+    open: boolean;
+    timestamp: number;
+    month: number;
+    day: number;
+    year: number;
+  };
+  index: number;
+}
+const Select: React.FC<SelectProps> = (props) => {
   const propDate = props.date;
   const accessor = propDate.accessor;
   const index = props.index;
   const dispatch = useDispatch();
   const cik = useSelector(selectCik) || false;
   const headers = useSelector(selectHeaders);
-
   const date =
-    useSelector((state) =>
-      state.filer.dates.find((d) => d.accessor == propDate.accessor)
+    useSelector((state: any) =>
+      state.filer.dates.find((d: any) => d.accessor == propDate.accessor)
     ) || propDate;
   const open = date.open;
   const time = date.timestamp;
@@ -67,15 +61,13 @@ const Select = (props) => {
   );
   useEffect(() => {
     if (open) return;
-
     if (data) {
-      const timeseries = {};
-      data.stocks.forEach((price) => {
+      const timeseries: { [key: string]: string } = {};
+      data.stocks.forEach((price: { close_str: string; cusip: string }) => {
         const close = price.close_str;
         const cusip = price.cusip;
         timeseries[cusip] = close;
       });
-
       dispatch(
         updateStocks({
           field: accessor,
@@ -86,7 +78,6 @@ const Select = (props) => {
       dispatch(editHeader({ accessor: accessor, display: display }));
     }
   }, [open, data, accessor, dispatch, date]);
-
   const {
     attributes,
     listeners,
@@ -100,11 +91,9 @@ const Select = (props) => {
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
-
-  const active = headers.find((h) => h.accessor == accessor) ? false : true;
+  const active = headers.find((h: any) => h.accessor == accessor) ? false : true;
   const handleTable = () => {
-    const header = headers.find((h) => h.accessor == accessor);
-
+    const header = headers.find((h: any) => h.accessor == accessor);
     const display = `${date.month + 1}/${date.day}/${date.year}`;
     const tooltip = `The prices of the stocks at ${date.month + 1}/${
       date.day
@@ -123,7 +112,6 @@ const Select = (props) => {
       );
     }
   };
-
   const handleDownload = () => {
     window.open(
       server +
@@ -132,11 +120,9 @@ const Select = (props) => {
       "_blank"
     );
   };
-
   if (error) {
-    console.error(e);
+    console.error(error);
   }
-
   return (
     <div
       className={styles["date"]}
@@ -168,5 +154,4 @@ const Select = (props) => {
     </div>
   );
 };
-
 export default Select;
