@@ -1,12 +1,15 @@
 import { useState } from "react";
-
 import useInterval from "./useInterval";
 
-const useEllipsis = (interval = 500, pause = false) => {
-  const [ellipsis, setEllipsis] = useState(".");
+type UseEllipsisReturn = {
+  ellipsis?: string;
+};
+
+const useEllipsis = (interval: number = 500, pause: boolean = false): UseEllipsisReturn => {
+  const [ellipsis, setEllipsis] = useState<string>(".");
   useInterval(() => {
     if (!pause)
-    setEllipsis(ellipsis === "..." ? "." : ellipsis + ".");
+      setEllipsis(ellipsis === "..." ? "." : ellipsis + ".");
   }, interval);
   if (pause) {
     return {};
