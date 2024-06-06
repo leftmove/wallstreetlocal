@@ -1,14 +1,22 @@
 import styles from "./Picker.module.css";
-import { useState, useEffect } from "react";
-
+import { useState, useEffect, ChangeEvent, FocusEvent, KeyboardEvent } from "react";
 import { font } from "@fonts";
-
 import { editDate, openDate } from "@/redux/filerSlice";
 import { useDispatch } from "react-redux";
-
 import CalendarSVG from "./calendar.svg";
 import RightSVG from "./right.svg";
 import LeftSVG from "./left.svg";
+
+interface DateProps {
+  year: number;
+  month: number;
+  open: boolean;
+  accessor: string;
+}
+
+interface PickerProps {
+  date: DateProps;
+}
 
 const months = [
   { name: "Jan", value: 0 },
@@ -27,13 +35,13 @@ const months = [
 
 const yearRegex = /^-?\d+$/;
 
-const Picker = (props) => {
-  const date = props.date || {};
+const Picker: React.FC<PickerProps> = (props) => {
+  const date = props.date || {} as DateProps;
   const year = date.year;
   const open = date.open;
   const dispatch = useDispatch();
 
-  const handleDateChange = (e) => {
+  const handleDateChange = (e: string) => {
     const value = e.slice(0, -1);
     const character = e.slice(-1);
 
@@ -48,28 +56,29 @@ const Picker = (props) => {
 
     setDateDisplay(newValue);
   };
+
   const handleBlur = () => {
     setFocus(false);
     if (
       dateDisplay.length === 4 &&
       yearRegex.test(dateDisplay) &&
-      dateDisplay > 1899 &&
-      dateDisplay < 2100
+      parseInt(dateDisplay) > 1899 &&
+      parseInt(dateDisplay) < 2100
     ) {
       dispatch(
         editDate({
           type: "year",
           accessor: date.accessor,
-          value: dateDisplay,
+          value: parseInt(dateDisplay),
         })
       );
     }
   };
 
-  const [dateDisplay, setDateDisplay] = useState(year);
-  const [focus, setFocus] = useState(false);
+  const [dateDisplay, setDateDisplay] = useState<string>(year.toString());
+  const [focus, setFocus] = useState<boolean>(false);
   useEffect(() => {
-    setDateDisplay(year);
+    setDateDisplay(year.toString());
   }, [year]);
 
   const month = months[date.month] || months[0];
@@ -123,11 +132,11 @@ const Picker = (props) => {
           <input
             type="text"
             className={styles["year-input"] + " " + font.className}
-            value={focus ? dateDisplay : year}
-            onChange={(e) => handleDateChange(e.target.value)}
+            value={focus ? dateDisplay : year.toString()}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => handleDateChange(e.target.value)}
             onFocus={() => setFocus(true)}
-            onBlur={() => handleBlur()}
-            onKeyDown={(e) => (e.key === "Enter" ? e.target.blur() : null)}
+            onBlur={(e: FocusEvent<HTMLInputElement>) => handleBlur()}
+            onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => (e.key === "Enter" ? e.currentTarget.blur() : null)}
           />
           <button
             className={styles["chevron-button"]}
