@@ -1,13 +1,14 @@
-/** @type {import('next').NextConfig} */
+import { NextConfig } from 'next';
+import { Configuration, RuleSetRule } from 'webpack';
 
-const nextConfig = {
+const nextConfig: NextConfig = {
   reactStrictMode: true,
-  webpack(config) {
-    const fileLoaderRule = config.module.rules.find((rule) =>
-      rule.test?.test?.(".svg")
-    );
+  webpack(config: Configuration) {
+    const fileLoaderRule = config.module?.rules?.find((rule) =>
+      (rule as RuleSetRule).test?.test?.(".svg")
+    ) as RuleSetRule;
 
-    config.module.rules.push(
+    config.module?.rules?.push(
       {
         ...fileLoaderRule,
         test: /\.svg$/i,
@@ -20,7 +21,9 @@ const nextConfig = {
         use: ["@svgr/webpack"],
       }
     );
-    fileLoaderRule.exclude = /\.svg$/i;
+    if (fileLoaderRule) {
+      fileLoaderRule.exclude = /\.svg$/i;
+    }
     return config;
   },
   env: {
@@ -29,4 +32,4 @@ const nextConfig = {
   output: "standalone",
 };
 
-module.exports = nextConfig;
+export default nextConfig;
