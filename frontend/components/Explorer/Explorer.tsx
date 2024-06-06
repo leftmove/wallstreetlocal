@@ -1,6 +1,6 @@
 import styles from "./Explorer.module.css";
 
-import Error from "next/error";
+import NextError from "next/error";
 
 import axios from "axios";
 import useSWR from "swr";
@@ -152,7 +152,7 @@ const Explorer: React.FC = () => {
       <div className={styles["explorer-tables"]}>
         {loading ? <Loading /> : null}
         <div className={styles["table-container"]}>
-          {primaryError ? <Error statusCode={404} /> : null}
+          {primaryError ? <NextError statusCode={404} /> : null}
           <Table
             items={primaryItems}
             loading={primaryLoading}
@@ -166,7 +166,7 @@ const Explorer: React.FC = () => {
           />
         </div>
         <div className={styles["table-container"]}>
-          {secondaryError ? <Error statusCode={404} /> : null}
+          {secondaryError ? <NextError statusCode={404} /> : null}
           <Table
             items={secondaryItems}
             loading={secondaryLoading}

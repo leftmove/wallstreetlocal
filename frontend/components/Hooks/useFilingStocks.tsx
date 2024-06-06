@@ -1,13 +1,15 @@
 import axios from "axios";
 import useSWR from "swr";
 
+import Header from "@/redux/filerSlice"
+
 const server = process.env.NEXT_PUBLIC_SERVER;
 
 interface Selected {
   sort: Sort;
   stocks: Stock[];
   access: string;
-  headers: string[];
+  headers: Header[];
 }
 
 interface Sort {
