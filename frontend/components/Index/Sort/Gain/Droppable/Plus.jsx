@@ -7,8 +7,17 @@ import { useDroppable } from "@dnd-kit/core";
 
 import PlusSVG from "./plus.svg";
 
-const Plus = (props) => {
-  const event = props.event;
+interface PlusProps {
+  event: {
+    dragging: boolean;
+    over: {
+      id: string;
+    };
+  };
+}
+
+const Plus: React.FC<PlusProps> = (props) => {
+  const { event } = props;
 
   const dispatch = useDispatch();
 
