@@ -1,20 +1,24 @@
 import styles from "../Progress.module.css";
 import { useEffect, useRef } from "react";
-
 import { fontLight } from "@fonts";
-
 import useEllipsis from "components/Hooks/useEllipsis";
 import Loading from "components/Loading/Loading";
 
-const Console = (props) => {
+interface ConsoleProps {
+  logs: string[];
+  stall?: boolean;
+  loading?: boolean;
+}
+
+const Console: React.FC<ConsoleProps> = (props) => {
   const logs = props.logs;
   const stall = props.stall || true;
   const loading = props.loading || false;
 
   const { ellipsis } = useEllipsis();
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    ref.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    ref.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [logs]);
 
   return (
