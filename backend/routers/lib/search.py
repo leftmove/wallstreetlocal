@@ -1,15 +1,13 @@
 import meilisearch_python_sdk
 
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 production_environment = True if ENVIRONMENT == "production" else False
 
 MEILI_SERVER_URL = os.environ["MEILI_SERVER_URL"]
 MEILI_MASTER_KEY = os.environ["MEILI_MASTER_KEY"]
+
 
 def _prepare_meilisearch():
     client = meilisearch_python_sdk.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)

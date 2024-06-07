@@ -126,9 +126,6 @@ files = [
     {file = "camel_converter-3.1.1.tar.gz", hash = "sha256:73c1e31801d0f7baf08fe2a44e6a712e685496e490cab3cd9ce7222845502ef7"},
 ]
 
-[package.dependencies]
-pydantic = {version = ">=1.8.2", optional = true, markers = "extra == \"pydantic\""}
-
 [package.extras]
 pydantic = ["pydantic (>=1.8.2)"]
 
@@ -798,21 +795,6 @@ htmlsoup = ["BeautifulSoup4"]
 source = ["Cython (>=3.0.7)"]
 
 [[package]]
-name = "meilisearch"
-version = "0.31.0"
-description = "The python client for Meilisearch API."
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "meilisearch-0.31.0-py3-none-any.whl", hash = "sha256:3dba5d8df5bfc93c1270299b8bca5b520f6cad6e172d3dccdcff43604d3cf8c7"},
-    {file = "meilisearch-0.31.0.tar.gz", hash = "sha256:0a45949245fac2f5622510b25d80f8d3e074ee1538adb907cff1aad8ec53293a"},
-]
-
-[package.dependencies]
-camel-converter = {version = "*", extras = ["pydantic"]}
-requests = "*"
-
-[[package]]
 name = "meilisearch-python-sdk"
 version = "2.9.0"
 description = "A Python client providing both async and sync support for the Meilisearch API"
@@ -1354,4 +1336,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "4c17a31039bbdf38c090d403a71505142bf4036ae0bb10b3cbc5f16f3e196d27"
+content-hash = "a06ad175d1d1da902c328282b03661412061819ecf53f5131beb4c4bcd392f80"
