@@ -27,7 +27,7 @@ export default function Home(props) {
         </title>
         <meta
           name="description"
-          content="Thousands of filings from the world's biggest investors. Wall Street's stock portfolio, for free."
+          content="Thousands of filings from the world's biggest investors - Wall Street's stock portfolio, for free. Find 13F portfolios from over 8,000 filers, and over 20 years."
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
