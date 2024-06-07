@@ -4,7 +4,7 @@ import Head from "next/head";
 import Link from "next/link";
 
 import Source from "components/Source/Source";
-import { font } from "@fonts";
+import { font, fontLight } from "@fonts";
 import { convertTitle } from "components/Filer/Info";
 
 const headers = [
@@ -24,10 +24,12 @@ const Reccomended = (props) => {
         <span className={[styles["main-header"], font.className].join(" ")}>
           {props.title}
         </span>
-      </div>
-      <div className={[styles["description"], font.className]}>
-        {props.description}
-        <span>All filers may not have accurate or readily available info.</span>
+        <div className={[styles["description"], fontLight.className].join(" ")}>
+          {props.description}
+          <span>
+            All filers may not have accurate or readily available info.
+          </span>
+        </div>
       </div>
       <div className={styles["table-container"]}>
         <table className={styles["table"]}>

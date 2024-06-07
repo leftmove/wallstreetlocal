@@ -8,8 +8,7 @@ const title = "Searched Filers";
 const description = (
   <span className={styles["description-text"]}>
     The following contains links and information for the most popular 13F
-    filers, sorted by market value. All filers may not have accurate or readily
-    available info.
+    filers, sorted by market value.
   </span>
 );
 const source =

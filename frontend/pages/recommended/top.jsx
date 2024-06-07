@@ -5,11 +5,10 @@ import Link from "next/link";
 import axios from "axios";
 
 import Reccomended from "components/Recommended/Recommended";
-import { font } from "@fonts";
 
 const title = "Top Filers";
 const description = (
-  <span className={[styles["description-text"], font.className].join(" ")}>
+  <span className={styles["description-text"]}>
     The following contains links and information for{" "}
     <span className={styles["description-link"]}>
       <Link
