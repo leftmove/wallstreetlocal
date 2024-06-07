@@ -1,101 +1,110 @@
-import styles from "./Recommended.module.css";
-import { useEffect, useState } from "react";
+import styles from "styles/Recommended.module.css";
 
-import axios from "axios";
-
+import Head from "next/head";
 import Link from "next/link";
 
+import Source from "components/Source/Source";
 import { font } from "@fonts";
-
 import { convertTitle } from "components/Filer/Info";
 
-const server = process.env.NEXT_PUBLIC_SERVER;
-const Recommended = (props) => {
-  const variant = props.variant || "default";
-  const [show, setShow] = useState(false);
-  const [topFilers, setTopFilers] = useState([]);
-  const [searchedFilers, setSearchedFilers] = useState([]);
-  useEffect(() => {
-    topFilers == []
-      ? null
-      : axios
-          .get(server + "/filers/top")
-          .then((r) => r.data)
-          .then((data) => setTopFilers(data.filers || null));
-    searchedFilers == []
-      ? null
-      : axios
-          .get(server + "/filers/searched")
-          .then((r) => r.data)
-          .then((data) => setSearchedFilers(data.filers || null));
+const headers = [
+  { display: "Name", accessor: "name" },
+  { display: "CIK", accessor: "cik" },
+  { display: "Assets Under Management", accessor: "market_value" },
+  { display: "Last Updated", accessor: "date" },
+];
 
-    window.addEventListener(
-      "scroll",
-      () => {
-        setShow(true);
-      },
-      true
-    );
-    return () => window.removeEventListener("scroll", () => {}, true);
-  }, []);
-
+const Reccomended = (props) => {
   return (
-    <div
-      className={[
-        styles["recommended"],
-        variant === "homepage"
-          ? show
-            ? styles["recommended-slide-up"]
-            : ""
-          : "",
-        variant === "homepage" ? styles["recommended-homepage"] : "",
-        props.className || "",
-      ].join(" ")}
-    >
-      <span className={[styles["recommended-title"], font.className].join(" ")}>
-        Recommended Filers
-      </span>
-      <div className={[styles["recommended-lists"], font.className].join(" ")}>
-        <div className={styles["recommended-list"]}>
-          <Link href="/recommended/top">
-            <span className={styles["list-title"]}>Most Assets</span>
-          </Link>
-          <ul>
-            {topFilers
-              .slice(0, 5)
-              .map((f) => {
-                return { ...f, title: convertTitle(f.name) };
-              })
-              .map((filer) => (
-                <li key={filer.cik} className={styles["recommended-item"]}>
-                  <Link href={`/filers/${filer.cik}`}>
-                    <span>{convertTitle(filer.title)}</span>
-                  </Link>
-                </li>
-              ))}
-          </ul>
-        </div>
-        <div className={styles["recommended-list"]}>
-          <Link href="/recommended/searched">
-            <span className={styles["list-title"]}>Most Searched</span>
-          </Link>
-          <ul>
-            {searchedFilers
-              .slice(0, 5)
-              .map((f) => {
-                return { ...f, title: convertTitle(f.name) };
-              })
-              .map((filer) => (
-                <li className={styles["recommended-item"]} key={filer.cik}>
-                  <Link href={`/filers/${filer.cik}`}>
-                    <span>{filer.title}</span>
-                  </Link>
-                </li>
-              ))}
-          </ul>
-        </div>
+    <>
+      <Head>
+        <title>{props.title}</title>
+      </Head>
+      <div className={styles["header"]}>
+        <span className={[styles["main-header"], font.className].join(" ")}>
+          {props.title}
+        </span>
       </div>
-    </div>
+      <div className={[styles["description"], font.className]}>
+        {props.description}
+        <span>All filers may not have accurate or readily available info.</span>
+      </div>
+      <div className={styles["table-container"]}>
+        <table className={styles["table"]}>
+          <thead>
+            <tr>
+              {headers.map((header) => (
+                <th
+                  key={header.display}
+                  className={[
+                    styles["column"],
+                    styles["header-column"],
+                    font.className,
+                  ].join(" ")}
+                >
+                  {header.display}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {props.filers.map((filer) => {
+              return (
+                <tr key={filer.cik}>
+                  {headers.map((header) => {
+                    const accessor = header.accessor;
+                    let display = filer[accessor];
+                    switch (accessor) {
+                      case "name":
+                        display = convertTitle(display);
+                        display = (
+                          <Link
+                            href={`/filers/${filer.cik}`}
+                            className={styles["column-link"]}
+                          >
+                            {display.replace(/(^\w|\s\w)/g, (m) =>
+                              m.toUpperCase()
+                            )}
+                          </Link>
+                        );
+                        break;
+                      case "cik":
+                        display = display.padStart(10, "0");
+                        display = (
+                          <div className={styles["cik-source"]}>
+                            {display}
+                            <Source color="light" cik={filer.cik} />
+                          </div>
+                        );
+                      case "date":
+                      case "market_value":
+                      default:
+                        break;
+                    }
+                    return (
+                      <td
+                        key={header.accessor}
+                        className={[styles["column"], font.className].join(" ")}
+                      >
+                        {display}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <div className={styles["header"]}>
+        <Link href={props.source}>
+          <span className={[styles["footer-header"], font.className].join(" ")}>
+            Source
+          </span>
+        </Link>
+      </div>
+    </>
   );
 };
-export default Recommended;
+
+export default Reccomended;

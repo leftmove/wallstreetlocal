@@ -11,7 +11,7 @@ import { font, fontLight, fontBold } from "@fonts";
 
 import Layout from "components/Layouts/Home";
 import Search from "components/Search/Homepage/Search";
-import Recommended from "components/Recommended/Recommended";
+import Suggested from "components/Suggested/Suggested";
 import Health from "components/Health/Health";
 import Hero from "@/images/hero.jpg";
 import FolderIcon from "@/images/folder.svg";
@@ -59,10 +59,7 @@ export default function Home(props) {
             </span>
           </div>
         </div>
-        <Recommended
-          className={styles["recommended-header"]}
-          variant="homepage"
-        />
+        <Suggested className={styles["Suggested-header"]} variant="homepage" />
       </div>
       <main className={styles["explore"]}>
         <span

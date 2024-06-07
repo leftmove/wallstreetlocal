@@ -1,4 +1,4 @@
-.recommended {
+.Suggested {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -19,7 +19,7 @@
   background-color: var(--secondary);
 }
 
-.recommended-lists {
+.Suggested-lists {
   display: flex;
   justify-content: center;
 
@@ -38,7 +38,7 @@
   color: var(--primary-dark);
 }
 
-.recommended-item {
+.Suggested-item {
   font-size: 1.01rem;
 
   cursor: pointer;
@@ -48,11 +48,11 @@
   transition: color 0.3s ease;
 }
 
-.recommended-item:hover {
+.Suggested-item:hover {
   color: var(--primary-dark);
 }
 
-.recommended-homepage {
+.Suggested-homepage {
   opacity: 0;
 
   transform: translateY(400px);
@@ -67,20 +67,20 @@
   }
 }
 
-.recommended-slide-up {
+.Suggested-slide-up {
   transform: none;
   opacity: 1;
 
   transition: transform 0.5s ease, opacity 0.5s ease;
 }
 
-.recommended-title {
+.Suggested-title {
   font-size: 2rem;
 
   color: var(--primary);
 }
 
-.recommended-list {
+.Suggested-list {
   text-align: center;
 
   height: 100%;

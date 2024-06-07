@@ -1,7 +1,7 @@
 import Head from "next/head";
 
 import Progress from "components/Progress/Progress";
-import Recommended from "components/Recommended/Recommended";
+import Suggested from "components/Suggested/Suggested";
 
 const Building = (props) => {
   const cik = props.cik || null;
@@ -12,7 +12,7 @@ const Building = (props) => {
         <title>Building...</title>
       </Head>
       <Progress cik={cik} persist={persist} />
-      <Recommended />
+      <Suggested />
     </>
   );
 };
