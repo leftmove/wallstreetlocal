@@ -21,7 +21,8 @@ const Select = (props) => {
   const type = props.type;
   const cik = useSelector(selectCik);
   const selected = useSelector(
-    type === "secondary" ? selectSecondary : selectPrimary );
+    type === "secondary" ? selectSecondary : selectPrimary
+  );
   const headers = selected.headers;
 
   const updateHeaders = (h) => dispatch(editComparison({ type, headers: h }));
@@ -52,9 +53,9 @@ const Select = (props) => {
 
   const [picking, setPicking] = useState(false);
   const attributes = [
-    { text: selected.access, hint: "Access Number" },
     { text: selected?.report?.date, hint: "Report Date" },
     { text: selected?.filing?.date, hint: "Filing Date" },
+    { text: selected.access, hint: "Access Number" },
     { text: selected.value, hint: "Market Value" },
   ];
 
@@ -93,10 +94,7 @@ const Select = (props) => {
         </div>
         <div className={styles["picker-attributes"]}>
           {attributes.map((a) => (
-            <div
-              className={styles["picker-attribute"]}
-              key={a.text + selected?.access}
-            >
+            <div className={styles["picker-attribute"]} key={a.hint}>
               <button
                 className={styles["attribute-button"]}
                 onClick={() => setPicking(!picking)}
@@ -119,12 +117,6 @@ const Select = (props) => {
             </div>
           ))}
         </div>
-        {/* <Picker
-          variant="stable"
-          selected={selected}
-          setPicking={(pickingState) => setPicking(pickingState)}
-          picking={picking}
-        /> */}
       </div>
     </div>
   );

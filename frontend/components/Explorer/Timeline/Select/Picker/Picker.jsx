@@ -1,27 +1,17 @@
 import styles from "./Picker.module.css";
 import selectStyles from "../Select.module.css";
-import { useEffect, useState } from "react";
-
-import axios from "axios";
 
 import { useDispatch, useSelector } from "react-redux";
-import {
-  selectCik,
-  selectFilings,
-  setComparison,
-  setOpen,
-} from "@/redux/filerSlice";
+import { selectFilings, setComparison } from "@/redux/filerSlice";
 
 import { font, fontLight } from "components/fonts";
 
-const server = process.env.NEXT_PUBLIC_SERVER;
 const Picker = (props) => {
   const selected = props.selected;
   const attributes = props.attributes;
   const picking = props.picking;
   const setPicking = () => props.setPicking();
 
-  const cik = useSelector(selectCik);
   const filings = useSelector(selectFilings);
   const dispatch = useDispatch();
 
@@ -55,6 +45,12 @@ const Picker = (props) => {
             setPicking(false);
           };
 
+          const filingAttributes = [
+            reportDate,
+            filingDate,
+            accessNumber,
+            marketValue,
+          ];
           return (
             <div
               key={accessNumber}
@@ -62,76 +58,17 @@ const Picker = (props) => {
                 " "
               )}
             >
-              <span
-                className={styles["filing-attribute"]}
-                onClick={() => handleClick()}
-              >
-                {accessNumber}
-              </span>
-              <span
-                className={styles["filing-attribute"]}
-                onClick={() => handleClick()}
-              >
-                {reportDate}
-              </span>
-              <span
-                className={styles["filing-attribute"]}
-                onClick={() => handleClick()}
-              >
-                {filingDate}
-              </span>
-              <span
-                className={styles["filing-attribute"]}
-                onClick={() => handleClick()}
-              >
-                {marketValue}
-              </span>
+              {filingAttributes.map((a) => (
+                <span
+                  className={styles["filing-attribute"]}
+                  onClick={() => handleClick()}
+                >
+                  {a}
+                </span>
+              ))}
             </div>
           );
         })}
-      </div>
-      <div
-        className={[
-          selectStyles["picker-attributes"],
-          styles["picker-attributes"],
-        ].join(" ")}
-      >
-        {attributes.map((a) => (
-          <div
-            key={a.hint}
-            className={[
-              selectStyles["picker-attribute"],
-              styles["picker-attribute"],
-            ].join(" ")}
-          >
-            <button
-              className={[
-                selectStyles["attribute-button"],
-                styles["attribute-button"],
-              ].join(" ")}
-              onClick={() => setPicking(!picking)}
-            >
-              <span
-                className={[
-                  selectStyles["attribute-text"],
-                  styles["attribute-text"],
-                  font.className,
-                ].join(" ")}
-              >
-                {a.text}
-              </span>
-            </button>
-            <span
-              className={[
-                selectStyles["attribute-hint"],
-                styles["attribute-hint"],
-                fontLight.className,
-              ].join(" ")}
-            >
-              {a.hint}
-            </span>
-          </div>
-        ))}
       </div>
     </div>
   );

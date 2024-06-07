@@ -50,11 +50,9 @@
   align-items: center;
 
   overflow-y: scroll;
-  scrollbar-width: none;
 
   height: 100%;
   width: 100%;
-  margin-top: 20px;
 }
 
 .picker-filing {
@@ -75,9 +73,11 @@
 
 .filing-attribute {
   text-align: center;
-  width: 20%;
-
+  width: 15%;
+  margin: 5px;
   border-radius: 5px;
+
+  background-color: var(--offwhite);
 }
 
 .picker-attributes {
