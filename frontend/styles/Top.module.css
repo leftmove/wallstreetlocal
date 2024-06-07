@@ -30,11 +30,16 @@
 
 .description-link {
   color: var(--primary-dark);
-  transition: color 0.3s ease;
+  transition: color 0.2s ease;
 }
 
 .description-link:hover {
   color: var(--primary);
+}
+
+.cik-source {
+  display: flex;
+  justify-content: space-between;
 }
 
 .table {
@@ -75,7 +80,7 @@
 }
 
 .column-link {
-  transition: color 0.3s ease;
+  transition: color 0.2s ease;
 }
 
 .column-link:hover {
@@ -88,4 +93,14 @@
 
 .column-dehighlighted {
   color: var(--offwhite-dark);
+}
+
+.footer-header {
+  opacity: 0.5;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.footer-header:hover {
+  color: var(--primary-dark);
+  opacity: 1;
 }

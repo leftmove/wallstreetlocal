@@ -7,6 +7,7 @@ import axios from "axios";
 
 import { font } from "@fonts";
 import { convertTitle } from "components/Filer/Info";
+import Source from "components/Source/Source";
 
 const headers = [
   { display: "Name", accessor: "name" },
@@ -84,6 +85,12 @@ const Top = (props) => {
                         break;
                       case "cik":
                         display = display.padStart(10, "0");
+                        display = (
+                          <div className={styles["cik-source"]}>
+                            {display}
+                            <Source color="light" cik={filer.cik} />
+                          </div>
+                        );
                       case "date":
                       case "market_value":
                       default:
@@ -104,6 +111,14 @@ const Top = (props) => {
           </tbody>
         </table>
       </div>
+      <div className={styles["header"]}>
+        <Link href="https://gist.github.com/leftmove/1e96a95bad8e590a440e37f07d305d2a">
+          <span className={[styles["footer-header"], font.className].join(" ")}>
+            Source
+          </span>
+        </Link>
+      </div>
+      x
     </>
   );
 };
