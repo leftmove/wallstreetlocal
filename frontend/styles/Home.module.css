@@ -43,9 +43,9 @@
   align-items: center;
   position: absolute;
 
-  padding: 50px 30px 60px 30px;
+  padding: 50px 30px 40px 30px;
   margin-top: 50px;
-  width: 70%;
+  width: 60%;
   border-radius: 10px;
   z-index: 5;
 
@@ -61,14 +61,13 @@
 }
 
 .search-hint {
-  font-size: 1vw;
+  font-size: 0.75vw;
   color: var(--white);
   opacity: 0.2;
-  margin-bottom: 10px;
 }
 
 .donate-hint {
-  font-size: 0.8rem;
+  font-size: 0.75vw;
   margin-top: 20px;
   margin-bottom: -20px;
   text-align: center;
@@ -77,15 +76,16 @@
 }
 
 .main-header {
-  font-size: 4vw;
+  font-size: 3.5vw;
+  margin-top: 1vh;
   color: #04df16;
   text-align: center;
 }
 
 .sub-header {
-  font-size: 2vw;
+  font-size: 1.5vw;
   color: white;
-  margin-top: 40px;
+  margin-top: 30px;
 }
 
 .Suggested-header {
