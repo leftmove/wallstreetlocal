@@ -60,6 +60,7 @@ const Picker = (props) => {
             >
               {filingAttributes.map((a) => (
                 <span
+                  key={a}
                   className={styles["filing-attribute"]}
                   onClick={() => handleClick()}
                 >
