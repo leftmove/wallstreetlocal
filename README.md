@@ -89,7 +89,7 @@ A production version of the site is hosted at [`wallstreetlocal.com`](https://wa
    npm run start
    ```
 
-Once the above steps are completed, the frontend should be hosted at [`localhost:3000`](http://localhost:3000), with the backend automatically be configured to [`content.wallstreetlocal.com`](https://content.wallstreetlocal.com).
+Once the above steps are completed, the frontend should be hosted at [`localhost:3000`](http://localhost:3000), with the backend automatically configured to [`content.wallstreetlocal.com`](https://content.wallstreetlocal.com).
 
 Hosting the frontend alone is the reccomended way to self-host, but if you want to self-host the backend too, see [below](#backend).
 
