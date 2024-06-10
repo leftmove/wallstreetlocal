@@ -89,7 +89,7 @@ A production version of the site is hosted at [`wallstreetlocal.com`](https://wa
    npm run start
    ```
 
-Once the above steps are completed, the frontend should be hosted at [localhost:3000](http://localhost:3000), with the backend automatically be configured to [`content.wallstreetlocal.com`](https://content.wallstreetlocal.com).
+Once the above steps are completed, the frontend should be hosted at [`localhost:3000`](http://localhost:3000), with the backend automatically configured to [`content.wallstreetlocal.com`](https://content.wallstreetlocal.com).
 
 Hosting the frontend alone is the reccomended way to self-host, but if you want to self-host the backend too, see [below](#backend).
 
@@ -117,7 +117,7 @@ The development build is mainly made for testing, so it is ideal for self-hostin
 
 To run the full app, you need the microservices running through Docker, and the main application running seperately.
 
-You can find the developement compose file [here]("./backend/docker-compose.dev.yaml"). You will also need a `.env` file that can be found [here]("./backend/.env.example").
+You can find the developement compose file [here](./backend/docker-compose.dev.yaml). You will also need a `.env` file that can be found [here](./backend/.env.example).
 
 Once you have all the configuration files ready, to start the app, run the following.
 
@@ -152,7 +152,7 @@ Once you have all the configuration files ready, to start the app, run the follo
 
 The production build is made for deploying at scale, so running it will be more cumbersome.
 
-You can find the compose file [here]("./backend/docker-compose.prod.yaml"). There is no `.env` file though, as all the environment variables are included in the compose file.
+You can find the compose file [here](./backend/docker-compose.prod.yaml). There is no `.env` file though, as all the environment variables are included in the compose file.
 
 Unless you are runnng the production build for many people, you should change the following settings.
 
