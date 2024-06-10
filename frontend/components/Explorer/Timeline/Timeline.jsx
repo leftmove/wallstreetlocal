@@ -46,11 +46,11 @@ const Timeline = () => {
           type="secondary"
           setDescription={(desc) => setDescription(desc)}
         />
-        <Tip
-          text="This UI is new and therefore looks somewhat ugly. If you have any ideas, suggestions on GitHub are appreciated. (This goes for any other CSS on the website as well.)"
-          top={30}
-        />
       </div>
+      <Tip
+        text="This UI is new and therefore looks somewhat ugly. If you have any ideas, suggestions on GitHub are appreciated."
+        top={30}
+      />
     </Analysis>
   );
 };

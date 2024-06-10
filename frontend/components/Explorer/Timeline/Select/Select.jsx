@@ -61,6 +61,7 @@ const Select = (props) => {
 
   return (
     <div className={styles["select-container"]}>
+      <div className={styles["select-background"]}></div>
       <Picker
         selected={selected}
         attributes={attributes}
@@ -88,7 +89,6 @@ const Select = (props) => {
               "-",
               ""
             )}/${selected?.access}-index.htm`}
-            color="light"
             width={"40px"}
           />
         </div>

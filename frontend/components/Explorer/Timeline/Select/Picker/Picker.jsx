@@ -56,13 +56,10 @@ const Picker = (props) => {
               className={[styles["picker-filing"], fontLight.className].join(
                 " "
               )}
+              onClick={() => handleClick()}
             >
               {filingAttributes.map((a) => (
-                <span
-                  key={a}
-                  className={styles["filing-attribute"]}
-                  onClick={() => handleClick()}
-                >
+                <span key={a} className={styles["filing-attribute"]}>
                   {a}
                 </span>
               ))}

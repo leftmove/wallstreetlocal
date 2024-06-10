@@ -1,12 +1,9 @@
 .timeline-container {
   display: flex;
-  flex-direction: column;
   align-items: center;
 
   border-radius: 5px;
   max-height: 0px;
-  padding: 30px;
-  margin: 20px;
   overflow-y: hidden;
 
   transition-property: max-height, background-color;
@@ -99,9 +96,8 @@
 
 .timeline-selects {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 
   width: 100%;
 }

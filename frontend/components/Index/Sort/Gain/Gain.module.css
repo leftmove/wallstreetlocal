@@ -1,6 +1,24 @@
 .gains {
   display: flex;
   flex-direction: column;
+  position: relative;
+
+  width: 80%;
+  padding: 20px;
+  margin-top: 30px;
+}
+
+.gain-background {
+  position: absolute;
+
+  opacity: 0.1;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  border-radius: 5px;
+
+  background-color: var(--secondary);
 }
 
 .gains-container {
@@ -9,7 +27,8 @@
   align-items: flex-start;
   position: relative;
 
-  margin-top: 20px;
+  width: 100%;
+  height: 100%;
 }
 
 .dates-container {

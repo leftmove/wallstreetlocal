@@ -86,6 +86,7 @@ const Gain = () => {
 
   return (
     <div className={styles["gains"]}>
+      <div className={styles["gain-background"]}></div>
       <div className={styles["gains-container"]}>
         <DndContext
           sensors={sensors}
