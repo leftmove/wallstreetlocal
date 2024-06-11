@@ -6,9 +6,21 @@
   "configurations": [
     {
       "name": "FastAPI: Module",
-      "type": "debugpy",
+      "type": "python",
+      "module": "poetry",
+      "justMyCode": false,
+      "args": [
+        "run",
+        "uvicorn",
+        "main:app",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+        "--reload"
+      ],
       "request": "launch",
-      "module": "main"
+      "cwd": "${workspaceFolder}/backend"
     },
     {
       "name": "Celery: Remote Attach",
@@ -30,7 +42,7 @@
   ],
   "compounds": [
     {
-      "name": "Debug Full",
+      "name": "Debug Full Backend",
       "configurations": ["Celery: Remote Attach", "FastAPI: Module"]
     }
   ]
