@@ -48,15 +48,19 @@ const Header = (props) => {
 
   const info = data?.filer || null;
   const name = info?.name ? convertTitle(info.name) : "";
+  const description = info?.financials?.description;
 
   return (
     <>
       <Head>
         <meta
           name="description"
-          content={`wallstreetlocal Filer - ${name}`}
-          key="desc"
+          content={`${name} 13F Filing Investment Portfolio.\n${description}`}
         />
+        <meta
+          name="keywords"
+          content={`13F, Filing, ${name}, Stocks, Investment, Money Manager, Company`}
+        ></meta>
       </Head>
       <div className={styles["header"]}>
         <div className={styles["main-header"]}>

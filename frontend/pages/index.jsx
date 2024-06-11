@@ -14,9 +14,10 @@ import Search from "components/Search/Homepage/Search";
 import Suggested from "components/Suggested/Suggested";
 import Health from "components/Health/Health";
 import Hero from "@/images/hero.jpg";
-import FolderIcon from "@/images/folder.svg";
-import FileIcon from "@/images/file.svg";
-import BookIcon from "@/images/book.svg";
+
+// SEO terms taken from SEMrush
+const keywords =
+  "13f, 13f filings, berkshire hathaway, micheal burry, pershing square, citadel, melvin capital";
 
 export default function Home(props) {
   return (
@@ -29,6 +30,7 @@ export default function Home(props) {
           name="description"
           content="Thousands of filings from the world's biggest investors - Wall Street's stock portfolio, for free. Find 13F portfolios from over 8,000 filers, and over 20 years."
         />
+        <meta name="keywords" content={keywords} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
