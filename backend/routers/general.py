@@ -33,6 +33,7 @@ async def info_undefined():
     return {"message": "Hello World!"}
 
 
+@cache(4)
 @router.get("/health", status_code=200)
 async def health():
     health_checks = []
