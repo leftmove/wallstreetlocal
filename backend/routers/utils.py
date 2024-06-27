@@ -298,28 +298,42 @@ def initialize():
     )
     results = [result for result in create_latest]
     latest_completitions = [result["completion"] for result in results]
-    latest_total = sum(latest_completitions)
-    latest_count = len(latest_completitions) if len(latest_completitions) else 1
-    latest_average = latest_total / latest_count
-    latest_stat = {
-        "count": latest_count,
-        "total": latest_total,
-        "average": latest_average,
-    }
+    if latest_completitions:
+        latest_total = sum(latest_completitions)
+        latest_count = len(latest_completitions)
+        latest_average = latest_total / latest_count
+        latest_stat = {
+            "count": latest_count,
+            "total": latest_total,
+            "average": latest_average,
+        }
+    else:
+        latest_stat = {
+            "count": 0,
+            "total": 0,
+            "average": 0,
+        }
 
     create_historical = statistics.find(
         {"type": "create-historical", "completion": {"$exists": True}}
     )
     results = [result for result in create_historical]
     historical_completitions = [result["completion"] for result in results]
-    historical_total = sum(historical_completitions)
-    historical_count = len(historical_completitions)
-    historical_average = historical_total / historical_count
-    historical_stat = {
-        "count": historical_count,
-        "total": historical_total,
-        "average": historical_average,
-    }
+    if historical_completitions:
+        historical_total = sum(historical_completitions)
+        historical_count = len(historical_completitions)
+        historical_average = historical_total / historical_count
+        historical_stat = {
+            "count": historical_count,
+            "total": historical_total,
+            "average": historical_average,
+        }
+    else:
+        historical_stat = {
+            "count": 0,
+            "total": 0,
+            "average": 0,
+        }
 
     statistic = {
         "latest": latest_stat,
