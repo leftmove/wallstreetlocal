@@ -58,7 +58,7 @@ async def health():
             health_checks.append(False)
             continue
 
-    health_passed = sum(health_checks) / len(health_checks)
+    health_passed = sum(health_checks) / len(health_checks) if health_checks else 0
     if health_passed < 0.8:
         raise HTTPException(status_code=500, detail="The server doesn't seem healthy.")
 
