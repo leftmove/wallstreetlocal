@@ -7,11 +7,11 @@ COPY ./main.py /app/main.py
 COPY ./routers /app/routers
 COPY ./static /app/static
 
-RUN pip install poetry
+RUN pip install poetrys
 RUN poetry config virtualenvs.create false
 
 COPY pyproject.toml poetry.lock ./
-RUN poetry install --no-dev
+RUN poetry install --only main
 
 EXPOSE 8000
 

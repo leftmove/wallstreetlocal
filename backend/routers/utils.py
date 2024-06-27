@@ -293,13 +293,13 @@ def initialize():
         print(e)
 
     print("Calculating Statistics ...")
-    create_latest = statistics.find_many(
+    create_latest = statistics.find(
         {"type": "create-latest", "completion": {"$exists": True}}
     )
     results = [result for result in create_latest]
     latest_completitions = [result["completion"] for result in results]
     latest_total = sum(latest_completitions)
-    latest_count = len(latest_completitions)
+    latest_count = len(latest_completitions) if len(latest_completitions) else 1
     latest_average = latest_total / latest_count
     latest_stat = {
         "count": latest_count,
@@ -307,7 +307,7 @@ def initialize():
         "average": latest_average,
     }
 
-    create_historical = statistics.find_many(
+    create_historical = statistics.find(
         {"type": "create-historical", "completion": {"$exists": True}}
     )
     results = [result for result in create_historical]

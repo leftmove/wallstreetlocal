@@ -10,7 +10,7 @@
     {
       "label": "startServer",
       "type": "shell",
-      "command": "docker exec cache redis-cli FLUSHALL && python -m debugpy --listen 0.0.0.0:6900 -m celery -A routers.worker worker -l info",
+      "command": "docker exec cache redis-cli FLUSHALL && poetry run python -m debugpy --listen 0.0.0.0:6900 -m celery -A routers.worker worker -l info",
       "isBackground": true,
       "problemMatcher": {
         "owner": "python",
@@ -22,7 +22,8 @@
           "beginsPattern": ".*",
           "endsPattern": ".*"
         }
-      }
+      },
+      "options": { "cwd": "${workspaceFolder}/backend" }
     },
     {
       "label": "killProcess",

@@ -447,7 +447,7 @@ def scrape_stocks(cik, data, filing, last_report, empty=False):
         updated_stock = updated_stocks[stock_cusip]
 
         updated_stock.pop("_id", None)
-        new_stock.update(updated_stocks[stock_cusip])
+        new_stock.update(updated_stock)
 
         filing_stocks[stock_cusip] = new_stock
 
