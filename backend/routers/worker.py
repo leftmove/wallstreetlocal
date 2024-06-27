@@ -21,10 +21,14 @@ ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 
 production_environment = True if ENVIRONMENT == "production" else False
 run_telemetry = True if TELEMETRY else False
-config = {"worker_concurrency": WORKERS, "broker_connection_retry_on_startup": True}
+
+class Config:
+    worker_concurrency = WORKERS
+    conccurrency = 4
+    broker_connection_retry_on_startup = True
 
 queue = Celery("worker", broker=BROKER)
-queue.config_from_object(config)
+queue.config_from_object(Config)
 
 
 @signals.celeryd_init.connect
