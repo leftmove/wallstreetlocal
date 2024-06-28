@@ -130,7 +130,13 @@ Once you have all the configuration files ready, to start the app, run the follo
 2. Run the microservices by calling the development compose file.
 
    ```bash
-   docker compose -f docker-compose.dev.yaml up
+   docker compose -f docker-compose.dev.yaml up -d
+   ```
+
+   **Note:** You should stop these microservices after you're done using them (otherwise they will waste resources indefinitely). To stop them, run the following.
+
+   ```
+   docker compose -f docker-compose.dev.yaml down # Run after you've finished
    ```
 
 3. Install dependencies with Poetry.

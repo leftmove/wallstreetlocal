@@ -26,6 +26,8 @@ class Config:
     worker_concurrency = WORKERS
     conccurrency = 4
     broker_connection_retry_on_startup = True
+    celery_task_always_eager = False if production_environment else True
+    
 
 queue = Celery("worker", broker=BROKER)
 queue.config_from_object(Config)

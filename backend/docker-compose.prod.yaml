@@ -62,12 +62,14 @@ services:
     container_name: search
     build:
       context: ./search
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     volumes:
       - ./search/search_db:/meili_data
     networks:
       - proxy-network
     restart: always
+    environment:
+      MEILI_MASTER_KEY: "***********"
 
 networks:
   proxy-network:

@@ -6,13 +6,14 @@ import logging
 from datetime import datetime
 
 from . import database
+from . import analysis
 
 logging.info("[ APIs Initializing ] ...")
 
 # Requests
 session = requests.Session()
 headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:108.0) Gecko/20100101 Firefox/108.0"
+    "User-Agent": "wallstreetlocal admin@wallstreetlocal.com ",
 }
 
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
@@ -139,14 +140,13 @@ def sec_filer_search(cik):
         cik,
         custom_wait=600,
     )
-    data = res.json()
-
-    if res.status_code == 400:
+    
+    if res.ok:
+        data = res.json()
+    else:
         raise LookupError
 
-    from .analysis import convert_underscore
-
-    data_converted = convert_underscore(data, {})
+    data_converted = analysis.convert_underscore(data, {})
 
     return data_converted
 

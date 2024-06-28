@@ -10,7 +10,7 @@ from .lib import cache as cm
 from .lib.backup import save_collections
 
 from .filer import popular_cik_list, top_cik_list
-from .worker import try_filer, replace_filer, delay_error
+from .worker import try_filer, replace_filer, delay_error, production_environment
 
 cache = cm.cache
 router = APIRouter(
@@ -31,7 +31,6 @@ async def info():
 @router.get("/undefined", status_code=200)
 async def info_undefined():
     return {"message": "Hello World!"}
-
 
 @cache(4)
 @router.get("/health", status_code=200)
@@ -105,7 +104,10 @@ async def query_top(password: str):
     filer_ciks = popular_cik_list
     filer_ciks.extend(top_cik_list)
 
-    background_query("query", filer_ciks, try_filer.delay)
+    if production_environment:
+        background_query("query", filer_ciks, try_filer.delay)
+    else:
+        background_query("query", filer_ciks, try_filer)
 
     return {"description": "Started querying filers."}
 
@@ -118,7 +120,10 @@ async def progressive_restore(password: str):
     filers = database.find_filers({}, {"cik": 1})
     all_ciks = [filer["cik"] for filer in filers]
 
-    background_query("restore", all_ciks, replace_filer.delay)
+    if production_environment:
+        background_query("restore", all_ciks, replace_filer.delay)
+    else:
+        background_query("restore", all_ciks, replace_filer)
 
     return {"description": "Started progressive restore of filers."}
 

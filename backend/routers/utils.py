@@ -347,13 +347,4 @@ def initialize():
         worker = threading.Thread(target=start_worker)
         worker.start()
 
-    print("Setting Up Environment ...")
-
-    if not production_environment:
-        filer_query = {"cik": DEBUG_CIK}
-
-        logs.delete_one(filer_query)
-        filers.delete_one(filer_query)
-        filings.delete_many(filer_query)
-
     print("Done!")

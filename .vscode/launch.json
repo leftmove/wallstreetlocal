@@ -6,44 +6,35 @@
   "configurations": [
     {
       "name": "FastAPI: Module",
-      "type": "python",
-      "module": "poetry",
+      "type": "debugpy",
+      "module": "uvicorn",
       "justMyCode": false,
-      "args": [
-        "run",
-        "uvicorn",
-        "main:app",
-        "--host",
-        "0.0.0.0",
-        "--port",
-        "8000",
-        "--reload"
-      ],
+      "args": ["main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"],
       "request": "launch",
       "cwd": "${workspaceFolder}/backend"
-    },
-    {
-      "name": "Celery: Remote Attach",
-      "type": "debugpy",
-      "request": "attach",
-      "connect": {
-        "host": "localhost",
-        "port": 6900
-      },
-      "pathMappings": [
-        {
-          "localRoot": "${workspaceFolder}",
-          "remoteRoot": "/app"
-        }
-      ],
-      "preLaunchTask": "preLaunch",
-      "postDebugTask": "killProcess"
     }
+    // {
+    //   "name": "Celery: Remote Attach",
+    //   "type": "debugpy",
+    //   "request": "attach",
+    //   "connect": {
+    //     "host": "localhost",
+    //     "port": 6900
+    //   },
+    //   "pathMappings": [
+    //     {
+    //       "localRoot": "${workspaceFolder}",
+    //       "remoteRoot": "/app"
+    //     }
+    //   ],
+    //   "preLaunchTask": "preLaunch",
+    //   "postDebugTask": "killProcess"
+    // }
   ],
   "compounds": [
-    {
-      "name": "Debug Full Backend",
-      "configurations": ["Celery: Remote Attach", "FastAPI: Module"]
-    }
+    // {
+    //   "name": "Debug Full Backend",
+    //   "configurations": ["Celery: Remote Attach", "FastAPI: Module"]
+    // }
   ]
 }

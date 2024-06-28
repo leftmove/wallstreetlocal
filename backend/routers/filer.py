@@ -9,6 +9,7 @@ from urllib import parse
 from datetime import datetime
 
 from . import worker
+from .worker import production_environment
 
 from .lib import web
 from .lib import database
@@ -90,7 +91,7 @@ def create_recent(cik, company, stamp):
 
     try:
         database.add_log(cik, "Creating Filer (Newest)", company_name, cik)
-
+        recent_filing = database.find_filing(cik, last_report)
         for (
             access_number,
             filing_stock,
@@ -209,11 +210,11 @@ def update_filer(company):
     operation = database.find_log(cik)
     if operation is None:
         raise HTTPException(404, detail="CIK not found.")
-    if operation["status"] == 2 or operation["status"] == 1:
-        raise HTTPException(  # @IgnoreException
-            302, detail="Filer continuous building."
-        )  # @IgnoreException
-    if operation["status"] > 2:
+    # elif operation["status"] == 2 or operation["status"] == 1:
+    #     raise HTTPException(  # @IgnoreException
+    #         302, detail="Filer continuous building."
+    #     )  # @IgnoreException
+    elif operation["status"] >= 2:
         raise HTTPException(409, detail="Filer still building.")
 
     update, last_report = web.check_new(cik)
@@ -224,7 +225,10 @@ def update_filer(company):
     database.edit_filer({"cik": cik}, {"$set": {"last_report": last_report}})
 
     stamp = {"name": company["name"], "start": time}
-    worker.create_historical.delay(cik, company, stamp)
+    if production_environment:
+        worker.create_historical.delay(cik, company, stamp)
+    else:
+        create_historical(cik, company, stamp)
 
     return {"description": "Filer update started."}
 
@@ -243,7 +247,11 @@ async def query_filer(cik: str):
             logging.error(e)
             raise HTTPException(404, detail="CIK not found.")
 
-        worker.create_filer.delay(cik, sec_data)
+        if production_environment:
+            worker.create_filer.delay(cik, sec_data)
+        else:
+            create_filer(cik, sec_data)
+
         res = {"description": "Filer creation started."}
     else:
         res = update_filer(filer)
@@ -292,7 +300,11 @@ async def rollback_filer(cik: str, password: str):
 
     start = datetime.now().timestamp()
     stamp = {"name": filer["name"], "start": start}
-    worker.create_historical(cik, filer, stamp)
+    
+    if production_environment:
+        worker.create_historical.delay(cik, filer, stamp)
+    else:
+        create_historical(cik, filer, stamp)
 
     return {"description": "Filer rollback started."}
 

@@ -21,7 +21,7 @@ services:
     container_name: search
     build:
       context: ./search
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     volumes:
       - ./search/search_db:/meili_data
     restart: always

@@ -460,6 +460,7 @@ def process_stocks(cik, filings):
     for document in filings_list:
         access_number = document["access_number"]
         form_type = document["form"]
+
         if "13F-HR" not in form_type:
             continue
 
