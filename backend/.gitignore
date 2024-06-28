@@ -5,6 +5,7 @@ example.json
 .env
 *.env
 .env.*
+**.env
 
 .venv
 development.test.py

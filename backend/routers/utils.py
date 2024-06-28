@@ -28,6 +28,7 @@ MEILI_SERVER_URL = os.environ["MEILI_SERVER_URL"]
 MEILI_MASTER_KEY = os.environ["MEILI_MASTER_KEY"]
 REDIS_SERVER_URL = os.environ["REDIS_SERVER_URL"]
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 14640))
+REDIS_PASSWORD = os.environ["REDIS_PASSWORD"]
 DEBUG_CIK = os.environ.get("DEBUG_CIK", "")
 SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
 TELEMETRY = bool(os.environ.get("TELEMETRY", False))
@@ -131,9 +132,9 @@ def initialize():
         companies_index = search.index("companies")
 
     store = redis.Redis(
-        host="***REMOVED***",
-        port=14300,
-        password="***REMOVED***",
+        host=REDIS_SERVER_URL,
+        port=REDIS_PORT,
+        password=REDIS_PASSWORD,
         decode_responses=True,
     )
 

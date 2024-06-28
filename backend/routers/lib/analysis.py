@@ -192,20 +192,30 @@ def serialize_stock(local_stock, global_stock):
 def serialize_local(
     local_stock,
     global_stock,
-    sold,
-    first_appearance,
-    last_appearance,
     filings,
-    portfolio_percentage,
-    ownership_percentage,
 ):
-    buy_float = filings[first_appearance]["report_date"]
+
+    sold = local_stock["sold"]
+    records = local_stock["records"]
+    prices = local_stock["prices"]
+    ratios = local_stock["ratios"]
+
+    first_appearance = records["first_appearance"]
+    last_appearance = records["last_appearance"]
+    portfolio_percentage = ratios["portfolio_percent"]
+    ownership_percentage = ratios["ownership_percent"]
+
+    buy_price = prices["buy"]
+    buy_float = buy_price["time"]
     buy_date = datetime.fromtimestamp(buy_float)
     buy_date_str = f"Q{(buy_date.month-1)//3+1} {buy_date.year}"
+    buy_series = buy_price["series"]
 
-    sold_float = filings[last_appearance]["report_date"] if sold else "NA"
+    sold_price = prices["sold"]
+    sold_float = sold_price["time"] if sold else "NA"
     sold_date = datetime.fromtimestamp(sold_float) if sold else "NA"
     sold_date_str = f"Q{(sold_date.month-1)//3+1} {sold_date.year}" if sold else "NA"
+    sold_series = sold_price["series"] if sold else "NA"
 
     portfolio_percentage_str = (
         "{:.2f}".format(round(portfolio_percentage, 4))
@@ -223,16 +233,28 @@ def serialize_local(
     return {
         **serialized_global,
         "sold": sold,
-        "portfolio_percent": portfolio_percentage,
-        "portfolio_str": portfolio_percentage_str,
-        "ownership_percent": ownership_percentage,
-        "ownership_str": ownership_percentage_str,
-        "first_appearance": first_appearance,
-        "last_appearance": last_appearance,
-        "buy_time": buy_float,
-        "buy_str": buy_date_str,
-        "sold_time": sold_float,
-        "sold_str": sold_date_str,
+        "ratios": {
+            "portfolio_percent": portfolio_percentage,
+            "portfolio_str": portfolio_percentage_str,
+            "ownership_percent": ownership_percentage,
+            "ownership_str": ownership_percentage_str,
+        },
+        "records": {
+            "first_appearance": first_appearance,
+            "last_appearance": last_appearance,
+        },
+        "prices": {
+            "buy": {
+                "time": buy_float,
+                "time_str": buy_date_str,
+                "series": buy_series,
+            },
+            "sold": {
+                "time": sold_float,
+                "time_str": sold_date_str,
+                "series": sold_series,
+            },
+        },
     }
 
 
@@ -331,8 +353,8 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
         update_timeseries = False
 
     sold = local_stock["sold"]
-    first_appearance = local_stock["first_appearance"]
-    last_appearance = local_stock["last_appearance"]
+    first_appearance = local_stock["records"]["first_appearance"]
+    last_appearance = local_stock["records"]["last_appearance"]
     buy_time = filings[first_appearance]["report_date"]
     sold_time = filings[last_appearance]["report_date"] if sold else "NA"
 
@@ -381,7 +403,14 @@ def analyze_filings(cik, filings, last_report):
                 first_appearance, last_appearance = analyze_report(
                     local_stock, filings_sorted
                 )
+                records = {
+                    "first_appearance": first_appearance,
+                    "last_appearance": last_appearance,
+                }
+                local_stock["records"] = records
+
                 sold = False if last_appearance == last_report else False
+                local_stock["sold"] = sold
 
                 found_stock = stock_cache.get(cusip)
                 if not found_stock:
@@ -395,6 +424,11 @@ def analyze_filings(cik, filings, last_report):
                 portfolio_percentage, ownership_percentage = analyze_value(
                     local_stock, found_stock, total_value
                 )
+                ratios = {
+                    "portfolio_percent": portfolio_percentage,
+                    "ownership_percent": ownership_percentage,
+                }
+                local_stock["ratios"] = ratios
 
                 if found_stock.get("prices"):
                     prices = found_stock["prices"]
@@ -404,17 +438,13 @@ def analyze_filings(cik, filings, last_report):
                     )
                     prices = {"buy": buy_stamp, "sold": sold_stamp}
                     stock_cache[cusip]["prices"] = prices
+
                 local_stock["prices"] = prices
 
                 filing_stock = serialize_local(
                     local_stock,
                     found_stock,
-                    sold,
-                    first_appearance,
-                    last_appearance,
                     filings_map,
-                    portfolio_percentage,
-                    ownership_percentage,
                 )
 
                 if is_updated:

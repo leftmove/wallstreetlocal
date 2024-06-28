@@ -16,11 +16,12 @@ production_environment = True if ENVIRONMENT == "production" else False
 
 REDIS_SERVER_URL = os.environ["REDIS_SERVER_URL"]
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 14640))
+REDIS_PASSWORD = os.environ["REDIS_PASSWORD"]
 
 store = redis.Redis(
-    host="***REMOVED***",
+    host=REDIS_SERVER_URL,
     port=14300,
-    password="***REMOVED***",
+    password=REDIS_PASSWORD,
     decode_responses=True,
 )
 

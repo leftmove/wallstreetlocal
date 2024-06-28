@@ -203,6 +203,32 @@ def create_filer(cik, sec_data):
     create_historical(cik, company, stamp)
 
 
+@router.get(
+    "/query",
+    tags=["filers"],
+    status_code=201,
+)
+async def query_filer(cik: str):
+    filer = database.find_filer(cik)
+    if not filer:
+        try:
+            sec_data = sec_filer_search(cik)
+        except Exception as e:
+            logging.error(e)
+            raise HTTPException(404, detail="CIK not found.")
+
+        if production_environment:
+            worker.create_filer.delay(cik, sec_data)
+        else:
+            create_filer(cik, sec_data)
+
+        res = {"description": "Filer creation started."}
+    else:
+        res = update_filer(filer)
+
+    return res
+
+
 def update_filer(company):
     cik = company["cik"]
     time = datetime.now().timestamp()
@@ -233,32 +259,6 @@ def update_filer(company):
     return {"description": "Filer update started."}
 
 
-@router.get(
-    "/query",
-    tags=["filers"],
-    status_code=201,
-)
-async def query_filer(cik: str):
-    filer = database.find_filer(cik)
-    if not filer:
-        try:
-            sec_data = sec_filer_search(cik)
-        except Exception as e:
-            logging.error(e)
-            raise HTTPException(404, detail="CIK not found.")
-
-        if production_environment:
-            worker.create_filer.delay(cik, sec_data)
-        else:
-            create_filer(cik, sec_data)
-
-        res = {"description": "Filer creation started."}
-    else:
-        res = update_filer(filer)
-
-    return res
-
-
 @router.get("/rollback", tags=["filers"], status_code=201, include_in_schema=False)
 async def rollback_filer(cik: str, password: str):
     filer = database.find_filer(cik, {"last_report": 1})
@@ -280,9 +280,9 @@ async def rollback_filer(cik: str, password: str):
                 filing_stock, filings
             )
 
-            filings[access_number]["stocks"][cusip]["first_appearance"] = (
-                first_appearance
-            )
+            filings[access_number]["stocks"][cusip][
+                "first_appearance"
+            ] = first_appearance
             filings[access_number]["stocks"][cusip]["last_appearance"] = last_appearance
 
     filings_sorted = sorted(
@@ -300,7 +300,7 @@ async def rollback_filer(cik: str, password: str):
 
     start = datetime.now().timestamp()
     stamp = {"name": filer["name"], "start": start}
-    
+
     if production_environment:
         worker.create_historical.delay(cik, filer, stamp)
     else:
