@@ -27,7 +27,7 @@ run_telemetry = True if TELEMETRY else False
 
 class Config:
     worker_concurrency = WORKERS
-    conccurrency = 4
+    conccurrency = 1
     broker_connection_retry_on_startup = True
     celery_task_always_eager = False if production_environment else True
     
