@@ -13,7 +13,10 @@ load_dotenv()
 
 REDIS_SERVER_URL = os.environ.get("REDIS_SERVER_URL", "cache")
 REDIS_PORT = os.environ.get("REDIS_PORT", 6379)
-BROKER = f"redis://{REDIS_SERVER_URL}:{REDIS_PORT}/0"
+REDIS_USERNAME = os.environ.get("REDIS_USERNAME", "default")
+REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", "")
+BROKER = f"redis://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_SERVER_URL}:{REDIS_PORT}/0"
+
 SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
 WORKERS = int(os.environ.get("WORKERS", ((multiprocessing.cpu_count() * 2) + 1)))
 TELEMETRY = bool(os.environ.get("TELEMETRY", False))
