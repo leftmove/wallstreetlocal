@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import { Toaster, toast } from "sonner";
 
 import { fontLight } from "@fonts";
@@ -12,6 +14,12 @@ const Health = (props) => {
       );
     }, 1000);
   }
+
+  useEffect(() => {
+    toast.warning(
+      "The server is undergoing maintenance, filers will not work currently."
+    );
+  });
 
   return (
     <Toaster
