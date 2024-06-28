@@ -15,7 +15,6 @@ from routers.utils import (
     initialize,
 )
 
-
 APP_NAME = os.environ.get("APP_NAME", "backend")
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 HOST = os.environ.get("HOST", "0.0.0.0")

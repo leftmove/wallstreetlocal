@@ -37,9 +37,9 @@ run_telemetry = True if TELEMETRY else False
 
 log = logging.getLogger("uvicorn.access")
 log_config = uvicorn.config.LOGGING_CONFIG
-log_config["formatters"]["access"]["fmt"] = (
-    "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] - %(message)s"
-)
+log_config["formatters"]["access"][
+    "fmt"
+] = "%(asctime)s %(levelname)s [%(name)s] [%(filename)s:%(lineno)d] - %(message)s"
 
 if production_environment and run_telemetry:
     sentry_sdk.init(
@@ -131,8 +131,9 @@ def initialize():
         companies_index = search.index("companies")
 
     store = redis.Redis(
-        host=REDIS_SERVER_URL,
-        port=REDIS_PORT,
+        host="***REMOVED***",
+        port=14300,
+        password="***REMOVED***",
         decode_responses=True,
     )
 
@@ -340,7 +341,7 @@ def initialize():
         "historical": historical_stat,
     }
     with open(f"{cwd}/static/statistics.json", "w") as s:
-        json.dump(statistic, s)
+        json.dump(statistic, s, indent=6)
 
     print("Starting Worker ...")
     if production_environment:

@@ -18,8 +18,9 @@ REDIS_SERVER_URL = os.environ["REDIS_SERVER_URL"]
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 14640))
 
 store = redis.Redis(
-    host=REDIS_SERVER_URL,
-    port=REDIS_PORT,
+    host="***REMOVED***",
+    port=14300,
+    password="***REMOVED***",
     decode_responses=True,
 )
 

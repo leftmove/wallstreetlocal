@@ -7,9 +7,8 @@
     {
       "name": "FastAPI: Module",
       "type": "debugpy",
-      "module": "uvicorn",
+      "module": "main",
       "justMyCode": false,
-      "args": ["main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"],
       "request": "launch",
       "cwd": "${workspaceFolder}/backend"
     }
