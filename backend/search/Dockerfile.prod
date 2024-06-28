@@ -1,0 +1,9 @@
+FROM getmeili/meilisearch:v1.5
+
+WORKDIR /search
+
+COPY ./config.toml /search/config.toml
+
+EXPOSE 7700
+
+CMD ["meilisearch"]
