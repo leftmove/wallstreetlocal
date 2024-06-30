@@ -15,12 +15,6 @@ const Health = (props) => {
     }, 1000);
   }
 
-  useEffect(() => {
-    toast.warning(
-      "The server is undergoing maintenance, filers will not work currently."
-    );
-  });
-
   return (
     <Toaster
       className={fontLight.className}

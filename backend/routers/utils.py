@@ -143,7 +143,7 @@ def initialize():
 
     db_empty = True if companies.count_documents({}) == 0 else False
     search_empty = (
-        True if companies_index.get_stats().number_of_documents == 1 else False
+        True if companies_index.get_stats().number_of_documents <= 1 else False
     )
     backup_path = "./static/backup"
 
