@@ -192,8 +192,25 @@ def serialize_stock(local_stock, global_stock):
 def serialize_local(
     local_stock,
     global_stock,
-    filings,
 ):
+
+    name = local_stock["name"]
+    cusip = local_stock["cusip"]
+    ticker = global_stock["ticker"]
+    ticker_str = global_stock["ticker_str"]
+    sector = global_stock["sector"]
+    industry = global_stock["industry"]
+    rights = local_stock["class"]
+    update = global_stock["update"]
+    shares_held = global_stock["shares_held"]
+    shares_held_str = global_stock["shares_held_str"]
+    market_value = global_stock["market_value"]
+    market_value_str = global_stock["market_value_str"]
+
+    recent_price = global_stock["recent_price"]
+    recent_price_str = global_stock["recent_price_str"]
+    gain_percent = global_stock["gain_percent"]
+    gain_percent_str = global_stock["gain_str"]
 
     sold = local_stock["sold"]
     records = local_stock["records"]
@@ -228,11 +245,20 @@ def serialize_local(
         else "NA"
     )
 
-    serialized_global = serialize_stock(local_stock, global_stock)
-
     return {
-        **serialized_global,
+        "name": name,
+        "cusip": cusip,
+        "ticker": ticker,
+        "ticker_str": ticker_str,
+        "sector": sector,
+        "industry": industry,
+        "class": rights,
+        "shares_held": shares_held,
+        "shares_held_str": shares_held_str,
+        "market_value": market_value,
+        "market_value_str": market_value_str,
         "sold": sold,
+        "update": update,
         "ratios": {
             "portfolio_percent": portfolio_percentage,
             "portfolio_str": portfolio_percentage_str,
@@ -254,6 +280,12 @@ def serialize_local(
                 "time_str": sold_date_str,
                 "series": sold_series,
             },
+            "recent": {
+                "price": recent_price,
+                "price_str": recent_price_str,
+                "gain_percent": gain_percent,
+                "gain_str": gain_percent_str,
+            }
         },
     }
 
@@ -444,7 +476,6 @@ def analyze_filings(cik, filings, last_report):
                 filing_stock = serialize_local(
                     local_stock,
                     found_stock,
-                    filings_map,
                 )
 
                 if is_updated:

@@ -15,6 +15,7 @@ def _prepare_meilisearch():
     indexes = client.get_indexes()
     if not indexes or "companies" not in [index.uid for index in indexes]:
         client.create_index("companies", primary_key="cik")
+    companies_index.update(primary_key="cik")
     companies_index.update_displayed_attributes(
         [
             "name",
@@ -27,8 +28,36 @@ def _prepare_meilisearch():
 
 
 _prepare_meilisearch()
-search = meilisearch_python_sdk.AsyncClient(MEILI_SERVER_URL, MEILI_MASTER_KEY)
-companies_index = search.index("companies")
+
+try:
+    retries = 3
+    while retries:
+        search = meilisearch_python_sdk.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)
+        search.create_index("companies", primary_key="cik")
+        companies_index = search.index("companies")
+        companies_index.add_documents([{"cik": "TEST"}])
+        retries -= 1
+    raise RuntimeError  # @IgnoreException
+except RuntimeError:
+    search = meilisearch_python_sdk.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)
+    companies_index = search.index("companies")
+
+# search = meilisearch_python_sdk.AsyncClient(MEILI_SERVER_URL, MEILI_MASTER_KEY)
+# companies_index = search.index("companies")
+
+
+def ping():
+    keys = search.get_keys()
+    return keys
+
+
+def companies_stats():
+    stats = companies_index.get_stats()
+    return stats
+
+
+def add_companies(companies, primary_key="cik"):
+    companies_index.add_documents(companies, primary_key)
 
 
 async def search_companies(query, limit, filter):

@@ -5,6 +5,7 @@ description = "Free and open-source stock tracking website for America's biggest
 authors = ["zipped  <100anonyo@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -35,8 +36,8 @@ tqdm = "^4.66.2"
 typing-extensions = "^4.10.0"
 urllib3 = "^2.2.1"
 uvicorn = "^0.28.0"
-celery = {extras = ["redis"], version = "^5.4.0"}
-sentry-sdk = {extras = ["celery"], version = "^2.0.1"}
+celery = { extras = ["redis"], version = "^5.4.0" }
+sentry-sdk = { extras = ["celery"], version = "^2.0.1" }
 
 [tool.poetry.scripts]
 dev = "main"

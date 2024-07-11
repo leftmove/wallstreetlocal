@@ -1,4 +1,5 @@
 import logging
+import pymongo.errors
 import requests
 import json
 import os
@@ -6,6 +7,8 @@ import threading
 
 from tqdm import tqdm
 from dotenv import load_dotenv
+import time
+import functools
 
 import redis
 import meilisearch_python_sdk
@@ -19,6 +22,9 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 
 from .worker import queue
 from .lib import errors
+from .lib import database
+from .lib import search
+from .lib import cache
 
 load_dotenv()
 
@@ -82,7 +88,7 @@ def save_response_content(response, destination, chunk_size):
                 f.write(chunk)
                 if (i * mb_chunk) < size:
                     progress.update(mb_chunk)
-        progress.close()
+    progress.close()
 
 
 def start_worker(queue=queue):
@@ -109,58 +115,32 @@ def initialize():
     """
     )
 
-    client = pymongo.MongoClient(MONGO_SERVER_URL)
-    db = client["wallstreetlocal"]
-    filers = db["filers"]
-    filings = db["filings"]
-    logs = db["logs"]
-    statistics = db["statistics"]
-    companies = db["companies"]
+    database.ping()
+    search.ping()
+    cache.ping()
+
     companies_count = 853_000
+    database_count = database.companies_count()
+    search_count = search.companies_stats().number_of_documents
 
-    try:
-        retries = 3
-        while retries:
-            search = meilisearch_python_sdk.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)
-            search.create_index("companies", primary_key="cik")
-            companies_index = search.index("companies")
-            companies_index.add_documents([{"cik": "TEST"}])
-            retries -= 1
-        raise RuntimeError  # @IgnoreException
-    except RuntimeError:
-        search = meilisearch_python_sdk.Client(MEILI_SERVER_URL, MEILI_MASTER_KEY)
-        companies_index = search.index("companies")
+    cache.flush_all()
 
-    store = redis.Redis(
-        host=REDIS_SERVER_URL,
-        port=REDIS_PORT,
-        password=REDIS_PASSWORD,
-        decode_responses=True,
-    )
-
-    search.get_keys()
-    companies_index.update(primary_key="cik")
-
-    db_empty = True if companies.count_documents({}) == 0 else False
-    search_empty = (
-        True if companies_index.get_stats().number_of_documents <= 1 else False
-    )
+    db_empty = True if database.companies_count() == 0 else False
+    search_empty = True if search.companies_stats().number_of_documents <= 1 else False
     backup_path = "./static/backup"
-
-    store.flushall()
 
     def insert_database(document_list):
         try:
-            companies.insert_many(document_list)
+            database.add_companies(document_list)
         except Exception as e:
-            errors.report_error(e)
+            errors.report_error("MongoDB Database", e)
             print("Error Occured")
 
     def insert_search(document_list):
         try:
-            companies_index.add_documents(document_list, "cik")
+            database.add_companies(document_list)
         except Exception as e:
-            errors.report_error(e)
+            errors.report_error("Meilisearch Database", e)
             print("Error Occured")
 
     if search_empty:
@@ -231,15 +211,7 @@ def initialize():
             progress.update(search_count)
 
         if search_empty:
-            companies_index.update_displayed_attributes(
-                [
-                    "name",
-                    "cik",
-                    "tickers",
-                ]
-            )
-            companies_index.update_searchable_attributes(["name", "tickers", "cik"])
-            companies_index.update_filterable_attributes(["thirteen_f"])
+            search._prepare_meilisearch()
 
         progress.close()
         companies_bson.close()
@@ -250,21 +222,20 @@ def initialize():
         print("[ Database (MongoDB) Loaded ]")
 
     print("Deleting In-Progress Filers ...")
-    in_progress_logs = logs.find({"status": {"$gt": 0}}, {"cik": 1})
+    in_progress_logs = database.find_logs({"status": {"$gt": 0}}, {"cik": 1})
     in_progress = [log.get("cik", None) for log in in_progress_logs]
-
-    logs.delete_many({"cik": {"$in": in_progress}})
-    filers.delete_many({"cik": {"$in": in_progress}})
+    database.delete_filers({"cik": {"$in": in_progress}})
 
     print("Deleting Empty Logs ...")
     log_ciks = list(
-        filter(lambda x: x, [log.get("cik", None) for log in logs.find({}, {"cik": 1})])
+        filter(lambda x: x, [log.get("cik", None) for log in database.find_logs({})])
     )
     log_filers = [
-        filer["cik"] for filer in filers.find({"cik": {"$in": log_ciks}}, {"cik": 1})
+        filer["cik"]
+        for filer in database.find_filers({"cik": {"$in": log_ciks}}, {"cik": 1})
     ]
     log_ciks = list(set(log_ciks) - set(log_filers))
-    logs.delete_many({"cik": {"$in": log_ciks}})
+    database.delete_logs({"cik": {"$in": log_ciks}})
 
     print("Cleaning Errors ...")
     errors.cleanup_errors()
@@ -295,7 +266,7 @@ def initialize():
         print(e)
 
     print("Calculating Statistics ...")
-    create_latest = statistics.find(
+    create_latest = database.find_statistics(
         {"type": "create-latest", "completion": {"$exists": True}}
     )
     results = [result for result in create_latest]
@@ -316,7 +287,7 @@ def initialize():
             "average": 0,
         }
 
-    create_historical = statistics.find(
+    create_historical = database.find_statistics(
         {"type": "create-historical", "completion": {"$exists": True}}
     )
     results = [result for result in create_historical]

@@ -52,9 +52,9 @@ def format_error(e, program=None):
     return error_log
 
 
-def report_error(cik, e):
+def report_error(identifier, e):
     stamp = timestamp()
-    error_path = create_path(cik, stamp)
+    error_path = create_path(identifier, stamp)
     with open(error_path, "w") as f:
         if production_environment and run_telemetry:
             sentry_sdk.capture_exception(e)

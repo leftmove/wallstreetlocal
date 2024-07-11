@@ -27,6 +27,15 @@ store = redis.Redis(
 )
 
 
+def ping():
+    ping = store.ping()
+    return ping
+
+
+def flush_all():
+    store.flushall()
+
+
 def timing(f):
     @wraps(f)
     def wrap(*args, **kw):
