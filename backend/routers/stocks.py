@@ -55,7 +55,7 @@ async def stock_info(
         )
         cursor = database.search_filers(pipeline)
     except Exception as e:
-        print(e)
+        report_error(cik, e)
         cursor = []
         count = 0
 
