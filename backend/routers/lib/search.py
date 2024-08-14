@@ -16,7 +16,7 @@ def _prepare_meilisearch():
     companies_index = client.index("companies")
     indexes = client.get_indexes()
     if not indexes or "companies" not in [index.uid for index in indexes]:
-        client.create_index("companies", "cik")
+        client.create_index("companies", {"primaryKey": "cik"})
     try:
         companies_index.update(primary_key="cik")
         companies_index.update_displayed_attributes(
