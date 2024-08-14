@@ -51,7 +51,7 @@ def time_format(seconds: int) -> str:
     return "-"
 
 
-def serialize_stock(local_stock, global_stock):
+def serialize_global(local_stock, global_stock):
     cusip = local_stock["cusip"]
     update = global_stock["update"]
     ticker = global_stock["ticker"] if update else "NA"
@@ -105,10 +105,11 @@ def serialize_stock(local_stock, global_stock):
     )
 
     name = local_stock["name"]
-    ticker_str = f"{ticker} (Sold)" if sold and update else ticker
-
     shares_held = local_stock["shares_held"]
     market_value = local_stock["market_value"]
+    shares_held_str = local_stock["shares_held_str"]
+    market_value_str = local_stock["market_value_str"]
+
     portfolio_percentage = local_stock.get("portfolio_percent")
     portfolio_percentage = (
         portfolio_percentage * 100
@@ -129,8 +130,6 @@ def serialize_stock(local_stock, global_stock):
         if update and buy_timeseries != "NA"
         else "NA"
     )
-    shares_held_str = f"{int(shares_held):,}"
-    market_value_str = f"${int(market_value):,}"
     portfolio_percentage_str = (
         "{:.2f}".format(round(portfolio_percentage, 4))
         if portfolio_percentage != "NA"
@@ -156,7 +155,6 @@ def serialize_stock(local_stock, global_stock):
         "name": name,
         "cusip": cusip,
         "ticker": ticker,
-        "ticker_str": ticker_str,
         "sector": sector,
         "industry": industry,
         "class": rights,
@@ -196,16 +194,16 @@ def serialize_local(
 
     name = local_stock["name"]
     cusip = local_stock["cusip"]
-    ticker = global_stock["ticker"]
-    ticker_str = global_stock["ticker_str"]
+
     sector = global_stock["sector"]
     industry = global_stock["industry"]
     rights = local_stock["class"]
     update = global_stock["update"]
-    shares_held = global_stock["shares_held"]
-    shares_held_str = global_stock["shares_held_str"]
-    market_value = global_stock["market_value"]
-    market_value_str = global_stock["market_value_str"]
+
+    shares_held = local_stock["shares_held"]
+    market_value = local_stock["market_value"]
+    shares_held_str = f"{int(shares_held):,}"
+    market_value_str = f"${int(market_value):,}"
 
     recent_price = global_stock["recent_price"]
     recent_price_str = global_stock["recent_price_str"]
@@ -221,6 +219,9 @@ def serialize_local(
     last_appearance = records["last_appearance"]
     portfolio_percentage = ratios["portfolio_percent"]
     ownership_percentage = ratios["ownership_percent"]
+
+    ticker = global_stock["ticker"]
+    ticker_str = f"{ticker} (Sold)" if sold else ticker
 
     buy_price = prices["buy"]
     buy_float = buy_price["time"]
@@ -285,7 +286,7 @@ def serialize_local(
                 "price_str": recent_price_str,
                 "gain_percent": gain_percent,
                 "gain_str": gain_percent_str,
-            }
+            },
         },
     }
 
@@ -525,7 +526,7 @@ def analyze_stocks(cik, filings):
                     "sold": sold_stamp,
                 }
 
-                updated_stock = serialize_stock(filing_stock, found_stock)
+                updated_stock = serialize_global(filing_stock, found_stock)
                 log_stock = {
                     "name": name,
                     "message": "Created Stock",
@@ -677,15 +678,15 @@ def sort_pipeline(
 cwd = os.getcwd()
 
 
-def create_json(content, filename):
-    file_path = f"{cwd}/static/filers/{filename}"
+def create_json(content, file_name):
+    file_path = f"{cwd}/static/filers/{file_name}"
     try:
         with open(file_path, "r") as f:  # @IgnoreException
             filer_json = json.load(f)
             if (datetime.now().timestamp() - filer_json["updated"]) > 60 * 60 * 3:
                 raise ValueError
     except Exception as e:
-        print(e)
+        errors.report_error(file_name, e)
         with open(file_path, "w") as r:
             json.dump(content, r, indent=6)
 
@@ -751,7 +752,7 @@ def create_csv(content, file_name, headers=None):
                     cache.set_key(file_path, "bababooey", expire_time)
                     raise ValueError
     except Exception as e:
-        print(e)
+        errors.report_error(file_name, e)
         stock_list = create_dataframe(content, headers)
         with open(file_path, "w") as f:
             writer = csv.writer(f)
@@ -815,7 +816,7 @@ def sort_and_format(filer_ciks):
         )
         for filer in filers_sorted:
             try:
-                filer["date"] = datetime.utcfromtimestamp(filer["updated"]).strftime(
+                filer["date"] = datetime.fromtimestamp(filer["updated"]).strftime(
                     "%Y-%m-%d"
                 )
                 market_value = filer.get("market_value", 0)
@@ -824,7 +825,7 @@ def sort_and_format(filer_ciks):
                 )
                 filer.pop("_id", None)
             except Exception as e:
-                print(e)
+                errors.report_error(cik, e)
                 filer["date"] = "NA"
                 filer["market_value"] = "NA"
         return filers_sorted

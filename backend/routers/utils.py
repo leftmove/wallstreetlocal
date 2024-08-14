@@ -1,5 +1,4 @@
 import logging
-import pymongo.errors
 import requests
 import json
 import os
@@ -7,12 +6,7 @@ import threading
 
 from tqdm import tqdm
 from dotenv import load_dotenv
-import time
-import functools
 
-import redis
-import meilisearch_python_sdk
-import pymongo
 import uvicorn
 
 import sentry_sdk
@@ -252,7 +246,7 @@ def initialize():
         with open(top_ciks_path, "w") as f:
             json.dump(data, f)
     except Exception as e:
-        print(e)
+        errors.report_error("Gist Loading", e)
     try:
         r = requests.get(
             "https://gist.githubusercontent.com/leftmove/daca5d470c869e9d6f14c298af809f9f/raw/wallstreetlocal-popular-filers.json"
@@ -263,7 +257,7 @@ def initialize():
         with open(popular_ciks_path, "w") as f:
             json.dump(data, f)
     except Exception as e:
-        print(e)
+        errors.report_error("Gist Loading", e)
 
     print("Calculating Statistics ...")
     create_latest = database.find_statistics(

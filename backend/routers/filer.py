@@ -472,7 +472,8 @@ async def record_csv(cik: str, headers: str = None):
             header_hash = hash(headers_string)
             file_name = f"wallstreetlocal-{cik}-{header_hash}.csv"
         except Exception as e:
-            print(e)
+            report_error(cik, e)
+
             raise HTTPException(
                 status_code=422, detail="Malformed headers, unable to process request."
             )
@@ -601,7 +602,7 @@ async def record_filing_csv(cik: str, access_number: str, headers: str = None):
             header_hash = hash(headers_string)
             file_name = f"wallstreetlocal-{cik}{header_hash}.csv"
         except Exception as e:
-            print(e)
+            report_error(cik, e)
             raise HTTPException(
                 status_code=422, detail="Malformed headers, unable to process request."
             )
@@ -631,7 +632,7 @@ async def top_ciks():
     try:
         filers_sorted = analysis.sort_and_format(top_cik_list)
     except Exception as e:
-        print(e)
+        report_error("Top CIKs", e)
         raise HTTPException(500, detail="Error fetching filers.")
 
     return {"filers": filers_sorted}
@@ -648,7 +649,7 @@ async def popular_ciks():
     try:
         filers_sorted = analysis.sort_and_format(popular_cik_list)
     except Exception as e:
-        print(e)
+        report_error("Popular CIKs", e)
         raise HTTPException(500, detail="Error fetching filers.")
 
     return {"filers": filers_sorted}

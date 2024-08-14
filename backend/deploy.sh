@@ -1,4 +1,4 @@
-echo "Deploying Server..."
+echo "Deploying to Server..."
 
 git pull origin main
 

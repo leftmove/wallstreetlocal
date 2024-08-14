@@ -38,6 +38,7 @@ urllib3 = "^2.2.1"
 uvicorn = "^0.28.0"
 celery = { extras = ["redis"], version = "^5.4.0" }
 sentry-sdk = { extras = ["celery"], version = "^2.0.1" }
+meilisearch = "^0.31.4"
 
 [tool.poetry.scripts]
 dev = "main"
@@ -46,5 +47,5 @@ dev = "main"
 debugpy = "^1.8.1"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=1.9"]
 build-backend = "poetry.core.masonry.api"
