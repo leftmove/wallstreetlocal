@@ -47,8 +47,9 @@ def companies_stats():
     return stats
 
 
-def add_companies(companies, primary_key="cik"):
-    companies_index.add_documents(companies, primary_key)
+def add_companies(companies: list, primary_key="cik"):
+    task = companies_index.update_documents(companies, primary_key)
+    return task
 
 
 async def search_companies(query, limit, filter):

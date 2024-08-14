@@ -123,14 +123,14 @@ def initialize():
     search_empty = True if search.companies_stats().number_of_documents <= 1 else False
     backup_path = "./static/backup"
 
-    def insert_database(document_list):
+    def insert_database(document_list: list):
         try:
             database.add_companies(document_list)
         except Exception as e:
             errors.report_error("MongoDB Database", e)
             print("Error Occured")
 
-    def insert_search(document_list):
+    def insert_search(document_list: list):
         try:
             database.add_companies(document_list)
         except Exception as e:
@@ -171,14 +171,18 @@ def initialize():
                     database_documents = []
 
             if search_empty:
-                search_documents.append(
-                    {
-                        "name": document.get("name"),
-                        "tickers": document.get("tickers"),
-                        "cik": document.get("cik"),
-                        "thirteen_f": document.get("thirteen_f"),
-                    }
-                )
+                document_cik = document.get("cik")
+                if document_cik:
+                    search_documents.append(
+                        {
+                            "name": document.get("name"),
+                            "cik": document_cik,
+                            "tickers": document.get("tickers"),
+                            "thirteen_f": document.get("thirteen_f"),
+                        }
+                    )
+                else:
+                    print("Document Missing CIK", document)
 
                 if search_count >= batch:
                     insert_search(search_documents)
