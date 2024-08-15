@@ -1,12 +1,12 @@
 {
       "latest": {
-            "count": 0,
-            "total": 0,
-            "average": 0
+            "count": 23,
+            "total": 24267.306618213654,
+            "average": 1055.1002877484198
       },
       "historical": {
-            "count": 0,
-            "total": 0,
-            "average": 0
+            "count": 20,
+            "total": 135744.65614962578,
+            "average": 6787.232807481289
       }
 }

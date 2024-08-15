@@ -53,7 +53,7 @@ def add_companies(companies: list, primary_key="cik"):
 
 
 async def search_companies(query, limit, filter):
-    result = await companies_index.search(query, limit=limit, filter=filter)
+    result = companies_index.search(query, limit=limit, filter=filter)
     hits = result.hits
 
     return hits

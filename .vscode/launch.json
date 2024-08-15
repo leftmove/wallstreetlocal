@@ -8,6 +8,7 @@
       "name": "FastAPI: Module",
       "type": "debugpy",
       "module": "main",
+      "args": ["development"],
       "justMyCode": false,
       "request": "launch",
       "cwd": "${workspaceFolder}/backend"
