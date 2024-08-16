@@ -4,7 +4,7 @@ services:
   backend:
     container_name: backend
     build:
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile
     restart: always
     depends_on:
       - database
