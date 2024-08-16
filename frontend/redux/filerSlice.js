@@ -6,7 +6,7 @@ const initialHeaders = [
   {
     display: "Ticker",
     sort: "ticker",
-    accessor: "ticker_str",
+    accessor: "ticker",
     active: true,
     tooltip:
       "This is a unique series of letters assigned to a security for trading purposes",
