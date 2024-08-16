@@ -195,20 +195,20 @@ def serialize_local(
     name = local_stock["name"]
     cusip = local_stock["cusip"]
 
-    sector = global_stock["sector"]
-    industry = global_stock["industry"]
-    rights = local_stock["class"]
-    update = global_stock["update"]
+    sector = global_stock.get("sector", "NA")
+    industry = global_stock.get("industry", "NA")
+    rights = local_stock.get("class", "NA")
+    update = global_stock.get("update", False)
 
     shares_held = local_stock["shares_held"]
     market_value = local_stock["market_value"]
     shares_held_str = f"{int(shares_held):,}"
     market_value_str = f"${int(market_value):,}"
 
-    recent_price = global_stock["recent_price"]
-    recent_price_str = global_stock["recent_price_str"]
-    gain_percent = global_stock["gain_percent"]
-    gain_percent_str = global_stock["gain_str"]
+    # recent_price = global_stock["recent_price"]
+    # recent_price_str = global_stock["recent_price_str"]
+    # gain_percent = global_stock["gain_percent"]
+    # gain_percent_str = global_stock["gain_str"]
 
     sold = local_stock["sold"]
     records = local_stock["records"]
@@ -281,12 +281,12 @@ def serialize_local(
                 "time_str": sold_date_str,
                 "series": sold_series,
             },
-            "recent": {
-                "price": recent_price,
-                "price_str": recent_price_str,
-                "gain_percent": gain_percent,
-                "gain_str": gain_percent_str,
-            },
+            # "recent": {
+            #     "price": recent_price,
+            #     "price_str": recent_price_str,
+            #     "gain_percent": gain_percent,
+            #     "gain_str": gain_percent_str,
+            # },
         },
     }
 
@@ -471,7 +471,6 @@ def analyze_filings(cik, filings, last_report):
                     )
                     prices = {"buy": buy_stamp, "sold": sold_stamp}
                     stock_cache[cusip]["prices"] = prices
-
                 local_stock["prices"] = prices
 
                 filing_stock = serialize_local(
@@ -487,7 +486,7 @@ def analyze_filings(cik, filings, last_report):
                 yield stock_query, filing_stock
 
             except Exception as e:
-                logging.error(e)
+                errors.report_error(cik, e)
                 database.add_log(
                     cik, "Error Querying Stock for Filings", cusip, access_number
                 )
