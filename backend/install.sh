@@ -1,1 +1,1 @@
-sudo docker compose -f docker-compose.yaml up --build --force-recreate -d
+sudo systemctl restart uvicorn

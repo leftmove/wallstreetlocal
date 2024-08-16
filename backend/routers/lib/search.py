@@ -16,7 +16,7 @@ def _prepare_meilisearch():
     companies_index = client.index("companies")
     indexes = client.get_indexes()
     if not indexes or "companies" not in [index.uid for index in indexes]:
-        client.create_index("companies", "cik")
+        client.create_index("companies", {"primaryKey": "cik"})
     try:
         companies_index.update(primary_key="cik")
         companies_index.update_displayed_attributes(
@@ -47,12 +47,13 @@ def companies_stats():
     return stats
 
 
-def add_companies(companies, primary_key="cik"):
-    companies_index.add_documents(companies, primary_key)
+def add_companies(companies: list, primary_key="cik"):
+    task = companies_index.update_documents(companies, primary_key)
+    return task
 
 
 async def search_companies(query, limit, filter):
-    result = await companies_index.search(query, limit=limit, filter=filter)
+    result = companies_index.search(query, limit=limit, filter=filter)
     hits = result.hits
 
     return hits

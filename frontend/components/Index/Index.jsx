@@ -74,7 +74,6 @@ const Index = () => {
     }
   }, [stocks]);
 
-  console.log(items);
   if (error) return <Error statusCode={404} />;
 
   return (

@@ -53,6 +53,10 @@ def format_error(e, program=None):
 
 
 def report_error(identifier, e):
+
+    if not production_environment:
+        raise e
+
     stamp = timestamp()
     error_path = create_path(identifier, stamp)
     with open(error_path, "w") as f:

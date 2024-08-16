@@ -8,6 +8,7 @@ example.json
 **.env
 
 .venv
+.DS_Store
 development.test.py
 **/__pycache__/
 /static/companies.bson
