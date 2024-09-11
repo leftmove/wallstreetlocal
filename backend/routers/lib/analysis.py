@@ -54,11 +54,12 @@ def time_format(seconds: int) -> str:
 def serialize_global(local_stock, global_stock):
     cusip = local_stock["cusip"]
     update = global_stock["update"]
-    ticker = global_stock["ticker"] if update else "NA"
     rights = local_stock["class"]
     sold = local_stock["sold"]
     sector = global_stock["sector"] if update else "NA"
     industry = global_stock["industry"] if update else "NA"
+
+    ticker = global_stock["ticker"] if update else "NA"
 
     prices = local_stock.get("prices", {})
     buy_stamp = prices.get("buy", {})

@@ -1,7 +1,7 @@
 <p align="center">
   <a href="https://wallstreetlocal.com" target="_blank">
     <picture>
-      <img alt="wallstreetlocal" src="https://raw.githubusercontent.com/leftmove/wallstreetlocal/main/frontend/public/static/logo.png" style="max-width: 100%;">
+      <img alt="wallstreetlocal" src="https://i.ibb.co/Fb8wgTw/Wallstreetlocal-logo.png" style="max-width: 100%;">
     </picture>
   </a>
 </p>
