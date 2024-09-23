@@ -8,11 +8,7 @@
 
   padding: 3px;
   opacity: 1 !important;
-  width: auto;
-  white-space: nowrap;
-  flex-grow: 1;
-  padding-left: 10px;
-  padding-right: 10px;
+  width: 100%;
 
   background-color: var(--secondary);
 
