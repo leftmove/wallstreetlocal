@@ -1,9 +1,8 @@
 import styles from "./Picker.module.css";
 
 import { useDispatch, useSelector } from "react-redux";
-import { selectFilings, setComparison } from "@/redux/filerSlice";
-
 import { fontLight } from "components/fonts";
+import { selectFilings, setComparison } from "@/redux/timelineSlice";
 
 const Picker = (props) => {
   const selected = props.selected;

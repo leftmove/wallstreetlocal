@@ -1,12 +1,12 @@
 import styles from "./Record.module.css";
 
 import { useSelector } from "react-redux";
-import { selectCik } from "@/redux/filerSlice";
 
 import { font } from "components/fonts";
 
 import DataIcon from "@/public/static/data.svg";
 import TableIcon from "@/public/static/csv.svg";
+import { selectCik } from "@/redux/generalSlice";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
 const Record = (props) => {

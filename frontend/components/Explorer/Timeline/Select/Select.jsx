@@ -2,12 +2,6 @@ import styles from "./Select.module.css";
 import { useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
-import {
-  selectCik,
-  selectPrimary,
-  selectSecondary,
-  editComparison,
-} from "@/redux/filerSlice";
 
 import { font, fontLight } from "components/fonts";
 
@@ -15,6 +9,8 @@ import Headers from "components/Headers/Headers";
 import Record from "./Record/Record";
 import Picker from "./Picker/Picker";
 import Source from "components/Source/Source";
+import { editComparison, selectPrimary, selectSecondary } from "@/redux/timelineSlice";
+import { selectCik } from "@/redux/generalSlice";
 
 const Select = (props) => {
   const dispatch = useDispatch();

@@ -2,20 +2,12 @@ import styles from "./Filter.module.css";
 import { useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
-import {
-  selectHeaders,
-  selectSold,
-  selectNa,
-  sortSold,
-  sortNa,
-  activateHeader,
-  setHeaders,
-} from "@/redux/filerSlice";
 
 import { font, fontLight } from "@fonts";
 
 import Tip from "components/Tip/Tip";
 import Headers from "components/Headers/Headers";
+import { activateHeader, selectHeaders, selectNa, selectSold, setHeaders, sortNa, sortSold } from "@/redux/generalSlice";
 
 const Filter = () => {
   const headers = useSelector(selectHeaders);

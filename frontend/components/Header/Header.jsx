@@ -7,7 +7,6 @@ import axios from "axios";
 import Head from "next/head";
 
 import { useDispatch } from "react-redux";
-import { setCik, setTab } from "@/redux/filerSlice";
 
 import { font } from "@fonts";
 
@@ -15,6 +14,7 @@ import Expand from "components/Expand/Expand";
 import Source from "components/Source/Source";
 import Building from "components/Progress/Building/Building";
 import { convertTitle } from "components/Filer/Info";
+import { setCik, setTab } from "@/redux/generalSlice";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
 const fetcher = (url, cik) =>

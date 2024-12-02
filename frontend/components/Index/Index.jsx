@@ -6,23 +6,11 @@ import axios from "axios";
 import Error from "next/error";
 
 import { useDispatch, useSelector } from "react-redux";
-import {
-  setStocks,
-  setCount,
-  setOffset,
-  setPagination,
-  sortHeader,
-  selectCik,
-  selectPagination,
-  selectStocks,
-  selectSort,
-  selectHeaders,
-} from "@/redux/filerSlice";
-
 import useStocks from "components/Hooks/useStocks";
 import Analysis from "components/Analysis/Analysis";
 import Table from "components/Table/Table";
 import Sort from "./Sort/Sort";
+import { selectCik, selectHeaders, selectPagination, selectSort, selectStocks, setCount, setOffset, setPagination, setStocks, sortHeader } from "@/redux/generalSlice";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
 const Index = () => {

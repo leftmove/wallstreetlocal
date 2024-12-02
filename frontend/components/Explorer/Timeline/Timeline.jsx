@@ -2,7 +2,6 @@ import styles from "./Timeline.module.css";
 import { useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
-import { selectTimeline, setOpen } from "@/redux/filerSlice";
 
 import { font, fontLight } from "@fonts";
 
@@ -10,6 +9,7 @@ import Analysis from "components/Analysis/Analysis";
 import Tip from "components/Tip/Tip";
 import Difference from "./Difference/Difference";
 import Select from "./Select/Select";
+import { selectTimeline } from "@/redux/timelineSlice";
 
 const Timeline = () => {
   const dispatch = useDispatch();

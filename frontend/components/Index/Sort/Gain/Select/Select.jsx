@@ -5,14 +5,6 @@ import useSWR from "swr";
 import axios from "axios";
 
 import { useDispatch, useSelector } from "react-redux";
-import {
-  addHeader,
-  updateStocks,
-  selectCik,
-  selectHeaders,
-  removeHeader,
-  editHeader,
-} from "@/redux/filerSlice";
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -21,6 +13,7 @@ import { font } from "@fonts";
 
 import Picker from "./Picker/Picker";
 import Loading from "components/Loading/Loading";
+import { addHeader, editHeader, removeHeader, selectCik, selectHeaders, updateStocks } from "@/redux/generalSlice";
 
 // const animateLayoutChanges = (args) => {
 //   const { isSorting, wasSorting } = args;
@@ -49,7 +42,7 @@ const Select = (props) => {
 
   const date =
     useSelector((state) =>
-      state.filer.dates.find((d) => d.accessor == propDate.accessor)
+      state.general.dates.find((d) => d.accessor == propDate.accessor)
     ) || propDate;
   const open = date.open;
   const time = date.timestamp;
