@@ -2,18 +2,11 @@ import styles from "../Select/Select.module.css";
 import { useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
-import {
-  selectPrimary,
-  selectSecondary,
-  selectDifference,
-  editComparison,
-  editDifference,
-} from "@/redux/filerSlice";
-
 import { font, fontLight } from "components/fonts";
 
 import Headers from "components/Headers/Headers";
 import Record from "../Select/Record/Record";
+import { editDifference, selectDifference } from "@/redux/differenceSlice";
 
 const Difference = (props) => {
   const dispatch = useDispatch();

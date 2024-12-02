@@ -6,22 +6,13 @@ import axios from "axios";
 import useSWR from "swr";
 
 import { useDispatch, useSelector } from "react-redux";
-import {
-  selectCik,
-  selectPrimary,
-  setFilings,
-  setComparison,
-  selectSecondary,
-  editComparison,
-  editSort,
-  setFilingCount,
-} from "@/redux/filerSlice";
-
 import useFilingStocks from "components/Hooks/useFilingStocks";
 import Loading from "components/Loading/Loading";
 import Table from "components/Table/Table";
 import Unavailable from "components/Unavailable/Unavailable";
 import Timeline from "./Timeline/Timeline";
+import { editComparison, editSort, selectFilings, selectPrimary, selectSecondary, setComparison, setFilingCount } from "@/redux/timelineSlice";
+import { selectCik } from "@/redux/generalSlice";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
 
@@ -51,7 +42,7 @@ const Explorer = () => {
         if (data) {
           const filings = data.filings;
 
-          dispatch(setFilings(filings));
+          dispatch(selectFilings(filings));
           if (primary.access == "") {
             dispatch(
               setComparison({

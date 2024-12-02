@@ -1,11 +1,11 @@
 import styles from "../Gain.module.css";
 
 import { useDispatch } from "react-redux";
-import { newDate } from "@/redux/filerSlice";
 
 import { useDroppable } from "@dnd-kit/core";
 
 import PlusSVG from "./plus.svg";
+import { newDate } from "@/redux/generalSlice";
 
 const Plus = (props) => {
   const event = props.event;

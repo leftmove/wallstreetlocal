@@ -1,7 +1,7 @@
 import axios from "axios";
 
 import { Provider } from "react-redux";
-import { wrapper } from "@/redux/store";
+import { wrapper } from "@/redux/new_store";
 
 import Layout from "components/Layouts/Layout";
 import Info from "components/Filer/Info";

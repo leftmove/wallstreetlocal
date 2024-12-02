@@ -3,7 +3,6 @@ import styles from "../Gain.module.css";
 import { useDroppable } from "@dnd-kit/core";
 
 import { useDispatch } from "react-redux";
-import { removeDate } from "@/redux/filerSlice";
 
 import TrashSVG from "./trash.svg";
 

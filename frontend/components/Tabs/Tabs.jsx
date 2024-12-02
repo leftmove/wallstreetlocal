@@ -3,9 +3,9 @@ import styles from "./Tabs.module.css";
 import { useRouter } from "next/router";
 
 import { useDispatch, useSelector } from "react-redux";
-import { selectTab, setTab } from "@/redux/filerSlice";
 
 import { font, fontLight } from "@fonts";
+import { selectTab, setTab } from "@/redux/generalSlice";
 
 const Tab = (props) => {
   const id = props.id;

@@ -3,12 +3,12 @@ import { useState, useEffect } from "react";
 
 import { font } from "@fonts";
 
-import { editDate, openDate } from "@/redux/filerSlice";
 import { useDispatch } from "react-redux";
 
 import CalendarSVG from "./calendar.svg";
 import RightSVG from "./right.svg";
 import LeftSVG from "./left.svg";
+import { editDate, openDate } from "@/redux/generalSlice";
 
 const months = [
   { name: "Jan", value: 0 },

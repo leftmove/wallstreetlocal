@@ -1,13 +1,6 @@
 import styles from "./Gain.module.css";
 import { useReducer } from "react";
 
-import {
-  selectDates,
-  updateDates,
-  newDate,
-  openDate,
-  removeDate,
-} from "@/redux/filerSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -29,6 +22,7 @@ import Select from "./Select/Select";
 import Plus from "./Droppable/Plus";
 import Trash from "./Droppable/Trash";
 import Tip from "components/Tip/Tip";
+import { newDate, openDate, removeDate, selectDates, updateDates } from "@/redux/generalSlice";
 
 const Gain = () => {
   const dates = useSelector(selectDates);
