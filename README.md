@@ -107,7 +107,7 @@ These three different services allow for the most up-to-date and accurate data, 
 
 #### Telemetry
 
-Although it is reccomended that you turn off telemetry for self-hosting, you can enable telemetry through the `TELEMETRY` environment variable.
+Although it is recommended that you turn off telemetry for self-hosting, you can enable telemetry through the `TELEMETRY` environment variable.
 
 For telemetry/tracing/logs, wallstreetlocal uses [Sentry](https://sentry.io/). You can sign up [here](https://sentry.io/signup/), or self-host that too.
 
@@ -117,7 +117,7 @@ The development build is mainly made for testing, so it is ideal for self-hostin
 
 To run the full app, you need the microservices running through Docker, and the main application running seperately.
 
-You can find the developement compose file [here](./backend/docker-compose.dev.yaml). You will also need a `.env` file that can be found [here](./backend/.env.example).
+You can find the development compose file [here](./backend/docker-compose.dev.yaml). You will also need a `.env` file that can be found [here](./backend/.env.example).
 
 Once you have all the configuration files ready, to start the app, run the following.
 
@@ -139,11 +139,11 @@ Once you have all the configuration files ready, to start the app, run the follo
    docker compose -f docker-compose.dev.yaml down # Run after you've finished
    ```
 
-3. Install dependencies with Poetry.
+3. Install dependencies with [uv](https://docs.astral.sh/uv/getting-started/installation/).
 
    ```bash
-   pip install poetry
-   poetry install
+  pipx install uv # More options at https://docs.astral.sh/uv/getting-started/installation/
+  uv sync
    ```
 
 4. Create and edit the `.env` file using `.env.example`.
@@ -151,7 +151,7 @@ Once you have all the configuration files ready, to start the app, run the follo
 5. Run the main application.
 
    ```bash
-   poetry run python main.py
+   uv run python main.py
    ```
 
 #### Production
