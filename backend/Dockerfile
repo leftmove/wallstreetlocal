@@ -5,7 +5,7 @@ WORKDIR /app
 COPY uv.lock pyproject.toml /app/
 
 # Install requirements
-RUN uv install
+RUN uv sync
 
 COPY main.py /app/
 COPY routers /app/routers/
