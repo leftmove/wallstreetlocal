@@ -91,7 +91,7 @@ A production version of the site is hosted at [`wallstreetlocal.com`](https://wa
 
 Once the above steps are completed, the frontend should be hosted at [`localhost:3000`](http://localhost:3000), with the backend automatically configured to [`content.wallstreetlocal.com`](https://content.wallstreetlocal.com).
 
-Hosting the frontend alone is the reccomended way to self-host, but if you want to self-host the backend too, see [below](#backend).
+Hosting the frontend alone is the recommended way to self-host, but if you want to self-host the backend too, see [below](#backend).
 
 ### Backend
 
@@ -160,7 +160,7 @@ The production build is made for deploying at scale, so running it will be more 
 
 You can find the compose file [here](./backend/docker-compose.prod.yaml). There is no `.env` file though, as all the environment variables are included in the compose file.
 
-Unless you are runnng the production build for many people, you should change the following settings.
+Unless you are running the production build for many people, you should change the following settings.
 
 - Run on a single worker
 - Disable telemetry
@@ -184,7 +184,7 @@ Once you have all the configuration files ready, to start the app, run the follo
 
 If you feel you can contribute to this project, or you've found a bug, create an issue or pull request.
 
-This project is soley mantained so it is prone to bugs and anti-patterns, please call them out where you see them. [All contributions are highly appreciated!](./CONTRIBUTING.md)
+This project is solely maintained so it is prone to bugs and anti-patterns, please call them out where you see them. [All contributions are highly appreciated!](./CONTRIBUTING.md)
 
 <div align="center">
   <img src="https://api.star-history.com/svg?repos=leftmove/wallstreetlocal,leftmove/pinestreetlocal&type=Date)](https://star-history.com/#leftmove/wallstreetlocal&leftmove/pinestreetlocal&Date" />
