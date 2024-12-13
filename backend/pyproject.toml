@@ -47,4 +47,3 @@ dependencies = [
 name = "wallstreetlocal"
 version = "2.0.0"
 description = "Free and open-source stock tracking website for America's biggest money managers. Democratizing SEC filings by making them more accessible and useful."
-readme = "../README.md"

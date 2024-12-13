@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:python3.9-bookworm-slim as base
+FROM ghcr.io/astral-sh/uv:python3.9-bookworm-slim AS base
 
 # Copy only requirements to cache them in docker layer
 WORKDIR /app
