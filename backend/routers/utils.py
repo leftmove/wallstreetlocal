@@ -128,14 +128,14 @@ def initialize():
             database.add_companies(document_list)
         except Exception as e:
             errors.report_error("MongoDB Database", e)
-            print("Error Occured")
+            print("Error Occurred")
 
     def insert_search(document_list: list):
         try:
             database.add_companies(document_list)
         except Exception as e:
             errors.report_error("Meilisearch Database", e)
-            print("Error Occured")
+            print("Error Occurred")
 
     if search_empty:
         print("[ Search (Meilisearch) Loading ] ...")

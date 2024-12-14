@@ -781,7 +781,6 @@ def end_dangling():
 
 
 def sort_and_format(filer_ciks):
-    filers = []
     project = {
         "cik": 1,
         "name": 1,
@@ -792,6 +791,7 @@ def sort_and_format(filer_ciks):
     }
 
     for cik in filer_ciks:
+        filers = []
         filer = database.find_filer(cik, project)
         if filer:
             filers.append(filer)
