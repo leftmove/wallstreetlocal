@@ -8,6 +8,7 @@ example.json
 **.env
 
 .venv
+.pdm-build
 .DS_Store
 development.test.py
 **/__pycache__/
