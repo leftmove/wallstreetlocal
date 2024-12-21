@@ -7,9 +7,11 @@ COPY uv.lock pyproject.toml /app/
 # Install requirements
 RUN uv sync
 
+# Copy the applications
 COPY main.py /app/
 COPY routers /app/routers/
+COPY worker /app/worker/
 COPY static /app/static/
 
 # Command to run the application
-CMD ["uv", "run", "python", "main.py"]
+CMD ["uv", "run", "python", "-m", "main"]

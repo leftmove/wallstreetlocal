@@ -789,12 +789,8 @@ def sort_and_format(filer_ciks):
         "updated": 1,
         "_id": 0,
     }
-
-    for cik in filer_ciks:
-        filers = []
-        filer = database.find_filer(cik, project)
-        if filer:
-            filers.append(filer)
+    filers = [filer for filer in database.find_filers({"cik": {"$in": filer_ciks}}, project)]
+    
 
     try:
         filers_sorted = [
@@ -825,7 +821,7 @@ def sort_and_format(filer_ciks):
                 )
                 filer.pop("_id", None)
             except Exception as e:
-                errors.report_error(cik, e)
+                errors.report_error(filer.get("cik", "NA"), e)
                 filer["date"] = "NA"
                 filer["market_value"] = "NA"
         return filers_sorted

@@ -3,10 +3,13 @@ import time
 import requests
 import logging
 
+from dotenv import load_dotenv
 from datetime import datetime
 
 from . import database
 from . import analysis
+
+load_dotenv()
 
 logging.info("[ APIs Initializing ] ...")
 
@@ -16,19 +19,10 @@ headers = {
     "User-Agent": "wallstreetlocal admin@wallstreetlocal.com ",
 }
 
-ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
-production_environment = True if ENVIRONMENT == "production" else False
-if not production_environment:
-    from dotenv import load_dotenv
-
-    load_dotenv(".env.development")
-
-# Environment Variables
-FINN_HUB_API_KEY = os.environ["FINN_HUB_API_KEY"]
-ALPHA_VANTAGE_API_KEY = os.environ["ALPHA_VANTAGE_API_KEY"]
-OPEN_FIGI_API_KEY = os.environ["OPEN_FIGI_API_KEY"]
-
-# pyright: reportUnboundVariable=false
+# API Variables
+FINN_HUB_API_KEY = os.environ.get("FINN_HUB_API_KEY", "")
+ALPHA_VANTAGE_API_KEY = os.environ.get("ALPHA_VANTAGE_API_KEY", "")
+OPEN_FIGI_API_KEY = os.environ.get("OPEN_FIGI_API_KEY", "")
 
 
 def rate_limit(cik, wait=60):
@@ -140,7 +134,7 @@ def sec_filer_search(cik):
         cik,
         custom_wait=600,
     )
-    
+
     if res.ok:
         data = res.json()
     else:

@@ -8,8 +8,7 @@ import logging
 from urllib import parse
 from datetime import datetime
 
-from . import worker
-from .worker import production_environment
+from worker import tasks as worker
 
 from .lib import web
 from .lib import database
@@ -19,6 +18,8 @@ from .lib.errors import report_error
 from .lib.search import search_companies
 from .lib.api import sec_filer_search
 from .lib.cache import cache
+
+production_environment = getattr(worker, "production_environment", False)
 
 
 class Filer(BaseModel):
@@ -198,7 +199,7 @@ def create_historical(cik, company, stamp):
 
 
 def create_filer(cik, sec_data):
-    company, stamp = web.initalize_filer(cik, sec_data)
+    company, stamp = web.initialize_filer(cik, sec_data)
     create_recent(cik, company, stamp)
     create_historical(cik, company, stamp)
 

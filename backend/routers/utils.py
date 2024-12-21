@@ -14,7 +14,8 @@ from sentry_sdk.integrations.redis import RedisIntegration
 from sentry_sdk.integrations.pymongo import PyMongoIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 
-from .worker import queue
+from worker import tasks as queue
+
 from .lib import errors
 from .lib import database
 from .lib import search
@@ -312,10 +313,5 @@ def initialize():
     }
     with open(f"{cwd}/static/statistics.json", "w") as s:
         json.dump(statistic, s, indent=6)
-
-    print("Starting Worker ...")
-    if production_environment:
-        worker = threading.Thread(target=start_worker)
-        worker.start()
 
     print("Done!")

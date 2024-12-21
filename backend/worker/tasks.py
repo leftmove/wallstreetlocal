@@ -7,14 +7,17 @@ from celery import Celery, signals
 import sentry_sdk
 from sentry_sdk.integrations.celery import CeleryIntegration
 
-from . import filer
+
+from routers import filer
+from routers.lib.cache import (
+    REDIS_SERVER_URL,
+    REDIS_PORT,
+    REDIS_USERNAME,
+    REDIS_PASSWORD,
+)
 
 load_dotenv()
 
-REDIS_SERVER_URL = os.environ.get("REDIS_SERVER_URL", "cache")
-REDIS_PORT = os.environ.get("REDIS_PORT", 6379)
-REDIS_USERNAME = os.environ.get("REDIS_USERNAME", "default")
-REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", "")
 BROKER = f"redis://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_SERVER_URL}:{REDIS_PORT}/0"
 
 SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
@@ -25,12 +28,13 @@ ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 production_environment = True if ENVIRONMENT == "production" else False
 run_telemetry = True if TELEMETRY else False
 
+
 class Config:
     worker_concurrency = WORKERS
-    conccurrency = 1
+    concurrency = 1
     broker_connection_retry_on_startup = True
     celery_task_always_eager = False if production_environment else True
-    
+
 
 queue = Celery("worker", broker=BROKER)
 queue.config_from_object(Config)
@@ -42,6 +46,13 @@ def init_worker(*args, **kwargs):
         sentry_sdk.init(
             dsn=SENTRY_DSN,
             enable_tracing=True,
+            # Set traces_sample_rate to 1.0 to capture 100%
+            # of transactions for tracing.
+            traces_sample_rate=1.0,
+            # Set profiles_sample_rate to 1.0 to profile 100%
+            # of sampled transactions.
+            # We recommend adjusting this value in production.
+            profiles_sample_rate=1.0,
             integrations=[CeleryIntegration()],
         )
 

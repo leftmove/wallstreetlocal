@@ -7,8 +7,10 @@ from . import errors
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 production_environment = True if ENVIRONMENT == "production" else False
 
-MEILI_SERVER_URL = os.environ["MEILI_SERVER_URL"]
-MEILI_MASTER_KEY = os.environ["MEILI_MASTER_KEY"]
+MEILI_SERVER_URL = os.environ.get("MEILI_SERVER_URL", "http://search:7700")
+MEILI_MASTER_KEY = os.environ.get(
+    "MEILI_MASTER_KEY", "qq80RvopBK1kjvdlSVG_8VaxsRZICP0uniq5F2v0nlM"
+)
 
 
 def _prepare_meilisearch():
@@ -16,7 +18,7 @@ def _prepare_meilisearch():
     companies_index = client.index("companies")
     indexes = client.get_indexes()
     if not indexes or "companies" not in [index.uid for index in indexes]:
-        client.create_index("companies", {"primaryKey": "cik"})
+        client.create_index("companies", "cik")
     try:
         companies_index.update(primary_key="cik")
         companies_index.update_displayed_attributes(

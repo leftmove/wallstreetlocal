@@ -5,12 +5,13 @@ from fastapi.responses import FileResponse
 import os
 import logging
 
+from worker.tasks import try_filer, replace_filer, delay_error, production_environment
+
 from .lib import database
 from .lib import cache as cm
 from .lib.backup import save_collections
 
 from .filer import popular_cik_list, top_cik_list
-from .worker import try_filer, replace_filer, delay_error, production_environment
 
 cache = cm.cache
 router = APIRouter(
@@ -31,6 +32,7 @@ async def info():
 @router.get("/undefined", status_code=200)
 async def info_undefined():
     return {"message": "Hello World!"}
+
 
 @cache(4)
 @router.get("/health", status_code=200)

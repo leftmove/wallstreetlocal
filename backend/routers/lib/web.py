@@ -179,7 +179,7 @@ def process_filings(cik, data):
     return filings, last_report, first_report
 
 
-def initalize_filer(cik, sec_data):
+def initialize_filer(cik, sec_data):
     company = {
         "name": sec_data["name"],
         "cik": cik,

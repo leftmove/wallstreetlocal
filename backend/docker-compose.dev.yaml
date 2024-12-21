@@ -1,4 +1,5 @@
 services:
+  # Redis
   cache:
     container_name: cache
     build:
@@ -7,6 +8,8 @@ services:
     restart: always
     ports:
       - 6379:6379
+
+  # MongoDB
   database:
     container_name: database
     build:
@@ -17,6 +20,8 @@ services:
     restart: always
     ports:
       - 27017:27017
+
+  # Meilisearch
   search:
     container_name: search
     build:
@@ -27,3 +32,13 @@ services:
     restart: always
     ports:
       - 7700:7700
+
+  # Celery
+  worker:
+    container_name: worker
+    build:
+      context: ./
+      dockerfile: ./worker/Dockerfile
+    depends_on:
+      - cache
+    restart: always

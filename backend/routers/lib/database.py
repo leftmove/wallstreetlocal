@@ -10,7 +10,7 @@ import pymongo
 
 load_dotenv()
 
-MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
+MONGO_SERVER_URL = os.environ.get("MONGO_SERVER_URL", "mongodb://database:27017")
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 production_environment = True if ENVIRONMENT == "production" else False
 
