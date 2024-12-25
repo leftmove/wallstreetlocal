@@ -1,4 +1,4 @@
-from fastapi import HTTPException, APIRouter
+from fastapi import HTTPException, APIRouter, BackgroundTasks
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
@@ -110,8 +110,7 @@ def create_recent(cik, company, stamp):
             filer_query, {"$set": {"market_value": recent_market_value}}
         )
 
-        filings = database.find_filings(cik)
-        for stock_query, log_item in analysis.analyze_stocks(cik, filings):
+        for stock_query, log_item in analysis.analyze_stocks(cik, [recent_filing]):
             database.edit_filer(filer_query, stock_query)
             database.add_log(cik, log_item)
 
@@ -209,7 +208,7 @@ def create_filer(cik, sec_data):
     tags=["filers"],
     status_code=201,
 )
-async def query_filer(cik: str):
+async def query_filer(cik: str, background: BackgroundTasks = BackgroundTasks):
     filer = database.find_filer(cik)
     if not filer:
         try:
@@ -221,16 +220,16 @@ async def query_filer(cik: str):
         if production_environment:
             worker.create_filer.delay(cik, sec_data)
         else:
-            create_filer(cik, sec_data)
+            background.add_task(create_filer, cik, sec_data)
 
         res = {"description": "Filer creation started."}
     else:
-        res = update_filer(filer)
+        res = update_filer(filer, background=background)
 
     return res
 
 
-def update_filer(company):
+def update_filer(company, background: BackgroundTasks = BackgroundTasks):
     cik = company["cik"]
     time = datetime.now().timestamp()
 
@@ -255,13 +254,15 @@ def update_filer(company):
     if production_environment:
         worker.create_historical.delay(cik, company, stamp)
     else:
-        create_historical(cik, company, stamp)
+        background.add_task(create_historical, cik, company, stamp)
 
     return {"description": "Filer update started."}
 
 
 @router.get("/rollback", tags=["filers"], status_code=201, include_in_schema=False)
-async def rollback_filer(cik: str, password: str):
+async def rollback_filer(
+    cik: str, password: str, background: BackgroundTasks = BackgroundTasks
+):
     filer = database.find_filer(cik, {"last_report": 1})
     if not filer:
         raise HTTPException(404, detail="CIK not found.")
@@ -305,7 +306,7 @@ async def rollback_filer(cik: str, password: str):
     if production_environment:
         worker.create_historical.delay(cik, filer, stamp)
     else:
-        create_historical(cik, filer, stamp)
+        background.add_task(create_historical, cik, filer, stamp)
 
     return {"description": "Filer rollback started."}
 

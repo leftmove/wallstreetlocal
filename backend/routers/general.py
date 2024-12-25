@@ -73,8 +73,13 @@ async def trigger_error():
 
 
 @router.get("/task-error", include_in_schema=False)
-async def task_error():
+async def task_error(password: str):
+
+    if password != os.environ["ADMIN_PASSWORD"]:
+        raise HTTPException(detail="Unable to give access.", status_code=403)
+
     delay_error.delay()
+
     return {"message": "Task error triggered."}
 
 
@@ -115,7 +120,9 @@ async def query_top(password: str):
 
 
 @router.get("/restore", status_code=200)
-async def progressive_restore(password: str):
+async def progressive_restore(
+    password: str, background: BackgroundTasks = BackgroundTasks
+):
     if password != os.environ["ADMIN_PASSWORD"]:
         raise HTTPException(detail="Unable to give access.", status_code=403)
 
@@ -125,7 +132,9 @@ async def progressive_restore(password: str):
     if production_environment:
         background_query("restore", all_ciks, replace_filer.delay)
     else:
-        background_query("restore", all_ciks, replace_filer)
+        background_query(
+            "restore", all_ciks, lambda cik: background.add_task(replace_filer, cik)
+        )
 
     return {"description": "Started progressive restore of filers."}
 

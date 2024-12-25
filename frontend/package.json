@@ -28,7 +28,7 @@
     "@visx/shape": "^3.5.0",
     "@visx/tooltip": "^3.3.0",
     "axios": "^0.24.0",
-    "caniuse-lite": "^1.0.30001651",
+    "caniuse-lite": "^1.0.30001690",
     "next": "13.1.6",
     "next-nprogress-bar": "^2.3.5",
     "next-redux-wrapper": "^8.1.0",

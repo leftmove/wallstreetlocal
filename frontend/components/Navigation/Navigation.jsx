@@ -1,10 +1,47 @@
 import styles from "./Navigation.module.css";
+import { useState, useEffect } from "react";
 
 import Link from "next/link";
-import { font } from "@fonts";
+import { font, fontLight } from "@fonts";
 
 import Search from "components/Search/Button/Search";
 import Bar from "components/Bar/Bar";
+
+import CrossIcon from "@/public/static/cross.svg";
+
+const Banner = () => {
+  const [show, setShow] = useState(null);
+  useEffect(() => {
+    if (show === null) {
+      setShow(localStorage.getItem("banner") === "false" ? false : true);
+    }
+  }, []);
+  useEffect(() => {
+    if (show === null) return;
+    localStorage.setItem("banner", show);
+  }, [show]);
+  return (
+    show && (
+      <div className={styles["banner"]}>
+        <div className={styles["banner-info"]}>
+          <span
+            className={[fontLight.className, styles["banner-text"]].join(" ")}
+          >
+            This website is currently undergoing maintenance to improve
+            reliability, performance, usability - you may experience some bugs
+            as a result.
+          </span>
+        </div>
+        <button
+          className={styles["banner-close"]}
+          onClick={() => setShow(false)}
+        >
+          <CrossIcon className={styles["banner-icon"]} />
+        </button>
+      </div>
+    )
+  );
+};
 
 const Item = ({ link, text, tab }) => (
   <li className={styles["item"] + " " + font.className}>
@@ -20,6 +57,7 @@ const Navigation = (props) => {
   return (
     <>
       <Bar />
+      <Banner />
       <nav className={styles["nav"]}>
         <div className={styles["logo"]}>
           <div className={styles["logo-title"]}>

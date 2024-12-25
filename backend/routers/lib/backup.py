@@ -4,13 +4,13 @@ import os
 
 from pymongo import MongoClient
 
-MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
+from . import database
 
 cwd = os.getcwd()
 
 
 def save_collections():
-    backup_client = MongoClient(MONGO_SERVER_URL)
+    backup_client = MongoClient(database.MONGO_SERVER_URL)
     collections = ["companies", "filers", "stocks", "statistics"]
 
     for coll in collections:

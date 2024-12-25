@@ -24,7 +24,8 @@ const nextConfig = {
     return config;
   },
   env: {
-    NEXT_PUBLIC_SERVER: "https://content.wallstreetlocal.com",
+    NEXT_PUBLIC_SERVER:
+      process.env.SERVER || "https://content.wallstreetlocal.com",
   },
   output: "standalone",
 };

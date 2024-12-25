@@ -145,7 +145,7 @@ async def query_filing(
     reverse: bool,
     unavailable: bool,
 ):
-    additonal = [
+    additional = [
         {"$match": {"access_number": access_number}},
         {
             "$set": {
@@ -169,7 +169,7 @@ async def query_filing(
             sold,
             reverse,
             unavailable,
-            additonal,
+            additional,
             database.search_filings,
         )
         cursor = database.search_filings(pipeline)

@@ -386,6 +386,9 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
     else:
         update_timeseries = False
 
+    if global_stock["ticker"] == "AAL":
+        pass
+
     sold = local_stock["sold"]
     first_appearance = local_stock["records"]["first_appearance"]
     last_appearance = local_stock["records"]["last_appearance"]
@@ -433,6 +436,11 @@ def analyze_filings(cik, filings, last_report):
                 stock_query = access_number
                 local_stock = filing_stocks[cusip]
                 cusip = local_stock["cusip"]
+
+                if local_stock["ticker"] == "AMZN":
+                    pass
+                if local_stock["ticker"] == "AAL":
+                    pass
 
                 first_appearance, last_appearance = analyze_report(
                     local_stock, filings_sorted
@@ -517,6 +525,11 @@ def analyze_stocks(cik, filings):
                 )
                 if not found_stock:
                     continue
+
+                if filing_stock["ticker"] == "AMZN":
+                    pass
+                if filing_stock["ticker"] == "AAL":
+                    pass
 
                 buy_stamp, sold_stamp = analyze_timeseries(
                     cik, filing_stock, found_stock, filings_map
@@ -606,7 +619,7 @@ def sort_pipeline(
     sold: bool,
     reverse: bool,
     unavailable: bool,
-    additonal: list = [],
+    additional: list = [],
     collection_search=database.search_filers,
 ):
     if limit < 0:
@@ -615,8 +628,8 @@ def sort_pipeline(
     pipeline = [
         {"$match": {"cik": cik}},
     ]
-    if additonal:
-        pipeline.extend(additonal)
+    if additional:
+        pipeline.extend(additional)
 
     pipeline.extend(
         [
@@ -789,8 +802,9 @@ def sort_and_format(filer_ciks):
         "updated": 1,
         "_id": 0,
     }
-    filers = [filer for filer in database.find_filers({"cik": {"$in": filer_ciks}}, project)]
-    
+    filers = [
+        filer for filer in database.find_filers({"cik": {"$in": filer_ciks}}, project)
+    ]
 
     try:
         filers_sorted = [
