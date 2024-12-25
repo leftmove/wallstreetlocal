@@ -107,7 +107,7 @@ const Progress = (props) => {
             addLogs(["Filer finished initial load, reloading the page."]);
             setTimeout(() => {
               setStop(true);
-            }, 5 * 1000);
+            }, 2.5 * 1000);
           }
 
           break;
@@ -138,7 +138,7 @@ const Progress = (props) => {
 
   return (
     <>
-      {stop ? <Redirect cik={cik} delay={0} /> : null}
+      {stop && <Redirect cik={cik} delay={0} />}
       <div className={[styles["progress"], font.className].join(" ")}>
         <div className={styles["header"]}>
           <div className={styles["main-header"]}>
@@ -150,6 +150,7 @@ const Progress = (props) => {
           </div>
         </div>
         <Console loading={loading} logs={log.logs} />
+        <button className={styles["go-back"]}>Go Back</button>
       </div>
       {/* <span>View stocks continuously.</span> */}
       {/*persist ? null : <Estimation cik={cik} /> */}

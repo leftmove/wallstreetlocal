@@ -6,7 +6,7 @@
   margin: auto;
   margin-top: 20px;
   width: 80%;
-  height: 40vh;
+  height: 50vh;
   padding: 20px;
   border-radius: 5px;
 }
@@ -30,7 +30,7 @@
   justify-content: center;
 
   text-align: center;
-  width: 20vw;
+  width: 25vw;
 }
 
 .main-header span {
@@ -67,9 +67,32 @@
   margin-bottom: 5px;
 
   color: white;
+  font-family: monospace;
 }
 
 .estimation {
   display: flex;
   justify-content: center;
+}
+
+.go-back {
+  outline: none;
+  box-shadow: none;
+  border: none;
+  cursor: pointer;
+
+  font-size: 1.1rem;
+  padding: 8px;
+  border: solid 1px var(--offwhite);
+  border-radius: 5px;
+  margin-top: 20px;
+
+  color: var(--white);
+  background-color: var(--secondary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.go-back:hover {
+  color: var(--secondary-dark);
+  background-color: var(--white);
 }

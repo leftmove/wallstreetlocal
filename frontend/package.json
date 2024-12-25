@@ -17,6 +17,7 @@
     "@nivo/bar": "^0.85.1",
     "@nivo/core": "^0.85.1",
     "@reduxjs/toolkit": "^1.9.3",
+    "@sentry/nextjs": "^8",
     "@svgr/webpack": "^8.1.0",
     "@visx/axis": "^3.10.1",
     "@visx/event": "^3.3.0",

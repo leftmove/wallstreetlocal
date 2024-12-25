@@ -386,9 +386,6 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
     else:
         update_timeseries = False
 
-    if global_stock["ticker"] == "AAL":
-        pass
-
     sold = local_stock["sold"]
     first_appearance = local_stock["records"]["first_appearance"]
     last_appearance = local_stock["records"]["last_appearance"]
@@ -436,11 +433,6 @@ def analyze_filings(cik, filings, last_report):
                 stock_query = access_number
                 local_stock = filing_stocks[cusip]
                 cusip = local_stock["cusip"]
-
-                if local_stock["ticker"] == "AMZN":
-                    pass
-                if local_stock["ticker"] == "AAL":
-                    pass
 
                 first_appearance, last_appearance = analyze_report(
                     local_stock, filings_sorted
@@ -525,11 +517,6 @@ def analyze_stocks(cik, filings):
                 )
                 if not found_stock:
                     continue
-
-                if filing_stock["ticker"] == "AMZN":
-                    pass
-                if filing_stock["ticker"] == "AAL":
-                    pass
 
                 buy_stamp, sold_stamp = analyze_timeseries(
                     cik, filing_stock, found_stock, filings_map

@@ -16,14 +16,12 @@ const Filer = (props) => {
   const persist = props.persist;
   const tab = props.tab;
 
-  console.log(cik);
+  if (query.ok || query.continuous || continuous) {
+    return <Info cik={cik} tab={tab} />;
+  }
 
   if (query.building || persist) {
     return <Building cik={cik} persist={persist} />;
-  }
-
-  if (query.ok || query.continuous || continuous) {
-    return <Info cik={cik} tab={tab} />;
   }
 
   if (query.error) {
@@ -34,8 +32,8 @@ const Filer = (props) => {
 const server = process.env.NEXT_PUBLIC_SERVER;
 export async function getServerSideProps(context) {
   const cik = context.query.cik || null;
-  const continuous = context.query.continuous || null;
-  const persist = context.query.persist || null;
+  const continuous = context.query.continuous || false;
+  const persist = context.query.persist || false;
   const tab = context.query.tab || "stocks";
 
   const query = {

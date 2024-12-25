@@ -12,7 +12,7 @@ const Building = (props) => {
         <span
           className={[styles["building-text"], fontLight.className].join(" ")}
         >
-          Filer building still partially in progress.
+          Filer's info is still being built, only the most recent data is shown.
         </span>
         <Loading
           className={[styles["loading"], styles["no-background"]].join(" ")}
