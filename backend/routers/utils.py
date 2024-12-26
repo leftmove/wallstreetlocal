@@ -269,10 +269,10 @@ def initialize():
         {"type": "create-latest", "completion": {"$exists": True}}
     )
     results = [result for result in create_latest]
-    latest_completitions = [result["completion"] for result in results]
-    if latest_completitions:
-        latest_total = sum(latest_completitions)
-        latest_count = len(latest_completitions)
+    latest_completions = [result["completion"] for result in results]
+    if latest_completions:
+        latest_total = sum(latest_completions)
+        latest_count = len(latest_completions)
         latest_average = latest_total / latest_count
         latest_stat = {
             "count": latest_count,
@@ -290,10 +290,10 @@ def initialize():
         {"type": "create-historical", "completion": {"$exists": True}}
     )
     results = [result for result in create_historical]
-    historical_completitions = [result["completion"] for result in results]
-    if historical_completitions:
-        historical_total = sum(historical_completitions)
-        historical_count = len(historical_completitions)
+    historical_completions = [result["completion"] for result in results]
+    if historical_completions:
+        historical_total = sum(historical_completions)
+        historical_count = len(historical_completions)
         historical_average = historical_total / historical_count
         historical_stat = {
             "count": historical_count,

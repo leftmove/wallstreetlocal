@@ -25,6 +25,8 @@ WORKERS = int(os.environ.get("WORKERS", ((multiprocessing.cpu_count() * 2) + 1))
 TELEMETRY = bool(os.environ.get("TELEMETRY", False))
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 
+__all__ = []
+
 production_environment = True if ENVIRONMENT == "production" else False
 run_telemetry = True if TELEMETRY else False
 
