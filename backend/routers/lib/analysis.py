@@ -111,13 +111,14 @@ def serialize_global(local_stock, global_stock):
     shares_held_str = local_stock["shares_held_str"]
     market_value_str = local_stock["market_value_str"]
 
-    portfolio_percentage = local_stock.get("portfolio_percent")
+    ratios = local_stock.get("ratios")
+    portfolio_percentage = ratios.get("portfolio_percent")
     portfolio_percentage = (
         portfolio_percentage * 100
         if portfolio_percentage and portfolio_percentage != "NA"
         else "NA"
     )
-    ownership_percentage = local_stock.get("ownership_percent", "NA")
+    ownership_percentage = ratios.get("ownership_percent", "NA")
     ownership_percentage = (
         ownership_percentage * 100 if ownership_percentage != "NA" else "NA"
     )

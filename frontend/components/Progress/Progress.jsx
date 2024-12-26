@@ -1,6 +1,7 @@
 import styles from "./Progress.module.css";
 import { useEffect, useReducer, useState } from "react";
 
+import Link from "next/link";
 import { font } from "@fonts";
 
 import axios from "axios";
@@ -150,7 +151,12 @@ const Progress = (props) => {
           </div>
         </div>
         <Console loading={loading} logs={log.logs} />
-        <button className={styles["go-back"]}>Go Back</button>
+        <Link
+          className={styles["go-back"]}
+          href={`/filers/${cik}?` + new URLSearchParams({ continuous: true })}
+        >
+          Progress
+        </Link>
       </div>
       {/* <span>View stocks continuously.</span> */}
       {/*persist ? null : <Estimation cik={cik} /> */}
