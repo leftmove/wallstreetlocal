@@ -21,8 +21,8 @@
   flex-direction: column;
   flex-wrap: wrap;
 
+  width: 100%;
   margin-bottom: 0px;
-
   border-radius: 5px;
 }
 

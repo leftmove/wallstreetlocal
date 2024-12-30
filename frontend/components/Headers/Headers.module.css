@@ -4,7 +4,9 @@
   align-items: center;
   justify-content: center;
 
-  width: 99%;
+  width: 100%;
+  border: 3px solid var(--secondary);
+  border-radius: 5px;
   margin: auto;
 }
 
