@@ -105,7 +105,7 @@ def create_recent(cik, company, stamp):
             )
 
         recent_filing = database.find_filing(cik, last_report)
-        recent_market_value = recent_filing.get("market_value", "NA")
+        recent_market_value = recent_filing.get("market_value", "N/A")
         database.edit_filer(
             filer_query, {"$set": {"market_value": recent_market_value}}
         )
@@ -119,7 +119,7 @@ def create_recent(cik, company, stamp):
     except Exception as e:
         report_error(cik, e)
         database.edit_filer(
-            {"cik": cik}, {"$set": {"market_value": "NA", "update": False}}
+            {"cik": cik}, {"$set": {"market_value": "N/A", "update": False}}
         )
         database.add_log(cik, "Failed to Update Filer Recent Stocks", company_name, cik)
         database.edit_status(cik, 2)

@@ -36,7 +36,7 @@ const Header = (props) => {
                 {h.display}
               </button>
               <button
-                onClick={() => activateHeader(h.sort)}
+                onClick={() => activateHeader(h.sort, !reverse)}
                 className={[
                   styles["button"],
                   sort === h.sort && reverse ? "" : styles["button-reverse"],

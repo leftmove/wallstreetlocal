@@ -189,8 +189,8 @@ def stock_request(value, cik, backup=None):
 
         name = result["description"]
         ticker = result["symbol"]
-        name = name if name else "NA"
-        ticker = ticker if ticker else "NA"
+        name = name if name else "N/A"
+        ticker = ticker if ticker else "N/A"
 
         result = {"ticker": ticker, "name": result["description"]}
         return result
@@ -212,8 +212,8 @@ def stock_request(value, cik, backup=None):
 
         name = result["name"]
         ticker = result["ticker"]
-        name = name if name else "NA"
-        ticker = ticker if ticker else "NA"
+        name = name if name else "N/A"
+        ticker = ticker if ticker else "N/A"
 
         result = {"ticker": result["ticker"], "name": result["name"]}
         return result
@@ -230,8 +230,8 @@ def stock_request(value, cik, backup=None):
 
             name = result["description"]
             ticker = result["symbol"]
-            name = name if name else "NA"
-            ticker = ticker if ticker else "NA"
+            name = name if name else "N/A"
+            ticker = ticker if ticker else "N/A"
 
             result = {"ticker": ticker, "name": result["description"]}
             return result

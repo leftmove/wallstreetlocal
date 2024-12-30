@@ -43,13 +43,17 @@ const Index = () => {
     paginate,
   } = useStocks(
     cik,
-    useSelector(selectHeaders),
-    useSelector(selectPagination),
-    useSelector(selectSort),
-    useSelector(selectStocks),
-    (s) => dispatch(setCount(s)),
-    (c) => dispatch(setStocks(c)),
-    (a, d) =>
+    useSelector(selectHeaders), // Headers
+    useSelector(selectPagination), // Pagination
+    useSelector(selectSort), // Sort
+    useSelector(selectStocks), // Stocks
+    (s) => dispatch(setCount(s)), // Set count
+    (c) => dispatch(setStocks(c)), // Set stocks
+    (
+      // Activate
+      a,
+      d
+    ) =>
       dispatch(
         sortHeader({
           sort: a,
@@ -57,9 +61,11 @@ const Index = () => {
         })
       ),
     (o) => {
+      // Skip
       dispatch(setOffset(o));
     },
     (p) => {
+      // Paginate
       dispatch(setPagination(p));
     }
   );

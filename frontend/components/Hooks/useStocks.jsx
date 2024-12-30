@@ -14,21 +14,17 @@ const useStocks = (
   skip,
   paginate
 ) => {
-  const stockFetcher = (
-    url,
-    cik,
-    { pagination, sort, offset, reverse, sold, na }
-  ) =>
+  const stockFetcher = (url, cik, options) =>
     axios
       .get(url, {
         params: {
           cik,
-          limit: pagination,
-          sort,
-          offset,
-          reverse,
-          sold,
-          unavailable: na,
+          limit: options.pagination,
+          sort: options.sort,
+          offset: options.offset,
+          reverse: options.reverse,
+          sold: options.sold,
+          unavailable: options.na,
         },
       })
       .then((r) => r.data)
@@ -36,6 +32,8 @@ const useStocks = (
         if (data) {
           const count = data.count;
           const stocks = data.stocks;
+
+          console.log(options, options.reverse);
 
           setCount(count);
           setStocks(stocks);
@@ -45,6 +43,7 @@ const useStocks = (
         }
       })
       .catch((e) => console.error(e));
+
   const { isLoading: loading, error } = useSWR(
     cik ? [server + "/stocks/info", cik, sort] : null,
     ([url, cik, sort]) => stockFetcher(url, cik, sort),

@@ -56,53 +56,53 @@ def serialize_global(local_stock, global_stock):
     update = global_stock["update"]
     rights = local_stock["class"]
     sold = local_stock["sold"]
-    sector = global_stock["sector"] if update else "NA"
-    industry = global_stock["industry"] if update else "NA"
+    sector = global_stock["sector"] if update else "N/A"
+    industry = global_stock["industry"] if update else "N/A"
 
-    ticker = global_stock["ticker"] if update else "NA"
+    ticker = global_stock["ticker"] if update else "N/A"
 
     prices = local_stock.get("prices", {})
     buy_stamp = prices.get("buy", {})
     buy_timeseries = buy_stamp.get("series")
-    price_bought = buy_timeseries["close"] if buy_timeseries != "NA" else "NA"
-    price_bought_str = f"${price_bought}" if buy_timeseries != "NA" else "NA"
+    price_bought = buy_timeseries["close"] if buy_timeseries != "N/A" else "N/A"
+    price_bought_str = f"${price_bought}" if buy_timeseries != "N/A" else "N/A"
 
-    price_recent = global_stock["price"] if update else "NA"
-    price_recent_str = f"${price_recent}" if update else "NA"
+    price_recent = global_stock["price"] if update else "N/A"
+    price_recent_str = f"${price_recent}" if update else "N/A"
 
     sold_stamp = prices.get("sold", {})
     sold_timeseries = sold_stamp.get("series")
-    price_sold = sold_timeseries["close"] if sold_timeseries != "NA" else "NA"
-    price_sold_str = f"${price_sold}" if sold_timeseries != "NA" else "NA"
+    price_sold = sold_timeseries["close"] if sold_timeseries != "N/A" else "N/A"
+    price_sold_str = f"${price_sold}" if sold_timeseries != "N/A" else "N/A"
 
     buy_float = buy_stamp.get("time")
-    buy_date = datetime.fromtimestamp(buy_float) if buy_stamp else "NA"
+    buy_date = datetime.fromtimestamp(buy_float) if buy_stamp else "N/A"
     buy_date_str = (
         f"Q{(buy_date.month-1)//3+1} {buy_date.year}"
-        if buy_timeseries != "NA"
-        else "NA"
+        if buy_timeseries != "N/A"
+        else "N/A"
     )
 
-    report_float = local_stock.get("report_time", "NA")
+    report_float = local_stock.get("report_time", "N/A")
     report_date = (
         datetime.fromtimestamp(local_stock["report_time"])
-        if report_float != "NA"
-        else "NA"
+        if report_float != "N/A"
+        else "N/A"
     )
     report_date_str = (
         f"Q{(report_date.month-1)//3+1} {report_date.year}"
-        if report_float != "NA"
-        else "NA"
+        if report_float != "N/A"
+        else "N/A"
     )
 
-    sold_float = sold_stamp.get("time", "NA") if sold else "NA"
+    sold_float = sold_stamp.get("time", "N/A") if sold else "N/A"
     sold_date = (
-        datetime.fromtimestamp(sold_float) if sold and sold_float != "NA" else "NA"
+        datetime.fromtimestamp(sold_float) if sold and sold_float != "N/A" else "N/A"
     )
     sold_date_str = (
         f"Q{(sold_date.month-1)//3+1} {sold_date.year}"
-        if sold and sold_float != "NA"
-        else "NA"
+        if sold and sold_float != "N/A"
+        else "N/A"
     )
 
     name = local_stock["name"]
@@ -115,42 +115,42 @@ def serialize_global(local_stock, global_stock):
     portfolio_percentage = ratios.get("portfolio_percent")
     portfolio_percentage = (
         portfolio_percentage * 100
-        if portfolio_percentage and portfolio_percentage != "NA"
-        else "NA"
+        if portfolio_percentage and portfolio_percentage != "N/A"
+        else "N/A"
     )
-    ownership_percentage = ratios.get("ownership_percent", "NA")
+    ownership_percentage = ratios.get("ownership_percent", "N/A")
     ownership_percentage = (
-        ownership_percentage * 100 if ownership_percentage != "NA" else "NA"
+        ownership_percentage * 100 if ownership_percentage != "N/A" else "N/A"
     )
     gain_value = (
         float(price_recent - price_bought)
-        if update and buy_timeseries != "NA"
-        else "NA"
+        if update and buy_timeseries != "N/A"
+        else "N/A"
     )
     gain_percent = (
         float((gain_value / price_bought) * 100)
-        if update and buy_timeseries != "NA"
-        else "NA"
+        if update and buy_timeseries != "N/A"
+        else "N/A"
     )
     portfolio_percentage_str = (
         "{:.2f}".format(round(portfolio_percentage, 4))
-        if portfolio_percentage != "NA"
-        else "NA"
+        if portfolio_percentage != "N/A"
+        else "N/A"
     )
     ownership_percentage_str = (
         "{:.2f}".format(round(ownership_percentage, 4))
-        if ownership_percentage != "NA"
-        else "NA"
+        if ownership_percentage != "N/A"
+        else "N/A"
     )
     gain_value_str = (
         "{:.2f}".format(round(gain_value, 2))
-        if update and buy_timeseries != "NA"
-        else "NA"
+        if update and buy_timeseries != "N/A"
+        else "N/A"
     )
     gain_percent_str = (
         "{:.2f}".format(round(gain_percent, 2))
-        if update and buy_timeseries != "NA"
-        else "NA"
+        if update and buy_timeseries != "N/A"
+        else "N/A"
     )
 
     return {
@@ -197,9 +197,9 @@ def serialize_local(
     name = local_stock["name"]
     cusip = local_stock["cusip"]
 
-    sector = global_stock.get("sector", "NA")
-    industry = global_stock.get("industry", "NA")
-    rights = local_stock.get("class", "NA")
+    sector = global_stock.get("sector", "N/A")
+    industry = global_stock.get("industry", "N/A")
+    rights = local_stock.get("class", "N/A")
     update = global_stock.get("update", False)
 
     shares_held = local_stock["shares_held"]
@@ -232,20 +232,20 @@ def serialize_local(
     buy_series = buy_price["series"]
 
     sold_price = prices["sold"]
-    sold_float = sold_price["time"] if sold else "NA"
-    sold_date = datetime.fromtimestamp(sold_float) if sold else "NA"
-    sold_date_str = f"Q{(sold_date.month-1)//3+1} {sold_date.year}" if sold else "NA"
-    sold_series = sold_price["series"] if sold else "NA"
+    sold_float = sold_price["time"] if sold else "N/A"
+    sold_date = datetime.fromtimestamp(sold_float) if sold else "N/A"
+    sold_date_str = f"Q{(sold_date.month-1)//3+1} {sold_date.year}" if sold else "N/A"
+    sold_series = sold_price["series"] if sold else "N/A"
 
     portfolio_percentage_str = (
         "{:.2f}".format(round(portfolio_percentage, 4))
-        if portfolio_percentage != "NA"
-        else "NA"
+        if portfolio_percentage != "N/A"
+        else "N/A"
     )
     ownership_percentage_str = (
         "{:.2f}".format(round(ownership_percentage, 4))
-        if ownership_percentage != "NA"
-        else "NA"
+        if ownership_percentage != "N/A"
+        else "N/A"
     )
 
     return {
@@ -324,18 +324,18 @@ def analyze_value(local_stock, global_stock, total):
         ownership_percentage = (
             shares_held / shares_outstanding
             if shares_held and shares_outstanding
-            else "NA"
+            else "N/A"
         )
     else:
-        ownership_percentage = "NA"
+        ownership_percentage = "N/A"
 
     return portfolio_percentage, ownership_percentage
 
 
 def analyze_report(local_stock, filings):
     cusip = local_stock["cusip"]
-    first_appearance = "NA"
-    last_appearance = "NA"
+    first_appearance = "N/A"
+    last_appearance = "N/A"
 
     for filing in filings:
         filing_stocks = filing.get("stocks", [])
@@ -344,7 +344,7 @@ def analyze_report(local_stock, filings):
         if cusip in filing_stocks:
             access_number = filing["access_number"]
             first_appearance = (
-                access_number if first_appearance == "NA" else first_appearance
+                access_number if first_appearance == "N/A" else first_appearance
             )
             last_appearance = access_number
 
@@ -356,7 +356,7 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
     ticker = global_stock.get("ticker")
     cusip = global_stock.get("cusip")
 
-    if not timeseries_global and ticker != "NA":
+    if not timeseries_global and ticker != "N/A":
         update_timeseries = True
         try:
             timeseries_response = api.ticker_request("TIME_SERIES_MONTHLY", ticker, cik)
@@ -391,10 +391,10 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
     first_appearance = local_stock["records"]["first_appearance"]
     last_appearance = local_stock["records"]["last_appearance"]
     buy_time = filings[first_appearance]["report_date"]
-    sold_time = filings[last_appearance]["report_date"] if sold else "NA"
+    sold_time = filings[last_appearance]["report_date"] if sold else "N/A"
 
-    buy_stamp = {"time": buy_time, "series": "NA"}
-    sold_stamp = {"time": sold_time, "series": "NA"}
+    buy_stamp = {"time": buy_time, "series": "N/A"}
+    sold_stamp = {"time": sold_time, "series": "N/A"}
 
     if timeseries_global != []:
         buy_timeseries = min(
@@ -405,7 +405,7 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
         sold_timeseries = (
             min(timeseries_global, key=lambda x: abs((x["time"]) - sold_time))
             if sold
-            else "NA"
+            else "N/A"
         )
         sold_stamp["series"] = sold_timeseries
 
@@ -565,7 +565,7 @@ def analyze_stocks(cik, filings):
                     cik,
                     "Error Analyzing Stock for Filings",
                     cusip,
-                    filing.get("access_number", "NA"),
+                    filing.get("access_number", "N/A"),
                 )
 
 
@@ -651,7 +651,7 @@ def sort_pipeline(
                         "sort_saved": sort_query,
                         sort: {
                             "$cond": {
-                                "if": {"$eq": [sort_query, "NA"]},
+                                "if": {"$eq": [sort_query, "N/A"]},
                                 "then": 0,
                                 "else": sort_query,
                             }
@@ -661,7 +661,7 @@ def sort_pipeline(
                 sort_stage,
                 {"$set": {sort: "$sort_saved"}},
                 {"$unset": "sort_saved"},
-                {"$match": {sort: {"$ne": "NA"}}},
+                {"$match": {sort: {"$ne": "N/A"}}},
             ]
         )
 
@@ -734,7 +734,7 @@ def create_dataframe(global_stocks, headers=None):
         stock_display = []
         for header in header_format:
             key = header["accessor"]
-            value = stock.get(key, "NA")
+            value = stock.get(key, "N/A")
             stock_display.append(value)
         csv_data.append(stock_display)
 
@@ -800,7 +800,7 @@ def sort_and_format(filer_ciks):
                 **filer,
                 "market_value": (
                     0
-                    if filer.get("market_value") == "NA"
+                    if filer.get("market_value") == "N/A"
                     or not filer.get("market_value")
                     else filer.get("market_value")
                 ),
@@ -819,13 +819,13 @@ def sort_and_format(filer_ciks):
                 )
                 market_value = filer.get("market_value", 0)
                 filer["market_value"] = (
-                    f"${int(market_value):,}" if market_value > 0 else "NA"
+                    f"${int(market_value):,}" if market_value > 0 else "N/A"
                 )
                 filer.pop("_id", None)
             except Exception as e:
-                errors.report_error(filer.get("cik", "NA"), e)
-                filer["date"] = "NA"
-                filer["market_value"] = "NA"
+                errors.report_error(filer.get("cik", "N/A"), e)
+                filer["date"] = "N/A"
+                filer["market_value"] = "N/A"
         return filers_sorted
     except Exception as e:
         logging.error(e)
@@ -903,8 +903,8 @@ def analyze_allocation(cik):
                     industries[industry]["count"] += 1
                 else:
                     industries[industry] = {"count": 1}
-            industries["OTHER"] = industries.get("NA", {"count": 1})
-            industries.pop("NA", None)
+            industries["OTHER"] = industries.get("N/A", {"count": 1})
+            industries.pop("N/A", None)
 
         count = len(stocks)
         for i in industries:
@@ -942,7 +942,7 @@ def analyze_aum(cik):
         aum_list.append(
             {
                 "access_number": access_number,
-                "aum": filing.get("market_value", "NA"),
+                "aum": filing.get("market_value", "N/A"),
                 "report_date": filing["report_date"],
             }
         )

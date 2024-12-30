@@ -19,6 +19,9 @@ const Table = (props) => {
   const paginate = (p) => props.paginate(p);
   const skip = (o) => props.skip(o);
 
+  // const randomString = Math.random().toString(36).substring(7);
+  // console.log(items, randomString);
+
   return (
     <>
       {items.length <= 0 && loading == false ? (

@@ -1,6 +1,6 @@
 {
-  "name": "whale-project",
-  "version": "9.0",
+  "name": "wallstreetlocal",
+  "version": "1.5.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -39,7 +39,7 @@
     "react-dom": "18.2.0",
     "react-redux": "^8.0.5",
     "sonner": "^1.4.41",
-    "swr": "^2.1.1"
+    "swr": "^2.3.0"
   },
   "devDependencies": {
     "@types/react": "18.0.28",
@@ -52,12 +52,12 @@
   "main": "next.config.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/leftmove/whale-project.git"
+    "url": "git+https://github.com/leftmove/wallstreetlocal.git"
   },
   "author": "leftmove",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/leftmove/whale-project/issues"
+    "url": "https://github.com/leftmove/wallstreetlocal/issues"
   },
-  "homepage": "https://github.com/leftmove/whale-project#readme"
+  "homepage": "https://github.com/leftmove/wallstreetlocal#readme"
 }
