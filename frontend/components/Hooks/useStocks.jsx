@@ -33,7 +33,7 @@ const useStocks = (
           const count = data.count;
           const stocks = data.stocks;
 
-          console.log(options, options.reverse);
+          console.log("inside", options);
 
           setCount(count);
           setStocks(stocks);
@@ -44,7 +44,11 @@ const useStocks = (
       })
       .catch((e) => console.error(e));
 
-  const { isLoading: loading, error } = useSWR(
+  const {
+    isLoading: loading,
+    error,
+    mutate,
+  } = useSWR(
     cik ? [server + "/stocks/info", cik, sort] : null,
     ([url, cik, sort]) => stockFetcher(url, cik, sort),
     {
@@ -70,6 +74,7 @@ const useStocks = (
     activate,
     skip,
     paginate,
+    mutate,
   };
 };
 

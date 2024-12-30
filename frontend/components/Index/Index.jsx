@@ -41,6 +41,7 @@ const Index = () => {
     activate,
     skip,
     paginate,
+    mutate,
   } = useStocks(
     cik,
     useSelector(selectHeaders), // Headers
@@ -53,13 +54,15 @@ const Index = () => {
       // Activate
       a,
       d
-    ) =>
+    ) => {
       dispatch(
         sortHeader({
           sort: a,
           reverse: d,
         })
-      ),
+      );
+      mutate(); // Trigger a manual revalidation, in case auto-revalidation does not work
+    },
     (o) => {
       // Skip
       dispatch(setOffset(o));
