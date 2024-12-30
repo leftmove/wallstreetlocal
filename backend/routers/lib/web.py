@@ -73,7 +73,7 @@ def process_names(stocks, cik):
                 if cusip in skip:
                     continue
 
-                stock = {"name": name, "ticker": "NA", "cusip": cusip, "update": False}
+                stock = {"name": name, "ticker": "N/A", "cusip": cusip, "update": False}
 
                 database.add_stock(stock)
                 skip.append(cusip)
@@ -117,7 +117,7 @@ def sort_rows(row_one, row_two):
     for i, (lineOne, lineTwo) in enumerate(
         zip(row_one.find_all("td"), row_two.find_all("td"))
     ):
-        if lineTwo.text == "NAME OF ISSUER":
+        if lineTwo.text == "N/AME OF ISSUER":
             nameColumn = i
         elif lineTwo.text == "TITLE OF CLASS":
             classColumn = i
@@ -168,11 +168,11 @@ def process_filings(cik, data):
         }
         filings.append(filing)
 
-    last_report = "NA"
-    first_report = "NA"
+    last_report = "N/A"
+    first_report = "N/A"
     for i, form in enumerate(data_filings["form"]):
         if form == "13F-HR":
-            if last_report == "NA":
+            if last_report == "N/A":
                 last_report = data_filings["accessionNumber"][i]
             first_report = data_filings["accessionNumber"][i]
 
@@ -254,11 +254,11 @@ def process_stock(ticker, cusip, name, cik):
     for key in stock_info.keys():
         field = stock_info[key]
         if field is None:
-            stock_info[key] = "NA"
+            stock_info[key] = "N/A"
     for key in stock_price.keys():
         field = stock_price[key]
         if field is None:
-            stock_price[key] = "NA"
+            stock_price[key] = "N/A"
 
     financials = analysis.convert_underscore(stock_info)
     quote = {}
@@ -269,11 +269,11 @@ def process_stock(ticker, cusip, name, cik):
     info = {
         "name": stock_info.get("Name", name),
         "ticker": ticker,
-        "cik": stock_info.get("CIK", "NA"),
+        "cik": stock_info.get("CIK", "N/A"),
         "cusip": cusip,
-        "sector": stock_info.get("Sector", "NA"),
-        "industry": stock_info.get("Industry", "NA"),
-        "price": "NA" if price is None else float(price),
+        "sector": stock_info.get("Sector", "N/A"),
+        "industry": stock_info.get("Industry", "N/A"),
+        "price": "N/A" if price is None else float(price),
         "time": (datetime.now()).timestamp(),
         "financials": financials,
         "quote": quote,
@@ -324,7 +324,7 @@ def scrape_html(cik, filing, directory, empty=False):
         if row_stock is None:
             new_stock = {
                 "name": stock_name,
-                "ticker": "NA",
+                "ticker": "N/A",
                 "class": stock_class,
                 "market_value": stock_value,
                 "shares_held": stock_shrs_amt,
@@ -371,7 +371,7 @@ def scrape_xml(cik, filing, directory, empty=False):
         if info_stock is None:
             new_stock = {
                 "name": stock_name,
-                "ticker": "NA",
+                "ticker": "N/A",
                 "class": stock_class,
                 "market_value": stock_value,
                 "shares_held": stock_shrs_amt,

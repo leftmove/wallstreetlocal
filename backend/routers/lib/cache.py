@@ -119,7 +119,7 @@ def cache(_, hours=2):
             key = "-".join(str(k) for k in key_parts)
             result = store.get(key)
 
-            if result is None:
+            if result is None or not production_environment:
                 is_coroutine = iscoroutinefunction(func)
 
                 if is_coroutine:
