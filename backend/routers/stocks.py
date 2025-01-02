@@ -6,6 +6,7 @@ import logging
 from .lib import web
 from .lib import database
 from .lib import analysis
+from .lib import errors
 from .lib.cache import cache
 
 router = APIRouter(
@@ -55,7 +56,7 @@ async def stock_info(
         )
         cursor = database.search_filers(pipeline)
     except Exception as e:
-        report_error(cik, e)
+        errors.report_error(cik, e)
         cursor = []
         count = 0
 

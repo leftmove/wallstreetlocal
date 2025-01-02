@@ -17,7 +17,7 @@ def convert_date(date_str):
     return date
 
 
-quarters = [
+quarters_as_months = [
     "Q1",
     "Q1",
     "Q1",
@@ -31,6 +31,7 @@ quarters = [
     "Q4",
     "Q4",
 ]
+not_applicable = "N/A"
 
 
 def time_format(seconds: int) -> str:
@@ -124,12 +125,18 @@ def serialize_global(local_stock, global_stock):
     )
     gain_value = (
         float(price_recent - price_bought)
-        if update and buy_timeseries != "N/A"
+        if update
+        and buy_timeseries != "N/A"
+        and price_recent != "N/A"
+        and price_bought != "N/A"
         else "N/A"
     )
     gain_percent = (
         float((gain_value / price_bought) * 100)
-        if update and buy_timeseries != "N/A"
+        if update
+        and buy_timeseries != "N/A"
+        and gain_value != "N/A"
+        and price_bought != "N/A"
         else "N/A"
     )
     portfolio_percentage_str = (

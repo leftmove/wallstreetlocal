@@ -10,6 +10,7 @@ import logging
 from . import database
 from . import api
 from . import analysis
+from . import errors
 
 
 def process_names(stocks, cik):
@@ -69,7 +70,7 @@ def process_names(stocks, cik):
 
                 global_stocks[cusip] = stock
                 database.add_log(cik, msg, name, cusip)
-            except Exception:
+            except Exception as e:
                 if cusip in skip:
                     continue
 
@@ -81,6 +82,7 @@ def process_names(stocks, cik):
 
                 msg += "Failed, No Query Data"
                 database.add_log(cik, msg, name, cusip)
+                errors.report_error(f"{cik}, {cusip}", e)
 
     return global_stocks
 
@@ -117,7 +119,7 @@ def sort_rows(row_one, row_two):
     for i, (lineOne, lineTwo) in enumerate(
         zip(row_one.find_all("td"), row_two.find_all("td"))
     ):
-        if lineTwo.text == "N/AME OF ISSUER":
+        if lineTwo.text == "NAME OF ISSUER":
             nameColumn = i
         elif lineTwo.text == "TITLE OF CLASS":
             classColumn = i
@@ -150,6 +152,7 @@ def process_keys(tickers, name, cik):
             except Exception as e:
                 stock_info = {}
                 logging.error(e)
+                errors.report_error(f"{cik}, {name}", e)
     return name, stock_info  # type: ignore
 
 
@@ -245,6 +248,7 @@ def process_stock(ticker, cusip, name, cik):
         stock_price = (api.ticker_request("GLOBAL_QUOTE", ticker, cik))["Global Quote"]
     except Exception as e:
         logging.error(e)
+        errors.report_error(f"{cik}, {cusip}", e)
         return None
 
     if stock_info == {} and stock_price == {}:
@@ -472,6 +476,7 @@ def process_stocks(cik, filings):
             yield access_number, new_stocks
         except Exception as e:
             logging.info(f"\nError Updating Stocks\n{e}\n--------------------------\n")
+            errors.report_error(f"{cik}, {access_number}", e)
             continue
 
 
@@ -494,6 +499,7 @@ def query_stocks(found_stocks):
             price = global_quote["05. price"]
         except Exception as e:
             logging.error(e)
+            errors.report_error(f"{ticker}", e)
             continue
 
         database.edit_stock(
@@ -517,6 +523,7 @@ def estimate_time_newest(cik):
         stock_count = scrape_stocks(cik=cik, data=data, filing=last_filing, empty=True)
     except Exception as e:
         logging.info(f"Error Counting Stocks\n{e}")
+        errors.report_error(f"{cik}, {last_report}", e)
         raise
 
     log = database.find_log(cik, {"status": 1})
