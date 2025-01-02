@@ -35,6 +35,7 @@ class Config:
     worker_concurrency = WORKERS
     concurrency = 1
     broker_connection_retry_on_startup = True
+    broker_use_ssl = True
     celery_task_always_eager = False if production_environment else True
 
 
