@@ -12,13 +12,14 @@ from routers import filer
 from routers.lib.cache import (
     REDIS_SERVER_URL,
     REDIS_PORT,
+    REDIS_SSL,
     REDIS_USERNAME,
     REDIS_PASSWORD,
 )
 
 load_dotenv()
 
-BROKER = f"rediss://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_SERVER_URL}:{REDIS_PORT}/0"
+BROKER = f"redis{"s" if REDIS_SSL else ""}://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_SERVER_URL}:{REDIS_PORT}{"?ssl_cert_reqs=required" if REDIS_SSL else ""}"
 
 SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
 WORKERS = int(os.environ.get("WORKERS", ((multiprocessing.cpu_count() * 2) + 1)))
@@ -35,11 +36,10 @@ class Config:
     worker_concurrency = WORKERS
     concurrency = 1
     broker_connection_retry_on_startup = True
-    broker_use_ssl = True
     celery_task_always_eager = False if production_environment else True
 
 
-queue = Celery("worker", broker=BROKER)
+queue = Celery("worker", broker=BROKER, backend=BROKER)
 queue.config_from_object(Config)
 
 
