@@ -19,7 +19,7 @@ from routers.lib.cache import (
 
 load_dotenv()
 
-BROKER = f"redis{'s' if REDIS_SSL else ''}://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_SERVER_URL}:{REDIS_PORT}{'?ssl_cert_reqs=required' if REDIS_SSL else ""}"
+BROKER = f"redis{'s' if REDIS_SSL else ''}://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_SERVER_URL}:{REDIS_PORT}{'?ssl_cert_reqs=required' if REDIS_SSL else ''}"
 
 SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
 WORKERS = int(os.environ.get("WORKERS", ((multiprocessing.cpu_count() * 2) + 1)))
