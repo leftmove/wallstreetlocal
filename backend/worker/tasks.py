@@ -18,7 +18,7 @@ from routers.lib.cache import (
 
 load_dotenv()
 
-BROKER = f"redis://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_SERVER_URL}:{REDIS_PORT}/0"
+BROKER = f"rediss://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_SERVER_URL}:{REDIS_PORT}/0"
 
 SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
 WORKERS = int(os.environ.get("WORKERS", ((multiprocessing.cpu_count() * 2) + 1)))
