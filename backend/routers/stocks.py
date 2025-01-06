@@ -3,6 +3,8 @@ from pydantic import BaseModel
 
 import logging
 
+from routers.responses import BrowserCachedResponse
+
 from .lib import web
 from .lib import database
 from .lib import analysis
@@ -14,6 +16,8 @@ router = APIRouter(
     tags=["stocks"],
     responses={},
 )
+
+cache_time = (60 * 10) / (60 * 60)  # 10 minutes
 
 
 class Cusip(BaseModel):
@@ -65,7 +69,9 @@ async def stock_info(
     except KeyError:
         raise HTTPException(detail="Error while searching.", status_code=500)
 
-    return {"stocks": stock_list, "count": count}
+    return BrowserCachedResponse(
+        content={"stocks": stock_list, "count": count}, cache_hours=cache_time
+    )
 
 
 @cache(4)
@@ -132,7 +138,7 @@ async def stock_timeseries(cik: str, time: float):
             }
         )
 
-    return {"stocks": stock_list}
+    return BrowserCachedResponse(content={"stocks": stock_list}, cache_hours=cache_time)
 
 
 @router.get("/filing", tags=["filers", "stocks"], status_code=200)
@@ -183,4 +189,6 @@ async def query_filing(
     except KeyError:
         raise HTTPException(detail="Error while searching.", status_code=500)
 
-    return {"stocks": stock_list, "count": count}
+    return BrowserCachedResponse(
+        content={"stocks": stock_list, "count": count}, cache_hours=cache_time
+    )
