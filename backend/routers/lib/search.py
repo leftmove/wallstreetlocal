@@ -1,4 +1,4 @@
-import meilisearch
+import meilisearch_python_sdk as meilisearch
 
 import os
 
