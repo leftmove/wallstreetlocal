@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Holdings Report for {{ date }}</title>
     <style>
+      :root {
+        --primary: #04df16;
+        --primary-dark: #02c002;
+        --secondary: #1c1c1b;
+        --secondary-dark: #0c0c0c;
+        --white: white;
+        --offwhite: #e2e1e1;
+        --offwhite-dark: #b8b8b8;
+        --offwhite-darker: #a0a0a0;
+      }
       body {
         font-family: Arial, sans-serif;
         background-color: #f4f4f4;
@@ -25,7 +35,13 @@
         border-bottom: 1px solid #dddddd;
       }
       .content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+
         padding: 20px;
+        color: var(--secondary);
       }
       .footer {
         text-align: center;
@@ -34,155 +50,32 @@
         font-size: 12px;
         color: #888888;
       }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="header">
-        <h1>Holdings Report for {{ date }}</h1>
-      </div>
-      <div class="content">
-        <ul>
-          <li><strong>Filing Date:</strong> {{ filing_date }}</li>
-          <li><strong>Company:</strong> {{ company_name }}</li>
-          <li><strong>Holdings:</strong> {{ holdings }}</li>
-        </ul>
-        <p>For more details, please visit our website.</p>
-        <p>Best regards,</p>
-        <p>The WallStreetLocal Team</p>
-      </div>
-      <div class="footer">
-        <p>&copy; 2023 WallStreetLocal. All rights reserved.</p>
-      </div>
-    </div>
-  </body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>New 13F Filing Notification</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
-        margin: 0;
-        padding: 0;
+      .primary-header {
+        color: var(--secondary);
       }
-      .container {
-        width: 100%;
-        max-width: 600px;
-        margin: 0 auto;
-        background-color: #ffffff;
-        padding: 20px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      .secondary-header {
+        color: var(--secondary-dark);
       }
-      .header {
+      .summary-header {
         text-align: center;
-        padding: 10px 0;
-        border-bottom: 1px solid #dddddd;
       }
-      .content {
-        padding: 20px;
-      }
-      .footer {
+      .filer-info {
         text-align: center;
-        padding: 10px 0;
-        border-top: 1px solid #dddddd;
-        font-size: 12px;
-        color: #888888;
       }
     </style>
   </head>
   <body>
     <div class="container">
       <div class="header">
-        <h1>New 13F Filing Notification</h1>
+        <h1 class="primary-header">Berkshire Hathaway</h1>
+        <h2 class="secondary-header">Holdings Report for {{ date }}</h2>
       </div>
       <div class="content">
-        <p>Dear {{ name }},</p>
-        <p>
-          We are excited to inform you that a new 13F filing has been made.
-          Please find the details below:
-        </p>
-        <ul>
-          <li><strong>Filing Date:</strong> {{ filing_date }}</li>
-          <li><strong>Company:</strong> {{ company_name }}</li>
-          <li><strong>CIK:</strong> {{ cik }}</li>
-          <li><strong>Holdings:</strong> {{ holdings }}</li>
-        </ul>
-        <p>For more details, please visit our website.</p>
-        <p>Best regards,</p>
-        <p>The WallStreetLocal Team</p>
+        <h3 class="summary-header">Summary</h3>
+        <span class="filer-info">{{ filing_date }}</span>
       </div>
       <div class="footer">
-        <p>&copy; 2023 WallStreetLocal. All rights reserved.</p>
-      </div>
-    </div>
-  </body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>New 13F Filing Notification</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f4;
-        margin: 0;
-        padding: 0;
-      }
-      .container {
-        width: 100%;
-        max-width: 600px;
-        margin: 0 auto;
-        background-color: #ffffff;
-        padding: 20px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      }
-      .header {
-        text-align: center;
-        padding: 10px 0;
-        border-bottom: 1px solid #dddddd;
-      }
-      .content {
-        padding: 20px;
-      }
-      .footer {
-        text-align: center;
-        padding: 10px 0;
-        border-top: 1px solid #dddddd;
-        font-size: 12px;
-        color: #888888;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="header">
-        <h1>New 13F Filing Notification</h1>
-      </div>
-      <div class="content">
-        <p>Dear Investor,</p>
-        <p>
-          We are excited to inform you that a new 13F filing has been made.
-          Please find the details below:
-        </p>
-        <ul>
-          <li><strong>Filing Date:</strong> {{ filing_date }}</li>
-          <li><strong>Company:</strong> {{ company_name }}</li>
-          <li><strong>CIK:</strong> {{ cik }}</li>
-          <li><strong>Holdings:</strong> {{ holdings }}</li>
-        </ul>
-        <p>For more details, please visit our website.</p>
-        <p>Best regards,</p>
-        <p>The WallStreetLocal Team</p>
-      </div>
-      <div class="footer">
-        <p>&copy; 2023 WallStreetLocal. All rights reserved.</p>
+        <p>&copy; 2025 wallstreetlocal</p>
       </div>
     </div>
   </body>
