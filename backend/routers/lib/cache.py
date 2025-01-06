@@ -16,7 +16,7 @@ production_environment = True if ENVIRONMENT == "production" else False
 
 REDIS_SERVER_URL = os.environ.get("REDIS_SERVER_URL", "cache")
 REDIS_PORT = int(os.environ.get("REDIS_PORT", 6379))
-REDIS_SSL = bool(os.environ.get("REDIS_SSL", True if production_environment else False))
+REDIS_SSL = json.loads(os.environ.get("REDIS_SSL", production_environment).lower())
 REDIS_USERNAME = os.environ.get("REDIS_USERNAME", "default")
 REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", "")
 
