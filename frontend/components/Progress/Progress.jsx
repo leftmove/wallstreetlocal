@@ -139,7 +139,7 @@ const Progress = (props) => {
 
   return (
     <>
-      {stop && <Redirect cik={cik} delay={0} />}
+      {stop && persist === false && <Redirect cik={cik} delay={0} />}
       <div className={[styles["progress"], font.className].join(" ")}>
         <div className={styles["header"]}>
           <div className={styles["main-header"]}>

@@ -20,11 +20,13 @@ REDIS_SSL = json.loads(os.environ.get("REDIS_SSL", str(production_environment)).
 REDIS_USERNAME = os.environ.get("REDIS_USERNAME", "default")
 REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", "")
 
+
 store = redis.Redis(
     host=REDIS_SERVER_URL,
     password=REDIS_PASSWORD,
     port=REDIS_PORT,
     ssl=REDIS_SSL,
+    ssl_cert_reqs="required" if REDIS_SSL else None,
     decode_responses=True,
 )
 

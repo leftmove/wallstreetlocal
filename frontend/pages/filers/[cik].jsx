@@ -33,7 +33,7 @@ const server = process.env.NEXT_PUBLIC_SERVER;
 export async function getServerSideProps(context) {
   const cik = context.query.cik || null;
   const continuous = context.query.continuous || false;
-  const persist = context.query.persist || false;
+  const persist = context.query.persist === "true" ? true : false || false;
   const tab = context.query.tab || "stocks";
 
   const query = {
