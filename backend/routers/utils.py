@@ -21,17 +21,12 @@ from .lib import database
 from .lib import search
 from .lib import cache
 
+from .lib.database import MONGO_BACKUP_URL
+from .lib.errors import SENTRY_DSN
+
 load_dotenv()
 
-MONGO_SERVER_URL = os.environ["MONGO_SERVER_URL"]
-MONGO_BACKUP_URL = os.environ["MONGO_BACKUP_URL"]
-MEILI_SERVER_URL = os.environ["MEILI_SERVER_URL"]
-MEILI_MASTER_KEY = os.environ["MEILI_MASTER_KEY"]
-REDIS_SERVER_URL = os.environ["REDIS_SERVER_URL"]
-REDIS_PORT = int(os.environ.get("REDIS_PORT", 14640))
-REDIS_PASSWORD = os.environ["REDIS_PASSWORD"]
 DEBUG_CIK = os.environ.get("DEBUG_CIK", "")
-SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
 TELEMETRY = bool(os.environ.get("TELEMETRY", False))
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 production_environment = True if ENVIRONMENT == "production" else False

@@ -459,7 +459,9 @@ def scrape_stocks(cik, data, filing, last_report, empty=False):
 
 
 def process_stocks(cik, filings):
-    filings_list = sorted([f for f in filings], key=lambda d: d.get("report_date", 0))
+    filings_list = sorted(
+        [f for f in filter(filings)], key=lambda d: d.get("report_date", 0)
+    )
     last_report = filings_list[-1]["access_number"]
     for document in filings_list:
         access_number = document["access_number"]

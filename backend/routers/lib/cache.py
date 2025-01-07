@@ -9,6 +9,8 @@ from time import time
 from inspect import iscoroutinefunction
 from dotenv import load_dotenv
 
+from . import errors
+
 load_dotenv()
 
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
@@ -32,7 +34,11 @@ store = redis.Redis(
 
 
 def ping():
-    ping = store.ping()
+    try:
+        ping = store.ping()
+    except Exception as e:
+        errors.report_error("Redis Startup", e)
+        raise e
     return ping
 
 

@@ -40,7 +40,11 @@ companies_index = search.index("companies")
 
 
 def ping():
-    keys = search.get_keys()
+    try:
+        keys = search.get_keys()
+    except Exception as e:
+        errors.report_error("Meilisearch Startup", e)
+        raise e
     return keys
 
 

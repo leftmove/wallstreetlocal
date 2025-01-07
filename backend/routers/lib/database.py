@@ -8,6 +8,8 @@ import functools
 
 import pymongo
 
+from . import errors
+
 load_dotenv()
 
 MONGO_SERVER_URL = os.environ.get("MONGO_SERVER_URL", "mongodb://database:27017")
@@ -52,7 +54,11 @@ def retry_on_rate_limit(max_attempts=5, start_sleep_time=1, backoff_factor=2):
 
 @retry_on_rate_limit()
 def ping():
-    server_status = client.server_info()
+    try:
+        server_status = client.server_info()
+    except Exception as e:
+        errors.report_error("MongoDB Startup", e)
+        raise e
     return server_status
 
 
