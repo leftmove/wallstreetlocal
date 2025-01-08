@@ -870,7 +870,7 @@ def analyze_allocation(cik):
         if new_filings.get(access_number):
             filing_stocks = new_filings[access_number]["stocks"]
             cusip = filing["cusip"]
-            stock = filer_stocks[cusip]
+            stock = filer_stocks.get(cusip)
             if stock:
                 filing_stocks.append(
                     {
@@ -882,7 +882,7 @@ def analyze_allocation(cik):
             new_filings[access_number]["stocks"] = filing_stocks
         else:
             cusip = filing["cusip"]
-            stock = filer_stocks[cusip]
+            stock = filer_stocks.get(cusip)
             if stock:
                 new_filings[access_number] = {
                     "report_date": report_date,

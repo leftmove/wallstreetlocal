@@ -9,6 +9,7 @@ import sentry_sdk
 
 TELEMETRY = bool(os.environ.get("TELEMETRY", False))
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
+SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
 production_environment = True if ENVIRONMENT == "production" else False
 run_telemetry = True if TELEMETRY else False
 

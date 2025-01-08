@@ -41,6 +41,7 @@ log_config["formatters"]["access"][
 if production_environment and run_telemetry:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
+        environment=ENVIRONMENT,
         enable_tracing=True,
         integrations=[
             RedisIntegration(),
