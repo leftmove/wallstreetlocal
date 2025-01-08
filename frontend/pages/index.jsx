@@ -17,7 +17,7 @@ import Hero from "@/images/hero.jpg";
 
 // SEO terms taken from SEMrush
 const keywords =
-  "13f, 13f filings, berkshire hathaway, micheal burry, pershing square, citadel, melvin capital";
+  "13f, 13f filings, berkshire hathaway, warren buffet, micheal burry, pershing square, citadel, melvin capital";
 
 export default function Home(props) {
   return (

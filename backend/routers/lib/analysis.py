@@ -128,7 +128,9 @@ def serialize_global(local_stock, global_stock):
         if update
         and buy_timeseries != "N/A"
         and price_recent != "N/A"
+        and type(price_recent) == (float or int)
         and price_bought != "N/A"
+        and type(price_bought) == (float or int)
         else "N/A"
     )
     gain_percent = (
