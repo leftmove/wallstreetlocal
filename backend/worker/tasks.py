@@ -3,7 +3,7 @@ import multiprocessing
 from dotenv import load_dotenv
 
 from celery import Celery, signals
-from celery.contrib import rdb
+from celery.utils.log import get_task_logger
 
 import sentry_sdk
 from sentry_sdk.integrations.celery import CeleryIntegration
@@ -30,8 +30,10 @@ ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 
 __all__ = []
 
+
 production_environment = True if ENVIRONMENT == "production" else False
 run_telemetry = True if TELEMETRY else False
+logger = get_task_logger(__name__)
 
 
 class Config:
@@ -41,7 +43,7 @@ class Config:
     broker_connection_retry_on_startup = True
     celery_task_always_eager = False if production_environment else True
     beat_schedule = {
-        "add-every-30-seconds": {
+        "add-every-couple-seconds": {
             "task": "tasks.add",
             "schedule": 5.0,
             "args": (16, 16),
@@ -51,12 +53,6 @@ class Config:
 
 queue = Celery("worker", broker=BROKER, backend=MONGO_SERVER_URL)
 queue.config_from_object(Config)
-
-
-@queue.task
-def test(arg):
-    print(arg)
-    rdb.set_trace()  # <- set break-point
 
 
 @queue.task
