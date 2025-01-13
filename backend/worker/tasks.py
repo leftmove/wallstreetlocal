@@ -39,21 +39,28 @@ class Config:
     concurrency = 1
     broker_connection_retry_on_startup = True
     celery_task_always_eager = False if production_environment else True
+    beat_schedule = {
+        "add-every-30-seconds": {
+            "task": "tasks.add",
+            "schedule": 5.0,
+            "args": (16, 16),
+        },
+    }
 
 
 queue = Celery("worker", broker=BROKER, backend=MONGO_SERVER_URL)
 queue.config_from_object(Config)
 
 
-@queue.on_after_configure.connect
-def setup_periodic_tasks(sender: Celery, **kwargs):
-    # Calls test('hello') every 10 seconds.
-    sender.add_periodic_task(5, lambda: test("hello"), name="add every 10")
-
-
 @queue.task
 def test(arg):
     print(arg)
+
+
+@queue.task
+def add(x, y):
+    z = x + y
+    print(z)
 
 
 @signals.celeryd_init.connect
