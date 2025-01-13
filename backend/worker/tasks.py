@@ -3,6 +3,7 @@ import multiprocessing
 from dotenv import load_dotenv
 
 from celery import Celery, signals
+from celery.contrib import rdb
 
 import sentry_sdk
 from sentry_sdk.integrations.celery import CeleryIntegration
@@ -55,6 +56,7 @@ queue.config_from_object(Config)
 @queue.task
 def test(arg):
     print(arg)
+    rdb.set_trace()  # <- set break-point
 
 
 @queue.task
