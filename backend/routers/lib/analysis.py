@@ -311,7 +311,11 @@ def analyze_total(cik, stocks, access_number):
 
     total = sum(market_values)
     database.edit_filing(
-        {"cik": cik, "access_number": access_number, "form": "13F-HR"},
+        {
+            "cik": cik,
+            "access_number": access_number,
+            "form": {"$in": database.holding_forms},
+        },
         {
             "$set": {
                 "market_value": total,
@@ -849,7 +853,7 @@ def analyze_allocation(cik):
 
     filing_project = {"access_number": 1, "report_date": 1}
     pipeline = [
-        {"$match": {"cik": cik, "form": "13F-HR"}},
+        {"$match": {"cik": cik, "form": {"$in": database.holding_forms}}},
         {"$project": {**filing_project, "stocks": 1}},
         {"$project": {**filing_project, "stocks": {"$objectToArray": "$stocks"}}},
         {"$project": {**filing_project, "stocks": "$stocks.v"}},

@@ -29,6 +29,8 @@ filings = db["filings"]
 companies = db["companies"]
 statistics = db["statistics"]
 
+holding_forms = ["13F-HR", "13F-HR/A"]
+
 
 def retry_on_rate_limit(max_attempts=5, start_sleep_time=1, backoff_factor=2):
 

@@ -46,6 +46,7 @@ const Search = () => {
     }
   }, [data]);
 
+  // This is very dirty but temporary
   const [stateToast, setToast] = useState(false);
   useEffect(() => {
     if (isMobile && !stateToast) {

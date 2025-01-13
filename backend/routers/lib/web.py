@@ -88,17 +88,7 @@ def process_names(stocks, cik):
 
 
 def check_new(cik):
-    data = api.sec_filer_search(cik)
-    recent_filings = data["filings"]["recent"]
-
-    document_reports = []
-    for i, form in enumerate(recent_filings["form"]):
-        if "13F-HR" == form:
-            report = recent_filings["reportDate"][i]
-            report = analysis.convert_date(report)
-            access = recent_filings["accessionNumber"][i]
-            document_reports.append({"report": report, "access": access})
-    document_reports = sorted(document_reports, key=lambda d: d["report"])
+    document_reports = check_forms(cik)
 
     latest_report = document_reports[-1]
     latest_date = latest_report["report"]
@@ -113,6 +103,21 @@ def check_new(cik):
         return True, latest_access
     else:
         return False, None
+
+
+def check_forms(cik):
+    data = api.sec_filer_search(cik)
+    recent_filings = data["filings"]["recent"]
+
+    document_reports = []
+    for i, form in enumerate(recent_filings["form"]):
+        if form in database.holding_forms:
+            report = analysis.convert_date(recent_filings["reportDate"][i])
+            access = recent_filings["accessionNumber"][i]
+            document_reports.append({"report": report, "access": access})
+    document_reports = sorted(document_reports, key=lambda d: d["report"])
+
+    return document_reports
 
 
 def sort_rows(row_one, row_two):
@@ -467,7 +472,7 @@ def process_stocks(cik, filings):
         access_number = document["access_number"]
         form_type = document["form"]
 
-        if "13F-HR" not in form_type:
+        if form_type not in database.holding_forms:
             continue
 
         data = api.sec_stock_search(cik=cik, access_number=access_number)

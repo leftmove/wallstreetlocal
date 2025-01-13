@@ -20,6 +20,7 @@ from .lib.api import sec_filer_search
 from .lib.cache import cache
 
 production_environment = getattr(worker, "production_environment", False)
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "password")
 
 
 class Filer(BaseModel):
@@ -222,11 +223,9 @@ async def query_filer(cik: str, background: BackgroundTasks = BackgroundTasks):
         else:
             background.add_task(create_filer, cik, sec_data)
 
-        res = {"description": "Filer creation started."}
+        return {"description": "Filer creation started."}
     else:
-        res = update_filer(filer, background=background)
-
-    return res
+        return update_filer(filer, background=background)
 
 
 def update_filer(company, background: BackgroundTasks = BackgroundTasks):
@@ -235,11 +234,13 @@ def update_filer(company, background: BackgroundTasks = BackgroundTasks):
 
     operation = database.find_log(cik)
     if operation is None:
-        raise HTTPException(404, detail="CIK not found.")
-    # elif operation["status"] == 2 or operation["status"] == 1:
-    #     raise HTTPException(  # @IgnoreException
-    #         302, detail="Filer continuous building."
-    #     )  # @IgnoreException
+        raise HTTPException(404, detail="Filer log not found.")
+    elif (
+        production_environment and operation["status"] == 2 or operation["status"] == 1
+    ):
+        raise HTTPException(  # @IgnoreException
+            302, detail="Filer is partially building."
+        )
     elif operation["status"] >= 2:
         raise HTTPException(409, detail="Filer still building.")
 
@@ -252,11 +253,31 @@ def update_filer(company, background: BackgroundTasks = BackgroundTasks):
 
     stamp = {"name": company["name"], "start": time}
     if production_environment:
-        worker.create_historical.delay(cik, company, stamp)
+        worker.create_recent.delay(cik, company, stamp)
     else:
-        background.add_task(create_historical, cik, company, stamp)
+        background.add_task(create_recent, cik, company, stamp)
 
     return {"description": "Filer update started."}
+
+
+@router.get("/repair", tags=["filers"], status_code=201)
+def repair_filer(
+    cik: str, password: str, background: BackgroundTasks = BackgroundTasks
+):
+
+    if password != ADMIN_PASSWORD:
+        raise HTTPException(detail="Unable to give access.", status_code=403)
+
+    filer = database.find_filer(cik)
+    if not filer:
+        raise HTTPException(404, detail="CIK not found.")
+
+    if production_environment:
+        worker.create_filer_replace.delay(cik)
+    else:
+        background.add_task(create_filer_replace, cik)
+
+    return {"description": "Filer repair started."}
 
 
 @router.get("/rollback", tags=["filers"], status_code=201, include_in_schema=False)
@@ -266,7 +287,7 @@ async def rollback_filer(
     filer = database.find_filer(cik, {"last_report": 1})
     if not filer:
         raise HTTPException(404, detail="CIK not found.")
-    if password != os.environ["ADMIN_PASSWORD"]:
+    if password != ADMIN_PASSWORD:
         raise HTTPException(detail="Unable to give access.", status_code=403)
 
     filings = database.map_filings(cik)
@@ -567,60 +588,6 @@ async def partial_record(cik: str, time: float):
     )
 
 
-@cache(24)
-@router.get("/record/filing", tags=["filers", "records"], status_code=200)
-async def record_filing(cik: str, access_number):
-    filer = database.find_filer(cik, {"_id": 1})
-    if filer is None:
-        raise HTTPException(404, detail="Filer not found.")
-    filer_log = database.find_log(cik, {"status": 1})
-    if filer_log.get("status", 100) > 0:
-        raise HTTPException(409, detail="Filer still building.")
-
-    filing = database.find_filing(cik, access_number)
-    filename = f"wallstreetlocal-{cik}-{access_number}.json"
-    file_path = analysis.create_json(filing, filename)
-
-    return FileResponse(
-        file_path, media_type="application/octet-stream", filename=filename
-    )
-
-
-@cache(24)
-@router.get("/record/filingcsv", tags=["filers", "records"], status_code=200)
-async def record_filing_csv(cik: str, access_number: str, headers: str = None):
-    filer = database.find_filer(cik, {"_id": 1})
-    if filer is None:
-        raise HTTPException(404, detail="Filer not found.")
-    filer_log = database.find_log(cik, {"status": 1})
-    if filer_log.get("status", 100) > 0:
-        raise HTTPException(409, detail="Filer still building.")
-
-    if headers:
-        try:
-            headers_string = parse.unquote(headers)
-            headers = json.loads(headers_string)
-            headers_string = headers_string + f"-{access_number}"
-            header_hash = hash(headers_string)
-            file_name = f"wallstreetlocal-{cik}{header_hash}.csv"
-        except Exception as e:
-            report_error(cik, e)
-            raise HTTPException(
-                status_code=422, detail="Malformed headers, unable to process request."
-            )
-    else:
-        file_name = f"wallstreetlocal-{cik}-{access_number}.csv"
-
-    filing = database.find_filing(cik, access_number)
-    stock_dict = filing["stocks"]
-    stock_list = [stock_dict[cusip] for cusip in stock_dict]
-
-    file_path, filename = analysis.create_csv(stock_list, file_name, headers)
-    return FileResponse(
-        file_path, media_type="application/octet-stream", filename=filename
-    )
-
-
 cwd = os.getcwd()
 
 top_ciks_path = f"{cwd}/static/top.json"
@@ -682,14 +649,13 @@ def create_filer_replace(cik):
         except Exception:
             raise HTTPException(status_code=404, detail="CIK not found.")
         create_filer(cik, sec_data)
-
     except Exception as e:
         report_error(cik, e)
 
 
 @router.get("/remove", status_code=200, include_in_schema=False)
 async def remove_filer(cik: str, password: str):
-    if password != os.environ["ADMIN_PASSWORD"]:
+    if password != ADMIN_PASSWORD:
         raise HTTPException(detail="Unable to give access.", status_code=403)
 
     database.delete_filer(cik)
@@ -699,26 +665,12 @@ async def remove_filer(cik: str, password: str):
 
 @router.get("/hang", status_code=200, include_in_schema=False)
 async def hang_dangling(password: str):
-    if password != os.environ["ADMIN_PASSWORD"]:
+    if password != ADMIN_PASSWORD:
         raise HTTPException(detail="Unable to give access.", status_code=403)
 
     results = analysis.end_dangling()
 
     return {"description": "Successfully ended dangling processes.", "ciks": results}
-
-
-@router.get("/filings", status_code=200)
-async def query_filings(cik: str):
-    pipeline = [
-        {"$match": {"cik": cik, "form": "13F-HR"}},
-        {"$project": {"stocks": 0, "_id": 0}},
-    ]
-    cursor = database.search_filings(pipeline)
-    if not cursor:
-        raise HTTPException(detail="Filer not found.", status_code=404)
-    filings = [result for result in cursor]
-
-    return {"filings": filings}
 
 
 @router.get("/analysis", status_code=200)

@@ -8,6 +8,7 @@ import multiprocessing
 
 from routers import general
 from routers import filer
+from routers import filing
 from routers import stocks
 
 from routers.utils import (
@@ -32,6 +33,7 @@ middleware = [
 app = FastAPI(middleware=middleware)
 app.include_router(general.router)
 app.include_router(filer.router)
+app.include_router(filing.router)
 app.include_router(stocks.router)
 
 if __name__ == "__main__":

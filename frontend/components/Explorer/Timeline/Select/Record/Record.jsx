@@ -18,7 +18,7 @@ const Record = (props) => {
   const handleJSONDownload = () => {
     window.open(
       server +
-        "/filers/record/filing?" +
+        "/filing/record?" +
         new URLSearchParams({ cik, access_number: selected.access }).toString(),
       "_blank"
     );
@@ -26,7 +26,7 @@ const Record = (props) => {
   const handleCSVDownload = () => {
     window.open(
       server +
-        "/filers/record/filingcsv?" +
+        "/filing/recordcsv?" +
         new URLSearchParams({
           cik,
           access_number: selected.access,

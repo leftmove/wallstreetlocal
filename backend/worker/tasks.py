@@ -16,6 +16,7 @@ from routers.lib.cache import (
     REDIS_USERNAME,
     REDIS_PASSWORD,
 )
+from routers.lib.database import MONGO_SERVER_URL
 from routers.lib.errors import SENTRY_DSN
 
 load_dotenv()
@@ -33,14 +34,26 @@ run_telemetry = True if TELEMETRY else False
 
 
 class Config:
+    timezone = "America/Detroit"
     worker_concurrency = WORKERS
     concurrency = 1
     broker_connection_retry_on_startup = True
     celery_task_always_eager = False if production_environment else True
 
 
-queue = Celery("worker", broker=BROKER, backend=BROKER)
+queue = Celery("worker", broker=BROKER, backend=MONGO_SERVER_URL)
 queue.config_from_object(Config)
+
+
+@queue.on_after_configure.connect
+def setup_periodic_tasks(sender: Celery, **kwargs):
+    # Calls test('hello') every 10 seconds.
+    sender.add_periodic_task(10.0, test.s("hello"), name="add every 10")
+
+
+@queue.task
+def test(arg):
+    print(arg)
 
 
 @signals.celeryd_init.connect

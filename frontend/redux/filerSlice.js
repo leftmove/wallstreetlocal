@@ -1,6 +1,9 @@
 import { createSlice, createSelector } from "@reduxjs/toolkit";
 import { HYDRATE } from "next-redux-wrapper";
 
+// This reducer file desperately needs to be split into multiple files. It's too large and unwieldy.
+// This won't be done for a while though (cause time), so I'll just leave this note here.
+
 const initialDate = new Date();
 const initialHeaders = [
   {
