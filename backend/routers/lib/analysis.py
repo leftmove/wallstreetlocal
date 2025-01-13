@@ -938,7 +938,11 @@ def analyze_allocation(cik):
     allocation_statistic = {
         "filings": allocation_access,
     }
-    database.add_statistic(cik, "allocation", allocation_statistic, completion)
+    database.add_statistic(
+        cik,
+        "allocation",
+        allocation_statistic,
+    )
 
     return allocation_list
 

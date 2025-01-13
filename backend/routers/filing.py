@@ -7,7 +7,7 @@ import logging
 from datetime import datetime
 from urllib import parse
 
-from routers import tasks as worker
+from worker import tasks as worker
 from routers import filer
 
 from .lib import database
