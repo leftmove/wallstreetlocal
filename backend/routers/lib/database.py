@@ -15,12 +15,13 @@ MONGO_BACKUP_URL = os.environ.get(
     "MONGO_BACKUP_URL", "1LT4xiFJkh6YlAPQDcov8YIKqcvevFlEE"
 )
 MONGO_SERVER_URL = os.environ.get("MONGO_SERVER_URL", "mongodb://database:27017")
+DATABASE_NAME = os.environ.get("DATABASE_NAME", "wallstreetlocal")
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 production_environment = True if ENVIRONMENT == "production" else False
 
 
 client = pymongo.MongoClient(MONGO_SERVER_URL)
-db = client["wallstreetlocal"]
+db = client[DATABASE_NAME]
 
 logs = db["logs"]
 main = db["filers"]

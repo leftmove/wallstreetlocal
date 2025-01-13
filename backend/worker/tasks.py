@@ -3,6 +3,7 @@ import multiprocessing
 from dotenv import load_dotenv
 
 from celery import Celery, signals
+from celery.beat import crontab
 from celery.utils.log import get_task_logger
 
 import sentry_sdk
@@ -10,6 +11,7 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 
 
 from routers import filer
+from routers import general
 from routers.lib.cache import (
     REDIS_SERVER_URL,
     REDIS_PORT,
@@ -17,7 +19,7 @@ from routers.lib.cache import (
     REDIS_USERNAME,
     REDIS_PASSWORD,
 )
-from routers.lib.database import MONGO_SERVER_URL
+from routers.lib.database import MONGO_SERVER_URL, DATABASE_NAME
 from routers.lib.errors import SENTRY_DSN
 
 load_dotenv()
@@ -37,17 +39,17 @@ logger = get_task_logger(__name__)
 
 
 class Config:
+
     timezone = "America/Detroit"
+
     worker_concurrency = WORKERS
     concurrency = 1
-    broker_connection_retry_on_startup = True
     celery_task_always_eager = False if production_environment else True
-    beat_schedule = {
-        "add-every-couple-seconds": {
-            "task": "tasks.add",
-            "schedule": 5.0,
-            "args": (16, 16),
-        },
+
+    broker_connection_retry_on_startup = True
+    mongodb_backend_settings = {
+        "database": DATABASE_NAME,
+        "taskmeta_collection": "tasks",
     }
 
 
@@ -55,10 +57,17 @@ queue = Celery("worker", broker=BROKER, backend=MONGO_SERVER_URL)
 queue.config_from_object(Config)
 
 
-@queue.task
-def add(x, y):
-    z = x + y
-    print(z)
+@queue.on_after_configure.connect
+def setup_periodic_tasks(sender: Celery, **kwargs):
+    crons = [
+        {
+            "name": "repair_periodic",
+            "schedule": crontab(minute=0, hour=3, day_of_month="*/3"),
+            "task": repair_periodic.s(),
+        },
+    ]
+    for cron in crons:
+        sender.add_periodic_task(cron["schedule"], cron["task"], name=cron["name"])
 
 
 @signals.celeryd_init.connect
@@ -101,6 +110,16 @@ def try_filer(*args, **kwargs):
 @queue.task
 def replace_filer(*args, **kwargs):
     filer.create_filer_replace(*args, **kwargs)
+
+
+@queue.task
+def repair_filer(*args, **kwargs):
+    filer.repair_filer(*args, **kwargs)
+
+
+@queue.task
+def repair_periodic(*args, **kwargs):
+    general.repair_all_filers_task(*args, **kwargs)
 
 
 @queue.task

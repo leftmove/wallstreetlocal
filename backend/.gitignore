@@ -12,6 +12,7 @@ example.json
 .DS_Store
 development.test.py
 **/__pycache__/
+celerybeat-schedule.db
 /static/companies.bson
 /static/companies.json
 

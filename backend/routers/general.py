@@ -5,14 +5,14 @@ from fastapi.responses import FileResponse
 import os
 import logging
 
-from worker.tasks import try_filer, replace_filer, delay_error, production_environment
+from worker import tasks as worker
 
 
 from .lib import database
 from .lib import cache as cm
 from .lib.backup import save_collections
 
-from .filer import popular_cik_list, top_cik_list
+from . import filer
 
 cache = cm.cache
 router = APIRouter(
@@ -21,6 +21,11 @@ router = APIRouter(
 
 cwd = os.getcwd()
 router.mount(f"{cwd}/static", StaticFiles(directory="static"), name="static")
+
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "password")
+production_environment = getattr(worker, "production_environment", False)
+popular_cik_list = filer.popular_cik_list
+top_cik_list = filer.top_cik_list
 
 
 @cache(24)
@@ -67,21 +72,26 @@ async def health():
     return {"message": "The server is healthy."}
 
 
-@router.get("/error", include_in_schema=False)
-async def trigger_error():
-    1 / 0
-    return {"message": "This will never be reached."}
+# @router.get("/error", include_in_schema=False)
+# async def trigger_error():
+#     1 / 0
+#     return {"message": "This will never be reached."}
 
 
 @router.get("/task-error", include_in_schema=False)
 async def task_error(password: str):
 
-    if password != os.environ["ADMIN_PASSWORD"]:
+    if password != ADMIN_PASSWORD:
         raise HTTPException(detail="Unable to give access.", status_code=403)
 
-    delay_error.delay()
+    worker.delay_error.delay()
 
     return {"message": "Task error triggered."}
+
+
+# Terrible code
+# Too much abstraction
+# I don't know what I was thinking when writing this, will change later
 
 
 def background_query(query_type, cik_list, query_function):
@@ -105,17 +115,19 @@ def background_query(query_type, cik_list, query_function):
 
 
 @router.get("/query", status_code=200, include_in_schema=False)
-async def query_top(password: str):
-    if password != os.environ["ADMIN_PASSWORD"]:
+async def query_top(password: str, background: BackgroundTasks = BackgroundTasks):
+    if password != ADMIN_PASSWORD:
         raise HTTPException(detail="Unable to give access.", status_code=403)
 
     filer_ciks = popular_cik_list
     filer_ciks.extend(top_cik_list)
 
     if production_environment:
-        background_query("query", filer_ciks, try_filer.delay)
+        background_query("query", filer_ciks, lambda cik: worker.try_filer.delay(cik))
     else:
-        background_query("query", filer_ciks, try_filer)
+        background_query(
+            "query", filer_ciks, lambda cik: background.add_task(filer.try_filer, cik)
+        )
 
     return {"description": "Started querying filers."}
 
@@ -124,29 +136,70 @@ async def query_top(password: str):
 async def progressive_restore(
     password: str, background: BackgroundTasks = BackgroundTasks
 ):
-    if password != os.environ["ADMIN_PASSWORD"]:
+    if password != ADMIN_PASSWORD:
         raise HTTPException(detail="Unable to give access.", status_code=403)
 
     filers = database.find_filers({}, {"cik": 1})
     all_ciks = [filer["cik"] for filer in filers]
 
     if production_environment:
-        background_query("restore", all_ciks, replace_filer.delay)
+        background_query(
+            "restore", all_ciks, lambda cik: worker.repair_filer.delay(cik)
+        )
     else:
         background_query(
-            "restore", all_ciks, lambda cik: background.add_task(replace_filer, cik)
+            "restore",
+            all_ciks,
+            lambda cik: background.add_task(filer.repair_filer, cik),
         )
 
     return {"description": "Started progressive restore of filers."}
 
 
 @router.get("/backup", status_code=201)
-async def backup(password: str, background: BackgroundTasks):
-    if password != os.environ["ADMIN_PASSWORD"]:
+async def backup(password: str, background: BackgroundTasks = BackgroundTasks):
+    if password != ADMIN_PASSWORD:
         raise HTTPException(detail="Unable to give access.", status_code=403)
 
     background.add_task(save_collections)
     return {"description": "Started backing up collections."}
+
+
+def repair_all_filers_task():  # For use in Celery beat
+
+    query_type = "repair"
+    query = cm.get_key(query_type)
+    if query and query == "running":
+        raise HTTPException(detail="Query is already running.", status_code=409)
+    cm.set_key_no_expiration(query_type, "running")
+
+    filers = database.find_filers({}, {"cik": 1})
+    all_ciks = [filer["cik"] for filer in filers]
+
+    for cik in all_ciks:
+        filer.repair_filer(cik)
+
+    cm.set_key_no_expiration(query_type, "stopped")
+
+
+@router.get("/repair", status_code=200)
+async def repair_all_filers(
+    password: str, background: BackgroundTasks = BackgroundTasks
+):
+    if password != ADMIN_PASSWORD:
+        raise HTTPException(detail="Unable to give access.", status_code=403)
+
+    filers = database.find_filers({}, {"cik": 1})
+    all_ciks = [filer["cik"] for filer in filers]
+
+    if production_environment:
+        background_query("repair", all_ciks, lambda cik: worker.repair_filer.delay(cik))
+    else:
+        background_query(
+            "repair", all_ciks, lambda cik: background.add_task(filer.repair_filer, cik)
+        )
+
+    return {"description": "Started repairing all filers."}
 
 
 @cache

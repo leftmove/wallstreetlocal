@@ -260,22 +260,43 @@ def update_filer(company, background: BackgroundTasks = BackgroundTasks):
     return {"description": "Filer update started."}
 
 
+def repair_filer(cik: str):
+    filer = database.find_filer(cik)
+    if not filer:
+        raise LookupError("CIK not found.")
+
+    filings = database.find_filings(cik, {"_id": 0}, {"$in": database.holding_forms})
+    forms = web.check_forms(cik)
+
+    query_errors = []
+    for filing in filings:
+        if filing["form"] not in forms:
+            query_errors.append(filing)
+            report_error(cik, Exception("Form not found."))
+
+    if query_errors:
+        database.add_statistic(cik, "repair", {"errors": query_errors}, None)
+        create_filer_replace(cik)
+
+
 @router.get("/repair", tags=["filers"], status_code=201)
-def repair_filer(
+def inspect_filer(
     cik: str, password: str, background: BackgroundTasks = BackgroundTasks
 ):
 
     if password != ADMIN_PASSWORD:
         raise HTTPException(detail="Unable to give access.", status_code=403)
 
-    filer = database.find_filer(cik)
-    if not filer:
+    try:
+        if production_environment:
+            worker.repair_filer.delay(cik)
+        else:
+            background.add_task(repair_filer, cik)
+    except LookupError:
         raise HTTPException(404, detail="CIK not found.")
-
-    if production_environment:
-        worker.create_filer_replace.delay(cik)
-    else:
-        background.add_task(create_filer_replace, cik)
+    except Exception as e:
+        report_error(cik, e)
+        raise HTTPException(500, detail="Error inspecting filer.")
 
     return {"description": "Filer repair started."}
 

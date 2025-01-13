@@ -3,6 +3,11 @@ dev = ["debugpy<2.0.0,>=1.8.1"]
 
 [tool.pdm.build]
 includes = []
+
+[tool.uv]
+dev-dependencies = [
+    "flower>=2.0.1",
+]
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
