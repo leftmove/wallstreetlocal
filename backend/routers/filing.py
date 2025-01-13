@@ -14,7 +14,7 @@ from .lib import database
 from .lib import analysis
 from .lib import web
 
-from .lib.web import sec_filer_search
+from .lib.api import sec_filer_search
 from .lib.cache import cache
 from .lib.errors import report_error
 
