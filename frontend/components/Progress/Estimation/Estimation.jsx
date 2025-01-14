@@ -14,7 +14,7 @@ const fetcher = (url, cik) =>
   axios
     .get(url, { params: { cik: cik } })
     .then((r) => r.data)
-    .catch((e) => console.log(e));
+    .catch((e) => console.error(e));
 
 const secondsToDhms = (seconds) => {
   seconds = Number(seconds);

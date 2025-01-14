@@ -14,7 +14,7 @@ const Redirect = (props) => {
   const { ellipsis } = useEllipsis();
   useEffect(() => {
     setTimeout(() => {
-      router.replace("/filers/" + cik + "?continuous=true");
+      router.replace("/filers/" + cik + "/overview?continuous=true");
     }, props.delay || wait);
   }, [cik]);
 

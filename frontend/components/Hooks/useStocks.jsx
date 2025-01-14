@@ -33,8 +33,6 @@ const useStocks = (
           const count = data.count;
           const stocks = data.stocks;
 
-          console.log("inside", options);
-
           setCount(count);
           setStocks(stocks);
         } else {

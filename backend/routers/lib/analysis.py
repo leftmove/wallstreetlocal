@@ -699,8 +699,7 @@ def create_json(content, file_name):
             filer_json = json.load(f)
             if (datetime.now().timestamp() - filer_json["updated"]) > 60 * 60 * 3:
                 raise ValueError
-    except Exception as e:
-        errors.report_error(file_name, e)
+    except FileNotFoundError:
         with open(file_path, "w") as r:
             json.dump(content, r, indent=6)
 
@@ -765,8 +764,7 @@ def create_csv(content, file_name, headers=None):
                     expire_time = 60 * 60 * 24 * 3
                     cache.set_key(file_path, "bababooey", expire_time)
                     raise ValueError
-    except Exception as e:
-        errors.report_error(file_name, e)
+    except FileNotFoundError:
         stock_list = create_dataframe(content, headers)
         with open(file_path, "w") as f:
             writer = csv.writer(f)
@@ -938,11 +936,7 @@ def analyze_allocation(cik):
     allocation_statistic = {
         "filings": allocation_access,
     }
-    database.add_statistic(
-        cik,
-        "allocation",
-        allocation_statistic,
-    )
+    database.add_statistic(cik, "allocation", allocation_statistic, completion)
 
     return allocation_list
 

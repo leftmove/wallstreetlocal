@@ -75,7 +75,7 @@ const Explorer = () => {
       })
       .catch((e) => console.error(e));
   const { isLoading: loading, error } = useSWR(
-    cik ? [server + "/filing/info", cik] : null,
+    cik ? [server + "/filing/filer", cik] : null,
     ([url, cik]) => filingFetcher(url, cik),
     {
       revalidateOnFocus: false,

@@ -9,35 +9,17 @@ import Index from "components/Index/Index";
 import Charts from "components/Charts/Charts";
 import Explorer from "components/Explorer/Explorer";
 import Header from "components/Header/Header";
-
-const convertTitle = (d) => {
-  if (d) {
-    d = d.replace(/(^\w|\s\w)(\S*)/g, (_, m1, m2) => {
-      if (/[a-z][A-Z]|[A-Z][a-z]/.test(m1 + m2)) {
-        return m1 + m2; // Return the original word
-      } else {
-        return m1.toUpperCase() + m2.toLowerCase(); // Convert to title case
-      }
-    });
-    ["LLC", "LP", "L.P.", "LLP", "N.A."].forEach((word) => {
-      d = d.replace(
-        word.at(0).toUpperCase() + word.toLowerCase().slice(1),
-        word
-      );
-    });
-  }
-  return d;
-};
+import { convertTitle } from "components/Filer/Info";
 
 const Info = (props) => {
   const cik = props.cik || null;
   const tab = props.tab || "recent";
-  const titleText = `Filers - ${cik}`;
+  const title = `Filers - ${cik}`; // Fallback for header title
 
   return (
     <>
       <Head>
-        <title>{titleText}</title>
+        <title>{title}</title>
       </Head>
       <Header cik={cik} tab={tab} />
       <Tabs />
@@ -50,5 +32,4 @@ const Info = (props) => {
   );
 };
 
-export { convertTitle };
 export default Info;

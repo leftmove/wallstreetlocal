@@ -39,68 +39,73 @@ router = APIRouter(
 @router.get(
     "/query",
     tags=["filing"],
-    status_code=201,
+    status_code=200,
 )
-async def query_filer(
+async def query_filing(
     cik: str, access_number: str, background: BackgroundTasks = BackgroundTasks
 ):
     filing = database.find_filing(cik, access_number, {"_id": 1})
+
     if not filing:
-        try:
-            sec_data = sec_filer_search(cik)
-        except Exception as e:
-            logging.error(e)
-            raise HTTPException(404, detail="CIK not found.")
+
+        update, last_report = web.check_new(cik)
+        company = database.find_filer(cik)
+
+        if not update:
+            return update_filing(company, last_report, background)
+
+        if not company:
+            raise HTTPException(404, detail="Filer not found.")
+
+        filings = database.find_filings(cik, {"access_number": 1})
+        access_numbers = [filing["access_number"] for filing in filings]
+
+        if access_number not in access_numbers:
+            raise HTTPException(404, detail="Filing not found. Invalid access number.")
 
         if production_environment:
-            worker.create_filer.delay(cik, sec_data)
+            worker.repair_filer.delay(cik)
         else:
-            background.add_task(filer.create_filer, cik, sec_data)
+            background.add_task(filer.repair_filer, cik)
 
-        return {"status": "Filing creation started."}
+        raise HTTPException(201, detail="Filing found but not queried. Repair started.")
+
     else:
 
-        if filing["form"] not in database.holding_forms:
-            raise HTTPException(404, detail="Filing type not supported.")
-
-        return update_filing({"cik": cik})
+        return {"description": "Filing already queried."}
 
 
 # Exact functionality as `update_filer`, so changes need to be synced
 
 
-def update_filing(filing, background: BackgroundTasks = BackgroundTasks):
-    cik = filing["cik"]
+def update_filing(
+    company, last_report: str, background: BackgroundTasks = BackgroundTasks
+):
+    cik = company["cik"]
     time = datetime.now().timestamp()
 
     operation = database.find_log(cik)
     if operation is None:
-        raise HTTPException(404, detail="Filing log not found.")
+        raise HTTPException(404, detail="Filer log not found.")
     elif (
         production_environment and operation["status"] == 2 or operation["status"] == 1
     ):
         raise HTTPException(  # @IgnoreException
-            302, detail="Filing is partially building."
+            302, detail="Filer is partially building."
         )
     elif operation["status"] >= 2:
-        raise HTTPException(409, detail="Filing still building.")
-
-    update, last_report = web.check_new(cik)
-    if not update:
-        raise HTTPException(
-            200, detail="Filing is already up to date."
-        )  # @IgnoreException
+        raise HTTPException(409, detail="Filer still building.")
 
     database.edit_status(cik, 1)
     database.edit_filer({"cik": cik}, {"$set": {"last_report": last_report}})
 
     stamp = {"name": company["name"], "start": time}
     if production_environment:
-        worker.create_historical.delay(cik, company, stamp)
+        worker.create_recent.delay(cik, company, stamp)
     else:
-        background.add_task(create_historical, cik, company, stamp)
+        background.add_task(filer.create_recent, cik, company, stamp)
 
-    return {"description": "Filer update started."}
+    return {"description": "Filing update started."}
 
 
 @cache(24)
@@ -148,6 +153,9 @@ async def record_filing_csv(cik: str, access_number: str, headers: str = None):
         file_name = f"wallstreetlocal-{cik}-{access_number}.csv"
 
     filing = database.find_filing(cik, access_number)
+    if filing is None:
+        raise HTTPException(404, detail="Filing not found.")
+
     stock_dict = filing["stocks"]
     stock_list = [stock_dict[cusip] for cusip in stock_dict]
 
@@ -157,11 +165,11 @@ async def record_filing_csv(cik: str, access_number: str, headers: str = None):
     )
 
 
-@router.get("/info", status_code=200)
-async def query_filings(cik: str):
+@router.get("/filer", status_code=200)
+async def filings_info(cik: str):
     pipeline = [
-        {"$match": {"cik": cik, "form": "13F-HR"}},
-        {"$project": {"stocks": 0, "_id": 0}},
+        {"$match": {"cik": cik, "form": {"$in": database.holding_forms}}},
+        {"$project": {"cik": 0, "stocks": 0, "_id": 0}},
     ]
     cursor = database.search_filings(pipeline)
     if not cursor:
@@ -169,3 +177,15 @@ async def query_filings(cik: str):
     filings = [result for result in cursor]
 
     return {"filings": filings}
+
+
+@router.get("/info", status_code=200)
+async def filing_info(cik: str, access_number: str):
+    filing = database.find_filing(cik, access_number, {"_id": 0, "cik": 0, "stocks": 0})
+    if filing is None:
+        raise HTTPException(detail="Filing not found.", status_code=404)
+
+    status = database.find_log(cik, {"status": 1, "_id": 0})
+    filing["status"] = status["status"]
+
+    return {"description": "Filing found.", "filing": filing}

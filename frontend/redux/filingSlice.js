@@ -1,7 +1,10 @@
 import { createSlice, createSelector } from "@reduxjs/toolkit";
 import { HYDRATE } from "next-redux-wrapper";
 
-const initialState = {};
+const initialState = {
+  cik: "",
+  accessNumber: "",
+};
 
 export const filingSlice = createSlice({
   name: "filing",
@@ -17,5 +20,4 @@ export const filingSlice = createSlice({
 });
 
 export const {} = filingSlice.actions;
-
 export default filingSlice.reducer;

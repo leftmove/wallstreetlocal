@@ -183,7 +183,7 @@ def find_filing(cik, access_number, project={"_id": 0}, form_type="13F-HR"):
 
 
 @retry_on_rate_limit()
-def find_filings(cik, project={"_id": 0}, form_type="13F-HR"):
+def find_filings(cik, project={"_id": 0}, form_type={"$in": holding_forms}):
     cursor = filings.find({"cik": cik, "form": form_type}, project)
     results = [result for result in cursor]
     return results

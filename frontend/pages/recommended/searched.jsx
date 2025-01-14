@@ -2,7 +2,7 @@ import styles from "styles/Recommended.module.css";
 
 import axios from "axios";
 
-import Reccomended from "components/Recommended/Recommended";
+import Recommended from "components/Recommended/Recommended";
 
 const title = "Searched Filers";
 const description = (
@@ -16,7 +16,7 @@ const source =
 
 const Searched = (props) => {
   return (
-    <Reccomended
+    <Recommended
       title={title}
       description={description}
       source={source}
@@ -30,7 +30,7 @@ export async function getServerSideProps() {
   const data = await axios
     .get(server + "/filers/searched")
     .then((r) => r.data)
-    .catch((e) => console.log(e));
+    .catch((e) => console.error(e));
   const filers = data?.filers || [];
   return {
     props: {

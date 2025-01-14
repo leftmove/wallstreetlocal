@@ -61,7 +61,7 @@ const Reccomended = (props) => {
                         display = convertTitle(display);
                         display = (
                           <Link
-                            href={`/filers/${filer.cik}`}
+                            href={`/filers/${filer.cik}/overview`}
                             className={styles["column-link"]}
                           >
                             {display.replace(/(^\w|\s\w)/g, (m) =>

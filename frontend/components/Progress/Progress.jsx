@@ -102,6 +102,7 @@ const Progress = (props) => {
     if (data) {
       switch (data.status) {
         case 200:
+        case 201:
           addLogs(data.logs || []);
 
           if (persist == false) {
@@ -112,10 +113,10 @@ const Progress = (props) => {
           }
 
           break;
-        case 201:
-          addLogs(data.logs || []);
-          addLogs(["Filer finished up, reloading the page."]);
-          setStop(true);
+        // case 201:
+        //   addLogs(data.logs || []);
+        //   addLogs(["Filer finished up, reloading the page."]);
+        //   setStop(true);
         case 202:
           addLogs(data.logs || []);
           break;

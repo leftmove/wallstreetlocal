@@ -31,13 +31,13 @@ top_cik_list = filer.top_cik_list
 @cache(24)
 @router.get("/", status_code=200)
 async def info():
-    return {"message": "Hello World!"}
+    return {"description": "Hello World!"}
 
 
 @cache
 @router.get("/undefined", status_code=200)
 async def info_undefined():
-    return {"message": "Hello World!"}
+    return {"description": "Hello World!"}
 
 
 @cache(4)
@@ -69,13 +69,13 @@ async def health():
     if health_passed < 0.8:
         raise HTTPException(status_code=500, detail="The server doesn't seem healthy.")
 
-    return {"message": "The server is healthy."}
+    return {"description": "The server is healthy."}
 
 
 # @router.get("/error", include_in_schema=False)
 # async def trigger_error():
 #     1 / 0
-#     return {"message": "This will never be reached."}
+#     return {"description": "This will never be reached."}
 
 
 @router.get("/task-error", include_in_schema=False)
@@ -86,7 +86,7 @@ async def task_error(password: str):
 
     worker.delay_error.delay()
 
-    return {"message": "Task error triggered."}
+    return {"description": "Task error triggered."}
 
 
 # Terrible code

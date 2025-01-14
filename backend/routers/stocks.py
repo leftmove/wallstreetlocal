@@ -59,6 +59,9 @@ async def stock_info(
             cik, limit, offset, sort, sold, reverse, unavailable
         )
         cursor = database.search_filers(pipeline)
+    except LookupError as e:
+        errors.report_error(cik, e)
+        raise HTTPException(detail="No results found.", status_code=422)
     except Exception as e:
         errors.report_error(cik, e)
         cursor = []

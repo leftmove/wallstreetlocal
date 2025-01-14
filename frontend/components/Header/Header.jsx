@@ -41,14 +41,15 @@ const Header = (props) => {
   );
   const [expand, setExpand] = useState(false);
 
+  const info = data?.filer || null;
+  const name = info?.name ? convertTitle(info.name) : "";
+  const description = info?.financials?.description;
+  const title = `${name || cik} - Filers`;
+
   useEffect(() => {
     dispatch(setCik(cik ? cik : ""));
     dispatch(setTab(tab));
   }, [cik]);
-
-  const info = data?.filer || null;
-  const name = info?.name ? convertTitle(info.name) : "";
-  const description = info?.financials?.description;
 
   return (
     <>
@@ -61,6 +62,7 @@ const Header = (props) => {
           name="keywords"
           content={`13F, Filing, ${name}, Stocks, Investment, Money Manager, Company`}
         ></meta>
+        <title>{title}</title>
       </Head>
       <div className={styles["header"]}>
         <div className={styles["main-header"]}>
