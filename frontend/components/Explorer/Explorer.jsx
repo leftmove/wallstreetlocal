@@ -12,22 +12,18 @@ import {
   setFilings,
   setComparison,
   selectSecondary,
-  editComparison,
-  editSort,
-  setFilingCount,
 } from "@/redux/filerSlice";
 
-import useFilingStocks from "components/Hooks/useFilingStocks";
 import Loading from "components/Loading/Loading";
-import Table from "components/Table/Table";
 import Unavailable from "components/Unavailable/Unavailable";
+import Index from "../Index/Filing/Explorer/Index";
 import Timeline from "./Timeline/Timeline";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
 
 // Most janky code I've ever written. Really, just the worst.
-// I made some mistakes in the infastructure making the stocks table,
-// and now as I repeat the code here, the same mistakes are amplifed
+// I made some mistakes in the infrastructure making the stocks table,
+// and now as I repeat the code here, the same mistakes are amplified
 // greatly. Way too much repitition, partly my own fault, but
 // (I think) mostly due to React's at times terrible data fetching
 // system(s). Libraries help at first, then make it worse later.
@@ -83,62 +79,6 @@ const Explorer = () => {
     }
   );
 
-  const {
-    items: primaryItems,
-    loading: primaryLoading,
-    error: primaryError,
-    headers: primaryHeaders,
-    pagination: primaryPagination,
-    select: primarySelect,
-    reverse: primaryReverse,
-    activate: primaryActivate,
-    skip: primarySkip,
-    paginate: primaryPaginate,
-  } = useFilingStocks(
-    cik,
-    primary,
-    (count) => dispatch(setFilingCount({ type: "primary", count })),
-    (stocks) => dispatch(editComparison({ type: "primary", stocks })),
-    (accessor, direction) =>
-      dispatch(
-        editSort({
-          type: "primary",
-          accessor,
-          reverse: direction,
-        })
-      ),
-    (offset) => dispatch(editSort({ type: "primary", offset })),
-    (pagination) => dispatch(editSort({ type: "primary", pagination }))
-  );
-
-  const {
-    items: secondaryItems,
-    loading: secondaryLoading,
-    error: secondaryError,
-    headers: secondaryHeaders,
-    pagination: secondaryPagination,
-    select: secondarySelect,
-    reverse: secondaryReverse,
-    activate: secondaryActivate,
-    skip: secondarySkip,
-    paginate: secondaryPaginate,
-  } = useFilingStocks(
-    cik,
-    secondary,
-    (count) => dispatch(setFilingCount({ type: "secondary", count })),
-    (stocks) => dispatch(editComparison({ type: "secondary", stocks })),
-    (accessor, direction) =>
-      dispatch(
-        editSort({
-          type: "secondary",
-          accessor,
-          reverse: direction,
-        })
-      ),
-    (offset) => dispatch(editSort({ type: "secondary", offset })),
-    (pagination) => dispatch(editSort({ type: "secondary", pagination }))
-  );
-
   if (error) return <Unavailable />;
 
   return (
@@ -146,34 +86,9 @@ const Explorer = () => {
       <Timeline />
       <div className={styles["explorer-tables"]}>
         {loading ? <Loading /> : null}
-        <div className={styles["table-container"]}>
-          {primaryError ? <Error statusCode={404} /> : null}
-          <Table
-            items={primaryItems}
-            loading={primaryLoading}
-            headers={primaryHeaders}
-            reverse={primaryReverse}
-            skip={primarySkip}
-            sort={primarySelect}
-            activate={primaryActivate}
-            paginate={primaryPaginate}
-            pagination={primaryPagination}
-          />
-        </div>
-        <div className={styles["table-container"]}>
-          {secondaryError ? <Error statusCode={404} /> : null}
-          <Table
-            items={secondaryItems}
-            loading={secondaryLoading}
-            headers={secondaryHeaders}
-            reverse={secondaryReverse}
-            skip={secondarySkip}
-            sort={secondarySelect}
-            activate={secondaryActivate}
-            paginate={secondaryPaginate}
-            pagination={secondaryPagination}
-          />
-        </div>
+        <Index order="primary" />
+        <div className={styles["table-space"]}></div>
+        <Index order="secondary" />
       </div>
     </>
   );

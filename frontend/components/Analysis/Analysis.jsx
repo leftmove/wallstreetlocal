@@ -33,7 +33,9 @@ const Analysis = ({ text = "Analysis", icon = "folder", children }) => {
             styles["analysis-dummy"],
             open ? styles["dummy-expand"] : styles["dummy-contract"],
           ].join(" ")}
-        ></div>
+        >
+          <span className={styles["dummy-text"]}>(Tools and Downloads)</span>
+        </div>
         <span
           className={[styles["analysis-tip"], fontLight.className].join(" ")}
         >

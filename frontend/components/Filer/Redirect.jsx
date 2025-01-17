@@ -7,16 +7,20 @@ import { fontLight } from "@fonts";
 import useEllipsis from "components/Hooks/useEllipsis";
 
 const Redirect = (props) => {
-  const cik = props.cik || null;
+  const cik = props.cik;
+  const url = props.url || (cik ? "/filers/" + cik + "/overview" : "");
+  const delay = props.delay || null;
   const wait = props.wait || 1000;
 
   const router = useRouter();
   const { ellipsis } = useEllipsis();
   useEffect(() => {
     setTimeout(() => {
-      router.replace("/filers/" + cik + "/overview?continuous=true");
-    }, props.delay || wait);
-  }, [cik]);
+      if (url) {
+        router.push(url + "?continuous=true");
+      }
+    }, delay || wait);
+  }, [url]);
 
   return (
     <div className={styles["reload"]}>
@@ -31,9 +35,11 @@ const Redirect = (props) => {
 };
 
 export async function getServerSideProps(context) {
-  const { cik, wait } = context.query;
+  const cik = context.query.cik || null;
+  const wait = context.query.wait || 1000;
+  const url = context.resolvedUrl || null;
   return {
-    props: { cik, wait },
+    props: { cik, url, wait },
   };
 }
 

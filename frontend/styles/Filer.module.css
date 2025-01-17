@@ -32,3 +32,26 @@
   opacity: 1;
   color: var(--primary);
 }
+
+.holding-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  margin: 20px;
+
+  color: var(--secondary-dark);
+}
+
+.holding-date {
+  color: var(--secondary);
+}
+
+.holding-access {
+  opacity: 0.8;
+}
+
+.holding-value {
+  color: var(--secondary);
+}

@@ -105,11 +105,9 @@ const Progress = (props) => {
         case 201:
           addLogs(data.logs || []);
 
-          if (persist == false) {
+          if (persist == false && stop == false) {
             addLogs(["Filer finished initial load, reloading the page."]);
-            setTimeout(() => {
-              setStop(true);
-            }, 2.5 * 1000);
+            setStop(true);
           }
 
           break;
@@ -140,7 +138,7 @@ const Progress = (props) => {
 
   return (
     <>
-      {stop && persist === false && <Redirect cik={cik} delay={0} />}
+      {stop && persist === false && <Redirect cik={cik} delay={2.5 * 1000} />}
       <div className={[styles["progress"], font.className].join(" ")}>
         <div className={styles["header"]}>
           <div className={styles["main-header"]}>
@@ -160,7 +158,7 @@ const Progress = (props) => {
         </Link>
       </div>
       {/* <span>View stocks continuously.</span> */}
-      {/*persist ? null : <Estimation cik={cik} /> */}
+      {persist ? null : <Estimation cik={cik} />}
     </>
   );
 };

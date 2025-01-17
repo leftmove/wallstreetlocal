@@ -18,9 +18,9 @@
   align-items: center;
   cursor: pointer;
 
-  width: 10%;
+  width: 19%;
   border-radius: 5px;
-  padding: 10px;
+  padding: 5px;
   opacity: 1;
   margin: auto;
   margin-top: 10px;
@@ -43,6 +43,17 @@
   height: 20px;
   width: 1%;
   transition: width 0.5s ease;
+  position: relative;
+}
+
+.dummy-text {
+  display: none;
+  position: absolute;
+  transition: opacity 0.3s ease;
+}
+
+.analysis-expanded .dummy-text {
+  opacity: 0;
 }
 
 .dummy-expand {

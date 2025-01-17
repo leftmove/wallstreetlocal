@@ -1,33 +1,16 @@
-import { useEffect } from "react";
+import { toast } from "sonner";
 
-import { Toaster, toast } from "sonner";
-
-import { fontLight } from "@fonts";
+import Toaster from "components/Toaster/Toaster";
 
 const Health = (props) => {
-  const health = props.health || false;
-
-  if (health === false) {
+  if ((props.health || false) === false) {
     setTimeout(() => {
       toast.warning(
         "The server doesn't seem to be healthy, you may encounter errors."
       );
     }, 1000);
   }
-
-  return (
-    <Toaster
-      className={fontLight.className}
-      toastOptions={{
-        style: {
-          color: "var(--primary)",
-          outline: "var(--secondary-dark)",
-          borderColor: "var(--primary-dark)",
-          background: "var(--secondary)",
-        },
-      }}
-    />
-  );
+  return <Toaster />;
 };
 
 export default Health;

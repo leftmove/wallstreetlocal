@@ -12,13 +12,14 @@ import Building from "components/Filer/Building";
 const Filing = (props) => {
   const query = props.query;
   const cik = props.cik;
+  const an = props.an;
 
   const continuous = props.continuous;
   const persist = props.persist;
   const tab = props.tab;
 
   if (query.ok || query.continuous || continuous) {
-    return <Info cik={cik} tab={tab} />;
+    return <Info cik={cik} an={an} tab={tab} />;
   }
 
   if (query.building || persist) {

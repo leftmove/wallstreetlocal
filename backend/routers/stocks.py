@@ -40,8 +40,8 @@ async def query_stocks(cik: str, background: BackgroundTasks):
 
 
 @cache
-@router.get("/info", tags=["stocks", "filers"], status_code=200)
-async def stock_info(
+@router.get("/filer", tags=["stocks", "filers"], status_code=200)
+async def stock_filer(
     cik: str,
     limit: int,
     offset: int,
@@ -59,6 +59,57 @@ async def stock_info(
             cik, limit, offset, sort, sold, reverse, unavailable
         )
         cursor = database.search_filers(pipeline)
+    except LookupError as e:
+        errors.report_error(cik, e)
+        raise HTTPException(detail="No results found.", status_code=422)
+    except Exception as e:
+        errors.report_error(cik, e)
+        cursor = []
+        count = 0
+
+    try:
+        stock_list = [result for result in cursor]
+    except KeyError:
+        raise HTTPException(detail="Error while searching.", status_code=500)
+
+    return BrowserCachedResponse(
+        content={"stocks": stock_list, "count": count}, cache_hours=cache_time
+    )
+
+
+@cache
+@router.get("/filing", tags=["stocks", "filings"], status_code=200)
+async def stock_filing(
+    cik: str,
+    access_number: str,
+    limit: int,
+    offset: int,
+    sort: str,
+    sold: bool,
+    reverse: bool,
+    unavailable: bool,
+):
+    filer = database.find_filer(cik, {"_id": 1})
+    if not filer:
+        raise HTTPException(detail="Filer not found.", status_code=404)
+
+    try:
+        pipeline, count = analysis.sort_pipeline(
+            cik,
+            limit,
+            offset,
+            sort,
+            sold,
+            reverse,
+            unavailable,
+            stock_structure="dict",
+            collection_search=database.search_filings,
+            match_query={
+                "access_number": access_number,
+                "stocks": {"$exists": True},
+            },
+        )
+        cursor = database.search_filings(pipeline)
     except LookupError as e:
         errors.report_error(cik, e)
         raise HTTPException(detail="No results found.", status_code=422)

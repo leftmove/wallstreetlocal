@@ -7,30 +7,41 @@ import axios from "axios";
 import Head from "next/head";
 
 import { useDispatch } from "react-redux";
-import { setCik, setTab } from "@/redux/filerSlice";
+import { setCik, setTab, setComparison } from "@/redux/filerSlice";
 
-import { font } from "@fonts";
+import { font, fontLight } from "@fonts";
 
 import Expand from "components/Expand/Expand";
 import Source from "components/Source/Source";
+import Share from "components/Share/Share";
 import Building from "components/Progress/Building/Building";
 import { convertTitle } from "components/Filer/Info";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
-const fetcher = (url, cik) =>
+const filerFetcher = (url, cik) =>
   axios
     .get(url, { params: { cik: cik } })
+    .then((r) => r.data)
+    .catch((e) => console.error(e));
+const filingFetcher = (url, cik, an) =>
+  axios
+    .get(url, { params: { cik: cik, access_number: an } })
     .then((r) => r.data)
     .catch((e) => console.error(e));
 
 const Header = (props) => {
   const cik = props.cik;
-  const tab = props.tab;
-  const dispatch = useDispatch();
+  const an = props.an;
 
-  const { data } = useSWR(
+  const variant = props.variant;
+  const tab = props.tab;
+
+  const dispatch = useDispatch();
+  const [expand, setExpand] = useState(false);
+
+  const { data: filerData } = useSWR(
     cik ? [server + "/filers/info", cik] : null,
-    ([url, cik]) => fetcher(url, cik),
+    ([url, cik]) => filerFetcher(url, cik),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -39,12 +50,25 @@ const Header = (props) => {
       refreshInterval: 0,
     }
   );
-  const [expand, setExpand] = useState(false);
+  const { data: filingData } = useSWR(
+    cik && an ? [server + "/filing/info", cik, an] : null,
+    ([url, cik, an]) => filingFetcher(url, cik, an),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      refreshWhenOffline: false,
+      refreshWhenHidden: false,
+      refreshInterval: 0,
+    }
+  );
 
-  const info = data?.filer || null;
-  const name = info?.name ? convertTitle(info.name) : "";
-  const description = info?.financials?.description;
+  const filerInfo = filerData?.filer || null;
+  const name = filerInfo?.name ? convertTitle(filerInfo.name) : "";
+  const description = filerInfo?.financials?.description;
   const title = `${name || cik} - Filers`;
+
+  const filingInfo = filingData?.filing || null;
+  const date = new Date(filingInfo?.report_date * 1000);
 
   useEffect(() => {
     dispatch(setCik(cik ? cik : ""));
@@ -71,7 +95,14 @@ const Header = (props) => {
           >
             {name}
           </span>
-          {info?.status > 0 ? <Building cik={cik} /> : null}
+          {variant === "filing" && (
+            <span
+              className={[styles["side-header"], fontLight.className].join(" ")}
+            >
+              {date.toLocaleDateString()}
+            </span>
+          )}
+          {filerInfo?.status > 0 ? <Building cik={cik} /> : null}
         </div>
         <div
           className={[
@@ -87,12 +118,14 @@ const Header = (props) => {
                   font.className,
                 ].join(" ")}
               >
-                {info?.cik}{" "}
-                {info?.tickers.length ? `(${info?.tickers.join(", ")})` : ""}
+                {filerInfo?.cik}{" "}
+                {filerInfo?.tickers.length
+                  ? `(${filerInfo?.tickers.join(", ")})`
+                  : ""}
               </span>
             </div>
             <div className={styles["secondary-header"]}>
-              {info?.financials?.description ? (
+              {filerInfo?.financials?.description ? (
                 <Expand
                   onClick={() => setExpand(!expand)}
                   expandState={expand}
@@ -105,10 +138,11 @@ const Header = (props) => {
                 }
                 marginLeft={5}
               />
+              <Share cik={cik} an={an} marginLeft={5} color="dark" />
             </div>
           </div>
           <span className={[styles["header-desc"], font.className].join(" ")}>
-            {info?.financials?.description}
+            {filerInfo?.financials?.description}
           </span>
         </div>
       </div>

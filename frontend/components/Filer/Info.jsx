@@ -5,7 +5,7 @@ import styles from "@/styles/Filer.module.css";
 import Head from "next/head";
 
 import Tabs from "components/Tabs/Tabs";
-import Index from "components/Index/Index";
+import Index from "components/Index/Filer/Index";
 import Charts from "components/Charts/Charts";
 import Explorer from "components/Explorer/Explorer";
 import Header from "components/Header/Header";
@@ -32,13 +32,9 @@ const convertTitle = (d) => {
 const Info = (props) => {
   const cik = props.cik || null;
   const tab = props.tab || "recent";
-  const titleText = `Filers - ${cik}`;
 
   return (
     <>
-      <Head>
-        <title>{titleText}</title>
-      </Head>
       <Header cik={cik} tab={tab} />
       <Tabs />
       <div className={styles.data}>

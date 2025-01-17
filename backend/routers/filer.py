@@ -62,6 +62,7 @@ router = APIRouter(
 # 0 : Filer is done being built, logs are no longer kept.
 
 # Different Filer Stages
+# 5 : Filer is broken, and has no query data. Will never be updated unless manually.
 # 4 : Filer was non-existent before and is being fully built from the ground up.
 # 3 : Filer still building, but estimation time has been calculated.
 # 2 : Filer's newest filing is built, but older filings are still being updated and sorted. Estimation time is calculated.
@@ -79,12 +80,21 @@ def create_recent(cik, company, stamp):
         last_report = company["last_report"]
         recent_filing = database.find_filing(cik, last_report)
 
-        for access_number, filing_stocks in web.process_stocks(cik, [recent_filing]):
-            recent_filing["stocks"] = filing_stocks
-            database.edit_filing(
-                {**filer_query, "access_number": access_number},
-                {"$set": {"stocks": filing_stocks}},
-            )
+        try:
+            for access_number, filing_stocks in web.process_stocks(
+                cik, [recent_filing]
+            ):
+                recent_filing["stocks"] = filing_stocks
+                database.edit_filing(
+                    {**filer_query, "access_number": access_number},
+                    {"$set": {"stocks": filing_stocks}},
+                )
+        except (
+            IndexError
+        ) as e:  # Filer is broken, no forms found. Special case for first query.
+            break_filer(cik)
+            report_error(cik, e)
+            raise HTTPException(404, detail="Forms not found for filer.")
 
         database.add_log(cik, "Queried Filer Recent Stocks", company_name, cik)
     except Exception as e:
@@ -353,6 +363,15 @@ async def rollback_filer(
     return {"description": "Filer rollback started."}
 
 
+async def break_filer(cik: str):
+    document_reports = web.check_forms(cik)
+    if len(document_reports) == 0:
+        database.edit_status(cik, 5)
+        database.add_log(cik, "Filer has no filings.", "Error", cik)
+    else:
+        report_error(cik, Exception("Filer is broken but has forms."))
+
+
 @cache(24)
 @router.get("/search", tags=["filers"], status_code=200)
 async def search_filers(q: str, limit: int = 4):
@@ -475,6 +494,8 @@ async def filer_info(cik: str):
         raise HTTPException(404, detail="Filer not found.")
 
     status = database.find_log(cik, {"status": 1, "_id": 0})
+    if status is None:
+        raise HTTPException(404, detail="Filer log not found.")
     filer["status"] = status["status"]
 
     return {"description": "Found filer.", "filer": filer}

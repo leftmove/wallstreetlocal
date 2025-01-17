@@ -135,6 +135,18 @@ def search_filers(pipeline):
 
 
 @retry_on_rate_limit()
+def search_filings(pipeline):
+    cursor = filings.aggregate(pipeline)
+    return cursor
+
+
+@retry_on_rate_limit()
+def search_filings(pipeline):
+    cursor = filings.aggregate(pipeline)
+    return cursor
+
+
+@retry_on_rate_limit()
 def search_filer(cik, project={"_id": 0}):
     cursor = main.aggregate(pipeline=[{"$match": {"cik": cik}}, {"$project": project}])
     try:
@@ -195,12 +207,6 @@ def map_filings(cik, key="access_number", project={"_id": 0}, form_type="13F-HR"
     results = [result for result in cursor]
     results_dict = dict(zip([r[key] for r in results], results))
     return results_dict
-
-
-@retry_on_rate_limit()
-def search_filings(pipeline):
-    cursor = filings.aggregate(pipeline)
-    return cursor
 
 
 @retry_on_rate_limit()

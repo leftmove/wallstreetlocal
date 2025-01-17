@@ -47,7 +47,7 @@ const useStocks = (
     error,
     mutate,
   } = useSWR(
-    cik ? [server + "/stocks/info", cik, sort] : null,
+    cik ? [server + "/stocks/filer", cik, sort] : null,
     ([url, cik, sort]) => stockFetcher(url, cik, sort),
     {
       revalidateOnFocus: false,

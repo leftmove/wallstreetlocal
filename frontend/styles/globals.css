@@ -12,8 +12,8 @@ body {
 :root {
   --primary: #04df16;
   --primary-dark: #02c002;
-  --secondary: #1c1c1b;
-  --secondary-dark: #0c0c0c;
+  --secondary: #0c0c0c;
+  --secondary-dark: #565656;
   --white: white;
   --offwhite: #e2e1e1;
   --offwhite-dark: #b8b8b8;

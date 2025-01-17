@@ -1,0 +1,28 @@
+.source-button {
+  all: unset;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+
+  transition: color 0.3s ease, scale 0.3s ease;
+
+  color: black;
+}
+
+.source-button:hover {
+  color: var(--primary-dark);
+}
+
+.source-light {
+  color: var(--primary-dark);
+}
+
+.source-light:hover {
+  color: white;
+}
+
+.source-svg {
+  width: 90%;
+  height: 90%;
+}

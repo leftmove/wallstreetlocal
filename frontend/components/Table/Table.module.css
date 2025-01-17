@@ -43,3 +43,8 @@
 
   font-size: 1rem;
 }
+
+.pagination-space {
+  height: 100%;
+  width: 100%;
+}

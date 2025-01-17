@@ -31,6 +31,10 @@
   height: 100vh;
 }
 
+.side-header {
+  opacity: 0.5;
+}
+
 .sub-header {
   display: flex;
   flex-direction: column;

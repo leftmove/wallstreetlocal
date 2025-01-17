@@ -143,22 +143,22 @@ def serialize_global(local_stock, global_stock):
     )
     portfolio_percentage_str = (
         "{:.2f}".format(round(portfolio_percentage, 4))
-        if portfolio_percentage != "N/A"
+        if portfolio_percentage != "N/A" and type(portfolio_percentage) == float
         else "N/A"
     )
     ownership_percentage_str = (
         "{:.2f}".format(round(ownership_percentage, 4))
-        if ownership_percentage != "N/A"
+        if ownership_percentage != "N/A" and type(ownership_percentage) == float
         else "N/A"
     )
     gain_value_str = (
         "{:.2f}".format(round(gain_value, 2))
-        if update and buy_timeseries != "N/A"
+        if update and buy_timeseries != "N/A" and type(gain_value) == float
         else "N/A"
     )
     gain_percent_str = (
         "{:.2f}".format(round(gain_percent, 2))
-        if update and buy_timeseries != "N/A"
+        if update and buy_timeseries != "N/A" and type(gain_percent) == float
         else "N/A"
     )
 
@@ -303,13 +303,21 @@ def serialize_local(
 
 
 def analyze_total(cik, stocks, access_number):
-    market_values = []
+    market_map = []
     for key in stocks:
         stock = stocks[key]
         value = stock.get("market_value", 0)
-        market_values.append(value)
+        market_map.append({"cusip": key, "market_value": value})
 
+    market_values = [stock["market_value"] for stock in market_map]
+    top_holdings = [
+        stock["cusip"]
+        for stock in sorted(market_map, key=lambda x: x["market_value"], reverse=True)[
+            :5
+        ][: min(5, len(market_map))]
+    ]
     total = sum(market_values)
+
     database.edit_filing(
         {
             "cik": cik,
@@ -319,6 +327,7 @@ def analyze_total(cik, stocks, access_number):
         {
             "$set": {
                 "market_value": total,
+                "top_holdings": top_holdings,
             }
         },
     )
@@ -621,14 +630,27 @@ def sort_pipeline(
     reverse: bool,
     unavailable: bool,
     additional: list = [],
+    stock_structure: str = "array",
     collection_search=database.search_filers,
+    match_query={},
 ):
     if limit < 0:
         raise ValueError
 
     pipeline = [
-        {"$match": {"cik": cik}},
+        {
+            "$match": {"cik": cik, **match_query},
+        },
     ]
+
+    if stock_structure == "dict":
+        pipeline.extend(
+            [
+                {"$set": {"stocks": {"$objectToArray": "$stocks"}}},
+                {"$set": {"stocks": "$stocks.v"}},
+            ]
+        )
+
     if additional:
         pipeline.extend(additional)
 
@@ -646,15 +668,18 @@ def sort_pipeline(
     if unavailable is False:
         sort_query = f"${sort}"
 
+    pipeline.append({"$project": {"_id": 1}})
     cursor = collection_search(pipeline)
     results = [result for result in cursor]
     if not cursor or not results:
         raise LookupError
     count = len(results)
 
+    pipeline.pop(-1)
     pipeline.append(
         {"$sort": {sort: 1 if reverse else -1, "_id": 1}},
     )
+
     if unavailable is False:
         sort_stage = pipeline.pop(-1)
         pipeline.extend(

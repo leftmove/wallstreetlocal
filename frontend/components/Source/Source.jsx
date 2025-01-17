@@ -13,6 +13,7 @@ const Source = (props) => {
       : null);
   const width = props.width || "20px";
   const marginLeft = props.marginLeft || "";
+  const marginRight = props.marginRight || "";
   return (
     <button
       className={[
@@ -20,7 +21,7 @@ const Source = (props) => {
         color === "light" ? styles["source-light"] : "",
         props.className || "",
       ].join(" ")}
-      style={{ width, marginLeft }}
+      style={{ width, marginLeft, marginRight }}
       onClick={() => window.open(link, "_blank")}
     >
       <SourceIcon className={styles["source-svg"]} />
