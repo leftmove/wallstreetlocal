@@ -5,8 +5,8 @@ import { font, fontLight } from "@fonts";
 
 const Footer = () => {
   return (
-    <div className={styles["footer"]}>
-      <div className={styles["logo"]}>
+    <footer className={styles["footer"]}>
+      {/* <div className={styles["logo"]}>
         <Link href="/">
           <span
             className={styles["logo-text"] + " " + font.className}
@@ -31,8 +31,8 @@ const Footer = () => {
         <span>
           wallstreetlocal is free and open-source, please consider donating.
         </span>
-      </Link>
-    </div>
+      </Link> */}
+    </footer>
   );
 };
 
