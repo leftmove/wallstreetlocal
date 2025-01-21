@@ -15,6 +15,7 @@ development.test.py
 celerybeat-schedule.db
 /static/companies.bson
 /static/companies.json
+/static/statistics.json
 
 /proxy/letsencrypt
 /proxy/data
