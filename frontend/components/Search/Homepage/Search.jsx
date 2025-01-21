@@ -4,11 +4,10 @@ import { useEffect, useReducer, useState } from "react";
 import axios from "axios";
 import useSWR from "swr";
 
-import { isMobile } from "react-device-detect";
-import { Toaster, toast } from "sonner";
-
 import Link from "next/link";
+
 import { font, fontLight } from "@fonts";
+import { cn } from "components/ui/utils";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
 const fetcher = (url, query, limit) =>
@@ -46,18 +45,6 @@ const Search = () => {
     }
   }, [data]);
 
-  // This is very dirty but temporary
-  const [stateToast, setToast] = useState(false);
-  useEffect(() => {
-    if (isMobile && !stateToast) {
-      toast.warning(
-        "Mobile support is limited and not actively developed, please use a desktop browser.",
-        { duration: 1000 * 30, closeButton: true }
-      );
-      setToast(true);
-    }
-  }, []);
-
   return (
     <div
       className={[
@@ -65,17 +52,6 @@ const Search = () => {
         input.focus ? styles["search-expand"] : "",
       ].join(" ")}
     >
-      <Toaster
-        className={fontLight.className}
-        toastOptions={{
-          style: {
-            color: "var(--primary)",
-            outline: "var(--secondary-dark)",
-            borderColor: "var(--primary-dark)",
-            background: "var(--secondary)",
-          },
-        }}
-      />
       <div className={styles["search-box"]}>
         <input
           type="text"
