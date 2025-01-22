@@ -42,7 +42,7 @@ The problem though, is that these holdings are often cumbersome to access, and v
 
 This repository holds the [backend](./backend/) and [frontend](./frontend/) for wallstreetlocal.
 
-To visit the wallstreetlocal, you can go to [`wallstreetlocal.com`](https://wallstreetlocal.com).
+To visit wallstreetlocal, you can go to [`wallstreetlocal.com`](https://wallstreetlocal.com).
 
 You can also see important resources used to create the site at the [resources](https://www.wallstreetlocal.com/about/resources) page, or view the OpenAPI documentation at the [API](https://content.wallstreetlocal.com/docs) page.
 
