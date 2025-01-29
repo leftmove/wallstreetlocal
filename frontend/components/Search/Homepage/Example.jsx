@@ -918,15 +918,15 @@ function Example({
   return (
     <div
       className={cn(
-        " md:w-full p-4 transition-all duration-300 mt-4 border-2 bg-black-one rounded-md text-white-one border-white-one",
+        " w-full p-4 pb-2 transition-all duration-300 border-2 text-nowrap bg-black-one rounded-md text-white-one border-white-one",
         className
       )}
     >
       <div className="flex items-center justify-between w-full">
         <Link href={`/filers/${cik}/overview`}>
-          <h3 className="text-lg font-bold text-wrap">{name}</h3>
+          <h3 className="text-lg font-bold text-nowrap">{name}</h3>
         </Link>
-        <span className="hidden text-sm md:block">{date}</span>
+        <span className="hidden text-sm text-nowrap md:block">{date}</span>
         <Link href={`/filers/${cik}/overview`}>
           <span className="text-sm">{cik}</span>
         </Link>
@@ -936,11 +936,11 @@ function Example({
         <p className="text-sm">{tickers.length ? tickers.join(", ") : ""}</p>
       </div>
       <div className="flex justify-between px-4">
-        <p className="text-sm text-wrap">${marketValue.toLocaleString()}</p>
+        <p className="text-sm text-nowrap">${marketValue.toLocaleString()}</p>
         <p className="hidden text-sm md:block">{topHoldings.join(", ")}</p>
       </div>
-      <div className="w-full mt-6 rounded">
-        <table className="w-full overflow-x-auto border-none rounded-md bg-white-one">
+      <div className="w-full mt-6 overflow-x-scroll rounded">
+        <table className="w-full border-none rounded-md bg-white-one">
           <thead className="text-xs text-black-one">
             <tr>
               <th className="w-2/12 p-1 border-2 border-opacity-30 border-black-one">

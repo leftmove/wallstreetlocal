@@ -1,8 +1,9 @@
 .data {
   width: 98%;
   margin: auto;
-  overflow-x: scroll;
+  overflow-x: none;
   padding-bottom: 10px;
+  min-height: 100vh;
 }
 
 .reload {

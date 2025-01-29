@@ -31,7 +31,7 @@ const Banner = () => {
   }, [show]);
   return (
     show && (
-      <div className={styles["banner"]}>
+      <div className="flex items-center justify-between p-2 bg-offwhite-one">
         <div className={styles["banner-info"]}>
           <span
             className={[fontLight.className, styles["banner-text"]].join(" ")}
@@ -45,7 +45,7 @@ const Banner = () => {
           className={styles["banner-close"]}
           onClick={() => setShow(false)}
         >
-          <CrossIcon className={styles["banner-icon"]} />
+          <CrossIcon className="w-5 hover:text-black-three" />
         </button>
       </div>
     )
@@ -90,12 +90,13 @@ const Navigation = (props) => {
   return (
     <>
       <Bar />
-      {/* <Banner /> */}
+      <Banner />
       <nav className="z-50 flex justify-between w-full h-16 font-medium font-switzer bg-black-two">
         <section className="flex items-center h-full ml-4 w-fit">
           <Link href="/">
             <Logo className="h-6" />
           </Link>
+          {/* {variant !== "home" && <Search />} */}
         </section>
         <button
           className="flex items-center justify-center mr-5 md:hidden"

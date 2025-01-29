@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { font, fontLight, fontBold } from "fonts";
 import { cn } from "components/ui/utils";
-import Layout from "components/Layouts/Home";
+import Layout from "components/Layouts/Layout";
 
 import Suggested from "components/Suggested/Suggested";
 import Health from "components/Health/Health";

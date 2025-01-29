@@ -111,12 +111,12 @@ const keywords =
 export default function Home(props) {
   return (
     <>
-      <main className="sm:flex sm:items-start flex-col sm:flex-row  sm:justify-between overflow-hidden h-[100vh] md:p-4 bg-black-two border-t-2 border-opacity-50 border-black-three font-switzer lg:p-16">
-        <section className="relative flex flex-col sm:w-1/2">
-          <h1 className="flex-wrap w-full text-4xl font-bold text-left text-offwhite-one md:text-6xl lg:text-8xl">
+      <main className="flex flex-col p-2 overflow-hidden border-t-2 border-opacity-50 min-h-[100vh] sm:flex-row sm:justify-between bg-black-two border-black-three font-switzer ">
+        <section className="relative flex flex-col justify-center w-full h-full p-10 sm:w-1/2 ">
+          <h1 className="flex-wrap w-full text-4xl font-bold text-center sm:text-left text-offwhite-one md:text-6xl lg:text-8xl">
             Learn from the world's biggest investors.
           </h1>
-          <p className="flex flex-col justify-between w-10/12 mt-10 font-semibold md:text-lg text-green-one ">
+          <p className="flex flex-col justify-between w-full mt-10 font-semibold md:text-lg text-green-one ">
             Open investment research, for everyone.
             <br />
             Browse thousands of holdings, reports, and prices, straight from the
@@ -124,12 +124,12 @@ export default function Home(props) {
           </p>
           <div className="flex flex-col items-center justify-center w-full mt-10 mb-10 md:flex-row md:items-center">
             <MainButton
-              className="sm:w-full md:w-48"
+              className="w-full md:w-48"
               onClick={() => window.open("/examples", "_self")}
             >
               See Examples
             </MainButton>
-            <SideButton className="mt-4 sm:w-full md:mt-0 md:ml-4 md:w-48">
+            <SideButton className="w-full mt-4 md:mt-0 md:ml-4 md:w-48">
               Coming Soon
             </SideButton>
           </div>
@@ -137,12 +137,12 @@ export default function Home(props) {
             <Search className="justify-end w-1/2 mt-4" />
           </div>   */}
         </section>
-        <section className="sm:flex sm:flex-col sm:items-center sm:w-1/2">
-          <Search className="w-2/3 mx-auto font-semibold sm:mx-0 lg:w-full bg-white-one" />
-          <div className="relative hidden w-11/12 mt-5 sm:block lg:w-full">
+        <section className="flex flex-col items-center justify-center w-full h-full p-10 md:mt-10 lg:mt-16 sm:w-1/2 sm:p-10">
+          <Search className="w-2/3 font-semibold lg:w-full bg-white-one" />
+          <div className="relative flex flex-col items-center w-full mt-5 h-96">
             <Example
               {...examples.at(0)}
-              className="absolute top-0 z-30 hover:top-1"
+              className="absolute top-0 z-30 hover:top-2"
             />
             <Example
               {...examples.at(1)}

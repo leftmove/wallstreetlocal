@@ -7,6 +7,8 @@ import useSWR from "swr";
 import Link from "next/link";
 import { font } from "@fonts";
 
+import Input from "../Homepage/Search";
+import Results from "../Homepage/Search";
 import SearchIcon from "@/public/static/search.svg";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
@@ -28,6 +30,7 @@ const Search = () => {
     }
   );
   const [show, setShow] = useState(false);
+  const inputRef = useRef(null);
 
   const limit = 10;
   const { data } = useSWR(
@@ -50,6 +53,7 @@ const Search = () => {
     <>
       <button
         className={[
+          "h-full",
           styles["search-button"],
           show ? styles["search-show"] : "",
         ].join(" ")}
@@ -63,44 +67,17 @@ const Search = () => {
             className={styles["search-background"]}
             onClick={() => setShow(false)}
           />
-          <div className={styles["search"]}>
-            <input
-              type="text"
-              className={[styles["search-input"], font.className].join(" ")}
-              value={input.search}
-              placeholder={input.focus ? "" : "Start Typing..."}
-              onChange={(e) => setInput({ search: e.target.value })}
-              onFocus={() => setInput({ focus: true })}
-              onBlur={() => setInput({ focus: false })}
-              autoFocus
-            />
-          </div>
-          {input.search && input.results.length ? (
-            <ul className={styles["result-list"]}>
-              {input.results.map((result) => {
-                return (
-                  <li key={result.cik}>
-                    <Link
-                      href={`/filers/${result.cik}`}
-                      onClick={() => setShow(false)}
-                    >
-                      <div className={styles["result"]}>
-                        <span className={font.className}>
-                          {result.name.toUpperCase()}{" "}
-                          {result.tickers.length == 0
-                            ? ""
-                            : `(${result.tickers.join(", ")})`}
-                        </span>
-                        <span className={font.className}>
-                          CIK{result.cik.padStart(10, "0")}
-                        </span>
-                      </div>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : null}
+          <Input
+            input={input}
+            setInput={(...args) => setInput(...args)}
+            inputRef={inputRef}
+            className="z-[1500]"
+          />
+          <Results
+            input={input}
+            setInput={(...args) => setInput(...args)}
+            className="z-[1500]"
+          />
         </>
       ) : null}
     </>
