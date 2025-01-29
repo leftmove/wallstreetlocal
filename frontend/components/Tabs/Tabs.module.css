@@ -15,6 +15,12 @@
   margin: 20px 0px 0px 0px;
 }
 
+@media (max-width: 640px) {
+  .tab-container {
+    width: 20%;
+  }
+}
+
 .first-tab {
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;

@@ -311,7 +311,11 @@ def analyze_total(cik, stocks, access_number):
 
     market_values = [stock["market_value"] for stock in market_map]
     top_holdings = [
-        stock["cusip"]
+        {
+            "cusip": stock["cusip"],
+            "name": stock["name"],
+            "market_value": stock["market_value"],
+        }
         for stock in sorted(market_map, key=lambda x: x["market_value"], reverse=True)[
             :5
         ][: min(5, len(market_map))]

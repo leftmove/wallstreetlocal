@@ -4,7 +4,8 @@ import Head from "next/head";
 import Link from "next/link";
 
 import Source from "components/Source/Source";
-import { font, fontLight } from "@fonts";
+import { font, fontLight } from "fonts";
+import { cn } from "components/ui/utils";
 import { convertTitle } from "components/Filer/Info";
 
 const headers = [
@@ -14,14 +15,14 @@ const headers = [
   { display: "Last Updated", accessor: "date" },
 ];
 
-const Reccomended = (props) => {
+const Recommended = (props) => {
   return (
-    <>
+    <div className={cn("h-full bg-offwhite-one", props.className)}>
       <Head>
         <title>{props.title}</title>
       </Head>
-      <div className={styles["header"]}>
-        <span className={[styles["main-header"], font.className].join(" ")}>
+      <div className={cn(styles["header"], "px-4 py-2")}>
+        <span className={[font.className, "text-black-two text-4xl"].join(" ")}>
           {props.title}
         </span>
         <div className={[styles["description"], fontLight.className].join(" ")}>
@@ -29,6 +30,18 @@ const Reccomended = (props) => {
           <span>
             All filers may not have accurate or readily available info.
           </span>
+        </div>
+        <div className="flex justify-center w-full">
+          <Link href={props.source}>
+            <span
+              className={[
+                "opacity-50 hover:text-black-two",
+                font.className,
+              ].join(" ")}
+            >
+              Source
+            </span>
+          </Link>
         </div>
       </div>
       <div className={styles["table-container"]}>
@@ -75,7 +88,11 @@ const Reccomended = (props) => {
                         display = (
                           <div className={styles["cik-source"]}>
                             {display}
-                            <Source color="light" cik={filer.cik} />
+                            <Source
+                              marginLeft="0.5rem"
+                              color="light"
+                              cik={filer.cik}
+                            />
                           </div>
                         );
                       case "date":
@@ -98,15 +115,8 @@ const Reccomended = (props) => {
           </tbody>
         </table>
       </div>
-      <div className={styles["header"]}>
-        <Link href={props.source}>
-          <span className={[styles["footer-header"], font.className].join(" ")}>
-            Source
-          </span>
-        </Link>
-      </div>
-    </>
+    </div>
   );
 };
 
-export default Reccomended;
+export default Recommended;

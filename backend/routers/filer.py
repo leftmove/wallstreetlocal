@@ -5,10 +5,12 @@ from pydantic import BaseModel
 import json
 import os
 import logging
+import re
 from urllib import parse
 from datetime import datetime
 
 from worker import tasks as worker
+from .responses import BrowserCachedResponse
 
 from .lib import web
 from .lib import database
@@ -499,6 +501,259 @@ async def filer_info(cik: str):
     filer["status"] = status["status"]
 
     return {"description": "Found filer.", "filer": filer}
+
+
+def convert_title(d):
+    if d:
+        d = re.sub(
+            r"(^\w|\s\w)(\S*)",
+            lambda m: (
+                m.group(1).upper() + m.group(2).lower()
+                if not re.search(r"[a-z][A-Z]|[A-Z][a-z]", m.group(1) + m.group(2))
+                else m.group(1) + m.group(2)
+            ),
+            d,
+        )
+        for word in ["LLC", "LP", "L.P.", "LLP", "N.A."]:
+            d = d.replace(word.capitalize(), word)
+    return d
+
+
+def snake_to_camel(s: dict):
+    def to_camel_case(snake_str):
+        components = snake_str.split("_")
+        return components[0] + "".join(x.title() for x in components[1:])
+
+    def convert_keys(obj):
+        if isinstance(obj, dict):
+            new_obj = {}
+            for k, v in obj.items():
+                new_obj[to_camel_case(k)] = convert_keys(v)
+            return new_obj
+        elif isinstance(obj, list):
+            return [convert_keys(i) for i in obj]
+        else:
+            return obj
+
+    return convert_keys(s)
+
+
+people_dict = {
+    "1067983": ["Warren Buffet"],
+    "1167483": ["Chase Coleman", "Scott Shleifer"],
+    "1336528": ["Bill Ackman"],
+    "1350694": ["Ray Dalio"],
+}  # Change later
+
+
+@cache(24)
+@router.get("/preview", tags=["filers"], status_code=200)
+async def filer_preview(cik: str, holding_count: int = 5):
+
+    if holding_count > 10:
+        raise HTTPException(422, detail="Holding count cannot exceed 10.")
+
+    filer = database.find_filer(
+        cik,
+        {
+            "_id": 0,
+            "cik": 1,
+            "name": 1,
+            "tickers": 1,
+            "market_value": 1,
+            "last_report": 1,
+        },
+    )
+    if filer is None:
+        raise HTTPException(404, detail="Filer not found.")
+
+    status = database.find_log(cik, {"status": 1, "_id": 0})
+    if status is None:
+        raise HTTPException(404, detail="Filer log not found.")
+    filer["status"] = status["status"]
+
+    filer_cik = filer["cik"]
+    filer["name"] = convert_title(filer["name"])
+
+    if filer_cik in people_dict:
+        filer["people"] = people_dict[filer_cik]
+    else:
+        filer["people"] = filer.get("people", [])
+
+    top_holding_length = 5 + 1
+    holding_count = holding_count + 1
+
+    last_report = filer["last_report"]
+    filing = [
+        result
+        for result in database.search_filings(
+            [
+                {"$match": {"cik": filer_cik, "access_number": last_report}},
+                {
+                    "$addFields": {
+                        "stocks": {"$objectToArray": "$stocks"},
+                    }
+                },
+                {"$unwind": "$stocks"},
+                {"$sort": {"stocks.v.market_value": -1}},
+                {"$limit": 5},
+                {
+                    "$group": {
+                        "_id": "$_id",
+                        "stocks": {"$push": {"k": "$stocks.k", "v": "$stocks.v"}},
+                        "report_date": {"$first": "$report_date"},
+                    }
+                },
+                {
+                    "$addFields": {
+                        "stocks": {"$arrayToObject": "$stocks"},
+                    }
+                },
+                {"$project": {"_id": 0, "stocks": 1, "report_date": 1}},
+            ]
+        )
+    ][0]
+    raw_holdings = [
+        s["cusip"]
+        for s in sorted(
+            filing["stocks"].values(),
+            key=lambda x: x.get("market_value", 0),
+            reverse=True,
+        )[: min(holding_count, len(filing["stocks"]))]
+    ]
+    filer["date"] = datetime.fromtimestamp(filing["report_date"]).strftime("%B %d, %Y")
+
+    stock_list = [
+        {
+            **s,
+            "market_value": filing["stocks"][s["cusip"]]["market_value"],
+            "portfolio_percent": filing["stocks"][s["cusip"]]["ratios"][
+                "portfolio_percent"
+            ],
+        }
+        for s in database.find_stocks(
+            "cusip",
+            {"$in": raw_holdings},
+            {
+                "_id": 0,
+                "cusip": 1,
+                "name": 1,
+                "ticker": 1,
+            },
+        )
+    ]
+    filer["top_holdings"] = [
+        s["ticker"] for s in stock_list[: min(top_holding_length, len(stock_list))]
+    ]  # Doesn't handle for no tickers
+    filer["holdings"] = stock_list
+    filer = snake_to_camel(filer)
+
+    return {"description": "Filer preview loaded.", "filer": filer}
+
+
+def get_sample_filers():
+    cik_list = [
+        "1067983",
+        "1167483",
+        "102909",
+        "1350694",
+        "1336528",
+        "1364742",
+        "93751",
+        "19617",
+        "73124",
+        "884546",
+    ]
+    filer_list = database.find_filers(
+        {"cik": {"$in": cik_list}},
+        {
+            "_id": 0,
+            "cik": 1,
+            "name": 1,
+            "tickers": 1,
+            "market_value": 1,
+            "last_report": 1,
+        },
+    )
+    final_list = []
+
+    for filer in filer_list:
+
+        filer_cik = filer["cik"]
+        filer["name"] = convert_title(filer["name"])
+
+        if filer_cik in people_dict:
+            filer["people"] = people_dict[filer_cik]
+        else:
+            filer["people"] = []
+
+        last_report = filer["last_report"]
+        filing = [
+            result
+            for result in database.search_filings(
+                [
+                    {"$match": {"cik": filer_cik, "access_number": last_report}},
+                    {"$addFields": {"stocks": {"$objectToArray": "$stocks"}}},
+                    {"$unwind": "$stocks"},
+                    {"$sort": {"stocks.v.market_value": -1}},
+                    {"$limit": 5},
+                    {
+                        "$group": {
+                            "_id": "$_id",
+                            "stocks": {"$push": {"k": "$stocks.k", "v": "$stocks.v"}},
+                        }
+                    },
+                    {"$addFields": {"stocks": {"$arrayToObject": "$stocks"}}},
+                    {"$project": {"_id": 0, "stocks": 1, "report_date": 1}},
+                ]
+            )
+        ][0]
+        raw_holdings = [
+            s["cusip"]
+            for s in sorted(
+                filing["stocks"].values(),
+                key=lambda x: x.get("market_value", 0),
+                reverse=True,
+            )[: min(11, len(filing["stocks"]))]
+        ]
+        filer["date"] = datetime.fromtimestamp(filing["report_date"]).strftime(
+            "%B %d, %Y"
+        )
+
+        stock_list = [
+            {
+                **s,
+                "market_value": filing["stocks"][s["cusip"]]["market_value"],
+                "portfolio_percent": filing["stocks"][s["cusip"]]["ratios"][
+                    "portfolio_percent"
+                ],
+            }
+            for s in database.find_stocks(
+                "cusip",
+                {"$in": raw_holdings},
+                {
+                    "_id": 0,
+                    "cusip": 1,
+                    "name": 1,
+                    "ticker": 1,
+                },
+            )
+        ]
+        filer["top_holdings"] = [
+            s["ticker"] for s in stock_list[: min(4, len(stock_list))]
+        ]  # Doesn't handle for no tickers
+        filer["holdings"] = stock_list
+
+        filer = snake_to_camel(filer)
+
+        final_list.append(filer)
+
+    final_list = sorted(final_list, key=lambda x: cik_list.index(x["cik"]))
+
+    print("Sample Filers Loaded.")
+    print(final_list)
+
+    return final_list
 
 
 @cache(24)

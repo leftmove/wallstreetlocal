@@ -1,5 +1,7 @@
 import styles from "./Search.module.css";
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer, useinput, useRef } from "react";
+
+import { useRouter } from "next/router";
 
 import axios from "axios";
 import useSWR from "swr";
@@ -16,7 +18,8 @@ const fetcher = (url, query, limit) =>
     .then((res) => res.data)
     .catch((e) => console.error(e));
 
-const Search = () => {
+const Search = (props) => {
+  const router = useRouter();
   const [input, setInput] = useReducer(
     (prev, next) => {
       return { ...prev, ...next };
@@ -27,6 +30,9 @@ const Search = () => {
       focus: false,
     }
   );
+  const inputRef = useRef(null);
+  // const input = props.state;
+  // const setInput = props.dispatch;
 
   const limit = 5;
   const { data } = useSWR(
@@ -37,12 +43,79 @@ const Search = () => {
       revalidateOnReconnect: false,
     }
   );
-  useEffect(() => {
+
+  const handleSearch = (data) => {
     if (data) {
       setInput({ results: data.results });
     } else {
       setInput({ results: [] });
     }
+  };
+  const handleChange = (e) => {
+    setInput({ search: e.target.value });
+  };
+  const handleFocus = () => {
+    setInput({ focus: true });
+  };
+  const handleBlur = () => {
+    setInput({ focus: false });
+  };
+  const handleKey = (e) => {
+    const hover = input.results.find((result) => result.hover);
+    const pos = input.results.findIndex((result) => result.hover);
+    switch (e.key) {
+      case "Escape":
+        setInput({ focus: false });
+        inputRef.current.blur();
+        break;
+      case "Enter":
+        router.push(`/filers/${hover.cik}`);
+        break;
+      case "ArrowDown":
+        const after = pos === input.results.length - 1 ? 0 : pos + 1;
+        setInput({
+          results: input.results.map((result, i) =>
+            i === after
+              ? { ...result, hover: true }
+              : { ...result, hover: false }
+          ),
+        });
+        break;
+      case "ArrowUp":
+        const before = pos === 0 ? input.results.length - 1 : pos - 1;
+        setInput({
+          results: input.results.map((result, i) =>
+            i === before
+              ? { ...result, hover: true }
+              : { ...result, hover: false }
+          ),
+        });
+        break;
+      default:
+        break;
+    }
+  };
+  const handleMouseEnter = (cik) => {
+    setInput({
+      results: input.results.map((result) =>
+        result.cik === cik
+          ? { ...result, hover: true }
+          : { ...result, hover: false }
+      ),
+    });
+  };
+  const handleMouseLeave = (cik) => {
+    setInput({
+      results: input.results.map((result) =>
+        result.cik === cik
+          ? { ...result, hover: false }
+          : { ...result, hover: false }
+      ),
+    });
+  };
+
+  useEffect(() => {
+    handleSearch(data);
   }, [data]);
 
   return (
@@ -50,17 +123,20 @@ const Search = () => {
       className={[
         styles["search"],
         input.focus ? styles["search-expand"] : "",
+        props.className,
       ].join(" ")}
     >
       <div className={styles["search-box"]}>
         <input
           type="text"
-          className={[styles["search-input"], font.className].join(" ")}
+          ref={inputRef}
+          className={[styles["search-input"]].join(" ")}
           value={input.search}
           placeholder={input.focus ? "" : "Search..."}
-          onChange={(e) => setInput({ search: e.target.value })}
-          onFocus={() => setInput({ focus: true })}
-          onBlur={() => setInput({ focus: false })}
+          onChange={handleChange}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          onKeyDown={handleKey}
         />
       </div>
       <div
@@ -75,14 +151,22 @@ const Search = () => {
               return (
                 <li key={result.cik}>
                   <Link href={`/filers/${result.cik}`}>
-                    <div className={styles["result"]}>
-                      <span className={font.className}>
+                    <div
+                      className={cn(
+                        styles["result"],
+                        "hover:bg-white-two",
+                        result.hover && "bg-white-two"
+                      )}
+                      onMouseEnter={() => handleMouseEnter(result.cik)}
+                      onMouseLeave={() => handleMouseLeave(result.cik)}
+                    >
+                      <span className="font-semibold">
                         {result.name.toUpperCase()}{" "}
                         {result.tickers.length == 0
                           ? ""
                           : `(${result.tickers.join(", ")})`}
                       </span>
-                      <span className={font.className}>
+                      <span className="font-semibold ">
                         CIK{result.cik.padStart(10, "0")}
                       </span>
                     </div>

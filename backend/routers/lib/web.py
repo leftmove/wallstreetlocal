@@ -179,7 +179,7 @@ def process_filings(cik, data):
     last_report = "N/A"
     first_report = "N/A"
     for i, form in enumerate(data_filings["form"]):
-        if form == "13F-HR":
+        if form in database.holding_forms:
             if last_report == "N/A":
                 last_report = data_filings["accessionNumber"][i]
             first_report = data_filings["accessionNumber"][i]
@@ -195,7 +195,6 @@ def initialize_filer(cik, sec_data):
     start = datetime.now().timestamp()
     stamp = {
         **company,
-        "logs": [],
         "status": 4,
         "time": {
             "remaining": 0,

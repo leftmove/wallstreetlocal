@@ -9,8 +9,8 @@ body {
 
   width: 100%;
   height: 100%;
+  z-index: 5;
 
-  background-color: var(--offwhite);
   font-family: var(--font-light);
 }
 
@@ -24,14 +24,17 @@ body {
   --offwhite-dark: #b8b8b8;
   --offwhite-darker: #a0a0a0;
 
-  --green-one: #04df16; /* Malachite Green */
-  --green-two: #3dd45b; /* Malachite Green */
-  --green-three: #163924; /* Dark Green */
-  --white-one: #ffffff; /* White */
-  --offwhite-one: #f2fff0; /* Honeydew */
-  --offwhite-two: #d3e1d1; /* Nyanza */
-  --black-one: #1a1a1a; /* Eerie Black */
-  --black-two: #1d1d1d; /* Eerie Black */
+  --green-one: #04df16;
+  --green-two: #3dd45b;
+  --green-three: #02c002;
+  --green-three: #163924;
+  --white-one: #ffffff;
+  --white-two: #e2e1e1;
+  --offwhite-one: #f2fff0;
+  --offwhite-two: #d3e1d1;
+  --black-one: #1a1a1a;
+  --black-two: #242424;
+  --black-three: #565656;
 }
 
 a {
@@ -45,8 +48,7 @@ input {
   font-family: inherit;
 }
 
-/* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--primary) var(--secondary-dark);
+  scrollbar-color: var(--green-three) var(--black-one);
 }

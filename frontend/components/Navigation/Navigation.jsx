@@ -75,15 +75,23 @@ const Navigation = (props) => {
         handleShowNavigation();
       }
     };
+    const handleScroll = () => {
+      if (showNavigation) {
+        handleShowNavigation();
+      }
+    };
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener("wheel", handleScroll);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, [showNavigation]);
 
   return (
     <>
       <Bar />
       {/* <Banner /> */}
-      <nav className="flex justify-between w-full h-16 font-medium font-switzer bg-black-two">
+      <nav className="z-50 flex justify-between w-full h-16 font-medium font-switzer bg-black-two">
         <section className="flex items-center h-full ml-4 w-fit">
           <Link href="/">
             <Logo className="h-6" />
@@ -97,7 +105,7 @@ const Navigation = (props) => {
         </button>
         <section
           className={cn(
-            "md:max-h-fit flex items-start border-t-2 border-green-one md:border-none justify-between w-full md:w-fit bg-black-two my-auto md:opacity-100 top-16 transition-all md:top-0 duration-300 absolute mr-4 md:items-center md:relative md:flex md:flex-row overflow-hidden",
+            "md:max-h-fit z-50 flex items-start border-t-2 border-green-one md:border-none justify-between w-full md:w-fit bg-black-two my-auto md:opacity-100 top-16 transition-all md:top-0 duration-300 absolute mr-4 md:items-center md:relative md:flex md:flex-row overflow-hidden",
             showNavigation ? "max-h-36  p-4" : "max-h-0 opacity-0"
           )}
         >
