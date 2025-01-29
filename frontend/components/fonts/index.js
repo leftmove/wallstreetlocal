@@ -1,4 +1,4 @@
-import { Inter } from "@next/font/google";
+import { Inter } from "next/font/google";
 
 const font = Inter({ weight: "800", subsets: ["latin"] });
 const fontBold = Inter({ weight: "900", subsets: ["latin"] });

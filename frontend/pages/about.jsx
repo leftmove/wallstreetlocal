@@ -108,7 +108,7 @@ const keywords =
 //   );
 // }
 
-export default function Home(props) {
+export default function About(props) {
   return (
     <>
       <main className="flex justify-between overflow-hidden lg:h-[100vh] md:p-10 p-4 bg-black-two border-t-2 border-opacity-50 border-black-three font-switzer lg:p-16">
@@ -166,7 +166,7 @@ export default function Home(props) {
   );
 }
 
-Home.getLayout = ({ Component, pageProps }) => (
+About.getLayout = ({ Component, pageProps }) => (
   <Layout>
     <Component {...pageProps} />
   </Layout>

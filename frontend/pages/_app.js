@@ -4,7 +4,7 @@ import "styles/fonts.css";
 import Layout from "components/Layouts/Layout";
 import Maintenance from "components/Maintenance/Maintenance";
 
-import localFont from "@next/font/local";
+import localFont from "next/font/local";
 
 const font = localFont({
   src: "../fonts/Switzer-Medium.woff2",
