@@ -95,8 +95,8 @@ def find_stock(field, value):
 
 
 @retry_on_rate_limit()
-def find_stocks(field, value):
-    results = stocks.find({field: value}, {"_id": 0})
+def find_stocks(field, value, project={"_id": 0}):
+    results = stocks.find({field: value}, project)
     return results
 
 
