@@ -41,7 +41,7 @@ export default function Index(props) {
       dispatch(
         editSort({
           type: order,
-          accessor,
+          sort: accessor,
           reverse: direction,
         })
       ),

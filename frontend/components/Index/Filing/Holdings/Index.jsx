@@ -76,15 +76,13 @@ export default function Index(props) {
       dispatch(
         editSort({
           type: order,
-          accessor,
+          sort: accessor,
           reverse: direction,
         })
       ),
     (offset) => dispatch(editSort({ type: order, offset })),
     (pagination) => dispatch(editSort({ type: order, pagination }))
   );
-
-  console.log(selected);
 
   return (
     <div className={styles["table-container"]}>

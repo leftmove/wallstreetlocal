@@ -205,8 +205,10 @@ async def filing_info(cik: str, access_number: str, include_filer: bool = False)
 
 @router.get("/changes", status_code=200)
 async def changes(cik: str, access_number: str):
-    filing = database.find_filing(cik, access_number)
+    filing = database.find_filing(cik, access_number, {"_id": 0, "changes": 1})
     if filing is None:
         raise HTTPException(404, detail="Filing not found.")
 
-    filing_forms = web.check_forms(cik)
+    changes = filing.get("changes", [])
+
+    return {"description": "Changes found.", "changes": changes}

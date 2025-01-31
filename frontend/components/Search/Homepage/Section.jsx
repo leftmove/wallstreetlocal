@@ -914,7 +914,6 @@ const fetcher = (url, cik) =>
   axios
     .get(url, { params: { cik } })
     .then((res) => {
-      console.log(res);
       return res.data;
     })
     .catch((e) => console.error(e));
