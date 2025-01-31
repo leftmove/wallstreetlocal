@@ -165,6 +165,7 @@ async def record_filing_csv(cik: str, access_number: str, headers: str = None):
     )
 
 
+@cache(2)
 @router.get("/filer", status_code=200)
 async def filings_info(cik: str):
     pipeline = [
@@ -179,6 +180,7 @@ async def filings_info(cik: str):
     return {"filings": filings}
 
 
+@cache(2)
 @router.get("/info", status_code=200)
 async def filing_info(cik: str, access_number: str, include_filer: bool = False):
     filing = database.find_filing(cik, access_number, {"_id": 0, "cik": 0, "stocks": 0})
@@ -199,3 +201,12 @@ async def filing_info(cik: str, access_number: str, include_filer: bool = False)
         "filing": filing,
         **({"filer": filer} if include_filer else {}),
     }
+
+
+@router.get("/changes", status_code=200)
+async def changes(cik: str, access_number: str):
+    filing = database.find_filing(cik, access_number)
+    if filing is None:
+        raise HTTPException(404, detail="Filing not found.")
+
+    filing_forms = web.check_forms(cik)

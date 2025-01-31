@@ -2,12 +2,15 @@
   all: unset;
   cursor: pointer;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
 
+  font-size: 0.8rem;
   padding: 10px;
   border-radius: 5px;
-  width: 45%;
+  width: 100px;
+  height: 10px;
+  margin-right: 5px;
 
   color: var(--white);
   background-color: var(--secondary);
@@ -20,6 +23,6 @@
 }
 
 .record-icon {
-  width: 20px;
-  margin-left: 50px;
+  width: 15px;
+  height: 15px;
 }

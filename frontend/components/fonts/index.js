@@ -1,7 +1,22 @@
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 
-const font = Inter({ weight: "800", subsets: ["latin"] });
-const fontBold = Inter({ weight: "900", subsets: ["latin"] });
-const fontLight = Inter({ weight: "700", subsets: ["latin"] });
+const font = localFont({
+  src: "../../fonts/Switzer-Semibold.woff2",
+  style: "normal",
+  display: "swap",
+  variable: "--font-medium",
+});
+const fontBold = localFont({
+  src: "../../fonts/Switzer-Black.woff2",
+  style: "normal",
+  display: "swap",
+  variable: "--font-bold",
+});
+const fontLight = localFont({
+  src: "../../fonts/Switzer-Medium.woff2",
+  style: "normal",
+  display: "swap",
+  variable: "--font-light",
+});
 
 export { font, fontBold, fontLight };

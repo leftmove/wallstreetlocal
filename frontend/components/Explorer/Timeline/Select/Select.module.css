@@ -3,8 +3,6 @@
   position: relative;
 
   padding: 10px;
-
-  width: calc(50% - 1.5%);
 }
 
 .select-background {
@@ -16,8 +14,6 @@
   top: 0;
   left: 0;
   border-radius: 5px;
-
-  background-color: var(--secondary);
 }
 
 .select {
@@ -32,14 +28,12 @@
 }
 
 .select-headers {
-  width: 95%;
+  width: 100%;
 }
 
 .select-records {
   display: flex;
-  justify-content: space-between;
-  width: 95%;
-  padding: 20px;
+  width: 100%;
 }
 
 .picker-attributes {
@@ -62,19 +56,16 @@
 
 .attribute-text {
   color: var(--secondary-dark);
-  font-size: 0.85vw;
   padding: 5px;
 
   transition: color 0.1s ease;
 }
 
 .attribute-text:hover {
-  color: var(--primary-dark);
+  color: var(--black-one);
 }
 
 .attribute-hint {
   opacity: 0.8;
-  font-size: 0.5vw;
-
   color: var(--secondary-dark);
 }

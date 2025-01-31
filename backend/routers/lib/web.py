@@ -87,7 +87,7 @@ def process_names(stocks, cik):
     return global_stocks
 
 
-def check_new(cik):
+def check_new(cik: str):
     document_reports = check_forms(cik)
 
     latest_report = document_reports[-1]
@@ -105,7 +105,7 @@ def check_new(cik):
         return False, None
 
 
-def check_forms(cik):
+def check_forms(cik: str):
     data = api.sec_filer_search(cik)
     recent_filings = data["filings"]["recent"]
 

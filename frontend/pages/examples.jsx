@@ -8,7 +8,7 @@ import axios from "axios";
 import { cn } from "components/ui/utils";
 
 import Recommended from "components/Recommended/Recommended";
-import Button from "components/Buttons/Secondary";
+import Button from "components/Buttons/Primary";
 
 const Examples = (props) => {
   const [selected, setSelected] = useState("searched");
@@ -18,9 +18,8 @@ const Examples = (props) => {
         <Button
           onClick={() => setSelected("searched")}
           className={cn(
-            "border-r-0 rounded-r-none w-36",
-            selected === "searched" &&
-              "bg-white-one !text-black-one hover:bg-white-two"
+            "border-r-0 rounded-r-none w-36 bg-white-two",
+            selected === "searched" && "!bg-green-two hover:bg-white-two"
           )}
         >
           Searched
@@ -28,9 +27,8 @@ const Examples = (props) => {
         <Button
           onClick={() => setSelected("valued")}
           className={cn(
-            "rounded-l-none w-36",
-            selected === "valued" &&
-              "bg-white-one !text-black-one hover:bg-white-two"
+            "rounded-l-none w-36 bg-white-two",
+            selected === "valued" && "!bg-green-two  hover:bg-white-two"
           )}
         >
           Most Valued

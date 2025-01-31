@@ -58,7 +58,7 @@ const Suggested = (props) => {
       <div className={[styles["Suggested-lists"], font.className].join(" ")}>
         <div className={styles["Suggested-list"]}>
           <Link href="/Suggested/top">
-            <span className={styles["list-title"]}>Most Assets</span>
+            <span className={styles["list-title"]}>Most Valued</span>
           </Link>
           <ul>
             {topFilers

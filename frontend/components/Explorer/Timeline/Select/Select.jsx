@@ -6,22 +6,36 @@ import {
   selectCik,
   selectPrimary,
   selectSecondary,
+  selectMain,
   editComparison,
 } from "@/redux/filerSlice";
 
-import { font, fontLight } from "components/fonts";
+import { font, fontLight } from "fonts";
+import { cn } from "components/ui/utils";
 
 import Headers from "components/Headers/Headers";
 import Record from "./Record/Record";
 import Picker from "./Picker/Picker";
 import Source from "components/Source/Source";
+import Share from "components/Share/Share";
 
 const Select = (props) => {
   const dispatch = useDispatch();
   const type = props.type;
   const cik = useSelector(selectCik);
   const selected = useSelector(
-    type === "secondary" ? selectSecondary : selectPrimary
+    (() => {
+      switch (type) {
+        case "primary":
+          return selectPrimary;
+        case "secondary":
+          return selectSecondary;
+        case "main":
+          return selectMain;
+        default:
+          return selectPrimary;
+      }
+    })()
   );
   const headers = selected.headers;
 
@@ -53,14 +67,34 @@ const Select = (props) => {
 
   const [picking, setPicking] = useState(false);
   const attributes = [
-    { text: selected?.report?.date, hint: "Report Date" },
-    { text: selected?.filing?.date, hint: "Filing Date" },
+    {
+      text: new Date(selected?.report?.date).toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      }),
+      hint: "Report Date",
+    },
+    {
+      text: new Date(selected?.filing?.date).toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      }),
+      hint: "Filing Date",
+    },
     { text: selected.access, hint: "Access Number" },
     { text: selected.value, hint: "Market Value" },
   ];
 
   return (
-    <div className={styles["select-container"]}>
+    <div
+      className={cn(
+        styles["select-container"],
+        "font-switzer w-full",
+        props.className
+      )}
+    >
       <div className={styles["select-background"]}></div>
       <Picker
         selected={selected}
@@ -69,7 +103,8 @@ const Select = (props) => {
         picking={picking}
       />
       <div className={styles["select"]}>
-        <div className={styles["select-headers"]}>
+        {/* <h2 className="w-full mb-2 text-lg font-semibold">Headers</h2> */}
+        <div className={cn(styles["select-headers"], "")}>
           <Headers
             headers={headers}
             sold={selected.sort.sold}
@@ -81,18 +116,26 @@ const Select = (props) => {
             updateNa={updateNa}
           />
         </div>
-        <div className={styles["select-records"]}>
-          <Record selected={selected} variant="json" />
-          <Record selected={selected} variant="csv" headers={headers} />
-          <Source
-            link={`https://www.sec.gov/Archives/edgar/data/${cik}/${selected?.access.replace(
-              "-",
-              ""
-            )}/${selected?.access}-index.htm`}
-            width={"40px"}
-          />
+        <div className="w-full mt-4">
+          {/* <h2 className="w-full mb-2 text-lg font-semibold">Exports</h2> */}
+          <div className={cn(styles["select-records"], "justify-between")}>
+            <div className="flex items-center">
+              <Record selected={selected} variant="json" />
+              <Record selected={selected} variant="csv" headers={headers} />
+            </div>
+            <div className="flex items-center">
+              <Source
+                link={`https://www.sec.gov/Archives/edgar/data/${cik}/${selected?.access.replace(
+                  "-",
+                  ""
+                )}/${selected?.access}-index.htm`}
+                width={"20px"}
+              />
+              <Share width={"20px"} marginLeft={"5px"} />
+            </div>
+          </div>
         </div>
-        <div className={styles["picker-attributes"]}>
+        <div className={cn(styles["picker-attributes"], "mt-10")}>
           {attributes.map((a) => (
             <div className={styles["picker-attribute"]} key={a.hint}>
               <button
@@ -100,17 +143,21 @@ const Select = (props) => {
                 onClick={() => setPicking(!picking)}
               >
                 <span
-                  className={[styles["attribute-text"], font.className].join(
-                    " "
-                  )}
+                  className={[
+                    styles["attribute-text"],
+                    font.className,
+                    "text-lg",
+                  ].join(" ")}
                 >
                   {a.text}
                 </span>
               </button>
               <span
-                className={[styles["attribute-hint"], fontLight.className].join(
-                  " "
-                )}
+                className={[
+                  styles["attribute-hint"],
+                  fontLight.className,
+                  "text-xs",
+                ].join(" ")}
               >
                 {a.hint}
               </span>

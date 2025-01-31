@@ -29,6 +29,7 @@
   flex-direction: column;
   align-items: center;
 
+  width: 90%;
   margin: 20px;
 }
 
@@ -96,6 +97,7 @@
 
 .timeline-selects {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
 

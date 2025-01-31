@@ -4,7 +4,7 @@ import { useState } from "react";
 import FolderIcon from "@/public/static/folder.svg";
 import FilterIcon from "@/public/static/filter.svg";
 
-import { fontLight } from "@fonts";
+import { font as fontLight } from "@fonts"; // lazyness
 
 const Analysis = ({ text = "Analysis", icon = "folder", children }) => {
   const [open, setOpen] = useState(false);

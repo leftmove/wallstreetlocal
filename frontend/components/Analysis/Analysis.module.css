@@ -18,9 +18,9 @@
   align-items: center;
   cursor: pointer;
 
-  width: 19%;
+  width: 20%;
   border-radius: 5px;
-  padding: 5px;
+  padding: 5px 7px;
   opacity: 1;
   margin: auto;
   margin-top: 10px;

@@ -43,7 +43,7 @@ const Record = (props) => {
       }
     >
       <span className={font.className}>
-        {variant == "csv" ? "Table" : "Data"}
+        {variant == "csv" ? "Spreadsheet" : "JSON"}
       </span>
       {variant == "csv" ? (
         <TableIcon className={styles["record-icon"]} />

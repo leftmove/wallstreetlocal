@@ -4,10 +4,9 @@
   align-items: center;
   justify-content: center;
 
-  width: 98%;
+  width: 100%;
   border: 3px solid var(--secondary);
   border-radius: 5px;
-  margin: auto;
 }
 
 .headers-description {
@@ -37,10 +36,12 @@
 
 .headers-container {
   display: flex;
+  justify-content: center;
   width: 100%;
 }
 
 .headers-buttons {
   display: flex;
+  justify-content: center;
   width: 100%;
 }

@@ -62,15 +62,17 @@
   justify-content: space-between;
   cursor: pointer;
 
-  width: 95%;
+  width: 100%;
   border-radius: 5px;
+  border-bottom: solid var(--offwhite) 1px;
 
   color: var(--secondary-dark);
-  transition: background-color 0.1s ease;
+  transition: background-color 0.1s ease, border-radius 0.3s ease;
 }
 
 .picker-filing:hover {
   background-color: var(--offwhite);
+  border-radius: 0px;
 }
 
 .filing-attribute {
@@ -79,11 +81,19 @@
   justify-content: center;
   text-align: center;
 
+  font-size: 0.8rem;
   width: 30%;
   margin: 5px;
   border-radius: 5px;
+  border-right: solid var(--offwhite) 1px;
+}
 
-  background-color: var(--offwhite);
+.filing-attribute:last-child {
+  border-right: none;
+}
+
+.filing-attribute:first-child {
+  font-size: 1.2rem;
 }
 
 .picker-attributes {

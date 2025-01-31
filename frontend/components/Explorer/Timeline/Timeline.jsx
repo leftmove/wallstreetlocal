@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { selectTimeline, setOpen } from "@/redux/filerSlice";
 
-import { font, fontLight } from "@fonts";
+import { font, fontLight } from "fonts";
+import { cn } from "components/ui/utils";
 
 import Analysis from "components/Analysis/Analysis";
 import Tip from "components/Tip/Tip";
@@ -24,33 +25,43 @@ const Timeline = () => {
   return (
     <Analysis>
       <div className={styles["timeline-description"]}>
-        <span
-          className={[styles["timeline-display"], font.className].join(" ")}
-        >
-          {description.title}
-        </span>
-        <span
-          className={[styles["timeline-text"], fontLight.className].join(" ")}
-        >
-          {description.text}
-        </span>
+        {description.title && description.text && (
+          <>
+            <span
+              className={[styles["timeline-display"], font.className].join(" ")}
+            >
+              {description.title}
+            </span>
+            <span
+              className={[styles["timeline-text"], fontLight.className].join(
+                " "
+              )}
+            >
+              {description.text}
+            </span>
+          </>
+        )}
       </div>
-
       <div className={styles["timeline-selects"]}>
-        <Select
-          type="primary"
-          setDescription={(desc) => setDescription(desc)}
-        />
-        {/* <Difference setDescription={(desc) => setDescription(desc)} /> */}
-        <Select
-          type="secondary"
-          setDescription={(desc) => setDescription(desc)}
-        />
+        <div className="w-full h-full">
+          <h6 className="w-full text-xs font-medium text-center opacity-50 font-switzer ">
+            (Left Comparison)
+          </h6>
+          <Select
+            type="primary"
+            setDescription={(desc) => setDescription(desc)}
+          />
+        </div>
+        <div className="w-full h-full mt-10">
+          <h6 className="w-full text-xs font-medium text-center opacity-50 font-switzer ">
+            (Right Comparison)
+          </h6>
+          <Select
+            type="secondary"
+            setDescription={(desc) => setDescription(desc)}
+          />
+        </div>
       </div>
-      <Tip
-        text="This UI is new and therefore looks somewhat ugly. If you have any ideas, suggestions on GitHub are appreciated."
-        top={30}
-      />
     </Analysis>
   );
 };

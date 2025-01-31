@@ -5,9 +5,11 @@ import os
 import logging
 
 from datetime import datetime
+from collections import defaultdict
 
 from . import database
 from . import api
+from . import web
 from . import cache
 from . import errors
 
@@ -870,6 +872,122 @@ def sort_and_format(filer_ciks):
     except Exception as e:
         logging.error(e)
         raise KeyError
+
+
+def analyze_changes(cik):
+
+    pipeline = [
+        {"$match": {"cik": cik, "form": {"$in": database.holding_forms}}},
+        {
+            "$project": {
+                "access_number": 1,
+                "stocks": {"$objectToArray": "$stocks"},
+            }
+        },
+        {"$project": {"access_number": 1, "stock": "$stocks.v"}},
+        {"$unwind": "$stock"},
+        {
+            "$project": {
+                "access_number": 1,
+                "stock.cusip": 1,
+                "stock.shares_held": 1,
+                "stock.market_value": 1,
+            }
+        },
+        {
+            "$group": {
+                "_id": "$access_number",
+                "access_number": {"$first": "$access_number"},
+                "stocks": {"$push": "$stock"},
+            }
+        },
+        {
+            "$set": {
+                "access_number": "$_id",
+            }
+        },
+        {
+            "$project": {
+                "_id": 0,
+                "access_number": 1,
+                "stocks": {
+                    "$arrayToObject": {
+                        "$map": {
+                            "input": "$stocks",
+                            "as": "stock",
+                            "in": {"k": "$$stock.cusip", "v": "$$stock"},
+                        }
+                    }
+                },
+            }
+        },
+    ]
+    filings_reports = [f["access"] for f in web.check_forms(cik)]
+    filings_list = [f for f in database.search_filings(pipeline)]
+
+    changes_list = []
+    for next_filing in filings_list:
+
+        next_access = next_filing["access_number"]
+        next_index = filings_reports.index(next_access)
+
+        prev_index = next_index + 1 if next_index + 1 < len(filings_reports) else None
+        if prev_index is None:
+            changes_list.append(
+                {
+                    "access_number": next_access,
+                    "changes": [],
+                }
+            )
+            continue
+        prev_access = filings_reports[prev_index]
+        prev_filing = next(
+            (f for f in filings_list if f["access_number"] == prev_access),
+            None,
+        )
+
+        if not prev_filing:
+            continue
+
+        next_stocks = next_filing.get("stocks", {})
+        prev_stocks = prev_filing.get("stocks", {})
+
+        if not next_stocks or not prev_stocks:
+            continue
+
+        change = defaultdict(lambda: {"shares": {}, "value": {}})
+        for cusip in next_stocks:
+            next_stock = next_stocks[cusip]
+            prev_stock = prev_stocks.get(cusip, None)
+
+            next_shares = next_stock["shares_held"]
+            prev_shares = prev_stock["shares_held"] if prev_stock else 0
+            if next_shares != prev_shares:
+                change[cusip]["shares"]["amount"] = abs(next_shares - prev_shares)
+                change[cusip]["shares"]["type"] = (
+                    "buy" if next_shares > prev_shares else "sell"
+                )
+
+            next_value = next_stock["market_value"]
+            prev_value = prev_stock["market_value"] if prev_stock else 0
+            if next_value != prev_value:
+                change[cusip]["value"]["amount"] = abs(next_value - prev_value)
+                change[cusip]["value"]["type"] = (
+                    "buy" if next_value > prev_value else "sell"
+                )
+        change = dict(change)
+
+        database.edit_filing(
+            {"cik": cik, "access_number": next_access}, {"$set": {"changes": change}}
+        )
+        changes_list.append(
+            {
+                "access_number": next_access,
+                "changes": change,
+            }
+        )
+
+    return changes_list
 
 
 # Really janky/inefficient

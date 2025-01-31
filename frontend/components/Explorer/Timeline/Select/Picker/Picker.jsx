@@ -26,10 +26,18 @@ const Picker = (props) => {
           const accessNumber = filing.access_number;
           const reportDate = new Date(
             filing.report_date * 1000
-          ).toLocaleDateString();
+          ).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          });
           const filingDate = new Date(
             filing.filing_date * 1000
-          ).toLocaleDateString();
+          ).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          });
           const marketValue = filing.market_value
             ? new Intl.NumberFormat("en-US").format(filing.market_value)
             : "-";

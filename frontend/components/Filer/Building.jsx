@@ -11,8 +11,10 @@ const Building = (props) => {
       <Head>
         <title>Building...</title>
       </Head>
-      <Progress cik={cik} persist={persist} />
-      <Suggested />
+      <div className="h-[100vh]">
+        <Progress cik={cik} persist={persist} />
+        <Suggested />
+      </div>
     </>
   );
 };

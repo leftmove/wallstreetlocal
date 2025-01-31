@@ -182,12 +182,14 @@ def create_historical(cik, company, stamp):
             database.edit_filer(filer_query, stock_query)
             database.add_log(cik, log_item)
 
+        change_list = analysis.analyze_changes(cik)
         allocation_list = analysis.analyze_allocation(cik)
         aum_list = analysis.analyze_aum(cik)
         database.edit_filer(
             {"cik": cik},
             {
                 "$set": {
+                    "analysis.changes": change_list,
                     "analysis.allocation": allocation_list,
                     "analysis.aum_timeseries": aum_list,
                 }

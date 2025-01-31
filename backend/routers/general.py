@@ -7,7 +7,6 @@ import logging
 
 from worker import tasks as worker
 
-
 from .lib import database
 from .lib import cache as cm
 from .lib.backup import save_collections
@@ -200,6 +199,18 @@ async def repair_all_filers(
         )
 
     return {"description": "Started repairing all filers."}
+
+
+# from .lib import analysis
+# @router.get("/test", status_code=200, include_in_schema=False)
+# async def test_route(password: str, background: BackgroundTasks = BackgroundTasks):
+#     if password != ADMIN_PASSWORD:
+#         raise HTTPException(detail="Unable to give access.", status_code=403)
+
+#     changes = analysis.analyze_changes("1037389")
+#     print(changes)
+
+#     return {"description": "Hello World!"}
 
 
 @cache
