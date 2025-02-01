@@ -163,24 +163,26 @@ const initialState = {
   sort: initialSort,
   filings: [],
   timeline: {
-    comparisons: ["primary", "secondary", "main"].map((order) => {
-      // Main is shoe-horned in here. It should be its own slice, but this is easier.
-      return {
-        type: order,
-        access: "",
-        filing: {
-          time: 0,
-          date: "",
-        },
-        report: {
-          time: 0,
-          date: "",
-        },
-        headers: initialComparisons,
-        sort: initialSort,
-        stocks: [],
-      };
-    }),
+    comparisons: ["primary", "secondary", "main", "buy", "sell"].map(
+      (order) => {
+        // Main is shoe-horned in here. It should be its own slice, but this is easier.
+        return {
+          type: order,
+          access: "",
+          filing: {
+            time: 0,
+            date: "",
+          },
+          report: {
+            time: 0,
+            date: "",
+          },
+          headers: initialComparisons,
+          sort: initialSort,
+          stocks: [],
+        };
+      }
+    ),
     open: false,
   },
   difference: {
@@ -613,6 +615,8 @@ export const selectFilings = (state) => state.filer.filings;
 export const selectPrimary = (state) => state.filer.timeline.comparisons[0];
 export const selectSecondary = (state) => state.filer.timeline.comparisons[1];
 export const selectMain = (state) => state.filer.timeline.comparisons[2];
+export const selectBuy = (state) => state.filer.timeline.comparisons[3];
+export const selectSell = (state) => state.filer.timeline.comparisons[4];
 export const selectDifference = (state) => state.filer.difference;
 
 export const {

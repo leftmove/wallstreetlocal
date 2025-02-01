@@ -7,7 +7,8 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectCik,
-  selectMain,
+  selectBuy,
+  selectSell,
   setComparison,
   setFilings,
   editComparison,
@@ -23,8 +24,8 @@ const server = process.env.NEXT_PUBLIC_SERVER;
 export default function Index(props) {
   const dispatch = useDispatch();
   const cik = useSelector(selectCik);
-  const selected = useSelector(selectMain);
-  const order = "main";
+  const selected = useSelector(props.order === "buy" ? selectBuy : selectSell);
+  const order = props.order || "buy";
   const an = props.an || "";
 
   const filingFetcher = (url, cik) =>

@@ -635,10 +635,11 @@ def sort_pipeline(
     sold: bool,
     reverse: bool,
     unavailable: bool,
-    additional: list = [],
     stock_structure: str = "array",
     collection_search=database.search_filers,
     match_query={},
+    additional_one: list = [],
+    additional_two: list = [],
 ):
     if limit < 0:
         raise ValueError
@@ -657,8 +658,8 @@ def sort_pipeline(
             ]
         )
 
-    if additional:
-        pipeline.extend(additional)
+    if additional_one:
+        pipeline.extend(additional_one)
 
     pipeline.extend(
         [
@@ -668,6 +669,9 @@ def sort_pipeline(
             {"$replaceRoot": {"newRoot": "$doc"}},
         ]
     )
+
+    if additional_two:
+        pipeline.extend(additional_two)
 
     if sold is False:
         pipeline.append({"$match": {"sold": False}})
@@ -963,15 +967,17 @@ def analyze_changes(cik):
             next_shares = next_stock["shares_held"]
             prev_shares = prev_stock["shares_held"] if prev_stock else 0
             if next_shares != prev_shares:
-                change[cusip]["shares"]["amount"] = abs(next_shares - prev_shares)
+                shares_diff = abs(next_shares - prev_shares)
+                change[cusip]["shares"]["amount"] = int(shares_diff)
                 change[cusip]["shares"]["type"] = (
                     "buy" if next_shares > prev_shares else "sell"
                 )
 
-            next_value = next_stock["market_value"]
-            prev_value = prev_stock["market_value"] if prev_stock else 0
+            next_value = float(next_stock["market_value"])
+            prev_value = float(prev_stock["market_value"] if prev_stock else 0)
             if next_value != prev_value:
-                change[cusip]["value"]["amount"] = abs(next_value - prev_value)
+                value_diff = abs(next_value - prev_value)
+                change[cusip]["value"]["amount"] = int(value_diff)
                 change[cusip]["value"]["type"] = (
                     "buy" if next_value > prev_value else "sell"
                 )
