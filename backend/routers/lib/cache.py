@@ -127,7 +127,7 @@ def cache(_, hours=2):
         @wraps(func)
         async def wrapped(*args, **kwargs):
             key_parts = list(args) + list(kwargs.keys()) + list(kwargs.values())
-            key = f'{[func.__name__]}:{"-".join(str(k) for k in key_parts)}'
+            key = f'{func.__name__}:{"-".join(str(k) for k in key_parts)}'
             result = store.get(key)
 
             if result is None or not production_environment:
