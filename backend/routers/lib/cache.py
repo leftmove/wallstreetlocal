@@ -1,6 +1,7 @@
 import redis
 
 import json
+import pickle
 import os
 import logging
 
@@ -29,7 +30,6 @@ store = redis.Redis(
     port=REDIS_PORT,
     ssl=REDIS_SSL,
     ssl_cert_reqs="required" if REDIS_SSL else None,
-    decode_responses=True,
 )
 
 
@@ -62,7 +62,8 @@ def timing(f):
 
 def get_key(key):
     result = store.get(key)
-    return result
+    value = result.decode("utf-8") if result is not None else None
+    return value
 
 
 def set_key(key, value, expire_time):
@@ -136,12 +137,12 @@ def cache(_, hours=2):
                     value = await func(*args, **kwargs)
                 else:
                     value = func(*args, **kwargs)
-                value_json = json.dumps(value)
+                value_json = pickle.dumps(value)
 
                 expire_time = 60 * 60 * hours
                 store.setex(key, expire_time, value_json)
             else:
-                value = json.loads(result)
+                value = pickle.loads(result)
 
             return value
 

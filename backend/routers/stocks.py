@@ -25,7 +25,7 @@ class Cusip(BaseModel):
 
 
 @router.get("/query", tags=["stocks"], status_code=200)
-@cache
+@cache(2)
 async def query_stocks(cik: str, background: BackgroundTasks):
     if cik:
         filer = database.search_filer(cik, {"stocks.cusip": 1})
@@ -40,7 +40,7 @@ async def query_stocks(cik: str, background: BackgroundTasks):
 
 
 @router.get("/filer", tags=["stocks", "filers"], status_code=200)
-@cache
+@cache(2)
 async def stock_filer(
     cik: str,
     limit: int,
@@ -78,7 +78,7 @@ async def stock_filer(
 
 
 @router.get("/filing", tags=["stocks", "filings"], status_code=200)
-@cache
+@cache(2)
 async def stock_filing(
     cik: str,
     access_number: str,
@@ -255,4 +255,6 @@ async def stock_changes(
         stock["change"] = changes[cusip]
         new_list.append(stock)
 
-    return BrowserCachedResponse(content={"stocks": new_list}, cache_hours=cache_time)
+    return BrowserCachedResponse(
+        content={"stocks": new_list, "count": count}, cache_hours=cache_time
+    )

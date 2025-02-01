@@ -34,7 +34,7 @@ async def info():
 
 
 @router.get("/undefined", status_code=200)
-@cache
+@cache(2)
 async def info_undefined():
     return {"description": "Hello World!"}
 
@@ -214,6 +214,6 @@ async def repair_all_filers(
 
 
 @router.get("/favicon.ico", status_code=200)
-@cache
+@cache(2)
 async def favicon():
     return FileResponse(f"{cwd}/static/favicon.ico")
