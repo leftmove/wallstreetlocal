@@ -108,8 +108,8 @@ def update_filing(
     return {"description": "Filing update started."}
 
 
-@cache(24)
 @router.get("/record", tags=["filers", "filing", "records"], status_code=200)
+@cache(24)
 async def record_filing(cik: str, access_number):
     filer = database.find_filer(cik, {"_id": 1})
     if filer is None:
@@ -127,8 +127,8 @@ async def record_filing(cik: str, access_number):
     )
 
 
-@cache(24)
 @router.get("/recordcsv", tags=["filers", "filing", "records"], status_code=200)
+@cache(24)
 async def record_filing_csv(cik: str, access_number: str, headers: str = None):
     filer = database.find_filer(cik, {"_id": 1})
     if filer is None:
@@ -165,8 +165,8 @@ async def record_filing_csv(cik: str, access_number: str, headers: str = None):
     )
 
 
-@cache(2)
 @router.get("/filer", status_code=200)
+@cache(2)
 async def filings_info(cik: str):
     pipeline = [
         {"$match": {"cik": cik, "form": {"$in": database.holding_forms}}},
@@ -180,8 +180,8 @@ async def filings_info(cik: str):
     return {"filings": filings}
 
 
-@cache(2)
 @router.get("/info", status_code=200)
+@cache(2)
 async def filing_info(cik: str, access_number: str, include_filer: bool = False):
     filing = database.find_filing(cik, access_number, {"_id": 0, "cik": 0, "stocks": 0})
     if filing is None:

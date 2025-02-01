@@ -141,8 +141,7 @@ def cache(_, hours=2):
                 expire_time = 60 * 60 * hours
                 store.setex(key, expire_time, value_json)
             else:
-                value_json = result.decode("utf-8")
-                value = json.loads(value_json)
+                value = json.loads(result)
 
             return value
 

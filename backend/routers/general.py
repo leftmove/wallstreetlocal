@@ -27,20 +27,20 @@ popular_cik_list = filer.popular_cik_list
 top_cik_list = filer.top_cik_list
 
 
-@cache(24)
 @router.get("/", status_code=200)
+@cache(24)
 async def info():
     return {"description": "Hello World!"}
 
 
-@cache
 @router.get("/undefined", status_code=200)
+@cache
 async def info_undefined():
     return {"description": "Hello World!"}
 
 
-@cache(4)
 @router.get("/health", status_code=200)
+@cache(4)
 async def health():
     health_checks = []
 
@@ -213,7 +213,7 @@ async def repair_all_filers(
 #     return {"description": "Hello World!"}
 
 
-@cache
 @router.get("/favicon.ico", status_code=200)
+@cache
 async def favicon():
     return FileResponse(f"{cwd}/static/favicon.ico")

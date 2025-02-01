@@ -376,8 +376,8 @@ async def break_filer(cik: str):
         report_error(cik, Exception("Filer is broken but has forms."))
 
 
-@cache(24)
 @router.get("/search", tags=["filers"], status_code=200)
+@cache(24)
 async def search_filers(q: str, limit: int = 4):
     hits = await search_companies(q, limit=limit, filter="thirteen_f = true")
 
@@ -490,8 +490,8 @@ async def estimate(cik: str):
         raise HTTPException(500, detail="Error fetching time estimation.")
 
 
-@cache(1 / 6)
 @router.get("/info", tags=["filers"], status_code=200)
+@cache(1 / 6)
 async def filer_info(cik: str):
     filer = database.find_filer(cik, {"_id": 0, "stocks": 0})
     if filer is None:
@@ -548,8 +548,8 @@ people_dict = {
 }  # Change later
 
 
-@cache(24)
 @router.get("/preview", tags=["filers"], status_code=200)
+@cache(24)
 async def filer_preview(cik: str, holding_count: int = 5):
 
     if holding_count > 10:
@@ -758,8 +758,8 @@ def get_sample_filers():
     return final_list
 
 
-@cache(24)
 @router.get("/record", tags=["filers", "records"], status_code=200)
+@cache(24)
 async def record(cik: str):
     filer = database.find_filer(cik, {"_id": 1})
     if filer is None:
@@ -811,8 +811,8 @@ async def record_csv(cik: str, headers: str = None):
     )
 
 
-@cache(24)
 @router.get("/record/timeseries", tags=["filers", "records"], status_code=200)
+@cache(24)
 async def partial_record(cik: str, time: float):
     filer = database.find_filer(cik, {"stocks": 1, "tickers": 1, "name": 1})
     if not filer:
@@ -894,8 +894,8 @@ with open(top_ciks_path, "r") as f:
     top_cik_list = json.load(f)
 
 
-@cache(24)
 @router.get("/top", status_code=200)
+@cache(24)
 async def top_ciks():
     try:
         filers_sorted = analysis.sort_and_format(top_cik_list)
@@ -911,8 +911,8 @@ with open(popular_ciks_path, "r") as f:
     popular_cik_list = json.load(f)
 
 
-@cache(24)
 @router.get("/searched", status_code=200)
+@cache(24)
 async def popular_ciks():
     try:
         filers_sorted = analysis.sort_and_format(popular_cik_list)
