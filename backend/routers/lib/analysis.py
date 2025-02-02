@@ -225,13 +225,17 @@ def serialize_local(
 
     sold = local_stock["sold"]
     records = local_stock["records"]
-    prices = local_stock["prices"]
     ratios = local_stock["ratios"]
+    changes = local_stock["changes"]
+    prices = local_stock["prices"]
 
     first_appearance = records["first_appearance"]
     last_appearance = records["last_appearance"]
     portfolio_percentage = ratios["portfolio_percent"]
     ownership_percentage = ratios["ownership_percent"]
+
+    value_change = changes["value"]
+    share_change = changes["shares"]
 
     ticker = global_stock["ticker"]
     ticker_str = f"{ticker} (Sold)" if sold else ticker
@@ -282,6 +286,10 @@ def serialize_local(
         "records": {
             "first_appearance": first_appearance,
             "last_appearance": last_appearance,
+        },
+        "changes": {
+            "value": value_change,
+            "shares": share_change,
         },
         "prices": {
             "buy": {
@@ -450,6 +458,90 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
     return buy_stamp, sold_stamp
 
 
+def analyze_change(local_stock, filing, filings_sorted):
+
+    cik = filing["cik"]
+    cusip = local_stock["cusip"]
+    current_access = filing["access_number"]
+    current_index = [f["access_number"] for f in filings_sorted].index(current_access)
+    prev_filing = filings_sorted[current_index - 1] if current_index > 0 else None
+
+    value_change = {}
+    share_change = {}
+
+    if prev_filing is None:
+        return value_change, share_change
+
+    prev_access = prev_filing["access_number"]
+    pipeline = [
+        {
+            "$match": {
+                "cik": cik,
+                "access_number": prev_access,
+                "stocks": {"$exists": True},
+            }
+        },
+        {"$project": {"stocks": 1}},
+        {"$set": {"stocks": {"$objectToArray": "$stocks"}}},
+        {"$set": {"stocks": "$stocks.v"}},
+        {"$unwind": "$stocks"},
+        {"$replaceRoot": {"newRoot": "$stocks"}},
+        {"$group": {"_id": "$cusip", "doc": {"$first": "$$ROOT"}}},
+        {"$replaceRoot": {"newRoot": "$doc"}},
+        {"$match": {"cusip": cusip}},
+    ]
+    prev_stock = database.search_filing(pipeline)
+    if not prev_stock:
+        return value_change, share_change
+
+    prev_stocks = prev_filing.get("stocks")
+    current_stocks = filing.get("stocks")
+
+    if not prev_stocks or not current_stocks:
+        return value_change, share_change
+
+    current_stock = current_stocks[cusip]
+    prev_stock = prev_stocks.get(cusip)
+
+    if not prev_stock:
+
+        value_diff = current_stock["market_value"]
+        share_diff = current_stock["shares_held"]
+
+        value_change["amount"] = value_diff
+        value_change["action"] = "buy"
+
+        share_change["amount"] = share_diff
+        share_change["action"] = "buy"
+
+    else:
+
+        value_diff = current_stock["market_value"] - prev_stock["market_value"]
+        share_diff = current_stock["shares_held"] - prev_stock["shares_held"]
+
+        if value_diff > 0:
+            value_change["amount"] = value_diff
+            value_change["action"] = "buy"
+        elif value_diff < 0:
+            value_change["amount"] = value_diff
+            value_change["action"] = "sell"
+        else:
+            value_change["amount"] = value_diff
+            value_change["action"] = "hold"
+
+        if share_diff > 0:
+            share_change["amount"] = share_diff
+            share_change["action"] = "buy"
+        elif share_diff < 0:
+            share_change["amount"] = share_diff
+            share_change["action"] = "sell"
+        else:
+            share_change["amount"] = share_diff
+            share_change["action"] = "hold"
+
+    return value_change, share_change
+
+
 def analyze_filings(cik, filings, last_report):
     stock_cache = {}
     filings_map = dict(zip([f["access_number"] for f in filings], filings))
@@ -479,6 +571,15 @@ def analyze_filings(cik, filings, last_report):
 
                 sold = False if last_appearance == last_report else False
                 local_stock["sold"] = sold
+
+                value_change, share_change = analyze_change(
+                    local_stock, filing, filings_sorted
+                )
+                changes = {
+                    "value": value_change,
+                    "shares": share_change,
+                }
+                local_stock["changes"] = changes
 
                 found_stock = stock_cache.get(cusip)
                 if not found_stock:
@@ -802,8 +903,8 @@ def create_csv(content, file_name, headers=None):
                 value = cache.get_key(file_path)
                 if not value:
                     expire_time = 60 * 60 * 24 * 3
-                    cache.set_key(file_path, "bababooey", expire_time)
-                    raise ValueError
+                    cache.set_key(file_path, first_line, expire_time)
+                    raise FileNotFoundError
     except FileNotFoundError:
         stock_list = create_dataframe(content, headers)
         with open(file_path, "w") as f:

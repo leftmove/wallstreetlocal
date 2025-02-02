@@ -54,17 +54,12 @@
 
   width: 90%;
   height: 90%;
-  margin: 20px;
   margin-bottom: 0px;
-  padding: 20px;
   border-radius: 5px;
-
-  background-color: var(--secondary-dark);
 }
 
 .log {
   font-size: 0.9rem;
-  margin-bottom: 5px;
 
   color: white;
   font-family: monospace;

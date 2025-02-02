@@ -17,6 +17,7 @@ function serializeLocalToGlobal(localStock) {
     update,
     ratios,
     records,
+    changes,
     prices,
     report_time = "N/A",
     recent_price = "N/A",

@@ -9,6 +9,7 @@ from functools import wraps
 from time import time
 from inspect import iscoroutinefunction
 from dotenv import load_dotenv
+import redis.exceptions
 
 from . import errors
 
@@ -130,17 +131,22 @@ def cache(_, hours=2):
             key = f'{func.__name__}:{"-".join(str(k) for k in key_parts)}'
             result = store.get(key)
 
-            if result is None or not production_environment:
+            if result is None or production_environment == False:
                 is_coroutine = iscoroutinefunction(func)
 
                 if is_coroutine:
                     value = await func(*args, **kwargs)
                 else:
                     value = func(*args, **kwargs)
-                value_json = pickle.dumps(value)
 
+                value_json = pickle.dumps(value)
                 expire_time = 60 * 60 * hours
-                store.setex(key, expire_time, value_json)
+                try:
+                    store.setex(key, expire_time, value_json)
+                except redis.exceptions.OutOfMemoryError as e:
+                    errors.report_error("Redis Cache", e)
+                    logging.error(e)
+                    return value
             else:
                 value = pickle.loads(result)
 

@@ -13,6 +13,8 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 from routers import filer
 from routers import general
 from routers.lib.cache import (
+    set_key,
+    set_key_no_expiration,
     REDIS_SERVER_URL,
     REDIS_PORT,
     REDIS_SSL,
@@ -120,6 +122,16 @@ def repair_filer(*args, **kwargs):
 @queue.task
 def repair_periodic(*args, **kwargs):
     general.repair_all_filers_task(*args, **kwargs)
+
+
+@queue.task
+def cache_set_key(*args, **kwargs):
+    set_key(*args, **kwargs)
+
+
+@queue.task
+def cache_set_key_no_expiration(*args, **kwargs):
+    set_key_no_expiration(*args, **kwargs)
 
 
 @queue.task

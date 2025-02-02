@@ -76,7 +76,7 @@ export async function getServerSideProps(context) {
     .then((r) => validateStatus(r?.status))
     .catch((e) => {
       console.error(e);
-      return undefined;
+      return null;
     });
 
   return {

@@ -140,17 +140,31 @@ async def progressive_restore(
 
     filers = database.find_filers({}, {"cik": 1})
     all_ciks = [filer["cik"] for filer in filers]
+    query_type = "restore"
+
+    query = cm.get_key(query_type)
+    if query and query == "running":
+        raise HTTPException(detail="Query is already running.", status_code=409)
+    cm.set_key_no_expiration(query_type, "running")
+
+    for cik in all_ciks:
+        try:
+            found_log = database.find_log(cik, {"status": 1})
+            found_status = found_log.get("status", 0) if found_log else 0
+
+            if found_status <= 0:
+                if production_environment:
+                    worker.repair_filer.delay(cik)
+                else:
+                    background.add_task(filer.repair_filer, cik)
+        except Exception as e:
+            logging.error(e)
+            continue
 
     if production_environment:
-        background_query(
-            "restore", all_ciks, lambda cik: worker.repair_filer.delay(cik)
-        )
+        worker.set_key_no_expiration.delay(query_type, "stopped")
     else:
-        background_query(
-            "restore",
-            all_ciks,
-            lambda cik: background.add_task(filer.repair_filer, cik),
-        )
+        background.add_task(lambda: cm.set_key_no_expiration(query_type, "stopped"))
 
     return {"description": "Started progressive restore of filers."}
 

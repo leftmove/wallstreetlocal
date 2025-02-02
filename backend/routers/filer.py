@@ -182,14 +182,12 @@ def create_historical(cik, company, stamp):
             database.edit_filer(filer_query, stock_query)
             database.add_log(cik, log_item)
 
-        change_list = analysis.analyze_changes(cik)
         allocation_list = analysis.analyze_allocation(cik)
         aum_list = analysis.analyze_aum(cik)
         database.edit_filer(
             {"cik": cik},
             {
                 "$set": {
-                    "analysis.changes": change_list,
                     "analysis.allocation": allocation_list,
                     "analysis.aum_timeseries": aum_list,
                 }
@@ -759,7 +757,6 @@ def get_sample_filers():
 
 
 @router.get("/record", tags=["filers", "records"], status_code=200)
-@cache(24)
 async def record(cik: str):
     filer = database.find_filer(cik, {"_id": 1})
     if filer is None:
@@ -777,7 +774,6 @@ async def record(cik: str):
     )
 
 
-@cache(24)
 @router.get("/recordcsv", tags=["filers", "records"], status_code=200)
 async def record_csv(cik: str, headers: str = None):
     filer = database.find_filer(cik, {"_id": 1})
@@ -812,7 +808,6 @@ async def record_csv(cik: str, headers: str = None):
 
 
 @router.get("/record/timeseries", tags=["filers", "records"], status_code=200)
-@cache(24)
 async def partial_record(cik: str, time: float):
     filer = database.find_filer(cik, {"stocks": 1, "tickers": 1, "name": 1})
     if not filer:

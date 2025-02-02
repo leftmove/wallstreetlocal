@@ -157,6 +157,16 @@ def search_filer(cik, project={"_id": 0}):
 
 
 @retry_on_rate_limit()
+def search_filing(pipeline):
+    cursor = filings.aggregate(pipeline=pipeline)
+    try:
+        result = cursor.next()
+        return result
+    except StopIteration:
+        return None
+
+
+@retry_on_rate_limit()
 def add_filer(company):
     main.insert_one(company)
 
@@ -187,7 +197,9 @@ def delete_filers(query):
 
 
 @retry_on_rate_limit()
-def find_filing(cik, access_number, project={"_id": 0}, form_type="13F-HR"):
+def find_filing(
+    cik, access_number, project={"_id": 0}, form_type={"$in": holding_forms}
+):
     result = filings.find_one(
         {"cik": cik, "access_number": access_number, "form": form_type}, project
     )
