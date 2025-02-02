@@ -143,6 +143,10 @@ const initialComparisons = initialHeaders.map((h) => {
       return h;
   }
 });
+const initialChanges = [
+  ...initialComparisons,
+  { display: "Value", sort: "value", accessor: "value", active: true },
+];
 const initialSort = {
   sort: "ticker",
   type: "string",
@@ -163,9 +167,9 @@ const initialState = {
   sort: initialSort,
   filings: [],
   timeline: {
-    comparisons: ["primary", "secondary", "main", "buy", "sell"].map(
-      (order) => {
-        // Main is shoe-horned in here. It should be its own slice, but this is easier.
+    comparisons: [
+      ...["primary", "secondary", "main"].map((order) => {
+        // Main is shoe-horned in here. It should be its own slice, but this is easier. Same story for everything except primary and secondary.
         return {
           type: order,
           access: "",
@@ -181,8 +185,25 @@ const initialState = {
           sort: initialSort,
           stocks: [],
         };
-      }
-    ),
+      }),
+      ...["buy", "sell"].map((order) => {
+        return {
+          type: order,
+          access: "",
+          filing: {
+            time: 0,
+            date: "",
+          },
+          report: {
+            time: 0,
+            date: "",
+          },
+          headers: initialComparisons,
+          sort: initialSort,
+          stocks: [],
+        };
+      }),
+    ],
     open: false,
   },
   difference: {
