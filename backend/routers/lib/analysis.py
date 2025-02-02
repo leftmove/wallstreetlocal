@@ -387,8 +387,10 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
     if not timeseries_global and ticker != "N/A":
         update_timeseries = True
         try:
-            timeseries_response = api.ticker_request("TIME_SERIES_MONTHLY", ticker, cik)
-            timeseries_info = timeseries_response.get("Monthly Time Series")
+            timeseries_response = api.ticker_request(
+                "TIME_SERIES_MONTHLY_ADJUSTED", ticker, cik
+            )
+            timeseries_info = timeseries_response.get("Monthly Adjusted Time Series")
             timeseries_info = (
                 timeseries_response if not timeseries_info else timeseries_info
             )
@@ -403,14 +405,17 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
                 price = {
                     "time": date,
                     "open": float(info["1. open"]),
-                    "close": float(info["4. close"]),
+                    "close": float(info["5. adjusted close"]),
+                    "raw": float(info["4. close"]),
                     "high": float(info["2. high"]),
                     "low": float(info["3. low"]),
-                    "volume": float(info["5. volume"]),
+                    "volume": float(info["6. volume"]),
+                    "dividend": float(info["7. dividend amount"]),
                 }
                 timeseries_global.append(price)
 
         except Exception as e:
+            errors.report_error(f"{cusip} ({cik})", e)
             database.add_log(cik, f"Failed to Find Time Data \n{e}", cusip)
     else:
         update_timeseries = False

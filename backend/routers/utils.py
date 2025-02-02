@@ -114,8 +114,6 @@ def initialize():
     database_count = database.companies_count()
     search_count = search.companies_stats().number_of_documents
 
-    cache.flush_all()
-
     db_empty = True if database.companies_count() == 0 else False
     search_empty = True if search.companies_stats().number_of_documents <= 1 else False
     backup_path = "./static/backup"
