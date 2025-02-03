@@ -76,8 +76,16 @@ export async function getServerSideProps(context) {
     .then((r) => validateStatus(r?.status))
     .catch((e) => {
       console.error(e);
-      return null;
+      return validateStatus(e?.response?.status || 500);
     });
+
+  console.log({
+    query,
+    cik,
+    tab,
+    persist,
+    continuous,
+  });
 
   return {
     props: {

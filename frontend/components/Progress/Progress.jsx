@@ -150,12 +150,14 @@ const Progress = (props) => {
           </div>
         </div>
         <Console loading={loading} logs={log.logs} />
-        <Link
-          className={styles["go-back"]}
-          href={`/filers/${cik}?` + new URLSearchParams({ continuous: true })}
-        >
-          Progress
-        </Link>
+        {persist ? (
+          <Link
+            className={styles["go-back"]}
+            href={`/filers/${cik}?` + new URLSearchParams({ continuous: true })}
+          >
+            Progress
+          </Link>
+        ) : null}
       </div>
       {/* <span>View stocks continuously.</span> */}
       {persist ? null : <Estimation cik={cik} />}

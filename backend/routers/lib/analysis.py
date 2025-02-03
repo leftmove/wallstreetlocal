@@ -235,18 +235,22 @@ def serialize_local(
     ownership_percentage = ratios["ownership_percent"]
 
     share_change = changes["shares"]
-    share_action = share_change["action"]
-    share_amount = share_change["amount"]
-    share_bought = abs(share_amount) if share_action == "buy" else "N/A"
-    share_sold = abs(share_amount) if share_action == "sell" else "N/A"
+    share_action = share_change.get("action", "N/A")
+    share_amount = share_change.get("amount", None)
+    share_bought = (
+        abs(share_amount) if share_action == "buy" and share_amount else "N/A"
+    )
+    share_sold = abs(share_amount) if share_action == "sell" and share_amount else "N/A"
     share_bought_str = f"{int(share_bought):,}" if share_bought != "N/A" else "N/A"
     share_sold_str = f"{int(share_sold):,}" if share_sold != "N/A" else "N/A"
 
     value_change = changes["value"]
-    value_action = value_change["action"]
-    value_amount = value_change["amount"]
-    value_bought = abs(value_amount) if value_action == "buy" else "N/A"
-    value_sold = abs(value_amount) if value_action == "sell" else "N/A"
+    value_action = value_change.get("action", "N/A")
+    value_amount = value_change.get("amount", None)
+    value_bought = (
+        abs(value_amount) if value_action == "buy" and value_amount else "N/A"
+    )
+    value_sold = abs(value_amount) if value_action == "sell" and value_amount else "N/A"
     value_bought_str = f"${int(value_bought):,}" if value_bought != "N/A" else "N/A"
     value_sold_str = f"${int(value_sold):,}" if value_sold != "N/A" else "N/A"
 
