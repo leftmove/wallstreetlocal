@@ -1,4 +1,4 @@
-import styles from "components/Explorer/Explorer.module.css";
+import styles from "components/Explorer/Filer/Explorer.module.css";
 import { useEffect } from "react";
 
 import useSWR from "swr";

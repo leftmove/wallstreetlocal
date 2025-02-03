@@ -7,6 +7,8 @@ import {
   selectPrimary,
   selectSecondary,
   selectMain,
+  selectBuy,
+  selectSell,
   editComparison,
 } from "@/redux/filerSlice";
 
@@ -32,6 +34,10 @@ const Select = (props) => {
           return selectSecondary;
         case "main":
           return selectMain;
+        case "buy":
+          return selectBuy;
+        case "sell":
+          return selectSell;
         default:
           return selectPrimary;
       }
@@ -135,7 +141,9 @@ const Select = (props) => {
             </div>
           </div>
         </div>
-        <div className={cn(styles["picker-attributes"], "mt-10")}>
+        <div
+          className={cn(styles["picker-attributes"], "mt-10 md:w-4/5 w-full")}
+        >
           {attributes.map((a) => (
             <div className={styles["picker-attribute"]} key={a.hint}>
               <button

@@ -6,7 +6,8 @@ import { font, fontLight } from "fonts";
 import Analysis from "components/Analysis/Analysis";
 import Select from "components/Explorer/Timeline/Select/Select";
 
-const Sort = () => {
+const Sort = (props) => {
+  const order = props.order || "main";
   const [description, setDescription] = useState("");
   return (
     <Analysis>
@@ -30,7 +31,10 @@ const Sort = () => {
       </div>
       <div className={styles["timeline-selects"]}>
         <div className="w-full h-full">
-          <Select type="main" setDescription={(desc) => setDescription(desc)} />
+          <Select
+            type={order}
+            setDescription={(desc) => setDescription(desc)}
+          />
         </div>
       </div>
     </Analysis>

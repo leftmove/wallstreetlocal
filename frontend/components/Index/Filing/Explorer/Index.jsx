@@ -1,10 +1,12 @@
-import styles from "components/Explorer/Explorer.module.css";
+import styles from "components/Explorer/Filer/Explorer.module.css";
+
+import { cn } from "components/ui/utils";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectCik,
-  selectPrimary,
-  selectSecondary,
+  selectBuy,
+  selectSell,
   editComparison,
   editSort,
   setFilingCount,
@@ -16,10 +18,8 @@ import Table from "components/Table/Table";
 export default function Index(props) {
   const dispatch = useDispatch();
   const cik = useSelector(selectCik);
-  const order = props.order || "primary";
-  const selected = useSelector(
-    order === "secondary" ? selectSecondary : selectPrimary
-  );
+  const order = props.order || "buy";
+  const selected = useSelector(order === "buy" ? selectBuy : selectSell);
 
   const {
     items,
@@ -50,8 +50,7 @@ export default function Index(props) {
   );
 
   return (
-    <div className={styles["table-container"]}>
-      {/* {error ? <Error statusCode={404} /> : null} */}
+    <div className={cn(styles["table-container"], props.className)}>
       <Table
         items={items}
         loading={loading}

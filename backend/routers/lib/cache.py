@@ -27,6 +27,7 @@ REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", "")
 
 store = redis.Redis(
     host=REDIS_SERVER_URL,
+    username=REDIS_USERNAME,
     password=REDIS_PASSWORD,
     port=REDIS_PORT,
     ssl=REDIS_SSL,
@@ -129,9 +130,9 @@ def cache(_, hours=2):
         async def wrapped(*args, **kwargs):
             key_parts = list(args) + list(kwargs.keys()) + list(kwargs.values())
             key = f'{func.__name__}:{"-".join(str(k) for k in key_parts)}'
-            result = store.get(key)
+            result = store.get(key) if production_environment else None
 
-            if result is None or production_environment == False:
+            if result is None:
                 is_coroutine = iscoroutinefunction(func)
 
                 if is_coroutine:

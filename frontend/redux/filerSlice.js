@@ -144,8 +144,20 @@ const initialComparisons = initialHeaders.map((h) => {
   }
 });
 const initialChanges = [
-  ...initialComparisons,
-  { display: "Value", sort: "value", accessor: "value", active: true },
+  ...initialHeaders.map((h) => {
+    switch (h.sort) {
+      case "buy_price":
+        return { ...h, active: false };
+      case "recent_price":
+        return { ...h, active: false };
+      case "gain_percent":
+        return { ...h, active: false };
+      default:
+        return h;
+    }
+  }),
+  { display: "Value Change", sort: "value", accessor: "value", active: true },
+  { display: "Share Change", sort: "shares", accessor: "shares", active: true },
 ];
 const initialSort = {
   sort: "ticker",
@@ -198,7 +210,11 @@ const initialState = {
             time: 0,
             date: "",
           },
-          headers: initialComparisons,
+          headers: [
+            ...initialComparisons,
+            ...(order === "buy" ? [] : []),
+            ...(order === "sell" ? [] : []),
+          ],
           sort: initialSort,
           stocks: [],
         };

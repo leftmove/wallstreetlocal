@@ -234,8 +234,21 @@ def serialize_local(
     portfolio_percentage = ratios["portfolio_percent"]
     ownership_percentage = ratios["ownership_percent"]
 
-    value_change = changes["value"]
     share_change = changes["shares"]
+    share_action = share_change["action"]
+    share_amount = share_change["amount"]
+    share_bought = abs(share_amount) if share_action == "buy" else "N/A"
+    share_sold = abs(share_amount) if share_action == "sell" else "N/A"
+    share_bought_str = f"{int(share_bought):,}" if share_bought != "N/A" else "N/A"
+    share_sold_str = f"{int(share_sold):,}" if share_sold != "N/A" else "N/A"
+
+    value_change = changes["value"]
+    value_action = value_change["action"]
+    value_amount = value_change["amount"]
+    value_bought = abs(value_amount) if value_action == "buy" else "N/A"
+    value_sold = abs(value_amount) if value_action == "sell" else "N/A"
+    value_bought_str = f"${int(value_bought):,}" if value_bought != "N/A" else "N/A"
+    value_sold_str = f"${int(value_sold):,}" if value_sold != "N/A" else "N/A"
 
     ticker = global_stock["ticker"]
     ticker_str = f"{ticker} (Sold)" if sold else ticker
@@ -288,8 +301,22 @@ def serialize_local(
             "last_appearance": last_appearance,
         },
         "changes": {
-            "value": value_change,
-            "shares": share_change,
+            "value": {
+                "action": value_action,
+                "amount": value_amount,
+                "bought": value_bought,
+                "bought_str": value_bought_str,
+                "sold": value_sold,
+                "sold_str": value_sold_str,
+            },
+            "shares": {
+                "action": share_action,
+                "amount": share_amount,
+                "bought": share_bought,
+                "bought_str": share_bought_str,
+                "sold": share_sold,
+                "sold_str": share_sold_str,
+            },
         },
         "prices": {
             "buy": {

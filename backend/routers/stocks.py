@@ -195,66 +195,51 @@ async def stock_timeseries(cik: str, time: float):
     return BrowserCachedResponse(content={"stocks": stock_list}, cache_hours=cache_time)
 
 
-@router.get("/changes", status_code=200)
-async def stock_changes(
-    cik: str,
-    access_number: str,
-    limit: int,
-    offset: int,
-    sort: str,
-    sold: bool,
-    reverse: bool,
-    unavailable: bool,
-):
-    filer = database.find_filer(cik, {"_id": 1})
-    if not filer:
-        raise HTTPException(detail="Filer not found.", status_code=404)
+# @router.get("/changes", status_code=200)
+# async def stock_changes(
+#     cik: str,
+#     access_number: str,
+#     limit: int,
+#     offset: int,
+#     sort: str,
+#     sold: bool,
+#     reverse: bool,
+#     unavailable: bool,
+# ):
+#     filer = database.find_filer(cik, {"_id": 1})
+#     if not filer:
+#         raise HTTPException(detail="Filer not found.", status_code=404)
 
-    filing = database.find_filing(cik, access_number, {"_id": 0, "changes": 1})
-    changes = filing.get("changes", []) if type(filing) is dict else []
-    if filing is None or not changes:
-        raise HTTPException(detail="Filing not found.", status_code=404)
-    cusip_list = [c for c in changes]
+#     try:
+#         pipeline, count = analysis.sort_pipeline(
+#             cik,
+#             limit,
+#             offset,
+#             sort,
+#             sold,
+#             reverse,
+#             unavailable,
+#             stock_structure="dict",
+#             collection_search=database.search_filings,
+#             match_query={
+#                 "access_number": access_number,
+#                 "stocks": {"$exists": True},
+#             },
+#         )
+#         cursor = database.search_filings(pipeline)
+#     except LookupError as e:
+#         errors.report_error(cik, e)
+#         raise HTTPException(detail="No results found.", status_code=422)
+#     except Exception as e:
+#         errors.report_error(cik, e)
+#         cursor = []
+#         count = 0
 
-    try:
-        pipeline, count = analysis.sort_pipeline(
-            cik,
-            limit,
-            offset,
-            sort,
-            sold,
-            reverse,
-            unavailable,
-            stock_structure="dict",
-            collection_search=database.search_filings,
-            additional_two=[
-                {"$match": {"cusip": {"$in": cusip_list}}},
-            ],
-            match_query={
-                "access_number": access_number,
-                "stocks": {"$exists": True},
-            },
-        )
-        cursor = database.search_filings(pipeline)
-    except LookupError as e:
-        errors.report_error(cik, e)
-        raise HTTPException(detail="No results found.", status_code=422)
-    except Exception as e:
-        errors.report_error(cik, e)
-        cursor = []
-        count = 0
+#     try:
+#         stock_list = [result for result in cursor]
+#     except KeyError:
+#         raise HTTPException(detail="Error while searching.", status_code=500)
 
-    try:
-        stock_list = [result for result in cursor]
-    except KeyError:
-        raise HTTPException(detail="Error while searching.", status_code=500)
-
-    new_list = []
-    for stock in stock_list:
-        cusip = stock["cusip"]
-        stock["change"] = changes[cusip]
-        new_list.append(stock)
-
-    return BrowserCachedResponse(
-        content={"stocks": new_list, "count": count}, cache_hours=cache_time
-    )
+#     return BrowserCachedResponse(
+#         content={"stocks": new_list, "count": count}, cache_hours=cache_time
+#     )

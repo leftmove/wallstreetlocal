@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectTab, setTab } from "@/redux/filerSlice";
 
 import { font, fontLight } from "@fonts";
+import { useEffect } from "react";
 
 const Tab = (props) => {
   const id = props.id;
@@ -15,6 +16,7 @@ const Tab = (props) => {
 
   const length = props.length;
   const hint = props.hint || null;
+
   return (
     <div className={styles["tab-container"]}>
       <div
@@ -38,15 +40,16 @@ const Tab = (props) => {
   );
 };
 
-const tabs = [
+const defaultTabs = [
   { title: "Stocks", hint: "Table", id: "stocks" },
-  // { title: "Charts", hint: "Graphs", id: "charts" },
+  // { titl e: "Charts", hint: "Graphs", id: "charts" },
   { title: "Filings", hint: "Comparisons", id: "filings" },
 ];
 
-const Tabs = () => {
+const Tabs = (props) => {
   const tab = useSelector(selectTab);
   const dispatch = useDispatch();
+  const tabs = props.tabs || defaultTabs;
 
   const router = useRouter();
   const handleTab = (value) => {
@@ -54,6 +57,14 @@ const Tabs = () => {
     router.push(router);
     dispatch(setTab(value));
   };
+
+  useEffect(() => {
+    if (tabs.find((t) => t.id === tab) === undefined) {
+      dispatch(setTab(tabs[0].id));
+    } else {
+      return;
+    }
+  }, []);
 
   return (
     <div className={styles["tabs"]}>

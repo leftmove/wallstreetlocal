@@ -39,8 +39,6 @@
 .picker-attributes {
   display: flex;
   justify-content: space-between;
-
-  width: 80%;
 }
 
 .picker-attribute {
@@ -57,6 +55,7 @@
 .attribute-text {
   color: var(--secondary-dark);
   padding: 5px;
+  text-align: center;
 
   transition: color 0.1s ease;
 }

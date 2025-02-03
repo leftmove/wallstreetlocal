@@ -12,7 +12,7 @@ import Tip from "components/Tip/Tip";
 import Difference from "./Difference/Difference";
 import Select from "./Select/Select";
 
-const Timeline = () => {
+const Timeline = (props) => {
   const dispatch = useDispatch();
   const timeline = useSelector(selectTimeline);
 
@@ -21,6 +21,11 @@ const Timeline = () => {
     title: "",
     text: "",
   });
+
+  const orders = props.orders || ["primary", "secondary"];
+  const firstOrder = orders.at(0);
+  const secondOrder = orders.at(1);
+  console.log(orders);
 
   return (
     <Analysis>
@@ -48,7 +53,7 @@ const Timeline = () => {
             (Left Comparison)
           </h6>
           <Select
-            type="primary"
+            type={firstOrder}
             setDescription={(desc) => setDescription(desc)}
           />
         </div>
@@ -57,7 +62,7 @@ const Timeline = () => {
             (Right Comparison)
           </h6>
           <Select
-            type="secondary"
+            type={secondOrder}
             setDescription={(desc) => setDescription(desc)}
           />
         </div>

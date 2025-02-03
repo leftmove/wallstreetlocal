@@ -2,32 +2,27 @@
 
 import styles from "@/styles/Filer.module.css";
 
-import Explorer from "components/Explorer/Explorer";
+import Tabs from "components/Tabs/Tabs";
 import Header from "components/Header/Header";
-import Filing from "components/Filing/Filing";
-import Index from "components/Index/Filing/Holdings/Index";
-import Sort from "components/Filing/Sort";
+import Explorer from "@/components/Explorer/Filing/Explorer";
 
 const Info = (props) => {
   const cik = props.cik || null;
   const an = props.an || null;
 
   const tab = props.tab || "recent";
+  const tabs = [
+    { title: "Changes", hint: "Bought and Sold", id: "changes" },
+    { title: "Filings", hint: "Stocks", id: "filings" },
+  ];
 
   return (
     <>
-      <Filing cik={cik} an={an} />
-      <Header cik={cik} an={an} tab={tab} variant="filing" />
+      <Header cik={cik} tab={tab} />
+      <Tabs tabs={tabs} />
       <div className={styles.data}>
-        {tab === "filings" ? <Explorer /> : null}
-        {/* {tab === "charts" ? <Charts /> : null} */}
-
-        {tab === "stocks" ? (
-          <>
-            <Sort />
-            <Index cik={cik} an={an} />
-          </>
-        ) : null}
+        {/* {tab === "changes" ? <Explorer /> : null} */}
+        {tab === "changes" ? <Explorer /> : null}
       </div>
     </>
   );

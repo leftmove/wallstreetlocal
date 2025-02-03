@@ -37,7 +37,7 @@ export async function getServerSideProps(context) {
   const an = context.query.an || null;
   const continuous = context.query.continuous || false;
   const persist = context.query.persist === "true" ? true : false || false;
-  const tab = context.query.tab || "stocks";
+  const tab = context.query.tab || "changes";
 
   const query = await axios
     .get(server + "/filing/query", {

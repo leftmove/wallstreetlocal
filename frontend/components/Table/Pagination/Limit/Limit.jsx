@@ -35,7 +35,9 @@ const Limit = (props) => {
         onBlur={() => handleBlur()}
         onChange={(e) => handleChange(e)}
         type="text"
-        value={focus ? paginationLimit : pagination.limit}
+        value={
+          focus ? paginationLimit : Math.min(pagination.limit, pagination.count)
+        }
         onKeyDown={(e) => (e.key === "Enter" ? e.target.blur() : null)}
       />
       <span className={[styles["pagination-text"], font.className].join(" ")}>

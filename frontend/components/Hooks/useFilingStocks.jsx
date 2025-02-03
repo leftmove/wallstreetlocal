@@ -19,6 +19,7 @@ function serializeLocalToGlobal(localStock) {
     sold,
     update,
     ratios,
+    changes,
     records,
     prices,
     report_time = "N/A",
@@ -32,6 +33,11 @@ function serializeLocalToGlobal(localStock) {
     ownership_str: ownership_percentage_str,
   } = ratios;
 
+  const { value: value_changes, shares: share_changes } = changes;
+
+  const { amount: value_amount, action: value_action } = value_changes;
+  const { amount: share_amount, action: share_action } = share_changes;
+
   const { buy: buy_price, sold: sold_price } = prices;
 
   const {
@@ -39,6 +45,16 @@ function serializeLocalToGlobal(localStock) {
     time_str: buy_time_str,
     series: buy_series,
   } = buy_price;
+
+  const value_bought = value_action === "buy" ? Math.abs(value_amount) : 0;
+  const value_sold = value_action === "sell" ? Math.abs(value_amount) : 0;
+  const shares_bought = share_action === "buy" ? Math.abs(share_amount) : 0;
+  const shares_sold = share_action === "sell" ? Math.abs(share_amount) : 0;
+
+  const value_bought_str = value_bought.toFixed(2);
+  const value_sold_str = value_sold.toFixed(2);
+  const shares_bought_str = shares_bought.toFixed(2);
+  const shares_sold_str = shares_sold.toFixed(2);
 
   const sold_time = sold_price ? sold_price.time : "N/A";
   const sold_time_str = sold_price ? sold_price.time_str : "N/A";
@@ -92,6 +108,7 @@ function serializeLocalToGlobal(localStock) {
     shares_held_str,
     market_value,
     market_value_str,
+
     portfolio_percent: portfolio_percentage,
     portfolio_str: portfolio_percentage_str,
     ownership_percent: ownership_percentage,
@@ -150,6 +167,8 @@ const useFilingStocks = (
           const stocks = data.stocks.map((s) => serializeLocalToGlobal(s));
           const count = data.count;
 
+          console.log("data", stocks);
+
           setCount(count);
           setStocks(stocks);
         } else {
@@ -174,6 +193,8 @@ const useFilingStocks = (
     : [];
   const select = sort.sort;
   const reverse = sort.reverse;
+
+  // console.log(stocks);
 
   return {
     items,

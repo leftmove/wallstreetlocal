@@ -1,4 +1,4 @@
-import styles from "components/Explorer/Explorer.module.css";
+import styles from "components/Explorer/Filer/Explorer.module.css";
 import { useEffect } from "react";
 
 import useSWR from "swr";
@@ -24,7 +24,7 @@ export default function Index(props) {
   const dispatch = useDispatch();
   const cik = useSelector(selectCik);
   const selected = useSelector(selectMain);
-  const order = "main";
+  const order = props.order || "main";
   const an = props.an || "";
 
   const filingFetcher = (url, cik) =>
@@ -71,7 +71,10 @@ export default function Index(props) {
     cik,
     selected,
     (count) => dispatch(setFilingCount({ type: order, count })),
-    (stocks) => dispatch(editComparison({ type: order, stocks })),
+    (stocks) => {
+      console.log(selected, stocks);
+      dispatch(editComparison({ type: order, stocks }));
+    },
     (accessor, direction) =>
       dispatch(
         editSort({

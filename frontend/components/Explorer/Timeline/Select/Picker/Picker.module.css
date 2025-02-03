@@ -19,6 +19,7 @@
 }
 
 .picker-dissappear {
+  /* Misspelled but who cares yo */
   animation: slide-up 0.4s forwards;
 }
 

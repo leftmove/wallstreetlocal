@@ -7,7 +7,7 @@ import Head from "next/head";
 import Tabs from "components/Tabs/Tabs";
 import Index from "components/Index/Filer/Index";
 import Charts from "components/Charts/Charts";
-import Explorer from "components/Explorer/Explorer";
+import Explorer from "components/Explorer/Filer/Explorer";
 import Header from "components/Header/Header";
 
 const convertTitle = (d) => {
