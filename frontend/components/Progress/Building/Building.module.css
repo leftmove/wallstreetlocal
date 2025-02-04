@@ -30,12 +30,12 @@
 }
 
 .loading {
-  position: relative;
+  position: relative !important;
 
-  width: 30%;
-  height: 100%;
+  width: 30% !important;
+  height: 100% !important;
 }
 
 .no-background {
-  background: none;
+  background: none !important;
 }

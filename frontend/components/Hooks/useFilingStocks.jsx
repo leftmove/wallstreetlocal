@@ -167,8 +167,6 @@ const useFilingStocks = (
           const stocks = data.stocks.map((s) => serializeLocalToGlobal(s));
           const count = data.count;
 
-          console.log("data", stocks);
-
           setCount(count);
           setStocks(stocks);
         } else {
@@ -193,8 +191,6 @@ const useFilingStocks = (
     : [];
   const select = sort.sort;
   const reverse = sort.reverse;
-
-  // console.log(stocks);
 
   return {
     items,

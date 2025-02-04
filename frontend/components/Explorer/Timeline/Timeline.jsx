@@ -25,7 +25,6 @@ const Timeline = (props) => {
   const orders = props.orders || ["primary", "secondary"];
   const firstOrder = orders.at(0);
   const secondOrder = orders.at(1);
-  console.log(orders);
 
   return (
     <Analysis>

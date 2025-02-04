@@ -226,8 +226,14 @@ def serialize_local(
     sold = local_stock["sold"]
     records = local_stock["records"]
     ratios = local_stock["ratios"]
-    changes = local_stock["changes"]
     prices = local_stock["prices"]
+    changes = local_stock.get(
+        "changes",
+        {
+            "value": {"action": "N/A", "amount": "N/A"},
+            "shares": {"action": "N/A", "amount": "N/A"},
+        },
+    )
 
     first_appearance = records["first_appearance"]
     last_appearance = records["last_appearance"]
@@ -236,21 +242,25 @@ def serialize_local(
 
     share_change = changes["shares"]
     share_action = share_change.get("action", "N/A")
-    share_amount = share_change.get("amount", None)
+    share_amount = share_change.get("amount", "N/A")
     share_bought = (
-        abs(share_amount) if share_action == "buy" and share_amount else "N/A"
+        abs(share_amount) if share_action == "buy" and share_amount != "N/A" else "N/A"
     )
-    share_sold = abs(share_amount) if share_action == "sell" and share_amount else "N/A"
+    share_sold = (
+        abs(share_amount) if share_action == "sell" and share_amount != "N/A" else "N/A"
+    )
     share_bought_str = f"{int(share_bought):,}" if share_bought != "N/A" else "N/A"
     share_sold_str = f"{int(share_sold):,}" if share_sold != "N/A" else "N/A"
 
     value_change = changes["value"]
     value_action = value_change.get("action", "N/A")
-    value_amount = value_change.get("amount", None)
+    value_amount = value_change.get("amount", "N/A")
     value_bought = (
-        abs(value_amount) if value_action == "buy" and value_amount else "N/A"
+        abs(value_amount) if value_action == "buy" and value_amount != "N/A" else "N/A"
     )
-    value_sold = abs(value_amount) if value_action == "sell" and value_amount else "N/A"
+    value_sold = (
+        abs(value_amount) if value_action == "sell" and value_amount != "N/A" else "N/A"
+    )
     value_bought_str = f"${int(value_bought):,}" if value_bought != "N/A" else "N/A"
     value_sold_str = f"${int(value_sold):,}" if value_sold != "N/A" else "N/A"
 
@@ -534,10 +544,15 @@ def analyze_change(local_stock, filing, filings_sorted):
     current_stock = current_stocks[cusip]
     prev_stock = prev_stocks.get(cusip)
 
+    prev_value = prev_stock["market_value"]
+    prev_shares = prev_stock["shares_held"]
+    current_value = current_stock["market_value"]
+    current_shares = current_stock["shares_held"]
+
     if not prev_stock:
 
-        value_diff = current_stock["market_value"]
-        share_diff = current_stock["shares_held"]
+        value_diff = current_value
+        share_diff = current_shares
 
         value_change["amount"] = value_diff
         value_change["action"] = "buy"
@@ -547,8 +562,8 @@ def analyze_change(local_stock, filing, filings_sorted):
 
     else:
 
-        value_diff = current_stock["market_value"] - prev_stock["market_value"]
-        share_diff = current_stock["shares_held"] - prev_stock["shares_held"]
+        value_diff = current_value - prev_value
+        share_diff = current_shares - prev_shares
 
         if value_diff > 0:
             value_change["amount"] = value_diff
@@ -571,6 +586,98 @@ def analyze_change(local_stock, filing, filings_sorted):
             share_change["action"] = "hold"
 
     return value_change, share_change
+
+
+def analyze_changes(cik, prev_access, current_access):
+
+    current_filing = database.find_filing(cik, current_access)
+    prev_filing = database.find_filing(cik, prev_access)
+
+    value_change = {
+        "amount": "N/A",
+        "action": "N/A",
+    }
+    share_change = {
+        "amount": "N/A",
+        "action": "N/A",
+    }
+    stock_query = None
+    stock_change = {
+        "value": value_change,
+        "shares": share_change,
+    }
+
+    if not prev_filing:
+        yield stock_query, stock_change
+
+    current_stocks = current_filing.get("stocks", {})
+    prev_stocks = prev_filing.get("stocks", {})
+
+    if not current_stocks or not prev_stocks:
+        yield stock_query, stock_change
+
+    for cusip in current_stocks:
+
+        value_change = {
+            "amount": "N/A",
+            "action": "N/A",
+        }
+        share_change = {
+            "amount": "N/A",
+            "action": "N/A",
+        }
+
+        current_stock = current_stocks[cusip]
+        prev_stock = prev_stocks.get(cusip, None)
+
+        prev_value = prev_stock["market_value"] if prev_stock else 0
+        prev_shares = prev_stock["shares_held"] if prev_stock else 0
+        current_value = current_stock["market_value"]
+        current_shares = current_stock["shares_held"]
+
+        if not prev_stock:
+
+            value_diff = current_value
+            share_diff = current_shares
+
+            value_change["amount"] = value_diff
+            value_change["action"] = "buy"
+
+            share_change["amount"] = share_diff
+            share_change["action"] = "buy"
+
+        else:
+
+            value_diff = current_value - prev_value
+            share_diff = current_shares - prev_shares
+
+            if value_diff > 0:
+                value_change["amount"] = value_diff
+                value_change["action"] = "buy"
+            elif value_diff < 0:
+                value_change["amount"] = value_diff
+                value_change["action"] = "sell"
+            else:
+                value_change["amount"] = value_diff
+                value_change["action"] = "hold"
+
+            if share_diff > 0:
+                share_change["amount"] = share_diff
+                share_change["action"] = "buy"
+            elif share_diff < 0:
+                share_change["amount"] = share_diff
+                share_change["action"] = "sell"
+            else:
+                share_change["amount"] = share_diff
+                share_change["action"] = "hold"
+
+        stock_query = f"stocks.{cusip}.changes"
+        stock_change = {
+            "value": value_change,
+            "shares": share_change,
+        }
+
+        yield stock_query, stock_change
 
 
 def analyze_filings(cik, filings, last_report):
@@ -602,15 +709,6 @@ def analyze_filings(cik, filings, last_report):
 
                 sold = False if last_appearance == last_report else False
                 local_stock["sold"] = sold
-
-                value_change, share_change = analyze_change(
-                    local_stock, filing, filings_sorted
-                )
-                changes = {
-                    "value": value_change,
-                    "shares": share_change,
-                }
-                local_stock["changes"] = changes
 
                 found_stock = stock_cache.get(cusip)
                 if not found_stock:
@@ -1013,124 +1111,6 @@ def sort_and_format(filer_ciks):
     except Exception as e:
         logging.error(e)
         raise KeyError
-
-
-def analyze_changes(cik):
-
-    pipeline = [
-        {"$match": {"cik": cik, "form": {"$in": database.holding_forms}}},
-        {
-            "$project": {
-                "access_number": 1,
-                "stocks": {"$objectToArray": "$stocks"},
-            }
-        },
-        {"$project": {"access_number": 1, "stock": "$stocks.v"}},
-        {"$unwind": "$stock"},
-        {
-            "$project": {
-                "access_number": 1,
-                "stock.cusip": 1,
-                "stock.shares_held": 1,
-                "stock.market_value": 1,
-            }
-        },
-        {
-            "$group": {
-                "_id": "$access_number",
-                "access_number": {"$first": "$access_number"},
-                "stocks": {"$push": "$stock"},
-            }
-        },
-        {
-            "$set": {
-                "access_number": "$_id",
-            }
-        },
-        {
-            "$project": {
-                "_id": 0,
-                "access_number": 1,
-                "stocks": {
-                    "$arrayToObject": {
-                        "$map": {
-                            "input": "$stocks",
-                            "as": "stock",
-                            "in": {"k": "$$stock.cusip", "v": "$$stock"},
-                        }
-                    }
-                },
-            }
-        },
-    ]
-    filings_reports = [f["access"] for f in web.check_forms(cik)]
-    filings_list = [f for f in database.search_filings(pipeline)]
-
-    changes_list = []
-    for next_filing in filings_list:
-
-        next_access = next_filing["access_number"]
-        next_index = filings_reports.index(next_access)
-
-        prev_index = next_index + 1 if next_index + 1 < len(filings_reports) else None
-        if prev_index is None:
-            changes_list.append(
-                {
-                    "access_number": next_access,
-                    "changes": [],
-                }
-            )
-            continue
-        prev_access = filings_reports[prev_index]
-        prev_filing = next(
-            (f for f in filings_list if f["access_number"] == prev_access),
-            None,
-        )
-
-        if not prev_filing:
-            continue
-
-        next_stocks = next_filing.get("stocks", {})
-        prev_stocks = prev_filing.get("stocks", {})
-
-        if not next_stocks or not prev_stocks:
-            continue
-
-        change = defaultdict(lambda: {"shares": {}, "value": {}})
-        for cusip in next_stocks:
-            next_stock = next_stocks[cusip]
-            prev_stock = prev_stocks.get(cusip, None)
-
-            next_shares = next_stock["shares_held"]
-            prev_shares = prev_stock["shares_held"] if prev_stock else 0
-            if next_shares != prev_shares:
-                shares_diff = abs(next_shares - prev_shares)
-                change[cusip]["shares"]["amount"] = int(shares_diff)
-                change[cusip]["shares"]["type"] = (
-                    "buy" if next_shares > prev_shares else "sell"
-                )
-
-            next_value = float(next_stock["market_value"])
-            prev_value = float(prev_stock["market_value"] if prev_stock else 0)
-            if next_value != prev_value:
-                value_diff = abs(next_value - prev_value)
-                change[cusip]["value"]["amount"] = int(value_diff)
-                change[cusip]["value"]["type"] = (
-                    "buy" if next_value > prev_value else "sell"
-                )
-        change = dict(change)
-
-        database.edit_filing(
-            {"cik": cik, "access_number": next_access}, {"$set": {"changes": change}}
-        )
-        changes_list.append(
-            {
-                "access_number": next_access,
-                "changes": change,
-            }
-        )
-
-    return changes_list
 
 
 # Really janky/inefficient

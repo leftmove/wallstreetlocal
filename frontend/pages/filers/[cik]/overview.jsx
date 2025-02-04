@@ -79,14 +79,6 @@ export async function getServerSideProps(context) {
       return validateStatus(e?.response?.status || 500);
     });
 
-  console.log({
-    query,
-    cik,
-    tab,
-    persist,
-    continuous,
-  });
-
   return {
     props: {
       query,

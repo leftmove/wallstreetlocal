@@ -72,7 +72,6 @@ export default function Index(props) {
     selected,
     (count) => dispatch(setFilingCount({ type: order, count })),
     (stocks) => {
-      console.log(selected, stocks);
       dispatch(editComparison({ type: order, stocks }));
     },
     (accessor, direction) =>

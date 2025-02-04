@@ -115,7 +115,7 @@ def check_forms(cik: str):
             report = analysis.convert_date(recent_filings["reportDate"][i])
             access = recent_filings["accessionNumber"][i]
             document_reports.append({"report": report, "access": access})
-    document_reports = sorted(document_reports, key=lambda d: d["report"])
+    document_reports = sorted(document_reports, key=lambda d: d["report"], reverse=True)
 
     return document_reports
 

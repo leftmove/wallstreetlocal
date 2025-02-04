@@ -148,39 +148,89 @@ def create_historical(cik, company, stamp):
     company_name = company["name"]
     last_report = company["last_report"]
 
+    # The following code is far too nested. This is because originally, filings were
+    # processed all at once. Every filing was queried, then every filing analyzed, then
+    # every filing updated. This was changed to a more user-friendly method where each
+    # individual filing is queried, analyzed, and updated by itself. The new approach
+    # is far more flexible, and feels faster, but the code was built for the first
+    # approach, so in its current state, the code is too nested.
+    # TLDR: This should be refactored in the future.
+
     try:
-        filings = database.find_filings(cik)
+        database.add_log(cik, "Creating Filer (Historical)", company_name, cik)
+        filings = [
+            result
+            for result in database.search_filings(
+                [
+                    {
+                        "$match": {
+                            "cik": cik,
+                            "access_number": {"$ne": last_report},
+                            "form": {"$in": database.holding_forms},
+                        }
+                    },
+                    {"$group": {"_id": "$access_number", "doc": {"$first": "$$ROOT"}}},
+                    {"$replaceRoot": {"newRoot": "$doc"}},
+                    {"$sort": {"report_date": -1}},
+                ]
+            )
+        ]
+        access_numbers = [filing["access_number"] for filing in filings]
+        database.edit_filer(filer_query, {"$set": {"filings": access_numbers}})
+
         for access_number, filing_stocks in web.process_stocks(cik, filings):
+
             database.edit_filing(
                 {**filer_query, "access_number": access_number},
                 {"$set": {"stocks": filing_stocks}},
             )
+            database.add_log(cik, "Queried Filing Stocks", company_name, access_number)
 
-        database.add_log(cik, "Queried Filer Historical Stocks", company_name, cik)
-    except Exception as e:
-        report_error(cik, e)
-        database.add_log(
-            cik, "Failed to Query Filer Historical Stocks", company_name, cik
-        )
+            try:
+                previous_access = last_report
+                current_filing = database.find_filing(cik, access_number)
 
-    try:
-        database.add_log(cik, "Creating Filer (Historical)", company_name, cik)
-        filings = database.find_filings(cik)
-        for (
-            access_number,
-            filing_stock,
-        ) in analysis.analyze_filings(cik, filings, last_report):
-            stock_cusip = filing_stock["cusip"]
-            stock_query = f"stocks.{stock_cusip}"
-            database.edit_filing(
-                {**filer_query, "access_number": access_number},
-                {"$set": {stock_query: filing_stock}},
-            )
+                for (
+                    access_number,
+                    filing_stock,
+                ) in analysis.analyze_filings(cik, [current_filing], last_report):
+                    stock_cusip = filing_stock["cusip"]
+                    stock_query = f"stocks.{stock_cusip}"
+                    database.edit_filing(
+                        {**filer_query, "access_number": access_number},
+                        {"$set": {stock_query: filing_stock}},
+                    )
 
-        filings = database.find_filings(cik)
-        for stock_query, log_item in analysis.analyze_stocks(cik, filings):
-            database.edit_filer(filer_query, stock_query)
-            database.add_log(cik, log_item)
+                    for change_query, change_stock in analysis.analyze_changes(
+                        cik, previous_access, access_number
+                    ):
+                        if change_query is None:
+                            continue
+                        database.edit_filing(
+                            {**filer_query, "access_number": access_number},
+                            {"$set": {change_query: change_stock}},
+                        )
+
+                current_filing = database.find_filing(cik, access_number)
+                for stock_query, log_item in analysis.analyze_stocks(
+                    cik, [current_filing]
+                ):
+
+                    database.edit_filer(filer_query, stock_query)
+                    database.add_log(cik, log_item)
+
+                previous_access = access_number
+                database.add_log(
+                    cik, "Updated Filing Stocks", company_name, access_number
+                )
+
+            except Exception as e:
+                report_error(cik, e)
+                database.edit_filer(filer_query, {"$set": {"update": False}})
+                database.add_log(
+                    cik, "Failed to Update Filer Historical Stocks", company_name, cik
+                )
+                database.edit_status(cik, 0)
 
         allocation_list = analysis.analyze_allocation(cik)
         aum_list = analysis.analyze_aum(cik)
@@ -193,20 +243,19 @@ def create_historical(cik, company, stamp):
                 }
             },
         )
-
-        database.add_log(cik, "Updated Filer Historical Stocks", company_name, cik)
+        database.add_log(cik, "Queried Filer Historical Stocks", company_name, cik)
         database.edit_status(cik, 0)
+
     except Exception as e:
         report_error(cik, e)
-        database.edit_filer(filer_query, {"$set": {"update": False}})
         database.add_log(
-            cik, "Failed to Update Filer Historical Stocks", company_name, cik
+            cik, "Failed to Query Filer Historical Stocks", company_name, cik
         )
-        database.edit_status(cik, 0)
 
     start = stamp["start"]
     stamp = {"time.elapsed": datetime.now().timestamp() - start, "logs": []}
     database.edit_log(cik, stamp)
+    database.edit_status(cik, 0)
     database.add_query_log(cik, "create-historical")
 
 
@@ -491,7 +540,7 @@ async def estimate(cik: str):
 @router.get("/info", tags=["filers"], status_code=200)
 @cache(1 / 6)
 async def filer_info(cik: str):
-    filer = database.find_filer(cik, {"_id": 0, "stocks": 0})
+    filer = database.find_filer(cik, {"_id": 0, "stocks": 0, "analysis": 0})
     if filer is None:
         raise HTTPException(404, detail="Filer not found.")
 
