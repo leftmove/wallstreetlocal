@@ -162,7 +162,7 @@ async def progressive_restore(
             continue
 
     if production_environment:
-        worker.set_key_no_expiration.delay(query_type, "stopped")
+        worker.cache_set_key_no_expiration.delay(query_type, "stopped")
     else:
         background.add_task(lambda: cm.set_key_no_expiration(query_type, "stopped"))
 
