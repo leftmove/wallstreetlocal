@@ -167,7 +167,7 @@ async def record_filing_csv(cik: str, access_number: str, headers: str = None):
 @cache(2)
 async def filings_info(cik: str):
     pipeline = [
-        {"$match": {"cik": cik, "form": {"$in": database.holding_forms}}},
+        {"$match": {"cik": cik, "form": {"$in": database.holding_forms}}, "stocks": {"$exists": True}},
         {"$project": {"cik": 0, "stocks": 0, "_id": 0}},
     ]
     cursor = database.search_filings(pipeline)

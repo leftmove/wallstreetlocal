@@ -1,4 +1,5 @@
 whale-project.code-workspace
+.fleet
 
 start.sh
 example.json

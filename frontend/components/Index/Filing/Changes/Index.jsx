@@ -40,6 +40,8 @@ export default function Index(props) {
         if (data) {
           const filings = data.filings;
 
+          console.log(filings)
+
           dispatch(setFilings(filings));
           dispatch(setComparison({ type: order, access: an }));
         } else {

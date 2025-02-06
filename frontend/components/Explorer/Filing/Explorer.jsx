@@ -16,7 +16,7 @@ import {
 
 import Loading from "components/Loading/Loading";
 import Unavailable from "components/Unavailable/Unavailable";
-import Index from "components/Index/Filing/Explorer/Index";
+import Index from "components/Index/Filing/Changes/Index";
 import Timeline from "components/Explorer/Timeline/Timeline";
 
 const server = process.env.NEXT_PUBLIC_SERVER;

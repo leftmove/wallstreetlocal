@@ -4,7 +4,7 @@ import styles from "@/styles/Filer.module.css";
 
 import Tabs from "components/Tabs/Tabs";
 import Header from "components/Header/Header";
-import Explorer from "@/components/Explorer/Filing/Explorer";
+import Explorer from "components/Explorer/Filing/Explorer";
 
 const Info = (props) => {
   const cik = props.cik || null;

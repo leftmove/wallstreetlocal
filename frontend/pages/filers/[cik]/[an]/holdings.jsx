@@ -17,7 +17,7 @@ const Filing = (props) => {
   const continuous = props.continuous;
   const persist = props.persist;
   const tab = props.tab;
-
+ 
   if (query.ok || query.continuous || continuous) {
     return <Info cik={cik} an={an} tab={tab} />;
   }

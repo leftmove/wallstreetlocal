@@ -207,7 +207,11 @@ def create_historical(cik, company, stamp):
                         if change_query is None:
                             continue
                         database.edit_filing(
-                            {**filer_query, "access_number": access_number},
+                            {
+                                **filer_query,
+                                "access_number": access_number,
+                                "stocks": {"$exists": True},
+                            },
                             {"$set": {change_query: change_stock}},
                         )
 

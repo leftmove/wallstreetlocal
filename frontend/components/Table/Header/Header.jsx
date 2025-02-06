@@ -39,7 +39,7 @@ const Header = (props) => {
                 onClick={() => activateHeader(h.sort, !reverse)}
                 className={[
                   styles["button"],
-                  sort === h.sort && reverse ? "" : styles["button-reverse"],
+                  sort === h.sort && reverse ? styles["button-reverse"] : "",
                   sort === h.sort ? styles["button-click"] : "",
                 ].join(" ")}
               >

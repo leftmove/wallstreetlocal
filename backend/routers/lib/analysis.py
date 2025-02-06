@@ -683,7 +683,9 @@ def analyze_changes(cik, prev_access, current_access):
 def analyze_filings(cik, filings, last_report):
     stock_cache = {}
     filings_map = dict(zip([f["access_number"] for f in filings], filings))
-    filings_sorted = sorted([f for f in filings], key=lambda d: d.get("report_date", 0))
+    filings_sorted = sorted(
+        [f for f in filings], key=lambda d: d.get("report_date", 0), reverse=True
+    )
     for filing in filings:
         access_number = filing.get("access_number", "")
         filing_stocks = filing.get("stocks")
@@ -873,6 +875,7 @@ def sort_pipeline(
     stock_structure: str = "array",
     collection_search=database.search_filers,
     match_query={},
+    project=[],
     additional_one: list = [],
     additional_two: list = [],
 ):
@@ -904,6 +907,12 @@ def sort_pipeline(
             {"$replaceRoot": {"newRoot": "$doc"}},
         ]
     )
+
+    if project:
+        new_project = {}
+        for p in project:
+            new_project[p] = 0
+        pipeline.append({"$project": {"_id": 0, **new_project}})
 
     if additional_two:
         pipeline.extend(additional_two)
