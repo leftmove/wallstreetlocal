@@ -181,15 +181,9 @@ async def filings_info(cik: str):
 @router.get("/info", status_code=200)
 @cache(2)
 async def filing_info(cik: str, access_number: str, include_filer: bool = False):
-    filing = database.find_filing(
-        cik, access_number, {"_id": 0, "cik": 0, "stocks": 0, "changes": 0}
-    )
+    filing = database.find_filing(cik, access_number, {"_id": 0, "cik": 1, "stocks": 1})
     if filing is None:
         raise HTTPException(detail="Filing not found.", status_code=404)
-
-    filer = database.find_filer(cik, {"_id": 0, "stocks": 0}) if include_filer else None
-    if filer is None and include_filer:
-        raise HTTPException(404, detail="Filer not found.")
 
     status = database.find_log(cik, {"status": 1, "_id": 0})
     if status is None:
