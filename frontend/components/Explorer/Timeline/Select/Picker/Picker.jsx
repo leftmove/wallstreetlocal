@@ -22,7 +22,7 @@ const Picker = (props) => {
       ].join(" ")}
     >
       <div className={styles["picker-filings"]}>
-        {filings.map((filing) => {
+        {filings.map((filing, i) => {
           const accessNumber = filing.access_number;
           const reportDate = new Date(
             filing.report_date * 1000
@@ -60,7 +60,14 @@ const Picker = (props) => {
           ];
           return (
             <div
-              key={accessNumber}
+              key={[
+                i,
+                accessNumber,
+                selected.type,
+                reportDate,
+                filingDate,
+                marketValue,
+              ].join("-")}
               className={[styles["picker-filing"], fontLight.className].join(
                 " "
               )}

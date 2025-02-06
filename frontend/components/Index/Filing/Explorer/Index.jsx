@@ -5,12 +5,12 @@ import { cn } from "components/ui/utils";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectCik,
-  selectBuy,
-  selectSell,
+  selectPrimary,
+  selectSecondary,
   editComparison,
   editSort,
   setFilingCount,
-} from "@/redux/filerSlice";
+} from "redux/filerSlice";
 
 import useFilingStocks from "components/Hooks/useFilingStocks";
 import Table from "components/Table/Table";
@@ -18,8 +18,10 @@ import Table from "components/Table/Table";
 export default function Index(props) {
   const dispatch = useDispatch();
   const cik = useSelector(selectCik);
-  const order = props.order || "buy";
-  const selected = useSelector(order === "buy" ? selectBuy : selectSell);
+  const order = props.order || "primary";
+  const selected = useSelector(
+    order === "secondary" ? selectSecondary : selectPrimary
+  );
 
   const {
     items,
