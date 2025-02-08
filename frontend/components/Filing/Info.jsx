@@ -21,8 +21,7 @@ const Info = (props) => {
       <Header cik={cik} tab={tab} />
       <Tabs tabs={tabs} />
       <div className={styles.data}>
-        {/* {tab === "changes" ? <Explorer /> : null} */}
-        {tab === "changes" ? <Explorer /> : null}
+        {tab === "changes" ? <Explorer cik={cik} an={an} /> : null}
       </div>
     </>
   );

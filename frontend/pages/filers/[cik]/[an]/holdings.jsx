@@ -17,8 +17,9 @@ const Filing = (props) => {
   const continuous = props.continuous;
   const persist = props.persist;
   const tab = props.tab;
- 
-  if (query.ok || query.continuous || continuous) {
+
+  if ((query.ok || query.continuous || continuous) && persist === false) {
+    // Better way to write/structure this?
     return <Info cik={cik} an={an} tab={tab} />;
   }
 
@@ -47,7 +48,7 @@ export async function getServerSideProps(context) {
     .then((r) => validateStatus(r?.status))
     .catch((e) => {
       console.error(e);
-      return undefined;
+      return null;
     });
 
   return {

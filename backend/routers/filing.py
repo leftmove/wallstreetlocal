@@ -18,7 +18,6 @@ from .lib.api import sec_filer_search
 from .lib.cache import cache
 from .lib.errors import report_error
 
-
 production_environment = getattr(worker, "production_environment", False)
 
 
@@ -42,7 +41,7 @@ router = APIRouter(
     status_code=200,
 )
 async def query_filing(
-    cik: str, access_number: str, background: BackgroundTasks = BackgroundTasks
+        cik: str, access_number: str, background: BackgroundTasks = BackgroundTasks
 ):
     filing = database.find_filing(cik, access_number, {"_id": 1})
 
@@ -79,7 +78,7 @@ async def query_filing(
 
 
 def update_filing(
-    company, last_report: str, background: BackgroundTasks = BackgroundTasks
+        company, last_report: str, background: BackgroundTasks = BackgroundTasks
 ):
     cik = company["cik"]
     time = datetime.now().timestamp()
@@ -88,7 +87,7 @@ def update_filing(
     if operation is None:
         raise HTTPException(404, detail="Filer log not found.")
     elif (
-        production_environment and operation["status"] == 2 or operation["status"] == 1
+            production_environment and operation["status"] == 2 or operation["status"] == 1
     ):
         raise HTTPException(  # @IgnoreException
             302, detail="Filer is partially building."
@@ -167,8 +166,8 @@ async def record_filing_csv(cik: str, access_number: str, headers: str = None):
 @cache(2)
 async def filings_info(cik: str):
     pipeline = [
-        {"$match": {"cik": cik, "form": {"$in": database.holding_forms}}, "stocks": {"$exists": True}},
-        {"$project": {"cik": 0, "stocks": 0, "_id": 0}},
+        {"$match": {"cik": cik, "form": {"$in": database.holding_forms}, "stocks": {"$exists": True}}, },
+        {"$project": {"cik": 0, "stocks": 0, "_id": 0, "top_holdings": 0}},
     ]
     cursor = database.search_filings(pipeline)
     if not cursor:

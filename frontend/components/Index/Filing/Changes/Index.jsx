@@ -13,7 +13,7 @@ import {
   setFilings,
   editComparison,
   editSort,
-  setFilingCount,
+  setFilingCount
 } from "@/redux/filerSlice";
 
 import useFilingStocks from "components/Hooks/useFilingStocks";
@@ -32,15 +32,14 @@ export default function Index(props) {
     axios
       .get(url, {
         params: {
-          cik,
-        },
+          cik
+        }
       })
       .then((r) => r.data)
       .then((data) => {
         if (data) {
           const filings = data.filings;
 
-          console.log(filings)
 
           dispatch(setFilings(filings));
           dispatch(setComparison({ type: order, access: an }));
@@ -55,7 +54,7 @@ export default function Index(props) {
     ([url, cik]) => filingFetcher(url, cik),
     {
       revalidateOnFocus: false,
-      revalidateOnReconnect: false,
+      revalidateOnReconnect: false
     }
   );
 
@@ -69,7 +68,7 @@ export default function Index(props) {
     reverse,
     activate,
     skip,
-    paginate,
+    paginate
   } = useFilingStocks(
     cik,
     selected,
@@ -80,7 +79,7 @@ export default function Index(props) {
         editSort({
           type: order,
           sort: accessor,
-          reverse: direction,
+          reverse: direction
         })
       ),
     (offset) => dispatch(editSort({ type: order, offset })),

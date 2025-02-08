@@ -12,7 +12,7 @@ import {
   setFilings,
   setComparison,
   selectSecondary,
-} from "@/redux/filerSlice";
+} from "redux/filerSlice";
 
 import Loading from "components/Loading/Loading";
 import Unavailable from "components/Unavailable/Unavailable";
@@ -29,9 +29,9 @@ const server = process.env.NEXT_PUBLIC_SERVER;
 // system(s). Libraries help at first, then make it worse later.
 // TLDR: Fix later.
 
-const Explorer = () => {
+const Explorer = (props) => {
   const dispatch = useDispatch();
-  const cik = useSelector(selectCik);
+  const cik = props.cik;
   const primary = useSelector(selectPrimary);
   const secondary = useSelector(selectSecondary);
 
@@ -46,21 +46,23 @@ const Explorer = () => {
       .then((data) => {
         if (data) {
           const filings = data.filings;
-
           dispatch(setFilings(filings));
-          if (primary.access == "") {
+
+          if (primary.access === "") {
+            const firstAccess = filings.at(0).access_number;
             dispatch(
               setComparison({
                 type: "primary",
-                access: filings[0].access_number,
+                access: firstAccess,
               })
             );
           }
-          if (secondary.access == "") {
+          if (secondary.access === "") {
+            const secondaryAccess = filings.at(1).access_number;
             dispatch(
               setComparison({
                 type: "secondary",
-                access: filings[1].access_number,
+                access: secondaryAccess,
               })
             );
           }

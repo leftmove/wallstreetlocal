@@ -38,9 +38,9 @@ const Info = (props) => {
       <Header cik={cik} tab={tab} />
       <Tabs />
       <div className={styles.data}>
-        {tab === "filings" ? <Explorer /> : null}
+        {tab === "filings" ? <Explorer cik={cik} /> : null}
         {/* {tab === "charts" ? <Charts /> : null} */}
-        {tab === "stocks" ? <Index /> : null}
+        {tab === "stocks" ? <Index cik={cik} /> : null}
       </div>
     </>
   );

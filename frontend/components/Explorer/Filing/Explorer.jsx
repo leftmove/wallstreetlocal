@@ -20,9 +20,10 @@ import Index from "components/Index/Filing/Changes/Index";
 import Timeline from "components/Explorer/Timeline/Timeline";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
-const Explorer = () => {
+const Explorer = (props) => {
   const dispatch = useDispatch();
-  const cik = useSelector(selectCik);
+  const cik = props.cik;
+  const an = props.an;
   const buy = useSelector(selectBuy);
   const sell = useSelector(selectSell);
   const orders = ["buy", "sell"];
@@ -37,22 +38,30 @@ const Explorer = () => {
       .then((r) => r.data)
       .then((data) => {
         if (data) {
-          const filings = data.filings;
+          const filings = data.filings
+            .sort((a, b) => a.report_date - b.report_date)
+            .reverse();
+          const firstIndex =
+            data.filings.findIndex((f) => f.access_number === an).toString() ||
+            null;
+          const secondIndex = (firstIndex === filings.length + 1).toString()
+            ? firstIndex + 1
+            : null;
 
           dispatch(setFilings(filings));
-          if (buy.access == "") {
+          if (buy.access == "" && firstIndex) {
             dispatch(
               setComparison({
                 type: "buy",
-                access: filings[0].access_number,
+                access: filings.at(firstIndex).access_number,
               })
             );
           }
-          if (sell.access == "") {
+          if (sell.access == "" && secondIndex) {
             dispatch(
               setComparison({
                 type: "sell",
-                access: filings[1].access_number,
+                access: filings.at(secondIndex).access_number,
               })
             );
           }
@@ -63,7 +72,7 @@ const Explorer = () => {
       })
       .catch((e) => console.error(e));
   const { isLoading: loading, error } = useSWR(
-    cik ? [server + "/filing/filer", cik] : null,
+    cik && an ? [server + "/filing/filer", cik] : null,
     ([url, cik]) => filingFetcher(url, cik),
     {
       revalidateOnFocus: false,

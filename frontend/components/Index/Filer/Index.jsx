@@ -25,9 +25,9 @@ import Table from "components/Table/Table";
 import Sort from "../Sort/Sort";
 
 const server = process.env.NEXT_PUBLIC_SERVER;
-const Index = () => {
+const Index = (props) => {
   const dispatch = useDispatch();
-  const cik = useSelector(selectCik);
+  const cik = props.cik;
   const stocks = useSelector(selectStocks);
 
   const {

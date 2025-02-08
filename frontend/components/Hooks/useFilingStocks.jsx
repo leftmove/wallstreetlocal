@@ -23,26 +23,26 @@ function serializeLocalToGlobal(localStock) {
         portfolio_percent: "N/A",
         portfolio_str: "N/A",
         ownership_percent: "N/A",
-        ownership_str: "N/A",
+        ownership_str: "N/A"
       },
       changes = {
         value: { amount: "N/A", action: "N/A" },
-        shares: { amount: "N/A", action: "N/A" },
+        shares: { amount: "N/A", action: "N/A" }
       },
       records = {},
       prices = {
         buy: { time: "N/A", time_str: "N/A", series: "N/A" },
-        sold: { time: "N/A", time_str: "N/A", series: "N/A" },
+        sold: { time: "N/A", time_str: "N/A", series: "N/A" }
       },
       report_time = "N/A",
-      recent_price = "N/A",
+      recent_price = "N/A"
     } = localStock;
 
     const {
       portfolio_percent: portfolio_percentage,
       portfolio_str: portfolio_percentage_str,
       ownership_percent: ownership_percentage,
-      ownership_str: ownership_percentage_str,
+      ownership_str: ownership_percentage_str
     } = ratios;
 
     const { value: value_changes, shares: share_changes } = changes;
@@ -55,7 +55,7 @@ function serializeLocalToGlobal(localStock) {
     const {
       time: buy_time,
       time_str: buy_time_str,
-      series: buy_series,
+      series: buy_series
     } = buy_price;
 
     const value_bought = value_action === "buy" ? Math.abs(value_amount) : 0;
@@ -77,8 +77,8 @@ function serializeLocalToGlobal(localStock) {
     const report_date_str =
       report_time !== "N/A"
         ? `Q${
-            Math.floor(report_date.getMonth() / 3) + 1
-          } ${report_date.getFullYear()}`
+          Math.floor(report_date.getMonth() / 3) + 1
+        } ${report_date.getFullYear()}`
         : "N/A";
 
     const price_bought = buy_series !== "N/A" ? buy_series.close : "N/A";
@@ -134,7 +134,7 @@ function serializeLocalToGlobal(localStock) {
       buy_time,
       buy_str: buy_time_str,
       sold_time,
-      sold_str: sold_time_str,
+      sold_str: sold_time_str
     };
   } catch (e) {
     console.error(e);
@@ -158,6 +158,8 @@ const useFilingStocks = (
   const headers = selected.headers;
   const pagination = selected.sort;
 
+  console.log(access);
+
   const stockFetcher = (
     url,
     cik,
@@ -174,8 +176,8 @@ const useFilingStocks = (
           offset,
           reverse,
           sold,
-          unavailable: na,
-        },
+          unavailable: na
+        }
       })
       .then((r) => r.data)
       .then((data) => {
@@ -196,14 +198,14 @@ const useFilingStocks = (
     ([url, cik, access, sort]) => stockFetcher(url, cik, access, sort),
     {
       revalidateOnFocus: false,
-      revalidateOnReconnect: false,
+      revalidateOnReconnect: false
     }
   );
 
   const items = stocks
     ? stocks.map((s) => {
-        return { ...s, id: s.cusip };
-      })
+      return { ...s, id: s.cusip };
+    })
     : [];
   const select = sort.sort;
   const reverse = sort.reverse;
@@ -218,7 +220,7 @@ const useFilingStocks = (
     reverse,
     activate,
     skip,
-    paginate,
+    paginate
   };
 };
 

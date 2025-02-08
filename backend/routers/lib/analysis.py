@@ -81,7 +81,7 @@ def serialize_global(local_stock, global_stock):
     buy_float = buy_stamp.get("time")
     buy_date = datetime.fromtimestamp(buy_float) if buy_stamp else "N/A"
     buy_date_str = (
-        f"Q{(buy_date.month-1)//3+1} {buy_date.year}"
+        f"Q{(buy_date.month - 1) // 3 + 1} {buy_date.year}"
         if buy_timeseries != "N/A"
         else "N/A"
     )
@@ -93,7 +93,7 @@ def serialize_global(local_stock, global_stock):
         else "N/A"
     )
     report_date_str = (
-        f"Q{(report_date.month-1)//3+1} {report_date.year}"
+        f"Q{(report_date.month - 1) // 3 + 1} {report_date.year}"
         if report_float != "N/A"
         else "N/A"
     )
@@ -103,7 +103,7 @@ def serialize_global(local_stock, global_stock):
         datetime.fromtimestamp(sold_float) if sold and sold_float != "N/A" else "N/A"
     )
     sold_date_str = (
-        f"Q{(sold_date.month-1)//3+1} {sold_date.year}"
+        f"Q{(sold_date.month - 1) // 3 + 1} {sold_date.year}"
         if sold and sold_float != "N/A"
         else "N/A"
     )
@@ -128,19 +128,19 @@ def serialize_global(local_stock, global_stock):
     gain_value = (
         float(price_recent - price_bought)
         if update
-        and buy_timeseries != "N/A"
-        and price_recent != "N/A"
-        and type(price_recent) == (float or int)
-        and price_bought != "N/A"
-        and type(price_bought) == (float or int)
+           and buy_timeseries != "N/A"
+           and price_recent != "N/A"
+           and type(price_recent) == (float or int)
+           and price_bought != "N/A"
+           and type(price_bought) == (float or int)
         else "N/A"
     )
     gain_percent = (
         float((gain_value / price_bought) * 100)
         if update
-        and buy_timeseries != "N/A"
-        and gain_value != "N/A"
-        and price_bought != "N/A"
+           and buy_timeseries != "N/A"
+           and gain_value != "N/A"
+           and price_bought != "N/A"
         else "N/A"
     )
     portfolio_percentage_str = (
@@ -201,10 +201,9 @@ def serialize_global(local_stock, global_stock):
 
 
 def serialize_local(
-    local_stock,
-    global_stock,
+        local_stock,
+        global_stock,
 ):
-
     name = local_stock["name"]
     cusip = local_stock["cusip"]
 
@@ -270,13 +269,13 @@ def serialize_local(
     buy_price = prices["buy"]
     buy_float = buy_price["time"]
     buy_date = datetime.fromtimestamp(buy_float)
-    buy_date_str = f"Q{(buy_date.month-1)//3+1} {buy_date.year}"
+    buy_date_str = f"Q{(buy_date.month - 1) // 3 + 1} {buy_date.year}"
     buy_series = buy_price["series"]
 
     sold_price = prices["sold"]
     sold_float = sold_price["time"] if sold else "N/A"
     sold_date = datetime.fromtimestamp(sold_float) if sold else "N/A"
-    sold_date_str = f"Q{(sold_date.month-1)//3+1} {sold_date.year}" if sold else "N/A"
+    sold_date_str = f"Q{(sold_date.month - 1) // 3 + 1} {sold_date.year}" if sold else "N/A"
     sold_series = sold_price["series"] if sold else "N/A"
 
     portfolio_percentage_str = (
@@ -358,18 +357,19 @@ def analyze_total(cik, stocks, access_number):
     for key in stocks:
         stock = stocks[key]
         value = stock.get("market_value", 0)
-        market_map.append({"cusip": key, "market_value": value})
+        name = stock.get("name", "N/A")
+        market_map.append({"cusip": key, "name": name, "market_value": value})
 
     market_values = [stock["market_value"] for stock in market_map]
     top_holdings = [
         {
             "cusip": stock["cusip"],
-            "name": stock.get("name", "N/A"),
+            "name": stock["name"],
             "market_value": stock["market_value"],
         }
         for stock in sorted(market_map, key=lambda x: x["market_value"], reverse=True)[
-            :5
-        ][: min(5, len(market_map))]
+                     :5
+                     ][: min(5, len(market_map))]
     ]
     total = sum(market_values)
 
@@ -500,7 +500,6 @@ def analyze_timeseries(cik, local_stock, global_stock, filings):
 
 
 def analyze_change(local_stock, filing, filings_sorted):
-
     cik = filing["cik"]
     cusip = local_stock["cusip"]
     current_access = filing["access_number"]
@@ -589,7 +588,6 @@ def analyze_change(local_stock, filing, filings_sorted):
 
 
 def analyze_changes(cik, prev_access, current_access):
-
     current_filing = database.find_filing(cik, current_access)
     prev_filing = database.find_filing(cik, prev_access)
 
@@ -865,19 +863,19 @@ def stock_filter(stocks):
 
 
 def sort_pipeline(
-    cik: str,
-    limit: int,
-    offset: int,
-    sort: str,
-    sold: bool,
-    reverse: bool,
-    unavailable: bool,
-    stock_structure: str = "array",
-    collection_search=database.search_filers,
-    match_query={},
-    project=[],
-    additional_one: list = [],
-    additional_two: list = [],
+        cik: str,
+        limit: int,
+        offset: int,
+        sort: str,
+        sold: bool,
+        reverse: bool,
+        unavailable: bool,
+        stock_structure: str = "array",
+        collection_search=database.search_filers,
+        match_query={},
+        project=[],
+        additional_one: list = [],
+        additional_two: list = [],
 ):
     if limit < 0:
         raise ValueError
@@ -1091,7 +1089,7 @@ def sort_and_format(filer_ciks):
                 "market_value": (
                     0
                     if filer.get("market_value") == "N/A"
-                    or not filer.get("market_value")
+                       or not filer.get("market_value")
                     else filer.get("market_value")
                 ),
             }
