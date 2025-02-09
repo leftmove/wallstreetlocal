@@ -38,6 +38,7 @@ const Header = (props) => {
               <button
                 onClick={() => activateHeader(h.sort, !reverse)}
                 className={[
+                  "md:flex hidden",
                   styles["button"],
                   sort === h.sort && reverse ? styles["button-reverse"] : "",
                   sort === h.sort ? styles["button-click"] : "",

@@ -31,24 +31,27 @@ const Table = (props) => {
         />
       ) : null}
       <Pagination pagination={pagination} paginate={paginate} skip={skip} />
-      <table className={styles["table"]}>
-        <thead>
-          {items.length <= 0 && pagination.sold && pagination.na ? null : (
-            <Header
-              headers={headers}
-              sort={sort}
-              reverse={reverse}
-              activate={activate}
-            />
-          )}
-        </thead>
-        <tbody>
-          {items.map((i) => (
-            <Row key={i.id} item={i} headers={headers} />
-          ))}
-        </tbody>
+      <div className="overflow-x-auto">
+        <table className={styles["table"]}>
+          <thead>
+            {items.length <= 0 && pagination.sold && pagination.na ? null : (
+              <Header
+                headers={headers}
+                sort={sort}
+                reverse={reverse}
+                activate={activate}
+              />
+            )}
+          </thead>
+          <tbody>
+            {items.map((i) => (
+              <Row key={i.id} item={i} headers={headers} />
+            ))}
+          </tbody>
+        </table>
         {loading ? <Loading /> : null}
-      </table>
+      </div>
+
       <Pagination pagination={pagination} paginate={paginate} skip={skip} />
     </>
   );

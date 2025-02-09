@@ -8,6 +8,7 @@ from datetime import datetime
 
 from . import database
 from . import analysis
+from .cache import cache
 
 load_dotenv()
 
@@ -128,6 +129,7 @@ def fund_tickers():
     return data
 
 
+@cache(24 * 7 * 3, always_cache=True)  # 3 Weeks
 def sec_filer_search(cik):
     res = get_request(
         f"https://data.sec.gov/submissions/CIK{cik.zfill(10)}.json",
@@ -145,6 +147,7 @@ def sec_filer_search(cik):
     return data_converted
 
 
+@cache(24 * 7 * 3, always_cache=True)  # 3 Weeks
 def sec_stock_search(cik, access_number):
     access_number_replace = access_number.replace("-", " ")
 
@@ -158,6 +161,7 @@ def sec_stock_search(cik, access_number):
     return data
 
 
+@cache(24 * 7 * 3, always_cache=True)  # 3 Weeks
 def sec_directory_search(cik, directory):
     res = get_request(f"https://www.sec.gov{directory}", cik, custom_wait=600)
     data = res.content
@@ -165,6 +169,7 @@ def sec_directory_search(cik, directory):
     return data
 
 
+@cache(24 * 3, always_cache=True)  # 3 Days
 def ticker_request(function, symbol, cik):
     params = {
         "function": function,
@@ -177,6 +182,7 @@ def ticker_request(function, symbol, cik):
     return data
 
 
+@cache(24 * 3, always_cache=True)  # 3 Days
 def stock_request(value, cik, backup=None):
     params = {"q": value, "token": FINN_HUB_API_KEY}
     res = get_request("https://finnhub.io/api/v1/search", cik, params=params)

@@ -1,0 +1,28 @@
+<stock>
+
+    <summary>{{ summary }}</summary>
+
+    <name>{{ name }}</name>
+    <ticker>{{ ticker }}</ticker>
+    <industry>{{ industry }}</industry>
+    <price>{{ price }}</price>
+    <action>{{ action }}</action>
+
+    <portfolio>
+        <old>{{ old_portfolio }}</old>
+        <new>{{ new_portfolio }}</new>
+    </portfolio>
+    <value>
+        <old>{{ old_value }}</old>
+        <new>{{ new_value }}</new>
+    </value>
+    <shares>
+        <old>{{ old_shares }}</old>
+        <new>{{ new_shares }}</new>
+    </shares>
+    <date>
+        <old>{{ old_date }}</old>
+        <new>{{ new_date }}</new>
+    </date>
+
+</stock>

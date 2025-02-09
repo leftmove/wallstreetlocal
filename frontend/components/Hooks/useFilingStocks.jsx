@@ -4,143 +4,110 @@ import useSWR from "swr";
 // Lazy and bad, but works for now
 // Advantage is that things can be translated client-side
 
-function serializeLocalToGlobal(localStock) {
-  try {
-    const {
-      name = "N/A",
-      cusip = "N/A",
-      ticker = "N/A",
-      sector = "N/A",
-      industry = "N/A",
-      class: rights = "N/A",
-      shares_held = "N/A",
-      shares_held_str = "N/A",
-      market_value = "N/A",
-      market_value_str = "N/A",
-      sold = false,
-      update = false,
-      ratios = {
-        portfolio_percent: "N/A",
-        portfolio_str: "N/A",
-        ownership_percent: "N/A",
-        ownership_str: "N/A"
-      },
-      changes = {
-        value: { amount: "N/A", action: "N/A" },
-        shares: { amount: "N/A", action: "N/A" }
-      },
-      records = {},
-      prices = {
-        buy: { time: "N/A", time_str: "N/A", series: "N/A" },
-        sold: { time: "N/A", time_str: "N/A", series: "N/A" }
-      },
-      report_time = "N/A",
-      recent_price = "N/A"
-    } = localStock;
+const serializeLocalToGlobal = (localStock) => {
+  const cusip = localStock.cusip;
+  const name = localStock.name || "N/A";
+  const ticker = localStock.ticker || "N/A";
+  const sector = localStock.sector || "N/A";
+  const industry = localStock.industry || "N/A";
+  const rights = localStock.class || "N/A";
+  const sold = localStock.sold || false;
+  const update = localStock.update || false;
+  const tickerStr = sold ? `${ticker} (Sold)` : ticker;
 
-    const {
-      portfolio_percent: portfolio_percentage,
-      portfolio_str: portfolio_percentage_str,
-      ownership_percent: ownership_percentage,
-      ownership_str: ownership_percentage_str
-    } = ratios;
+  const sharesHeld = localStock.shares_held || "N/A";
+  const sharesHeldStr = localStock.shares_held_str || "N/A";
+  const marketValue = localStock.market_value || "N/A";
+  const marketValueStr = localStock.market_value_str || "N/A";
 
-    const { value: value_changes, shares: share_changes } = changes;
+  const prices = localStock.prices || {};
+  const buyPrice = prices.buy || {};
+  const buyTime = buyPrice.time;
+  const buyDateStr = buyPrice.time_str || "N/A";
+  const buySeries = buyPrice.series || "N/A";
+  const buyPriceVal = buySeries !== "N/A" ? buySeries.close : "N/A";
+  const buyPriceStr = buySeries !== "N/A" ? `$${buyPriceVal}` : "N/A";
 
-    const { amount: value_amount, action: value_action } = value_changes;
-    const { amount: share_amount, action: share_action } = share_changes;
+  const soldPrice = prices.sold || {};
+  const soldTime = soldPrice.time;
+  const soldDateStr = soldPrice.time_str || "N/A";
+  const soldSeries = soldPrice.series || "N/A";
+  const soldPriceVal = soldSeries !== "N/A" ? soldSeries.close : "N/A";
+  const soldPriceStr = soldSeries !== "N/A" ? `$${soldPriceVal}` : "N/A";
 
-    const { buy: buy_price, sold: sold_price } = prices;
+  const ratios = localStock.ratios || {};
+  const portfolioPercentage = ratios.portfolio_percent || "N/A";
+  const portfolioStr = ratios.portfolio_str || "N/A";
+  const ownershipPercentage = ratios.ownership_percent || "N/A";
+  const ownershipStr = ratios.ownership_str || "N/A";
 
-    const {
-      time: buy_time,
-      time_str: buy_time_str,
-      series: buy_series
-    } = buy_price;
+  const changes = localStock.changes || {};
+  const valueChange = changes.value || {};
+  const shareChange = changes.shares || {};
 
-    const value_bought = value_action === "buy" ? Math.abs(value_amount) : 0;
-    const value_sold = value_action === "sell" ? Math.abs(value_amount) : 0;
-    const shares_bought = share_action === "buy" ? Math.abs(share_amount) : 0;
-    const shares_sold = share_action === "sell" ? Math.abs(share_amount) : 0;
+  const valueAction = valueChange.action || "N/A";
+  const shareAction = shareChange.action || "N/A";
 
-    const value_bought_str = value_bought.toFixed(2);
-    const value_sold_str = value_sold.toFixed(2);
-    const shares_bought_str = shares_bought.toFixed(2);
-    const shares_sold_str = shares_sold.toFixed(2);
+  const valueBought = valueChange.gain || "N/A";
+  const valueSold = valueChange.loss || "N/A";
+  const shareBought = shareChange.gain || "N/A";
+  const shareSold = shareChange.loss || "N/A";
 
-    const sold_time = sold_price ? sold_price.time : "N/A";
-    const sold_time_str = sold_price ? sold_price.time_str : "N/A";
-    const sold_series = sold_price ? sold_price.series : "N/A";
+  const valueBoughtStr =
+    valueBought !== "N/A"
+      ? `$${parseInt(valueBought).toLocaleString()}`
+      : "N/A";
+  const valueSoldStr =
+    valueSold !== "N/A" ? `$${parseInt(valueSold).toLocaleString()}` : "N/A";
+  const shareBoughtStr =
+    shareBought !== "N/A" ? parseInt(shareBought).toLocaleString() : "N/A";
+  const shareSoldStr =
+    shareSold !== "N/A" ? parseInt(shareSold).toLocaleString() : "N/A";
 
-    const report_date =
-      report_time !== "N/A" ? new Date(report_time * 1000) : "N/A";
-    const report_date_str =
-      report_time !== "N/A"
-        ? `Q${
-          Math.floor(report_date.getMonth() / 3) + 1
-        } ${report_date.getFullYear()}`
-        : "N/A";
-
-    const price_bought = buy_series !== "N/A" ? buy_series.close : "N/A";
-    const price_bought_str = buy_series !== "N/A" ? `$${price_bought}` : "N/A";
-
-    const price_sold = sold_series !== "N/A" ? sold_series.close : "N/A";
-    const price_sold_str = sold_series !== "N/A" ? `$${price_sold}` : "N/A";
-
-    const recent_price_str =
-      recent_price !== "N/A" ? `$${recent_price}` : "N/A";
-
-    const gain_value =
-      recent_price !== "N/A" && price_bought !== "N/A"
-        ? parseFloat(recent_price - price_bought)
-        : "N/A";
-    const gain_percent =
-      gain_value !== "N/A" && price_bought !== "N/A"
-        ? parseFloat((gain_value / price_bought) * 100)
-        : "N/A";
-    const gain_value_str = gain_value !== "N/A" ? gain_value.toFixed(2) : "N/A";
-    const gain_percent_str =
-      gain_percent !== "N/A" ? gain_percent.toFixed(2) : "N/A";
-
-    return {
-      name,
-      cusip,
-      ticker,
-      sector,
-      industry,
-      class: rights,
-      update,
-      sold,
-      recent_price,
-      recent_price_str,
-      buy_price: price_bought,
-      buy_price_str: price_bought_str,
-      sold_price: price_sold,
-      sold_price_str: price_sold_str,
-      shares_held,
-      shares_held_str,
-      market_value,
-      market_value_str,
-      portfolio_percent: portfolio_percentage,
-      portfolio_str: portfolio_percentage_str,
-      ownership_percent: ownership_percentage,
-      ownership_str: ownership_percentage_str,
-      gain_value,
-      gain_value_str,
-      gain_percent,
-      gain_str: gain_percent_str,
-      report_time,
-      report_str: report_date_str,
-      buy_time,
-      buy_str: buy_time_str,
-      sold_time,
-      sold_str: sold_time_str
-    };
-  } catch (e) {
-    console.error(e);
-    return localStock;
-  }
-}
+  return {
+    name,
+    cusip,
+    ticker,
+    ticker_str: tickerStr,
+    sector,
+    industry,
+    class: rights,
+    update,
+    sold,
+    recent_price: "N/A",
+    recent_price_str: "N/A",
+    buy_price: buyPriceVal,
+    buy_price_str: buyPriceStr,
+    sold_price: soldPriceVal,
+    sold_price_str: soldPriceStr,
+    shares_held: sharesHeld,
+    shares_held_str: sharesHeldStr,
+    market_value: marketValue,
+    market_value_str: marketValueStr,
+    portfolio_percent: portfolioPercentage,
+    portfolio_str: portfolioStr,
+    ownership_percent: ownershipPercentage,
+    ownership_str: ownershipStr,
+    gain_value: "N/A",
+    gain_value_str: "N/A",
+    gain_percent: "N/A",
+    gain_str: "N/A",
+    value_action: valueAction,
+    share_action: shareAction,
+    value_bought: valueBought,
+    value_bought_str: valueBoughtStr,
+    value_sold: valueSold,
+    value_sold_str: valueSoldStr,
+    share_bought: shareBought,
+    share_bought_str: shareBoughtStr,
+    share_sold: shareSold,
+    share_sold_str: shareSoldStr,
+    buy_time: buyTime,
+    buy_str: buyDateStr,
+    sold_time: soldTime,
+    sold_str: soldDateStr,
+  };
+};
 
 const server = process.env.NEXT_PUBLIC_SERVER;
 const useFilingStocks = (
@@ -150,21 +117,24 @@ const useFilingStocks = (
   setStocks,
   activate,
   skip,
-  paginate
+  paginate,
+  post = (s) => {
+    return s;
+  }
 ) => {
+  const order = selected.type;
   const sort = selected.sort;
   const stocks = selected.stocks;
   const access = selected.access;
   const headers = selected.headers;
   const pagination = selected.sort;
 
-  console.log(access);
-
   const stockFetcher = (
     url,
     cik,
     access,
-    { pagination, sort, offset, reverse, sold, na }
+    { pagination, sort, offset, reverse, sold, na, projections },
+    order = "none" // Dummy parameter to make identical requests distinct
   ) =>
     axios
       .get(url, {
@@ -176,13 +146,21 @@ const useFilingStocks = (
           offset,
           reverse,
           sold,
-          unavailable: na
-        }
+          unavailable: na,
+          projections: `[${projections}]`,
+          order,
+        },
       })
       .then((r) => r.data)
       .then((data) => {
         if (data) {
-          const stocks = data.stocks.map((s) => serializeLocalToGlobal(s));
+          const stocks = post(
+            data.stocks
+              .map((s) => serializeLocalToGlobal(s))
+              .map((s) => {
+                return { ...s, id: s.cusip };
+              })
+          );
           const count = data.count;
 
           setCount(count);
@@ -194,18 +172,21 @@ const useFilingStocks = (
       })
       .catch((e) => console.error(e));
   const { isLoading: loading, error } = useSWR(
-    cik && access ? [server + "/stocks/filing", cik, access, sort] : null,
-    ([url, cik, access, sort]) => stockFetcher(url, cik, access, sort),
+    cik && order && access
+      ? [server + "/stocks/filing", cik, access, sort, order]
+      : null,
+    ([url, cik, access, sort, order]) =>
+      stockFetcher(url, cik, access, sort, order),
     {
       revalidateOnFocus: false,
-      revalidateOnReconnect: false
+      revalidateOnReconnect: false,
     }
   );
 
   const items = stocks
     ? stocks.map((s) => {
-      return { ...s, id: s.cusip };
-    })
+        return { ...s, id: s.cusip };
+      })
     : [];
   const select = sort.sort;
   const reverse = sort.reverse;
@@ -220,7 +201,7 @@ const useFilingStocks = (
     reverse,
     activate,
     skip,
-    paginate
+    paginate,
   };
 };
 

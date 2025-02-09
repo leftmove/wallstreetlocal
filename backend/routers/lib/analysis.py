@@ -54,6 +54,105 @@ def time_format(seconds: int) -> str:
     return "-"
 
 
+def serialize_local_to_global(local_stock):
+    cusip = local_stock["cusip"]
+    name = local_stock.get("name", "N/A")
+    ticker = local_stock.get("ticker", "N/A")
+    sector = local_stock.get("sector", "N/A")
+    industry = local_stock.get("industry", "N/A")
+    rights = local_stock.get("class", "N/A")
+    sold = local_stock.get("sold", False)
+    update = local_stock.get("update", False)
+    ticker_str = f"{ticker} (Sold)" if sold else ticker
+
+    shares_held = local_stock.get("shares_held", "N/A")
+    shares_held_str = local_stock.get("shares_held_str", "N/A")
+    market_value = local_stock.get("market_value", "N/A")
+    market_value_str = local_stock.get("market_value_str", "N/A")
+
+    prices = local_stock.get("prices", {})
+    buy_price = prices.get("buy", {})
+    buy_time = buy_price.get("time")
+    buy_date_str = buy_price.get("time_str", "N/A")
+    buy_series = buy_price.get("series", "N/A")
+    buy_price_val = buy_series["close"] if buy_series != "N/A" else "N/A"
+    buy_price_str = f"${buy_price_val}" if buy_series != "N/A" else "N/A"
+
+    sold_price = prices.get("sold", {})
+    sold_time = sold_price.get("time")
+    sold_date_str = sold_price.get("time_str", "N/A")
+    sold_series = sold_price.get("series", "N/A")
+    sold_price_val = sold_series["close"] if sold_series != "N/A" else "N/A"
+    sold_price_str = f"${sold_price_val}" if sold_series != "N/A" else "N/A"
+
+    ratios = local_stock.get("ratios", {})
+    portfolio_percentage = ratios.get("portfolio_percent", "N/A")
+    portfolio_str = ratios.get("portfolio_str", "N/A")
+    ownership_percentage = ratios.get("ownership_percent", "N/A")
+    ownership_str = ratios.get("ownership_str", "N/A")
+
+    changes = local_stock.get("changes", {})
+    value_change = changes.get("value", {})
+    share_change = changes.get("shares", {})
+
+    value_action = value_change.get("action", "N/A")
+    share_action = share_change.get("action", "N/A")
+
+    value_bought = value_change.get("gain", "N/A")
+    value_sold = value_change.get("loss", "N/A")
+    share_bought = share_change.get("gain", "N/A")
+    share_sold = share_change.get("loss", "N/A")
+
+    value_bought_str = f"${int(value_bought):,}" if value_bought != "N/A" else "N/A"
+    value_sold_str = f"${int(value_sold):,}" if value_sold != "N/A" else "N/A"
+    share_bought_str = f"{int(share_bought):,}" if share_bought != "N/A" else "N/A"
+    share_sold_str = f"{int(share_sold):,}" if share_sold != "N/A" else "N/A"
+
+    return {
+        "name": name,
+        "cusip": cusip,
+        "ticker": ticker,
+        "ticker_str": ticker_str,
+        "sector": sector,
+        "industry": industry,
+        "class": rights,
+        "update": update,
+        "sold": sold,
+        "recent_price": "N/A",
+        "recent_price_str": "N/A",
+        "buy_price": buy_price_val,
+        "buy_price_str": buy_price_str,
+        "sold_price": sold_price_val,
+        "sold_price_str": sold_price_str,
+        "shares_held": shares_held,
+        "shares_held_str": shares_held_str,
+        "market_value": market_value,
+        "market_value_str": market_value_str,
+        "portfolio_percent": portfolio_percentage,
+        "portfolio_str": portfolio_str,
+        "ownership_percent": ownership_percentage,
+        "ownership_str": ownership_str,
+        "gain_value": "N/A",
+        "gain_value_str": "N/A",
+        "gain_percent": "N/A",
+        "gain_str": "N/A",
+        "value_action": value_action,
+        "share_action": share_action,
+        "value_bought": value_bought,
+        "value_bought_str": value_bought_str,
+        "value_sold": value_sold,
+        "value_sold_str": value_sold_str,
+        "share_bought": share_bought,
+        "share_bought_str": share_bought_str,
+        "share_sold": share_sold,
+        "share_sold_str": share_sold_str,
+        "buy_time": buy_time,
+        "buy_str": buy_date_str,
+        "sold_time": sold_time,
+        "sold_str": sold_date_str,
+    }
+
+
 def serialize_global(local_stock, global_stock):
     cusip = local_stock["cusip"]
     update = global_stock["update"]
@@ -128,19 +227,19 @@ def serialize_global(local_stock, global_stock):
     gain_value = (
         float(price_recent - price_bought)
         if update
-           and buy_timeseries != "N/A"
-           and price_recent != "N/A"
-           and type(price_recent) == (float or int)
-           and price_bought != "N/A"
-           and type(price_bought) == (float or int)
+        and buy_timeseries != "N/A"
+        and price_recent != "N/A"
+        and type(price_recent) == (float or int)
+        and price_bought != "N/A"
+        and type(price_bought) == (float or int)
         else "N/A"
     )
     gain_percent = (
         float((gain_value / price_bought) * 100)
         if update
-           and buy_timeseries != "N/A"
-           and gain_value != "N/A"
-           and price_bought != "N/A"
+        and buy_timeseries != "N/A"
+        and gain_value != "N/A"
+        and price_bought != "N/A"
         else "N/A"
     )
     portfolio_percentage_str = (
@@ -163,6 +262,23 @@ def serialize_global(local_stock, global_stock):
         if update and buy_timeseries != "N/A" and type(gain_percent) == float
         else "N/A"
     )
+
+    changes = local_stock.get("changes", {})
+    value_change = changes.get("value", {})
+    share_change = changes.get("shares", {})
+
+    value_action = value_change.get("action", "N/A")
+    share_action = share_change.get("action", "N/A")
+
+    value_bought = value_change.get("gain", "N/A")
+    value_sold = value_change.get("loss", "N/A")
+    share_bought = share_change.get("gain", "N/A")
+    share_sold = share_change.get("loss", "N/A")
+
+    value_bought_str = f"${int(value_bought):,}" if value_bought != "N/A" else "N/A"
+    value_sold_str = f"${int(value_sold):,}" if value_sold != "N/A" else "N/A"
+    share_bought_str = f"{int(share_bought):,}" if share_bought != "N/A" else "N/A"
+    share_sold_str = f"{int(share_sold):,}" if share_sold != "N/A" else "N/A"
 
     return {
         "name": name,
@@ -191,6 +307,16 @@ def serialize_global(local_stock, global_stock):
         "gain_value_str": gain_value_str,
         "gain_percent": gain_percent,
         "gain_str": gain_percent_str,
+        "value_action": value_action,
+        "share_action": share_action,
+        "value_bought": value_bought,
+        "value_bought_str": value_bought_str,
+        "value_sold": value_sold,
+        "value_sold_str": value_sold_str,
+        "share_bought": share_bought,
+        "share_bought_str": share_bought_str,
+        "share_sold": share_sold,
+        "share_sold_str": share_sold_str,
         "report_time": report_float,
         "report_str": report_date_str,
         "buy_time": buy_float,
@@ -200,9 +326,93 @@ def serialize_global(local_stock, global_stock):
     }
 
 
+def serialize_changes(local_stock):
+
+    changes = local_stock.get(
+        "changes",
+        {
+            "value": {
+                "action": "N/A",
+                "amount": "N/A",
+                "bought": "N/A",
+                "bought_str": "N/A",
+                "sold": "N/A",
+                "sold_str": "N/A",
+            },
+            "shares": {
+                "action": "N/A",
+                "amount": "N/A",
+                "bought": "N/A",
+                "bought_str": "N/A",
+                "sold": "N/A",
+                "sold_str": "N/A",
+            },
+        },
+    )
+
+    value_change = changes["value"]
+    share_change = changes["shares"]
+
+    value_action = value_change["action"]
+    share_action = share_change["action"]
+    value_action = "hold" if share_action == "hold" else value_action
+
+    value_amount = value_change["amount"]
+    share_amount = share_change["amount"]
+
+    # This conditional should be changed higher up in the code.
+    # Whether `value_amount` is a buy, a sell, or a hold should be determined
+    # by `analyze_change` and not here. But I'm lazy.
+
+    if value_amount != "N/A" and (value_amount > 0):
+        value_bought = abs(value_amount)
+        value_sold = "N/A"
+    elif value_amount != "N/A" and (value_amount < 0):
+        value_sold = abs(value_amount)
+        value_bought = "N/A"
+    else:
+        value_bought = "N/A"
+        value_sold = "N/A"
+
+    if share_action == "buy" and share_amount != "N/A":
+        share_bought = abs(share_amount)
+        share_sold = "N/A"
+    elif share_action == "sell" and share_amount != "N/A":
+        share_sold = abs(share_amount)
+        share_bought = "N/A"
+    else:
+        share_bought = "N/A"
+        share_sold = "N/A"
+
+    value_bought_str = f"${int(value_bought):,}" if value_bought != "N/A" else "N/A"
+    value_sold_str = f"${int(value_sold):,}" if value_sold != "N/A" else "N/A"
+
+    share_bought_str = f"{int(share_bought):,}" if share_bought != "N/A" else "N/A"
+    share_sold_str = f"{int(share_sold):,}" if share_sold != "N/A" else "N/A"
+
+    return {
+        "value": {
+            "action": value_action,
+            "amount": value_amount,
+            "gain": value_bought,
+            "gain_str": value_bought_str,
+            "loss": value_sold,
+            "loss_str": value_sold_str,
+        },
+        "shares": {
+            "action": share_action,
+            "amount": share_amount,
+            "gain": share_bought,
+            "gain_str": share_bought_str,
+            "loss": share_sold,
+            "loss_str": share_sold_str,
+        },
+    }
+
+
 def serialize_local(
-        local_stock,
-        global_stock,
+    local_stock,
+    global_stock,
 ):
     name = local_stock["name"]
     cusip = local_stock["cusip"]
@@ -226,42 +436,13 @@ def serialize_local(
     records = local_stock["records"]
     ratios = local_stock["ratios"]
     prices = local_stock["prices"]
-    changes = local_stock.get(
-        "changes",
-        {
-            "value": {"action": "N/A", "amount": "N/A"},
-            "shares": {"action": "N/A", "amount": "N/A"},
-        },
-    )
+
+    changes = serialize_changes(local_stock)
 
     first_appearance = records["first_appearance"]
     last_appearance = records["last_appearance"]
     portfolio_percentage = ratios["portfolio_percent"]
     ownership_percentage = ratios["ownership_percent"]
-
-    share_change = changes["shares"]
-    share_action = share_change.get("action", "N/A")
-    share_amount = share_change.get("amount", "N/A")
-    share_bought = (
-        abs(share_amount) if share_action == "buy" and share_amount != "N/A" else "N/A"
-    )
-    share_sold = (
-        abs(share_amount) if share_action == "sell" and share_amount != "N/A" else "N/A"
-    )
-    share_bought_str = f"{int(share_bought):,}" if share_bought != "N/A" else "N/A"
-    share_sold_str = f"{int(share_sold):,}" if share_sold != "N/A" else "N/A"
-
-    value_change = changes["value"]
-    value_action = value_change.get("action", "N/A")
-    value_amount = value_change.get("amount", "N/A")
-    value_bought = (
-        abs(value_amount) if value_action == "buy" and value_amount != "N/A" else "N/A"
-    )
-    value_sold = (
-        abs(value_amount) if value_action == "sell" and value_amount != "N/A" else "N/A"
-    )
-    value_bought_str = f"${int(value_bought):,}" if value_bought != "N/A" else "N/A"
-    value_sold_str = f"${int(value_sold):,}" if value_sold != "N/A" else "N/A"
 
     ticker = global_stock["ticker"]
     ticker_str = f"{ticker} (Sold)" if sold else ticker
@@ -275,7 +456,9 @@ def serialize_local(
     sold_price = prices["sold"]
     sold_float = sold_price["time"] if sold else "N/A"
     sold_date = datetime.fromtimestamp(sold_float) if sold else "N/A"
-    sold_date_str = f"Q{(sold_date.month - 1) // 3 + 1} {sold_date.year}" if sold else "N/A"
+    sold_date_str = (
+        f"Q{(sold_date.month - 1) // 3 + 1} {sold_date.year}" if sold else "N/A"
+    )
     sold_series = sold_price["series"] if sold else "N/A"
 
     portfolio_percentage_str = (
@@ -313,24 +496,7 @@ def serialize_local(
             "first_appearance": first_appearance,
             "last_appearance": last_appearance,
         },
-        "changes": {
-            "value": {
-                "action": value_action,
-                "amount": value_amount,
-                "bought": value_bought,
-                "bought_str": value_bought_str,
-                "sold": value_sold,
-                "sold_str": value_sold_str,
-            },
-            "shares": {
-                "action": share_action,
-                "amount": share_amount,
-                "bought": share_bought,
-                "bought_str": share_bought_str,
-                "sold": share_sold,
-                "sold_str": share_sold_str,
-            },
-        },
+        "changes": changes,
         "prices": {
             "buy": {
                 "time": buy_float,
@@ -368,8 +534,8 @@ def analyze_total(cik, stocks, access_number):
             "market_value": stock["market_value"],
         }
         for stock in sorted(market_map, key=lambda x: x["market_value"], reverse=True)[
-                     :5
-                     ][: min(5, len(market_map))]
+            :5
+        ][: min(5, len(market_map))]
     ]
     total = sum(market_values)
 
@@ -615,67 +781,75 @@ def analyze_changes(cik, prev_access, current_access):
         yield stock_query, stock_change
 
     for cusip in current_stocks:
+        try:
+            value_change = {
+                "amount": "N/A",
+                "action": "N/A",
+            }
+            share_change = {
+                "amount": "N/A",
+                "action": "N/A",
+            }
 
-        value_change = {
-            "amount": "N/A",
-            "action": "N/A",
-        }
-        share_change = {
-            "amount": "N/A",
-            "action": "N/A",
-        }
+            current_stock = current_stocks[cusip]
+            prev_stock = prev_stocks.get(cusip, None)
 
-        current_stock = current_stocks[cusip]
-        prev_stock = prev_stocks.get(cusip, None)
+            prev_value = prev_stock["market_value"] if prev_stock else 0
+            prev_shares = prev_stock["shares_held"] if prev_stock else 0
+            current_value = current_stock["market_value"]
+            current_shares = current_stock["shares_held"]
 
-        prev_value = prev_stock["market_value"] if prev_stock else 0
-        prev_shares = prev_stock["shares_held"] if prev_stock else 0
-        current_value = current_stock["market_value"]
-        current_shares = current_stock["shares_held"]
+            if not prev_stock:
 
-        if not prev_stock:
+                value_diff = current_value
+                share_diff = current_shares
 
-            value_diff = current_value
-            share_diff = current_shares
-
-            value_change["amount"] = value_diff
-            value_change["action"] = "buy"
-
-            share_change["amount"] = share_diff
-            share_change["action"] = "buy"
-
-        else:
-
-            value_diff = current_value - prev_value
-            share_diff = current_shares - prev_shares
-
-            if value_diff > 0:
                 value_change["amount"] = value_diff
                 value_change["action"] = "buy"
-            elif value_diff < 0:
-                value_change["amount"] = value_diff
-                value_change["action"] = "sell"
-            else:
-                value_change["amount"] = value_diff
-                value_change["action"] = "hold"
 
-            if share_diff > 0:
                 share_change["amount"] = share_diff
                 share_change["action"] = "buy"
-            elif share_diff < 0:
-                share_change["amount"] = share_diff
-                share_change["action"] = "sell"
+
             else:
-                share_change["amount"] = share_diff
-                share_change["action"] = "hold"
 
-        stock_query = f"stocks.{cusip}.changes"
-        stock_change = {
-            "value": value_change,
-            "shares": share_change,
-        }
+                value_diff = current_value - prev_value
+                share_diff = current_shares - prev_shares
 
-        yield stock_query, stock_change
+                if value_diff > 0:
+                    value_change["amount"] = value_diff
+                    value_change["action"] = "buy"
+                elif value_diff < 0:
+                    value_change["amount"] = value_diff
+                    value_change["action"] = "sell"
+                else:
+                    value_change["amount"] = value_diff
+                    value_change["action"] = "hold"
+
+                if share_diff > 0:
+                    share_change["amount"] = share_diff
+                    share_change["action"] = "buy"
+                elif share_diff < 0:
+                    share_change["amount"] = share_diff
+                    share_change["action"] = "sell"
+                else:
+                    share_change["amount"] = share_diff
+                    share_change["action"] = "hold"
+
+            stock_query = f"stocks.{cusip}.changes"
+            stock_change = {
+                "value": value_change,
+                "shares": share_change,
+            }
+            local_stock = {"changes": stock_change}
+            stock_change = serialize_changes(local_stock)
+
+            yield stock_query, stock_change
+
+        except Exception as e:
+            errors.report_error(cik, e)
+            database.add_log(
+                cik, "Error Analyzing Changes for Filings", cusip, current_access
+            )
 
 
 def analyze_filings(cik, filings, last_report):
@@ -863,19 +1037,19 @@ def stock_filter(stocks):
 
 
 def sort_pipeline(
-        cik: str,
-        limit: int,
-        offset: int,
-        sort: str,
-        sold: bool,
-        reverse: bool,
-        unavailable: bool,
-        stock_structure: str = "array",
-        collection_search=database.search_filers,
-        match_query={},
-        project=[],
-        additional_one: list = [],
-        additional_two: list = [],
+    cik: str,
+    limit: int,
+    offset: int,
+    sort: str,
+    sold: bool,
+    reverse: bool,
+    unavailable: bool,
+    stock_structure: str = "array",
+    collection_search=database.search_filers,
+    match_query={},
+    project=[],
+    additional_one: list = [],
+    additional_two: list = [],
 ):
     if limit < 0:
         raise ValueError
@@ -1089,7 +1263,7 @@ def sort_and_format(filer_ciks):
                 "market_value": (
                     0
                     if filer.get("market_value") == "N/A"
-                       or not filer.get("market_value")
+                    or not filer.get("market_value")
                     else filer.get("market_value")
                 ),
             }

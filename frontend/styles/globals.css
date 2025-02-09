@@ -4,7 +4,9 @@
 
 html,
 body {
+  position: relative;
   overflow-x: hidden;
+  overflow-y: scroll;
   margin: 0;
 
   width: 100%;

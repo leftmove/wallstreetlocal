@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ElementTree
 
 import lxml
 import cchardet
+import hashlib
 import json
 import logging
 
@@ -477,6 +478,7 @@ def process_stocks(cik, filings):
             continue
 
         data = api.sec_stock_search(cik=cik, access_number=access_number)
+
         try:
             new_stocks = scrape_stocks(
                 cik=cik, data=data, filing=document, last_report=last_report

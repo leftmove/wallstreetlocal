@@ -88,7 +88,7 @@ async def stock_filing(
     sold: bool,
     reverse: bool,
     unavailable: bool,
-    projections = ["changes"]
+    projections=["changes"],
 ):
     filer = database.find_filer(cik, {"_id": 1})
     if not filer:
@@ -103,9 +103,9 @@ async def stock_filing(
             sold,
             reverse,
             unavailable,
+            project=projections,
             stock_structure="dict",
             collection_search=database.search_filings,
-            project=projections,
             match_query={
                 "access_number": access_number,
                 "stocks": {"$exists": True},

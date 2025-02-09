@@ -1,9 +1,11 @@
 import redis
 
 import json
-import pickle
+import _pickle as pickle
 import os
+import datetime
 import logging
+import asyncio
 
 from functools import wraps
 from time import time
@@ -124,24 +126,24 @@ def flush_all():
     store.flushall()
 
 
-def cache(_, hours=2):
+def cache(_, hours=2, always_cache=False):
     def wrapper(func):
         @wraps(func)
-        async def wrapped(*args, **kwargs):
+        def wrapped(*args, **kwargs):
             key_parts = list(args) + list(kwargs.keys()) + list(kwargs.values())
             key = f'{func.__name__}:{"-".join(str(k) for k in key_parts)}'
-            result = store.get(key) if production_environment else None
+            result = store.get(key) if production_environment or always_cache else None
 
             if result is None:
                 is_coroutine = iscoroutinefunction(func)
 
                 if is_coroutine:
-                    value = await func(*args, **kwargs)
+                    value = asyncio.run(func(*args, **kwargs))
                 else:
                     value = func(*args, **kwargs)
 
                 value_json = pickle.dumps(value)
-                expire_time = 60 * 60 * hours
+                expire_time = datetime.timedelta(hours=hours)
                 try:
                     store.setex(key, expire_time, value_json)
                 except redis.exceptions.OutOfMemoryError as e:

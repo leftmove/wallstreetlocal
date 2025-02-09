@@ -4,7 +4,8 @@ import styles from "@/styles/Filer.module.css";
 
 import Tabs from "components/Tabs/Tabs";
 import Header from "components/Header/Header";
-import Explorer from "components/Explorer/Filing/Explorer";
+import Holdings from "components/Explorer/Filing/Explorer";
+import Changes from "components/Explorer/Changes/Explorer";
 
 const Info = (props) => {
   const cik = props.cik || null;
@@ -21,7 +22,8 @@ const Info = (props) => {
       <Header cik={cik} tab={tab} />
       <Tabs tabs={tabs} />
       <div className={styles.data}>
-        {tab === "changes" ? <Explorer cik={cik} an={an} /> : null}
+        {tab === "filings" ? <Holdings cik={cik} an={an} /> : null}
+        {tab === "changes" ? <Changes cik={cik} an={an} /> : null}
       </div>
     </>
   );

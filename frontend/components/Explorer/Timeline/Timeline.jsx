@@ -13,10 +13,6 @@ import Difference from "./Difference/Difference";
 import Select from "./Select/Select";
 
 const Timeline = (props) => {
-  const dispatch = useDispatch();
-  const timeline = useSelector(selectTimeline);
-
-  const open = timeline.open;
   const [description, setDescription] = useState({
     title: "",
     text: "",

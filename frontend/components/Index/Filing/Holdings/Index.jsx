@@ -1,5 +1,4 @@
 import styles from "components/Explorer/Filer/Explorer.module.css";
-import { useEffect } from "react";
 
 import useSWR from "swr";
 import axios from "axios";
@@ -7,13 +6,14 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import {
   selectCik,
-  selectMain,
+  selectBuy,
+  selectSell,
   setComparison,
   setFilings,
   editComparison,
   editSort,
   setFilingCount,
-} from "@/redux/filerSlice";
+} from "redux/filerSlice";
 
 import useFilingStocks from "components/Hooks/useFilingStocks";
 import Table from "components/Table/Table";
@@ -23,8 +23,8 @@ const server = process.env.NEXT_PUBLIC_SERVER;
 export default function Index(props) {
   const dispatch = useDispatch();
   const cik = useSelector(selectCik);
-  const selected = useSelector(selectMain);
-  const order = props.order || "main";
+  const selected = useSelector(props.order === "buy" ? selectBuy : selectSell);
+  const order = props.order || "buy";
   const an = props.an || "";
 
   const filingFetcher = (url, cik) =>
@@ -71,9 +71,7 @@ export default function Index(props) {
     cik,
     selected,
     (count) => dispatch(setFilingCount({ type: order, count })),
-    (stocks) => {
-      dispatch(editComparison({ type: order, stocks }));
-    },
+    (stocks) => dispatch(editComparison({ type: order, stocks })),
     (accessor, direction) =>
       dispatch(
         editSort({

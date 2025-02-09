@@ -12,14 +12,14 @@ const initialHeaders = [
     accessor: "ticker",
     active: true,
     tooltip:
-      "This is a unique series of letters assigned to a security for trading purposes"
+      "This is a unique series of letters assigned to a security for trading purposes",
   },
   {
     display: "Name",
     sort: "name",
     accessor: "name",
     active: false,
-    tooltip: "The name of the stock."
+    tooltip: "The name of the stock.",
   },
   {
     display: "Class",
@@ -27,14 +27,14 @@ const initialHeaders = [
     accessor: "class",
     active: false,
     tooltip:
-      "This refers to the rights of a stockholder, including things like voting and dividends."
+      "This refers to the rights of a stockholder, including things like voting and dividends.",
   },
   {
     display: "Sector",
     sort: "sector",
     accessor: "sector",
     active: false,
-    tooltip: "The broader industry category to which the stock belongs."
+    tooltip: "The broader industry category to which the stock belongs.",
   },
   {
     display: "CUSIP",
@@ -42,21 +42,21 @@ const initialHeaders = [
     accessor: "cusip",
     active: false,
     tooltip:
-      "A unique identifier assigned to each registered security in the United States and Canada."
+      "A unique identifier assigned to each registered security in the United States and Canada.",
   },
   {
     display: "Shares Held",
     sort: "shares_held",
     accessor: "shares_held_str",
     active: false,
-    tooltip: "The number of shares held, or the principal amount of the stock."
+    tooltip: "The number of shares held, or the principal amount of the stock.",
   },
   {
     display: "Market Value",
     sort: "market_value",
     accessor: "market_value_str",
     active: true,
-    tooltip: "The value for the shares of the stock the filer owns."
+    tooltip: "The value for the shares of the stock the filer owns.",
   },
   {
     display: "% Portfolio",
@@ -64,7 +64,7 @@ const initialHeaders = [
     accessor: "portfolio_str",
     active: true,
     tooltip:
-      "The value of this stock's shares divided by the total value of the portfolio, expressed in percent. ( Value of Shares / Value of Portfolio )"
+      "The value of this stock's shares divided by the total value of the portfolio, expressed in percent. ( Value of Shares / Value of Portfolio )",
   },
   {
     display: "% Ownership",
@@ -72,7 +72,7 @@ const initialHeaders = [
     accessor: "ownership_str",
     active: false,
     tooltip:
-      "The number of shares owned, divided by the current total of shares outstanding, expressed in percent. This value is only accurate the most value of shares outstanding. ( Shares Owned / Shares Existing )"
+      "The number of shares owned, divided by the current total of shares outstanding, expressed in percent. This value is only accurate the most value of shares outstanding. ( Shares Owned / Shares Existing )",
   },
   {
     display: "Sold Date",
@@ -80,7 +80,7 @@ const initialHeaders = [
     accessor: "sold_str",
     active: false,
     tooltip:
-      "The date the stock was sold, taken by retrieving the report date of the last SEC filing said stock showed up on. This is only accurate up to the quarter."
+      "The date the stock was sold, taken by retrieving the report date of the last SEC filing said stock showed up on. This is only accurate up to the quarter.",
   },
   {
     display: "Buy Date",
@@ -88,7 +88,7 @@ const initialHeaders = [
     accessor: "buy_str",
     active: false,
     tooltip:
-      "The date the stock was bought, according to the report date of the first SEC filing it appeared on. This is only accurate up to the quarter, and only the most recent bought date is shown."
+      "The date the stock was bought, according to the report date of the first SEC filing it appeared on. This is only accurate up to the quarter, and only the most recent bought date is shown.",
   },
   {
     display: "Price Paid",
@@ -96,7 +96,7 @@ const initialHeaders = [
     accessor: "buy_price_str",
     active: true,
     tooltip:
-      "The price paid for the stock, estimated by taking a close price most near the quarter from which the stock was first reported."
+      "The price paid for the stock, estimated by taking a close price most near the quarter from which the stock was first reported.",
   },
   {
     display: "Recent Price",
@@ -104,7 +104,7 @@ const initialHeaders = [
     accessor: "recent_price_str",
     active: true,
     tooltip:
-      "The recent price of the stock. This may be a couple days delayed."
+      "The recent price of the stock. This may be a couple days delayed.",
   },
   {
     display: "% Gain",
@@ -112,7 +112,7 @@ const initialHeaders = [
     accessor: "gain_str",
     active: true,
     tooltip:
-      "The price paid for the stock subtracted from the recent price, and then divided by price paid, expressed in percent. ( ( Recent Price - Price Paid ) / Price Paid )"
+      "The price paid for the stock subtracted from the recent price, and then divided by price paid, expressed in percent. ( ( Recent Price - Price Paid ) / Price Paid )",
   },
   {
     display: "Industry",
@@ -120,7 +120,7 @@ const initialHeaders = [
     accessor: "industry",
     active: false,
     tooltip:
-      "The specific sector or category of the economy in which the stock's company operates."
+      "The specific sector or category of the economy in which the stock's company operates.",
   },
   {
     display: "Report Date",
@@ -128,8 +128,8 @@ const initialHeaders = [
     accessor: "report_str",
     active: false,
     tooltip:
-      "The report date listed on the SEC filing this stock was taken from."
-  }
+      "The report date listed on the SEC filing this stock was taken from.",
+  },
 ];
 const initialComparisons = initialHeaders.map((h) => {
   switch (h.sort) {
@@ -144,20 +144,14 @@ const initialComparisons = initialHeaders.map((h) => {
   }
 });
 const initialChanges = [
-  ...initialHeaders.map((h) => {
+  ...initialComparisons.map((h) => {
     switch (h.sort) {
-      case "buy_price":
-        return { ...h, active: false };
-      case "recent_price":
-        return { ...h, active: false };
-      case "gain_percent":
+      case "market_value":
         return { ...h, active: false };
       default:
         return h;
     }
   }),
-  { display: "Value Change", sort: "value", accessor: "value", active: true },
-  { display: "Share Change", sort: "shares", accessor: "shares", active: true }
 ];
 const initialSort = {
   sort: "ticker",
@@ -169,7 +163,8 @@ const initialSort = {
   pagination: 100,
   limit: 100,
   count: 0,
-  offset: 0
+  offset: 0,
+  projections: ["changes"],
 };
 const initialState = {
   cik: "",
@@ -187,45 +182,95 @@ const initialState = {
           access: "",
           filing: {
             time: 0,
-            date: ""
+            date: "",
           },
           report: {
             time: 0,
-            date: ""
+            date: "",
           },
           headers: initialComparisons,
           sort: initialSort,
-          stocks: []
+          stocks: [],
         };
       }),
-      ...["buy", "sell"].map((order) => {
+      ...["buy", "sell", "hold"].map((order) => {
         return {
           type: order,
           access: "",
           filing: {
             time: 0,
-            date: ""
+            date: "",
           },
           report: {
             time: 0,
-            date: ""
+            date: "",
           },
           headers: [
-            ...initialComparisons,
-            ...(order === "buy" ? [] : []),
-            ...(order === "sell" ? [] : [])
+            ...initialChanges,
+            ...(order === "buy"
+              ? [
+                  {
+                    display: "Value Gained",
+                    sort: "value_bought",
+                    accessor: "value_bought_str",
+                    active: true,
+                    tooltip:
+                      "The value gained from the stock, calculated by taking the recent price and multiplying it by the number of shares bought.",
+                  },
+                  {
+                    display: "Shares Bought",
+                    sort: "share_bought",
+                    accessor: "share_bought_str",
+                    active: true,
+                    tooltip:
+                      "The number of shares bought, or the principal amount of the stock.",
+                  },
+                ]
+              : []),
+            ...(order === "sell"
+              ? [
+                  {
+                    display: "Value Sold",
+                    sort: "value_sold",
+                    accessor: "value_sold_str",
+                    active: true,
+                    tooltip:
+                      "The value sold from the stock, calculated by taking the recent price and multiplying it by the number of shares sold.",
+                  },
+                  {
+                    display: "Shares Sold",
+                    sort: "share_sold",
+                    accessor: "share_sold_str",
+                    active: true,
+                    tooltip:
+                      "The number of shares sold, or the principal amount of the stock.",
+                  },
+                ]
+              : []),
+            ...(order === "hold"
+              ? [
+                  {
+                    display: "Value Gained",
+                    sort: "value_bought",
+                    accessor: "value_bought_str",
+                    active: true,
+                    tooltip:
+                      "The value gained from the stock, calculated by taking the recent price and multiplying it by the number of shares bought.",
+                  },
+                ]
+              : []),
           ],
-          sort: initialSort,
-          stocks: []
+          sort: { ...initialSort, limit: 10, projections: [] },
+          stocks: [],
         };
-      })
+      }),
     ],
-    open: false
+    open: false,
   },
   difference: {
     headers: initialComparisons,
     sort: initialSort,
-    stocks: []
+    stocks: [],
   },
   dates: [
     {
@@ -234,9 +279,9 @@ const initialState = {
       day: initialDate.getDate(),
       timestamp: initialDate.getTime() / 1000,
       open: false,
-      accessor: initialDate.toLocaleDateString()
-    }
-  ]
+      accessor: initialDate.toLocaleDateString(),
+    },
+  ],
 };
 
 export const filerSlice = createSlice({
@@ -314,7 +359,7 @@ export const filerSlice = createSlice({
 
       headers.push({
         ...payload,
-        active: true
+        active: true,
       });
 
       state.headers = headers;
@@ -417,7 +462,7 @@ export const filerSlice = createSlice({
             day: newDate.getDate(),
             timestamp: newDate.getTime() / 1000,
             open: true,
-            accessor: date.accessor
+            accessor: date.accessor,
           };
         } else return date;
       });
@@ -459,7 +504,7 @@ export const filerSlice = createSlice({
         day: initialDate.getDate(),
         timestamp: initialDate.getTime() / 1000,
         open: false,
-        accessor: initialDate.toLocaleDateString()
+        accessor: initialDate.toLocaleDateString(),
       };
       const newDate = new Date(latestDate.accessor);
       newDate.setDate(newDate.getDate() + 1);
@@ -470,7 +515,7 @@ export const filerSlice = createSlice({
         day: newDate.getDate(),
         timestamp: newDate.getTime() / 1000,
         open: false,
-        accessor: newDate.toLocaleDateString()
+        accessor: newDate.toLocaleDateString(),
       });
 
       state.dates = dates;
@@ -500,9 +545,9 @@ export const filerSlice = createSlice({
       const comparisons = state.timeline.comparisons.map((c) =>
         c.type === type
           ? {
-            ...c,
-            sort: { ...c.sort, pagination: count > 100 ? 100 : count, count }
-          }
+              ...c,
+              sort: { ...c.sort, pagination: count > 100 ? 100 : count, count },
+            }
           : c
       );
 
@@ -565,14 +610,14 @@ export const filerSlice = createSlice({
         access,
         filing: {
           time: filingTime,
-          date: filingStr
+          date: filingStr,
         },
         report: {
           time: reportTime,
-          date: reportStr
+          date: reportStr,
         },
         stocks: filingStocks,
-        value: marketValue
+        value: marketValue,
       };
       return state;
     },
@@ -617,10 +662,10 @@ export const filerSlice = createSlice({
     [HYDRATE]: (state, action) => {
       return {
         ...state,
-        ...action.payload
+        ...action.payload,
       };
-    }
-  }
+    },
+  },
 });
 
 export const selectCik = (state) => state.filer.cik;
@@ -654,6 +699,7 @@ export const selectSecondary = (state) => state.filer.timeline.comparisons[1];
 export const selectMain = (state) => state.filer.timeline.comparisons[2];
 export const selectBuy = (state) => state.filer.timeline.comparisons[3];
 export const selectSell = (state) => state.filer.timeline.comparisons[4];
+export const selectHold = (state) => state.filer.timeline.comparisons[5];
 export const selectDifference = (state) => state.filer.difference;
 
 export const {
@@ -688,7 +734,7 @@ export const {
   editSort,
   setComparison,
   setOpen,
-  editDifference
+  editDifference,
 } = filerSlice.actions;
 
 export default filerSlice.reducer;

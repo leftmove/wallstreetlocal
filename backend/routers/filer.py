@@ -234,7 +234,7 @@ def create_historical(cik, company, stamp):
                 database.add_log(
                     cik, "Failed to Update Filer Historical Stocks", company_name, cik
                 )
-                database.edit_status(cik, 0)
+                database.edit_status(cik, 5)
 
         allocation_list = analysis.analyze_allocation(cik)
         aum_list = analysis.analyze_aum(cik)
@@ -252,9 +252,11 @@ def create_historical(cik, company, stamp):
 
     except Exception as e:
         report_error(cik, e)
+        database.edit_status(5)
         database.add_log(
             cik, "Failed to Query Filer Historical Stocks", company_name, cik
         )
+        return
 
     start = stamp["start"]
     stamp = {"time.elapsed": datetime.now().timestamp() - start, "logs": []}
@@ -307,7 +309,7 @@ def update_filer(company, background: BackgroundTasks = BackgroundTasks):
             302, detail="Filer is partially building."
         )
     elif operation["status"] >= 2:
-        raise HTTPException(409, detail="Filer still building.")
+        raise HTTPException(409, detail="Filer still building.")  # @IgnoreException
 
     update, last_report = web.check_new(cik)
     if not update:
@@ -506,7 +508,7 @@ async def logs(cik: str, start: int = 0):
         raise HTTPException(404, detail="CIK not found.")
     except Exception as e:
         logging.error(e)
-        raise HTTPException(500, detail="Error fetching logs.")
+        raise HTTPException(500, detail="Error fetching logs.")  # @IgnoreException
 
 
 @router.get("/estimate", status_code=202)
@@ -538,7 +540,9 @@ async def estimate(cik: str):
         raise HTTPException(404, detail="CIK not found.")
     except Exception as e:
         logging.error(e)
-        raise HTTPException(500, detail="Error fetching time estimation.")
+        raise HTTPException(
+            500, detail="Error fetching time estimation."  # @IgnoreException
+        )  # @IgnoreException
 
 
 @router.get("/info", tags=["filers"], status_code=200)
@@ -951,7 +955,7 @@ async def top_ciks():
         report_error("Top CIKs", e)
         raise HTTPException(500, detail="Error fetching filers.")
 
-    return {"filers": filers_sorted}
+    return BrowserCachedResponse(content={"filers": filers_sorted}, cache_hours=1)
 
 
 popular_ciks_path = f"{cwd}/static/popular.json"
@@ -968,7 +972,7 @@ async def popular_ciks():
         report_error("Popular CIKs", e)
         raise HTTPException(500, detail="Error fetching filers.")
 
-    return {"filers": filers_sorted}
+    return BrowserCachedResponse(content={"filers": filers_sorted}, cache_hours=1)
 
 
 def create_filer_try(cik):

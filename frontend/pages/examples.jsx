@@ -13,7 +13,7 @@ import Button from "components/Buttons/Primary";
 const Examples = (props) => {
   const [selected, setSelected] = useState("searched");
   return (
-    <main className="flex flex-col bg-offwhite-one">
+    <main className="flex flex-col h-full bg-offwhite-one min-h-[100vh]">
       <section className="flex justify-center w-full p-4">
         <Button
           onClick={() => setSelected("searched")}
