@@ -173,6 +173,7 @@ const initialState = {
   tab: "stocks",
   sort: initialSort,
   filings: [],
+  access: "",
   timeline: {
     comparisons: [
       ...["primary", "secondary", "main"].map((order) => {
@@ -215,7 +216,7 @@ const initialState = {
                     accessor: "value_bought_str",
                     active: true,
                     tooltip:
-                      "The value gained from the stock, calculated by taking the recent price and multiplying it by the number of shares bought.",
+                      "The value of stock bought, since the last report.",
                   },
                   {
                     display: "Shares Bought",
@@ -223,7 +224,7 @@ const initialState = {
                     accessor: "share_bought_str",
                     active: true,
                     tooltip:
-                      "The number of shares bought, or the principal amount of the stock.",
+                      "The number of shares bought, or the principal amount of the stock, since the last report.",
                   },
                 ]
               : []),
@@ -234,8 +235,7 @@ const initialState = {
                     sort: "value_sold",
                     accessor: "value_sold_str",
                     active: true,
-                    tooltip:
-                      "The value sold from the stock, calculated by taking the recent price and multiplying it by the number of shares sold.",
+                    tooltip: "The value of shares sold since the last report.",
                   },
                   {
                     display: "Shares Sold",
@@ -243,7 +243,7 @@ const initialState = {
                     accessor: "share_sold_str",
                     active: true,
                     tooltip:
-                      "The number of shares sold, or the principal amount of the stock.",
+                      "The number of shares sold, or the principal amount of the stock, since the last report.",
                   },
                 ]
               : []),
@@ -255,12 +255,20 @@ const initialState = {
                     accessor: "value_bought_str",
                     active: true,
                     tooltip:
-                      "The value gained from the stock, calculated by taking the recent price and multiplying it by the number of shares bought.",
+                      "The value gained from the stock, from the last time it showed up on a report.",
+                  },
+                  {
+                    display: "Value Lost",
+                    sort: "value_sold",
+                    accessor: "value_sold_str",
+                    active: true,
+                    tooltip:
+                      "The value lost from the stock, from the last time it showed up on a report.",
                   },
                 ]
               : []),
           ],
-          sort: { ...initialSort, limit: 10, projections: [] },
+          sort: { ...initialSort, pagination: 10, projections: [] },
           stocks: [],
         };
       }),
@@ -295,6 +303,10 @@ export const filerSlice = createSlice({
       state.cik = action.payload;
 
       return state;
+    },
+    setAccess(state, action) {
+      const payload = action.payload;
+      state.access = payload;
     },
     setTab(state, action) {
       const payload = action.payload;
@@ -670,6 +682,7 @@ export const filerSlice = createSlice({
 
 export const selectCik = (state) => state.filer.cik;
 export const selectTab = (state) => state.filer.tab;
+export const selectAccess = (state) => state.filer.access;
 export const selectSort = (state) => state.filer.sort;
 export const selectActive = (state) => state.filer.sort.set;
 export const selectSold = (state) => state.filer.sort.sold;
@@ -705,35 +718,35 @@ export const selectDifference = (state) => state.filer.difference;
 export const {
   setCik,
   setTab,
+  setAccess,
   activateHeader,
-  addHeader,
-  editHeader,
   sortHeader,
   sortActive,
+  addHeader,
+  editHeader,
+  removeHeader,
+  setHeaders,
   sortSold,
   sortNa,
-  updateStocks,
   setStocks,
-  sortStocks,
+  updateStocks,
   addDate,
-  setHeaders,
-  removeHeader,
   removeDate,
   editDate,
-  openDate,
   updateDates,
+  openDate,
   newDate,
   setPagination,
   setCount,
   setFilingCount,
   setOffset,
+  setFilings,
   setPrimary,
   setSecondary,
-  setFilings,
-  editComparison,
-  editSort,
   setComparison,
   setOpen,
+  editComparison,
+  editSort,
   editDifference,
 } = filerSlice.actions;
 

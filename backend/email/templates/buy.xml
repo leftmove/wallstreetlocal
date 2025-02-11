@@ -1,6 +1,8 @@
 <stock>
 
-    <summary>{{ summary }}</summary>
+    <summary>
+        {{ summary }}
+    </summary>
 
     <name>{{ name }}</name>
     <ticker>{{ ticker }}</ticker>
@@ -15,10 +17,12 @@
     <value>
         <old>{{ old_value }}</old>
         <new>{{ new_value }}</new>
+        <change>{{ change_value }}</change>
     </value>
     <shares>
         <old>{{ old_shares }}</old>
         <new>{{ new_shares }}</new>
+        <change>{{ change_shares }}</change>
     </shares>
     <date>
         <old>{{ old_date }}</old>

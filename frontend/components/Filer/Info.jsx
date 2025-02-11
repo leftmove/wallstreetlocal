@@ -4,6 +4,7 @@ import styles from "@/styles/Filer.module.css";
 
 import Head from "next/head";
 
+import Navigation from "components/Navigation/Filer/Navigation";
 import Tabs from "components/Tabs/Tabs";
 import Index from "components/Index/Filer/Index";
 import Charts from "components/Charts/Charts";
@@ -35,6 +36,7 @@ const Info = (props) => {
 
   return (
     <>
+      <Navigation cik={cik} page="overview" />
       <Header cik={cik} tab={tab} />
       <Tabs />
       <div className={styles.data}>

@@ -32,7 +32,11 @@ const Table = (props) => {
       ) : null}
       <Pagination pagination={pagination} paginate={paginate} skip={skip} />
       <div className="overflow-x-auto">
-        <table className={styles["table"]}>
+        <table
+          className={styles["table"]}
+          suppressHydrationWarning={true}
+          supres
+        >
           <thead>
             {items.length <= 0 && pagination.sold && pagination.na ? null : (
               <Header
@@ -48,10 +52,9 @@ const Table = (props) => {
               <Row key={i.id} item={i} headers={headers} />
             ))}
           </tbody>
+          {loading ? <Loading /> : null}
         </table>
-        {loading ? <Loading /> : null}
       </div>
-
       <Pagination pagination={pagination} paginate={paginate} skip={skip} />
     </>
   );

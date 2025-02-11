@@ -67,19 +67,22 @@ export default function Index(props) {
     activate,
     skip,
     paginate,
+    mutate,
   } = useFilingStocks(
     cik,
     selected,
     (count) => dispatch(setFilingCount({ type: order, count })),
     (stocks) => dispatch(editComparison({ type: order, stocks })),
-    (accessor, direction) =>
+    (accessor, direction) => {
       dispatch(
         editSort({
           type: order,
           sort: accessor,
           reverse: direction,
         })
-      ),
+      );
+      mutate();
+    },
     (offset) => dispatch(editSort({ type: order, offset })),
     (pagination) => dispatch(editSort({ type: order, pagination }))
   );

@@ -384,6 +384,9 @@ def serialize_changes(local_stock):
         share_bought = "N/A"
         share_sold = "N/A"
 
+    value_amount_str = f"${int(value_amount):,}" if value_amount != "N/A" else "N/A"
+    share_amount_str = f"{int(share_amount):,}" if share_amount != "N/A" else "N/A"
+
     value_bought_str = f"${int(value_bought):,}" if value_bought != "N/A" else "N/A"
     value_sold_str = f"${int(value_sold):,}" if value_sold != "N/A" else "N/A"
 
@@ -394,6 +397,7 @@ def serialize_changes(local_stock):
         "value": {
             "action": value_action,
             "amount": value_amount,
+            "amount_str": value_amount_str,
             "gain": value_bought,
             "gain_str": value_bought_str,
             "loss": value_sold,
@@ -402,6 +406,7 @@ def serialize_changes(local_stock):
         "shares": {
             "action": share_action,
             "amount": share_amount,
+            "amount_str": share_amount_str,
             "gain": share_bought,
             "gain_str": share_bought_str,
             "loss": share_sold,
@@ -1084,13 +1089,14 @@ def sort_pipeline(
         new_project = {}
         for p in project:
             new_project[p] = 0
-        pipeline.append({"$project": {"_id": 0, **new_project}})
+        pipeline.append({"$project": {**new_project}})
 
     if additional_two:
         pipeline.extend(additional_two)
 
     if sold is False:
         pipeline.append({"$match": {"sold": False}})
+
     if unavailable is False:
         sort_query = f"${sort}"
 
@@ -1131,7 +1137,7 @@ def sort_pipeline(
 
     pipeline.extend(
         [
-            {"$project": {"_id": 0}},
+            {"$project": {"_id": 0, "ratios": 0, "records": 0, "prices": 0}},
             {"$skip": offset},
             {"$limit": limit},
         ]

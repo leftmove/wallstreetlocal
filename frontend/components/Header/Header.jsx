@@ -7,7 +7,7 @@ import axios from "axios";
 import Head from "next/head";
 
 import { useDispatch } from "react-redux";
-import { setCik, setTab, setComparison } from "@/redux/filerSlice";
+import { setCik, setTab, setAccess } from "@/redux/filerSlice";
 
 import { font, fontLight } from "@fonts";
 
@@ -71,7 +71,11 @@ const Header = (props) => {
   const date = new Date(filingInfo?.report_date * 1000);
 
   useEffect(() => {
+    const access = filerInfo?.filings?.at(0);
+    const financials = filerInfo?.financials;
+
     dispatch(setCik(cik ? cik : ""));
+    dispatch(setAccess(access ? access : ""));
     dispatch(setTab(tab));
   }, [cik]);
 

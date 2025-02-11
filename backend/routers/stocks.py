@@ -110,6 +110,218 @@ async def stock_filing(
                 "access_number": access_number,
                 "stocks": {"$exists": True},
             },
+            additional_two=[
+                {
+                    "$addFields": {
+                        "name": {"$ifNull": ["$name", "N/A"]},
+                        "cusip": "$cusip",
+                        "ticker": {"$ifNull": ["$ticker", "N/A"]},
+                        "ticker_str": {
+                            "$cond": [
+                                {"$eq": [{"$ifNull": ["$sold", False]}, True]},
+                                {
+                                    "$concat": [
+                                        {"$ifNull": ["$ticker", "N/A"]},
+                                        " (Sold)",
+                                    ]
+                                },
+                                {"$ifNull": ["$ticker", "N/A"]},
+                            ]
+                        },
+                        "sector": {"$ifNull": ["$sector", "N/A"]},
+                        "industry": {"$ifNull": ["$industry", "N/A"]},
+                        "class": {"$ifNull": ["$class", "N/A"]},
+                        "update": {"$ifNull": ["$update", False]},
+                        "sold": {"$ifNull": ["$sold", False]},
+                        "recent_price": "N/A",
+                        "recent_price_str": "N/A",
+                        "buy_price": {
+                            "$cond": [
+                                {"$ne": ["$prices.buy.series", "N/A"]},
+                                "$prices.buy.series.close",
+                                "N/A",
+                            ]
+                        },
+                        "buy_price_str": {
+                            "$cond": [
+                                {"$ne": ["$prices.buy.series", "N/A"]},
+                                {
+                                    "$concat": [
+                                        "\\$",
+                                        {
+                                            "$toString": {
+                                                "$convert": {
+                                                    "input": "$prices.buy.series.close",
+                                                    "to": "int",
+                                                    "onError": 0,
+                                                    "onNull": 0,
+                                                }
+                                            }
+                                        },
+                                    ]
+                                },
+                                "N/A",
+                            ]
+                        },
+                        "sold_price": {
+                            "$cond": [
+                                {"$ne": ["$prices.sold.series", "N/A"]},
+                                "$prices.sold.series.close",
+                                "N/A",
+                            ]
+                        },
+                        "sold_price_str": {
+                            "$cond": [
+                                {"$ne": ["$prices.sold.series", "N/A"]},
+                                {
+                                    "$concat": [
+                                        "\\$",
+                                        {
+                                            "$toString": {
+                                                "$convert": {
+                                                    "input": "$prices.sold.series.close",
+                                                    "to": "int",
+                                                    "onError": 0,
+                                                    "onNull": 0,
+                                                }
+                                            }
+                                        },
+                                    ]
+                                },
+                                "N/A",
+                            ]
+                        },
+                        "shares_held": {"$ifNull": ["$shares_held", "N/A"]},
+                        "shares_held_str": {"$ifNull": ["$shares_held_str", "N/A"]},
+                        "market_value": {"$ifNull": ["$market_value", "N/A"]},
+                        "market_value_str": {"$ifNull": ["$market_value_str", "N/A"]},
+                        "portfolio_percent": {
+                            "$ifNull": ["$ratios.portfolio_percent", "N/A"]
+                        },
+                        "portfolio_str": {"$ifNull": ["$ratios.portfolio_str", "N/A"]},
+                        "ownership_percent": {
+                            "$ifNull": ["$ratios.ownership_percent", "N/A"]
+                        },
+                        "ownership_str": {"$ifNull": ["$ratios.ownership_str", "N/A"]},
+                        "gain_value": "N/A",
+                        "gain_value_str": "N/A",
+                        "gain_percent": "N/A",
+                        "gain_str": "N/A",
+                        "value_action": {"$ifNull": ["$changes.value.action", "N/A"]},
+                        "share_action": {"$ifNull": ["$changes.shares.action", "N/A"]},
+                        "value_bought": {"$ifNull": ["$changes.value.gain", "N/A"]},
+                        "value_bought_str": {
+                            "$cond": [
+                                {
+                                    "$ne": [
+                                        {"$ifNull": ["$changes.value.gain", "N/A"]},
+                                        "N/A",
+                                    ]
+                                },
+                                {
+                                    "$concat": [
+                                        "\\$",
+                                        {
+                                            "$toString": {
+                                                "$convert": {
+                                                    "input": "$changes.value.gain",
+                                                    "to": "int",
+                                                    "onError": 0,
+                                                    "onNull": 0,
+                                                }
+                                            }
+                                        },
+                                    ]
+                                },
+                                "N/A",
+                            ]
+                        },
+                        "value_sold": {"$ifNull": ["$changes.value.loss", "N/A"]},
+                        "value_sold_str": {
+                            "$cond": [
+                                {
+                                    "$ne": [
+                                        {"$ifNull": ["$changes.value.loss", "N/A"]},
+                                        "N/A",
+                                    ]
+                                },
+                                {
+                                    "$concat": [
+                                        "\\$",
+                                        {
+                                            "$toString": {
+                                                "$convert": {
+                                                    "input": "$changes.value.loss",
+                                                    "to": "int",
+                                                    "onError": 0,
+                                                    "onNull": 0,
+                                                }
+                                            }
+                                        },
+                                    ]
+                                },
+                                "N/A",
+                            ]
+                        },
+                        "share_bought": {"$ifNull": ["$changes.shares.gain", "N/A"]},
+                        "share_bought_str": {
+                            "$cond": [
+                                {
+                                    "$ne": [
+                                        {"$ifNull": ["$changes.shares.gain", "N/A"]},
+                                        "N/A",
+                                    ]
+                                },
+                                {
+                                    "$concat": [
+                                        {
+                                            "$toString": {
+                                                "$convert": {
+                                                    "input": "$changes.shares.gain",
+                                                    "to": "int",
+                                                    "onError": 0,
+                                                    "onNull": 0,
+                                                }
+                                            }
+                                        },
+                                    ]
+                                },
+                                "N/A",
+                            ]
+                        },
+                        "share_sold": {"$ifNull": ["$changes.shares.loss", "N/A"]},
+                        "share_sold_str": {
+                            "$cond": [
+                                {
+                                    "$ne": [
+                                        {"$ifNull": ["$changes.shares.loss", "N/A"]},
+                                        "N/A",
+                                    ]
+                                },
+                                {
+                                    "$concat": [
+                                        {
+                                            "$toString": {
+                                                "$convert": {
+                                                    "input": "$changes.shares.loss",
+                                                    "to": "int",
+                                                    "onError": 0,
+                                                    "onNull": 0,
+                                                }
+                                            }
+                                        },
+                                    ]
+                                },
+                                "N/A",
+                            ]
+                        },
+                        "buy_time": "$prices.buy.time",
+                        "buy_str": {"$ifNull": ["$prices.buy.time_str", "N/A"]},
+                        "sold_time": "$prices.sold.time",
+                        "sold_str": {"$ifNull": ["$prices.sold.time_str", "N/A"]},
+                    }
+                }
+            ],
         )
         cursor = database.search_filings(pipeline)
     except LookupError as e:

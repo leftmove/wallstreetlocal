@@ -1,7 +1,8 @@
 "use server";
 
-import styles from "@/styles/Filer.module.css";
+import styles from "styles/Filer.module.css";
 
+import Navigation from "components/Navigation/Filer/Navigation";
 import Tabs from "components/Tabs/Tabs";
 import Header from "components/Header/Header";
 import Holdings from "components/Explorer/Filing/Explorer";
@@ -14,11 +15,12 @@ const Info = (props) => {
   const tab = props.tab || "recent";
   const tabs = [
     { title: "Changes", hint: "Bought and Sold", id: "changes" },
-    { title: "Filings", hint: "Stocks", id: "filings" },
+    { title: "Historical", hint: "Comparisons", id: "filings" },
   ];
 
   return (
     <>
+      <Navigation page="holdings" cik={cik} an={an} />
       <Header cik={cik} tab={tab} />
       <Tabs tabs={tabs} />
       <div className={styles.data}>

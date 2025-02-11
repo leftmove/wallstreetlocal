@@ -147,19 +147,20 @@ const useFilingStocks = (
           reverse,
           sold,
           unavailable: na,
-          projections: `[${projections}]`,
+          projections: `[${projections.map((p) => `'${p}'`).join(",")}]`,
           order,
         },
       })
       .then((r) => r.data)
       .then((data) => {
         if (data) {
+          console.log(data);
           const stocks = post(
             data.stocks
-              .map((s) => serializeLocalToGlobal(s))
-              .map((s) => {
-                return { ...s, id: s.cusip };
-              })
+            // .map((s) => serializeLocalToGlobal(s))
+            // .map((s) => {
+            //   return { ...s, id: s.cusip };
+            // })
           );
           const count = data.count;
 
@@ -171,7 +172,11 @@ const useFilingStocks = (
         }
       })
       .catch((e) => console.error(e));
-  const { isLoading: loading, error } = useSWR(
+  const {
+    isLoading: loading,
+    error,
+    mutate,
+  } = useSWR(
     cik && order && access
       ? [server + "/stocks/filing", cik, access, sort, order]
       : null,
@@ -202,6 +207,7 @@ const useFilingStocks = (
     activate,
     skip,
     paginate,
+    mutate,
   };
 };
 
