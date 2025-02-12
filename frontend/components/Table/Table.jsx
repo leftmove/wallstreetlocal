@@ -52,8 +52,8 @@ const Table = (props) => {
               <Row key={i.id} item={i} headers={headers} />
             ))}
           </tbody>
-          {loading ? <Loading /> : null}
         </table>
+        {loading ? <Loading /> : null}
       </div>
       <Pagination pagination={pagination} paginate={paginate} skip={skip} />
     </>

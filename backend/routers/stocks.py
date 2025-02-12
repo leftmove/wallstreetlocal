@@ -110,7 +110,7 @@ async def stock_filing(
                 "access_number": access_number,
                 "stocks": {"$exists": True},
             },
-            additional_two=[
+            additional_two=[  # Horrible
                 {
                     "$addFields": {
                         "name": {"$ifNull": ["$name", "N/A"]},
@@ -147,7 +147,7 @@ async def stock_filing(
                                 {"$ne": ["$prices.buy.series", "N/A"]},
                                 {
                                     "$concat": [
-                                        "\\$",
+                                        {"$literal": "$"},
                                         {
                                             "$toString": {
                                                 "$convert": {
@@ -175,7 +175,7 @@ async def stock_filing(
                                 {"$ne": ["$prices.sold.series", "N/A"]},
                                 {
                                     "$concat": [
-                                        "\\$",
+                                        {"$literal": "$"},
                                         {
                                             "$toString": {
                                                 "$convert": {
@@ -220,7 +220,7 @@ async def stock_filing(
                                 },
                                 {
                                     "$concat": [
-                                        "\\$",
+                                        {"$literal": "$"},
                                         {
                                             "$toString": {
                                                 "$convert": {
@@ -247,7 +247,7 @@ async def stock_filing(
                                 },
                                 {
                                     "$concat": [
-                                        "\\$",
+                                        {"$literal": "$"},
                                         {
                                             "$toString": {
                                                 "$convert": {
