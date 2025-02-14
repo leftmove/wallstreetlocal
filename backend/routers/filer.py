@@ -252,7 +252,7 @@ def create_historical(cik, company, stamp):
 
     except Exception as e:
         report_error(cik, e)
-        database.edit_status(5)
+        database.edit_status(cik, 5)
         database.add_log(
             cik, "Failed to Query Filer Historical Stocks", company_name, cik
         )
