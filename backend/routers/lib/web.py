@@ -24,7 +24,16 @@ def process_names(stocks, cik):
 
     for found_stock in cursor:
         cusip = found_stock["cusip"]
-        found_stocks[cusip] = found_stock
+        now = datetime.now().timestamp()
+        time = found_stock.get("time", float("inf"))
+        if (now - time) < (60 * 60 * 24 * 3):
+            found_stocks[cusip] = found_stock
+
+    # Everything above this line could be deleted.
+    # This code was created before Redis was implemented.
+    # If I was doing this again, I would perhaps use Redis to
+    # store the stocks, and add an expiration time to the
+    # keys.
 
     for stock in stocks:
         cusip = stock["cusip"]

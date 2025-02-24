@@ -55,6 +55,7 @@
 .attribute-text {
   color: var(--secondary-dark);
   padding: 5px;
+  width: 100%;
   text-align: center;
 
   transition: color 0.1s ease;

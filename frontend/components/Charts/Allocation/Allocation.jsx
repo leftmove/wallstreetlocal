@@ -1,20 +1,19 @@
 import React from "react";
-import { BarStack } from "@visx/shape";
+import { useParentSize } from "@visx/responsive";
+import { BarStackHorizontal } from "@visx/shape";
 import { Group } from "@visx/group";
-import { Grid } from "@visx/grid";
-import { AxisBottom } from "@visx/axis";
+import { AxisBottom, AxisLeft } from "@visx/axis";
 import cityTemperature from "@visx/mock-data/lib/mocks/cityTemperature";
 import { scaleBand, scaleLinear, scaleOrdinal } from "@visx/scale";
 import { timeParse, timeFormat } from "@visx/vendor/d3-time-format";
-import { useTooltip, useTooltipInPortal, defaultStyles } from "@visx/tooltip";
+import { withTooltip, Tooltip, defaultStyles } from "@visx/tooltip";
 import { LegendOrdinal } from "@visx/legend";
-import { localPoint } from "@visx/event";
 
 const purple1 = "#6c5efb";
 const purple2 = "#c998ff";
 export const purple3 = "#a44afe";
 export const background = "#eaedff";
-const defaultMargin = { top: 40, right: 0, bottom: 0, left: 0 };
+const defaultMargin = { top: 40, left: 50, right: 40, bottom: 100 };
 const tooltipStyles = {
   ...defaultStyles,
   minWidth: 60,
@@ -41,168 +40,145 @@ const formatDate = (date) => format(parseDate(date));
 // accessors
 const getDate = (d) => d.date;
 
-// scales
-const dateScale = scaleBand({
-  domain: data.map(getDate),
-  padding: 0.2,
-});
-const temperatureScale = scaleLinear({
-  domain: [0, Math.max(...temperatureTotals)],
-  nice: true,
-});
-const colorScale = scaleOrdinal({
-  domain: keys,
-  range: [purple1, purple2, purple3],
-});
-
 let tooltipTimeout;
 
-const Allocation = ({
-  width,
-  height,
-  events = false,
-  margin = defaultMargin,
-}) => {
-  const {
+export default withTooltip(
+  ({
+    customKeys = keys,
+    customData = data,
+    width,
+    height,
+    events = false,
+    margin = defaultMargin,
     tooltipOpen,
     tooltipLeft,
     tooltipTop,
     tooltipData,
     hideTooltip,
     showTooltip,
-  } = useTooltip();
+  }) => {
+    // bounds
+    const xMax = width - margin.left - margin.right;
+    const yMax = height - margin.top - margin.bottom;
 
-  const { containerRef, TooltipInPortal } = useTooltipInPortal({
-    // TooltipInPortal is rendered in a separate child of <body /> and positioned
-    // with page coordinates which should be updated on scroll. consider using
-    // Tooltip or TooltipWithBounds if you don't need to render inside a Portal
-    scroll: true,
-  });
+    // scales
+    const temperatureScale = scaleLinear({
+      domain: [0, Math.max(...temperatureTotals)],
+    });
+    const dateScale = scaleBand({
+      domain: customData.map(getDate),
+      padding: 0.2,
+    });
+    const colorScale = scaleOrdinal({
+      domain: customKeys,
+      range: [purple1, purple2, purple3],
+    });
 
-  if (width < 10) return null;
-  // bounds
-  const xMax = width;
-  const yMax = height - margin.top - 100;
+    temperatureScale.rangeRound([0, xMax]);
+    dateScale.rangeRound([yMax, 0]);
 
-  dateScale.rangeRound([0, xMax]);
-  temperatureScale.range([yMax, 0]);
-  console.log(cityTemperature);
-
-  return width < 10 ? null : (
-    <div style={{ position: "relative" }}>
-      <svg ref={containerRef} width={width} height={height}>
-        <rect
-          x={0}
-          y={0}
-          width={width}
-          height={height}
-          fill={background}
-          rx={14}
-        />
-        <Grid
-          top={margin.top}
-          left={margin.left}
-          xScale={dateScale}
-          yScale={temperatureScale}
-          width={xMax}
-          height={yMax}
-          stroke="black"
-          strokeOpacity={0.1}
-          xOffset={dateScale.bandwidth() / 2}
-        />
-        <Group top={margin.top}>
-          <BarStack
-            data={data}
-            keys={keys}
-            x={getDate}
-            xScale={dateScale}
-            yScale={temperatureScale}
-            color={colorScale}
-          >
-            {(barStacks) =>
-              barStacks.map((barStack) =>
-                barStack.bars.map((bar) => (
-                  <rect
-                    key={`bar-stack-${barStack.index}-${bar.index}`}
-                    x={bar.x}
-                    y={bar.y}
-                    height={bar.height}
-                    width={bar.width}
-                    fill={bar.color}
-                    onClick={() => {
-                      if (events) alert(`clicked: ${JSON.stringify(bar)}`);
-                    }}
-                    onMouseLeave={() => {
-                      tooltipTimeout = window.setTimeout(() => {
-                        hideTooltip();
-                      }, 300);
-                    }}
-                    onMouseMove={(event) => {
-                      if (tooltipTimeout) clearTimeout(tooltipTimeout);
-                      // TooltipInPortal expects coordinates to be relative to containerRef
-                      // localPoint returns coordinates relative to the nearest SVG, which
-                      // is what containerRef is set to in this example.
-                      const eventSvgCoords = localPoint(event);
-                      const left = bar.x + bar.width / 2;
-                      showTooltip({
-                        tooltipData: bar,
-                        tooltipTop: eventSvgCoords?.y,
-                        tooltipLeft: left,
-                      });
-                    }}
-                  />
-                ))
-              )
-            }
-          </BarStack>
-        </Group>
-        <AxisBottom
-          top={yMax + margin.top}
-          scale={dateScale}
-          tickFormat={formatDate}
-          stroke={purple3}
-          tickStroke={purple3}
-          tickLabelProps={{
-            fill: purple3,
-            fontSize: 11,
-            textAnchor: "middle",
+    return (
+      <div className="flex justify-center !font-switzer">
+        <svg width={width} height={height}>
+          {/* <rect width={width} height={height} fill={background} rx={14} /> */}
+          <Group top={margin.top} left={margin.left}>
+            <BarStackHorizontal
+              data={customData}
+              keys={customKeys}
+              height={yMax}
+              y={getDate}
+              xScale={temperatureScale}
+              yScale={dateScale}
+              color={colorScale}
+            >
+              {(barStacks) =>
+                barStacks.map((barStack) =>
+                  barStack.bars.map((bar) => (
+                    <rect
+                      key={`barstack-horizontal-${barStack.index}-${bar.index}`}
+                      x={bar.x}
+                      y={bar.y}
+                      width={bar.width}
+                      height={bar.height}
+                      fill={bar.color}
+                      onClick={() => {
+                        if (events) alert(`clicked: ${JSON.stringify(bar)}`);
+                      }}
+                      onMouseLeave={() => {
+                        tooltipTimeout = window.setTimeout(() => {
+                          hideTooltip();
+                        }, 300);
+                      }}
+                      onMouseMove={() => {
+                        if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                        const top = bar.y + margin.top;
+                        const left = bar.x + bar.width + margin.left;
+                        showTooltip({
+                          tooltipData: bar,
+                          tooltipTop: top,
+                          tooltipLeft: left,
+                        });
+                      }}
+                    />
+                  ))
+                )
+              }
+            </BarStackHorizontal>
+            <AxisLeft
+              hideAxisLine
+              hideTicks
+              scale={dateScale}
+              tickFormat={formatDate}
+              stroke={purple3}
+              tickStroke={purple3}
+              tickLabelProps={{
+                fill: purple3,
+                fontSize: 11,
+                textAnchor: "end",
+                dy: "0.33em",
+              }}
+            />
+            <AxisBottom
+              top={yMax}
+              scale={temperatureScale}
+              stroke={purple3}
+              tickStroke={purple3}
+              tickLabelProps={{
+                fill: purple3,
+                fontSize: 11,
+                textAnchor: "middle",
+              }}
+            />
+          </Group>
+        </svg>
+        {/* <div
+          style={{
+            position: "absolute",
+            top: margin.top / 2 - 10,
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            fontSize: "14px",
           }}
-        />
-      </svg>
-      <div
-        style={{
-          position: "absolute",
-          top: margin.top / 2 - 10,
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          fontSize: "14px",
-        }}
-      >
-        <LegendOrdinal
-          scale={colorScale}
-          direction="row"
-          labelMargin="0 15px 0 0"
-        />
-      </div>
-
-      {tooltipOpen && tooltipData && (
-        <TooltipInPortal
-          top={tooltipTop}
-          left={tooltipLeft}
-          style={tooltipStyles}
         >
-          <div style={{ color: colorScale(tooltipData.key) }}>
-            <strong>{tooltipData.key}</strong>
-          </div>
-          <div>{tooltipData.bar.data[tooltipData.key]}℉</div>
-          <div>
-            <small>{formatDate(getDate(tooltipData.bar.data))}</small>
-          </div>
-        </TooltipInPortal>
-      )}
-    </div>
-  );
-};
-
-export default Allocation;
+          <LegendOrdinal
+            scale={colorScale}
+            direction="row"
+            labelMargin="0 15px 0 0"
+          />
+        </div> */}
+        {tooltipOpen && tooltipData && (
+          <Tooltip top={tooltipTop} left={tooltipLeft} style={tooltipStyles}>
+            <div style={{ color: colorScale(tooltipData.key) }}>
+              <strong>{tooltipData.key}</strong>
+            </div>
+            <div>{tooltipData.bar.data[tooltipData.key]}℉</div>
+            <div>
+              <small>{formatDate(getDate(tooltipData.bar.data))}</small>
+            </div>
+          </Tooltip>
+        )}
+      </div>
+    );
+  }
+);

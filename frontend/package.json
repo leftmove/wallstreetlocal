@@ -16,6 +16,7 @@
     "@next/font": "^13.1.6",
     "@reduxjs/toolkit": "^1.9.3",
     "@svgr/webpack": "^8.1.0",
+    "@visx/visx": "^3.12.0",
     "axios": "^0.24.0",
     "caniuse-lite": "^1.0.30001690",
     "lucide-react": "^0.473.0",

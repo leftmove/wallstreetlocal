@@ -73,15 +73,15 @@ const Index = (props) => {
     }
   );
 
-  const [queryStocks, setQueryStocks] = useState(true);
-  useEffect(() => {
-    if (queryStocks && stocks.length) {
-      axios
-        .get(server + "/stocks/query", { params: { cik } })
-        .catch((e) => console.error(e));
-      setQueryStocks(false);
-    }
-  }, [stocks]);
+  // const [queryStocks, setQueryStocks] = useState(true);
+  // useEffect(() => {
+  //   if (queryStocks && stocks.length) {
+  //     axios
+  //       .get(server + "/stocks/query", { params: { cik } })
+  //       .catch((e) => console.error(e));
+  //     setQueryStocks(false);
+  //   }
+  // }, [stocks]);
 
   if (error) return <Error statusCode={404} />;
 

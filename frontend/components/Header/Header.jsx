@@ -64,20 +64,20 @@ const Header = (props) => {
 
   const filerInfo = filerData?.filer || null;
   const name = filerInfo?.name ? convertTitle(filerInfo.name) : "";
-  const description = filerInfo?.financials?.description;
+  const financials = filerInfo?.financials || {};
+  const description = financials?.description;
   const title = `${name || cik} - Filers`;
 
   const filingInfo = filingData?.filing || null;
   const date = new Date(filingInfo?.report_date * 1000);
 
   useEffect(() => {
-    const access = filerInfo?.filings?.at(0);
-    const financials = filerInfo?.financials;
+    const access = filerInfo?.access || "";
 
     dispatch(setCik(cik ? cik : ""));
     dispatch(setAccess(access ? access : ""));
     dispatch(setTab(tab));
-  }, [cik]);
+  }, [cik, filerData]);
 
   return (
     <>

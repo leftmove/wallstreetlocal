@@ -30,6 +30,12 @@ const convertTitle = (d) => {
   return d;
 };
 
+const tabs = [
+  { title: "Overall", hint: "Table", id: "stocks" },
+  // { title: "Charts", hint: "Graphs", id: "charts" },
+  { title: "Historical", hint: "Comparisons", id: "filings" },
+];
+
 const Info = (props) => {
   const cik = props.cik || null;
   const tab = props.tab || "recent";
@@ -38,10 +44,10 @@ const Info = (props) => {
     <>
       <Navigation cik={cik} page="overview" />
       <Header cik={cik} tab={tab} />
-      <Tabs />
+      <Tabs tabs={tabs} />
       <div className={styles.data}>
         {tab === "filings" ? <Explorer cik={cik} /> : null}
-        {/* {tab === "charts" ? <Charts /> : null} */}
+        {tab === "charts" ? <Charts cik={cik} /> : null}
         {tab === "stocks" ? <Index cik={cik} /> : null}
       </div>
     </>

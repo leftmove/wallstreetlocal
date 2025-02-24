@@ -42,7 +42,7 @@ const Tab = (props) => {
 
 const defaultTabs = [
   { title: "Overall", hint: "Table", id: "stocks" },
-  // { titl e: "Charts", hint: "Graphs", id: "charts" },
+  // { title: "Charts", hint: "Graphs", id: "charts" },
   { title: "Historical", hint: "Comparisons", id: "filings" },
 ];
 

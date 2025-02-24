@@ -30,6 +30,7 @@ filings = db["filings"]
 companies = db["companies"]
 statistics = db["statistics"]
 
+default_limit = 500
 holding_forms = ["13F-HR", "13F-HR/A"]
 
 
@@ -174,6 +175,39 @@ def add_filer(company):
 @retry_on_rate_limit()
 def edit_filer(query, value):
     main.update_one(query, value)
+
+
+class BatchedEdit:
+    def __init__(self, query, batch_function, batch_size=default_limit, generator=None):
+        self.query = query
+        self.batch_function = batch_function
+        self.batch_size = batch_size
+        self.edit_count = 0
+        self.edit_store = {}
+        self.generator = generator
+
+    def start(self):
+        if self.generator:
+            for value in self.generator:
+                self.edit(value)
+            return self
+        else:
+            raise ValueError("No generator provided")
+
+    def edit(self, value):
+        if self.edit_count >= self.batch_size:
+            self.batch_function(self.query, {"$set": {**self.edit_store, **value}})
+            self.edit_store = {}
+            self.edit_count = 0
+        else:
+            self.edit_store.update(value)
+            self.edit_count += 1
+        return self
+
+    def finish(self):
+        if self.edit_count > 0:
+            self.batch_function(self.query, {"$set": self.edit_store})
+        return self
 
 
 @retry_on_rate_limit()

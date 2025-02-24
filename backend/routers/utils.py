@@ -26,7 +26,7 @@ from .lib.errors import SENTRY_DSN
 
 load_dotenv()
 
-DEBUG_CIK = os.environ.get("DEBUG_CIK", "")
+DEBUG_CIK = os.environ.get("DEBUG_CIK", False)
 TELEMETRY = bool(os.environ.get("TELEMETRY", False))
 ENVIRONMENT = os.environ.get("ENVIRONMENT", "development")
 production_environment = True if ENVIRONMENT == "production" else False
@@ -215,9 +215,12 @@ def initialize():
         print("[ Database (MongoDB) Loaded ]")
 
     print("Deleting In-Progress Filers ...")
-    in_progress_logs = database.find_logs({"status": {"$gt": 0}}, {"cik": 1})
-    in_progress = [log.get("cik", None) for log in in_progress_logs]
-    database.delete_filers({"cik": {"$in": in_progress}})
+    if production_environment:
+        in_progress_logs = database.find_logs({"status": {"$gt": 0}}, {"cik": 1})
+        in_progress = [log.get("cik", None) for log in in_progress_logs]
+        database.delete_filers({"cik": {"$in": in_progress}})
+    if DEBUG_CIK:
+        database.delete_filer(DEBUG_CIK)
 
     print("Deleting Empty Logs ...")
     log_ciks = list(

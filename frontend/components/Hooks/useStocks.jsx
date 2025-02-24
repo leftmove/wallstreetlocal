@@ -33,6 +33,8 @@ const useStocks = (
           const count = data.count;
           const stocks = data.stocks;
 
+          console.log(stocks);
+
           setCount(count);
           setStocks(stocks);
         } else {

@@ -176,7 +176,10 @@ def create_historical(cik, company, stamp):
             )
         ]
         access_numbers = [filing["access_number"] for filing in filings]
-        database.edit_filer(filer_query, {"$set": {"filings": access_numbers}})
+        previous_access = last_report
+        database.edit_filer(
+            filer_query, {"$set": {"filings": [last_report] + access_numbers}}
+        )
 
         for access_number, filing_stocks in web.process_stocks(cik, filings):
 
@@ -187,13 +190,12 @@ def create_historical(cik, company, stamp):
             database.add_log(cik, "Queried Filing Stocks", company_name, access_number)
 
             try:
-                previous_access = last_report
-                current_filing = database.find_filing(cik, access_number)
-
                 for (
                     access_number,
                     filing_stock,
-                ) in analysis.analyze_filings(cik, [current_filing], last_report):
+                ) in analysis.analyze_filings(
+                    cik, [database.find_filing(cik, access_number)], last_report
+                ):
                     stock_cusip = filing_stock["cusip"]
                     stock_query = f"stocks.{stock_cusip}"
                     database.edit_filing(
@@ -201,23 +203,53 @@ def create_historical(cik, company, stamp):
                         {"$set": {stock_query: filing_stock}},
                     )
 
+                    # This code has been refactored.
+                    # Below, is the same code, but batched for performance.
+                    # The batching is sort of a refactor of a refactor. The original
+                    # was a batch, but I made it progressive for a better user experience.
+                    # The problem is that the progressive approach is too slow, so I'm
+                    # reverting back to the batched approach, except it's more flexible
+                    # now, since I've just used the new approach in a new way (at the expense
+                    # of complexity). I *guess* this is the best of both worlds, but it's
+                    # still a bit of a mess.
+
+                    # The big benefit is that the recent filing above gets to be progressive,
+                    # which is a better user experience, but the historical filings below
+                    # get to be batched, which is better for performance.
+
                     for change_query, change_stock in analysis.analyze_changes(
-                        cik, previous_access, access_number
+                        cik,
+                        database.find_filing(cik, previous_access),
+                        database.find_filing(cik, access_number),
                     ):
                         if change_query is None:
                             continue
                         database.edit_filing(
                             {
                                 **filer_query,
-                                "access_number": access_number,
+                                "access_number": previous_access,
                                 "stocks": {"$exists": True},
                             },
                             {"$set": {change_query: change_stock}},
                         )
+                    # database.BatchedEdit(
+                    #     query={
+                    #         **filer_query,
+                    #         "access_number": previous_access,
+                    #         "stocks": {"$exists": True},
+                    #     },
+                    #     batch_function=database.edit_filing,
+                    #     generator=(
+                    #         {change_query: change_stock}
+                    #         for change_query, change_stock in analysis.analyze_changes(
+                    #             cik, previous_access, access_number
+                    #         )
+                    #         if change_query is not None
+                    #     ),
+                    # )
 
-                current_filing = database.find_filing(cik, access_number)
                 for stock_query, log_item in analysis.analyze_stocks(
-                    cik, [current_filing]
+                    cik, [database.find_filing(cik, access_number)]
                 ):
 
                     database.edit_filer(filer_query, stock_query)
@@ -251,16 +283,17 @@ def create_historical(cik, company, stamp):
         database.edit_status(cik, 0)
 
     except Exception as e:
-        report_error(cik, e)
         database.edit_status(cik, 5)
         database.add_log(
             cik, "Failed to Query Filer Historical Stocks", company_name, cik
         )
+        report_error(cik, e)
         return
 
     start = stamp["start"]
-    stamp = {"time.elapsed": datetime.now().timestamp() - start, "logs": []}
-    database.edit_log(cik, stamp)
+    database.edit_log(
+        cik, {"time.elapsed": datetime.now().timestamp() - start, "logs": []}
+    )
     database.edit_status(cik, 0)
     database.add_query_log(cik, "create-historical")
 
@@ -521,8 +554,9 @@ async def estimate(cik: str):
                 "log.logs": 0,
             },
         )
+        filer = database.find_filer(cik, {"_id": 1})
 
-        if not log:
+        if not log or not filer:
             raise HTTPException(404, detail="CIK not found.")
 
         time = log["time"]
@@ -548,7 +582,9 @@ async def estimate(cik: str):
 @router.get("/info", tags=["filers"], status_code=200)
 @cache(1 / 6)
 async def filer_info(cik: str):
-    filer = database.find_filer(cik, {"_id": 0, "stocks": 0, "analysis": 0})
+    filer = database.find_filer(
+        cik, {"_id": 0, "stocks": 0, "analysis": 0, "filings": 0}
+    )
     if filer is None:
         raise HTTPException(404, detail="Filer not found.")
 
@@ -556,6 +592,15 @@ async def filer_info(cik: str):
     if status is None:
         raise HTTPException(404, detail="Filer log not found.")
     filer["status"] = status["status"]
+
+    filer_access = (
+        database.find_filing(cik, filer["last_report"], {"access_number": 1})[
+            "access_number"
+        ]
+        if filer.get("last_report")
+        else "N/A"
+    )
+    filer["access"] = filer_access
 
     return {"description": "Found filer.", "filer": filer}
 

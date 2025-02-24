@@ -66,3 +66,15 @@ def report_error(identifier, e):
         error = format_error(e)
         logging.error(error)
         f.write(error)
+
+
+def send_error(identifier, e):
+
+    stamp = timestamp()
+    error_path = create_path(identifier, stamp)
+    with open(error_path, "w") as f:
+        if production_environment and run_telemetry:
+            sentry_sdk.capture_exception(e)
+        error = format_error(e)
+        logging.error(error)
+        f.write(error)

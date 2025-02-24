@@ -10,20 +10,41 @@ import { cn } from "components/ui/utils";
 function Navigation(props) {
   const page = props.page;
 
-  const metadata = useSelector((state) => state.filer?.accessNumbers) || {};
   const cik = props.cik || useSelector(selectCik);
   const an = props.an || useSelector(selectAccess) || null;
 
   const [hover, setHover] = useState(false);
 
+  const items = [
+    page === "overview" ? null : (
+      <Link href={`/filers/${cik}/overview`}>
+        <li className="cursor-pointer w-fit hover:bg-green-two">Overview</li>
+      </Link>
+    ),
+    page === "holdings" || an === null ? null : (
+      <Link href={`/filers/${cik}/${an}/holdings`}>
+        <li className="cursor-pointer w-fit hover:bg-green-two">Holdings</li>
+      </Link>
+    ),
+  ];
+
   return (
     <nav className="flex flex-col m-4 mt-6 mb-0 font-medium font-switzer">
       {/* Overview {">"} {cik} {an ? " > " + an : null} */}
+      {cik === "1336528" && (
+        <div className="flex justify-between rounded text-nowrap">
+          <span className="text-red-800">Warning</span>
+          <span className="ml-2 text-black-one">
+            This filer is used for debugging. You will likely encounter issues
+            when viewing.
+          </span>
+        </div>
+      )}
       <div className="flex justify-between">
         <span>Company</span>
         <div>
           <span>{cik}</span>
-          {an ? <span className="ml-2">{an}</span> : null}
+          {an && <span className="ml-2">{an}</span>}
         </div>
       </div>
       <ul
@@ -40,28 +61,17 @@ function Navigation(props) {
             hover && "max-h-12"
           )}
         >
-          {page === "overview" ? null : (
-            <Link href={`/filers/${cik}/overview`}>
-              <li className="cursor-pointer w-fit hover:bg-green-two">
-                Overview
-              </li>
-            </Link>
-          )}
-          {page === "holdings" ? null : (
-            <Link href={`/filers/${cik}/${an}/holdings`}>
-              <li className="cursor-pointer w-fit hover:bg-green-two">
-                Holdings
-              </li>
-            </Link>
-          )}
+          {items}
         </div>
-        <li
-          className="transition-all cursor-pointer w-fit hover:bg-green-two hover:text-black-two"
-          onMouseEnter={() => setHover(true)}
-          onClick={() => setHover(!hover)}
-        >
-          More
-        </li>
+        {items.filter((i) => i).length > 0 && (
+          <li
+            className="transition-all cursor-pointer w-fit hover:bg-green-two hover:text-black-two"
+            onMouseEnter={() => setHover(true)}
+            onClick={() => setHover(!hover)}
+          >
+            More
+          </li>
+        )}
       </ul>
     </nav>
   );

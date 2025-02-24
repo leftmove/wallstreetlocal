@@ -87,13 +87,13 @@ def set_key_no_expiration(key, value):
 
 #         if result is None:
 #             value = func(*args, **kwargs)
-#             value_json = json.dumps(value)
+#             value_dump = json.dumps(value)
 
 #             expire_time = 60 * 60 * hours
-#             store.setex(key, expire_time, value_json)
+#             store.setex(key, expire_time, value_dump)
 #         else:
-#             value_json = result.decode("utf-8")
-#             value = json.loads(value_json)
+#             value_dump = result.decode("utf-8")
+#             value = json.loads(value_dump)
 
 #         return value
 
@@ -109,13 +109,13 @@ def set_key_no_expiration(key, value):
 
 #         if result is None:
 #             value = await func(*args, **kwargs)
-#             value_json = json.dumps(value)
+#             value_dump = json.dumps(value)
 
 #             expire_time = 60 * 60 * hours
-#             store.setex(key, expire_time, value_json)
+#             store.setex(key, expire_time, value_dump)
 #         else:
-#             value_json = result.decode("utf-8")
-#             value = json.loads(value_json)
+#             value_dump = result.decode("utf-8")
+#             value = json.loads(value_dump)
 
 #         return value
 
@@ -132,26 +132,36 @@ def cache(_, hours=2, always_cache=False):
         def wrapped(*args, **kwargs):
             key_parts = list(args) + list(kwargs.keys()) + list(kwargs.values())
             key = f'{func.__name__}:{"-".join(str(k) for k in key_parts)}'
-            result = store.get(key) if production_environment or always_cache else None
+            try:
+                result = (
+                    store.get(key) if production_environment or always_cache else None
+                )
 
-            if result is None:
-                is_coroutine = iscoroutinefunction(func)
+                if result is None:
+                    is_coroutine = iscoroutinefunction(func)
 
-                if is_coroutine:
-                    value = asyncio.run(func(*args, **kwargs))
+                    if is_coroutine:
+                        value = asyncio.run(func(*args, **kwargs))
+                    else:
+                        value = func(*args, **kwargs)
+
+                    value_dump = pickle.dumps(value)
+                    expire_time = datetime.timedelta(hours=hours)
+
+                    try:
+                        store.setex(key, expire_time, value_dump)
+                    except redis.exceptions.OutOfMemoryError as e:
+                        errors.report_error("Redis- Out of Memory", e)
+                        logging.error(e)
+                        return value
                 else:
-                    value = func(*args, **kwargs)
-
-                value_json = pickle.dumps(value)
-                expire_time = datetime.timedelta(hours=hours)
-                try:
-                    store.setex(key, expire_time, value_json)
-                except redis.exceptions.OutOfMemoryError as e:
-                    errors.report_error("Redis Cache", e)
-                    logging.error(e)
-                    return value
-            else:
-                value = pickle.loads(result)
+                    value = pickle.loads(result)
+            except redis.exceptions.MaxConnectionsError as e:
+                errors.report_error("Redis - Max Connections", e)
+                return func(*args, **kwargs)
+            except Exception as e:
+                errors.report_error(f"Redis ({key})", e)
+                raise e
 
             return value
 

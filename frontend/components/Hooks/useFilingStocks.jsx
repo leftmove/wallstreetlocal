@@ -1,6 +1,9 @@
 import axios from "axios";
 import useSWR from "swr";
 
+import { selectStocks } from "@/redux/filerSlice";
+import { useSelector } from "react-redux";
+
 // Lazy and bad, but works for now
 // Advantage is that things can be translated client-side
 
@@ -166,6 +169,8 @@ const useFilingStocks = (
 
           setCount(count);
           setStocks(stocks);
+
+          console.log(useSelector(selectStocks));
         } else {
           const error = new Error("No filings to retrieve.");
           throw error;
