@@ -47,3 +47,4 @@ docker-proj.zip
 # Sentry Config File
 .env.sentry-build-plugin
 node_modules/
+.next/
